@@ -1,0 +1,12 @@
+.Logo {
+  text-align: center;
+  box-sizing: border-box;
+  height: 64px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+img {
+  height: 45px;
+  transition: all 0.3s;
+}

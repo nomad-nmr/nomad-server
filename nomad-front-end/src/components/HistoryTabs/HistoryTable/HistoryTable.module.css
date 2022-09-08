@@ -1,0 +1,15 @@
+.RowHighlight {
+	background-color: #f6ffed;
+}
+
+.Remarks {
+	margin-top: 10px;
+}
+
+.Expand span {
+	font-weight: 600;
+}
+
+.TimeStamp {
+	margin-left: 15px;
+}

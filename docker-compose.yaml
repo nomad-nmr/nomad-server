@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  mongodb:
+    image: 'mongo'
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    build: ./nomad-rest-api
+    env_file:
+      - ./env/backend.env
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./nomad-rest-api:/app
+      - ./datastore:/app/datastore
+      - /app/node_modules
+    depends_on:
+      - mongodb
+
+  frontend:
+    build: ./nomad-front-end
+    env_file:
+      - ./env/frontend.env
+    ports:
+      - '3003:3003'
+    volumes:
+      - ./nomad-front-end/src:/app/src
+      - ./app/node_modules
+    depends_on:
+      - backend
+
+  nmrium:
+    build: ./nomad-nmrium
+    env_file:
+      - ./env/nmrium.env
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./nomad-nmrium/src:/app/src
+      - ./app/node_modules
+    depends_on:
+      - backend
+
+  client:
+    build: ../nomad-spect-client
+    volumes:
+      - ../nomad-spect-client/src:/app/src
+      - ../nomad-spect-client/status_files:/app/status_files
+      - ../nomad-spect-client/submit_files:/app/submit_files
+      - /mnt/c/Users/tl12/nomad-data-test/clientData:/app/nmr-data
+    env_file:
+      - ./env/client.env
+
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:

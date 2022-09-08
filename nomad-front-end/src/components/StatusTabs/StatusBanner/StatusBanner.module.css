@@ -1,0 +1,26 @@
+.Banner {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.Banner ul {
+	list-style: none;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding: 0px;
+	margin: 0px;
+}
+
+.Banner li {
+	margin: 0px 15px;
+}
+
+.TrafficLights {
+	margin-left: auto;
+}
+
+.Switch {
+	text-align: left;
+}

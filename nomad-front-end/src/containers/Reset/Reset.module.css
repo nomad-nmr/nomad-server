@@ -1,0 +1,14 @@
+.container h1 {
+	margin: 30px;
+	font-size: 1.4rem;
+	font-weight: 600;
+}
+
+.form {
+	margin: auto;
+	width: 25%;
+}
+
+.link {
+	margin: 20px;
+}

@@ -1,0 +1,32 @@
+.StatusButtons {
+  display: inline-block;
+  padding-left: 20px;
+  /* margin-right: 40px; */
+  /* border-left: 1px solid #f0f0f0; */
+}
+
+.Button {
+  margin: 0 15px;
+}
+
+.Active {
+  cursor: pointer;
+}
+
+.Running {
+  background-color: #bae7ff;
+  color: #1890ff;
+  border: 2px solid #1890ff;
+}
+
+.Errors {
+  background-color: #ffccc7;
+  color: #f5222d;
+  border: 2px solid #f5222d;
+}
+
+.Pending {
+  background-color: #ffffb8;
+  color: #fadb14;
+  border: 2px solid #fadb14;
+}

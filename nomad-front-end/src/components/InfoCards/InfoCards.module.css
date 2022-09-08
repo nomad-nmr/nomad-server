@@ -1,0 +1,6 @@
+.InfoCards {
+	margin: 40px 20px 0px 20px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+}

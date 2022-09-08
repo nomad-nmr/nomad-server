@@ -1,0 +1,23 @@
+.Horizontal {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.Vertical {
+  display: flex;
+  flex-direction: column;
+  justify-items: center;
+}
+
+.Available {
+  background-color: #389e0d;
+}
+
+.Errors {
+  background-color: #cf1322;
+}
+
+.Running {
+  background-color: #096dd9;
+}

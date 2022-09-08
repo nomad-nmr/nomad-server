@@ -1,0 +1,108 @@
+.CircleButton {
+  background-color: #096dd9;
+  border: 1px solid #096dd9;
+  color: white;
+
+  border-radius: 100%;
+
+  font-weight: 700;
+  padding: 0 5px;
+  cursor: pointer;
+  outline: none;
+}
+
+.CircleButton:hover {
+  background-color: #40a9ff;
+  border: 1px solid #40a9ff;
+}
+
+.CircleButtonMinus {
+  padding: 0 7px;
+  color: grey;
+  background-color: white;
+  border: 1px solid grey;
+}
+
+.CircleButtonMinus:hover {
+  background-color: white;
+  color: #096dd9;
+  border: 1px solid#096dd9;
+}
+
+.LargeButton {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.AddSample {
+  font-size: large;
+}
+
+.ActionButton {
+  padding: 0 5px;
+  color: white;
+  background-color: #096dd9;
+  outline: none;
+  border: 1px solid #096dd9;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 300;
+}
+
+.ActionButton:hover {
+  background-color: #40a9ff;
+  border: 1px solid #40a9ff;
+}
+
+.CancelButton {
+  padding: 0 5px;
+  color: Black;
+  background-color: white;
+  outline: none;
+  border: 1px solid #8c8c8c;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: 300;
+}
+
+.CancelButton:hover {
+  border: 1px solid #40a9ff;
+  color: #40a9ff;
+}
+
+.Header {
+  background-color: #d9d9d9;
+  padding: 10px 0;
+  font-weight: 600;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.TotalExptBasic {
+  margin-right: 10;
+  font-weight: 600;
+}
+
+.TotalExptOk {
+  color: #389e0d;
+}
+
+.TotalExptWarning {
+  color: #faad14;
+}
+
+.TotalExptDanger {
+  color: #f5222d;
+}
+
+.CheckBoxes {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.Priority {
+  font-weight: 700;
+  font-size: larger;
+  color: #389e0d;
+}

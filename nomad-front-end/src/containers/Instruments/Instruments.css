@@ -1,0 +1,34 @@
+.fade-form-enter {
+	opacity: 0;
+	transform: translateX(-50%);
+}
+
+.fade-form-enter-active {
+	animation: fadeIn 0.4s cubic-bezier(0.55, 0, 0.55, 0.2);
+}
+
+.fade-form-leave-active {
+	animation: fadeOut 0.4s cubic-bezier(0.55, 0, 0.55, 0.2);
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+		transform: translateX(-50%);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	100% {
+		opacity: 0;
+		transform: translateX(-50%);
+	}
+}

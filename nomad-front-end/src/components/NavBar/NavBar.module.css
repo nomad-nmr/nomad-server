@@ -1,0 +1,41 @@
+.NavBar {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-right: 50px;
+}
+
+.Toggle {
+  font-size: 20px;
+  line-height: 64px;
+  padding: 0 24px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-right: 1px solid #f0f0f0;
+}
+
+.Toggle:hover {
+  color: #1890ff;
+  background-color: #f0f0f0;
+}
+
+.Logo {
+  text-align: center;
+  box-sizing: border-box;
+  height: 64px;
+  padding: 10px;
+  border-right: 1px solid #f0f0f0;
+  cursor: pointer;
+}
+
+.MainMenu {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  margin-bottom: 10px;
+  margin-top: -2px;
+}
+
+.Avatar {
+  margin-top: 3px;
+}

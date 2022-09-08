@@ -1,0 +1,35 @@
+.Form {
+  width: 80%;
+  margin: 0 auto;
+
+  /* padding: 20px 0 0 0; */
+}
+
+.Form p {
+  text-align: left;
+  margin: 0;
+}
+
+/* .CapacityFormItem {
+  display: flex;
+} */
+
+.Hint {
+  margin: 0 20px;
+  color: #1890ff;
+}
+
+.Button {
+  margin: 0 15px;
+}
+
+.formInDrawer {
+  margin-top: 40px;
+}
+
+.InLineForm {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+}

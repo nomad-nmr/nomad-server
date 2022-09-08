@@ -1,0 +1,13 @@
+.Centered {
+	width: 60%;
+	margin: auto;
+}
+
+.Tag {
+	font-size: 0.9rem;
+}
+
+.Icon {
+	font-size: 1.1rem;
+	color: #1890ff;
+}

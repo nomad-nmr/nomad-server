@@ -1,0 +1,12 @@
+.ColHighlight {
+  background-color: #eaff8f;
+  font-weight: 600;
+}
+.RowHighlight {
+  background-color: #ffe58f;
+  font-weight: 600;
+}
+
+.NameHighlight {
+  background-color: #bae7ff;
+}
