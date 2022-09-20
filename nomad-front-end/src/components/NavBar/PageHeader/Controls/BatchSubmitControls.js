@@ -29,13 +29,13 @@ const BatchSubmitControls = props => {
     })
   }
   const onDeleteRack = () => {
-    const rackNotCompleted = activeRack.samples.find(sample => sample.status !== 'Completed')
+    const rackNotCompleted = activeRack.samples.find(sample => sample.status !== 'Archived')
     if (rackNotCompleted) {
       return Modal.confirm({
         title: `Delete Rack ${activeRack.title}`,
         content: (
           <div>
-            <p>The rack still contains sample that have not been completed!</p>
+            <p>The rack still contains sample that have not been archived!</p>
             <p style={{ fontWeight: 600 }}>Are you sure that you want to delete it?</p>
           </div>
         ),
@@ -83,7 +83,10 @@ const BatchSubmitControls = props => {
       return message.error('You can only submit samples with "Booked" status')
     }
 
-    props.submitSamplesHandler({ rackId: props.activeRackId, slots: props.selectedSlots }, authToken)
+    props.submitSamplesHandler(
+      { rackId: props.activeRackId, slots: props.selectedSlots },
+      authToken
+    )
   }
 
   const cancelHandler = () => {
@@ -95,9 +98,14 @@ const BatchSubmitControls = props => {
     }
     Modal.warning({
       title: 'Warning',
-      content: <p>Canceled holders will be available to reuse after shor delay of about 2 minutes</p>
+      content: (
+        <p>Canceled holders will be available to reuse after shor delay of about 2 minutes</p>
+      )
     })
-    props.cancelSamplesHandler({ rackId: props.activeRackId, slots: props.selectedSlots }, authToken)
+    props.cancelSamplesHandler(
+      { rackId: props.activeRackId, slots: props.selectedSlots },
+      authToken
+    )
   }
 
   return (
