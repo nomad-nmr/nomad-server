@@ -3,10 +3,11 @@ const path = require('path')
 
 const JSZip = require('jszip')
 const moment = require('moment')
+const { read } = require('nmr-load-save')
+const { fileCollectionFromZip } = require('filelist-utils')
 
 const Experiment = require('../models/experiment')
-const getNMRium = require('convert-to-nmrium')
-const { sendStatus } = require('express/lib/response')
+// const { sendStatus } = require('express/lib/response')
 
 exports.postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -29,13 +30,28 @@ exports.postData = async (req, res) => {
     //converting to NMRium format file
     if (process.env.PREPROCESS_NMRIUM) {
       const datastorePath = path.join(process.env.DATASTORE_PATH, dataPath, experiment.expId)
-      getNMRium.fromBrukerZip(datastorePath + '.zip', {
-        save: true,
-        outputPath: datastorePath + '.nmrium',
-        spectrumOnly: true,
-        removeProjections: true,
-        title: experiment.title
+      // getNMRium.fromBrukerZip(datastorePath + '.zip', {
+      //   save: true,
+      //   outputPath: datastorePath + '.nmrium',
+      //   spectrumOnly: true,
+      //   removeProjections: true,
+      //   title: experiment.title
+      // })
+      const fileCollection = await fileCollectionFromZip(datastorePath + '.zip')
+      const nmriumObj = await read(fileCollection)
+      const newSpectraArr = nmriumObj.spectra.map(i => {
+        if (i.info.isFt) {
+          delete i.originalData
+          return i
+        }
       })
+
+      await writeFile(
+        datastorePath + '.nmrium',
+        JSON.stringify({ spectra: newSpectraArr }, (k, v) =>
+          ArrayBuffer.isView(v) ? Array.from(v) : v
+        )
+      )
     }
 
     if (!process.env.NODE_ENV === 'production') {
