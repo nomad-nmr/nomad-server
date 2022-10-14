@@ -29,7 +29,7 @@ exports.postData = async (req, res) => {
     experiment.save()
 
     //converting to NMRium format file
-    if (process.env.PREPROCESS_NMRIUM) {
+    if (process.env.PREPROCESS_NMRIUM === 'true') {
       const datastorePath = path.join(process.env.DATASTORE_PATH, dataPath, experiment.expId)
 
       const nmriumObj = await getNMRiumObj(datastorePath, experiment.title)
@@ -38,10 +38,6 @@ exports.postData = async (req, res) => {
         datastorePath + '.nmrium',
         JSON.stringify(nmriumObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
       )
-    }
-
-    if (!process.env.NODE_ENV === 'production') {
-      console.log('data received', datasetName, expNo)
     }
 
     res.send()
@@ -105,10 +101,6 @@ exports.getNMRium = async (req, res) => {
           const nmriumFile = await fs.readFile(filePath + '.nmrium', 'utf8')
           nmriumObj = JSON.parse(nmriumFile)
         } catch (error) {
-          if (process.env.NODE_ENV !== 'production') {
-            console.log(error)
-          }
-
           nmriumObj = await getNMRiumObj(filePath, experiment.title)
         }
 

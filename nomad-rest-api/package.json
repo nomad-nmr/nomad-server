@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.1.0",
+  "version": "3.2.1",
   "description": "REST API back-end for NOMAD system",
   "main": "app.js",
   "scripts": {
