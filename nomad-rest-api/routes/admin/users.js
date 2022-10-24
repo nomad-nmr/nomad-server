@@ -28,7 +28,6 @@ router.post(
     body('email', 'Email is invalid')
       .trim()
       .isEmail()
-      .normalizeEmail()
       .custom(value => {
         return User.findOne({ email: value }).then(user => {
           if (user) {
@@ -50,7 +49,7 @@ router.post(
 router.put(
   '/',
   [
-    body('email', 'Email is invalid').trim().isEmail().normalizeEmail(),
+    body('email', 'Email is invalid').trim().isEmail(),
     body('fullName', 'Full name is invalid')
       .trim()
       .matches(/^[a-z' ]+$/i)
