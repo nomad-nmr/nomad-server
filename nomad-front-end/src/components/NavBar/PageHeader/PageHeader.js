@@ -89,15 +89,12 @@ const PageHeaderEl = props => {
     case '/admin/users':
       headerTitle = 'Manage Users'
       avatarSrc = userIcon
-      const usernameQuery = new URLSearchParams(location.search).get('username')
       extra = (
         <UsersTabControls
           toggleDrawer={props.toggleUsrDrawer}
           searchHandler={props.userSearchHandler}
-          searchDefValue={usernameQuery ? usernameQuery : props.usrSearchValue}
           showInactive={props.showInactiveUsr}
           switchShowInactive={props.switchShowInactiveUsr}
-          query={usernameQuery}
         />
       )
       break

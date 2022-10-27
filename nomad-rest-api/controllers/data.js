@@ -3,10 +3,12 @@ const path = require('path')
 
 const JSZip = require('jszip')
 const moment = require('moment')
+const { read } = require('nmr-load-save')
+const { fileCollectionFromZip } = require('filelist-utils')
 
 const Experiment = require('../models/experiment')
-const getNMRium = require('convert-to-nmrium')
-const { sendStatus } = require('express/lib/response')
+const { readFile } = require('fs')
+// const { sendStatus } = require('express/lib/response')
 
 exports.postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -27,19 +29,15 @@ exports.postData = async (req, res) => {
     experiment.save()
 
     //converting to NMRium format file
-    if (process.env.PREPROCESS_NMRIUM) {
+    if (process.env.PREPROCESS_NMRIUM === 'true') {
       const datastorePath = path.join(process.env.DATASTORE_PATH, dataPath, experiment.expId)
-      getNMRium.fromBrukerZip(datastorePath + '.zip', {
-        save: true,
-        outputPath: datastorePath + '.nmrium',
-        spectrumOnly: true,
-        removeProjections: true,
-        title: experiment.title
-      })
-    }
 
-    if (!process.env.NODE_ENV === 'production') {
-      console.log('data received', datasetName, expNo)
+      const nmriumObj = await getNMRiumObj(datastorePath, experiment.title)
+
+      await fs.writeFile(
+        datastorePath + '.nmrium',
+        JSON.stringify(nmriumObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
+      )
     }
 
     res.send()
@@ -103,13 +101,7 @@ exports.getNMRium = async (req, res) => {
           const nmriumFile = await fs.readFile(filePath + '.nmrium', 'utf8')
           nmriumObj = JSON.parse(nmriumFile)
         } catch (error) {
-          if (process.env.NODE_ENV !== 'production') {
-            console.log(error)
-          }
-          nmriumObj = await getNMRium.fromBrukerZip(filePath + '.zip', {
-            spectrumOnly: true,
-            title: experiment.title
-          })
+          nmriumObj = await getNMRiumObj(filePath, experiment.title)
         }
 
         nmriumObj.spectra[0].id = experiment._id
@@ -117,8 +109,8 @@ exports.getNMRium = async (req, res) => {
         data.spectra = [...data.spectra, ...nmriumObj.spectra]
       })
     )
-
-    res.send(data)
+    const dataJSON = JSON.stringify(data, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
+    res.send(dataJSON)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
@@ -127,8 +119,11 @@ exports.getNMRium = async (req, res) => {
 
 exports.putNMRium = async (req, res) => {
   try {
+    //On frontend nmrium object was converted to JSON with replacer function to replace float64Arrays that would converted incorrectly otherwise
+    //Here we have to parse it back to object to allow further manipulation before it gets saved
+    const nmriumObj = JSON.parse(req.body.nmriumJSON)
     await Promise.all(
-      req.body.spectra.map(async spect => {
+      nmriumObj.spectra.map(async spect => {
         const experiment = await Experiment.findById(spect.id)
         const dataAccess = await req.user.getDataAccess()
         if (dataAccess !== 'admin' && experiment.user.id.toString() !== req.user._id.toString()) {
@@ -188,5 +183,24 @@ exports.getPDF = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
+  }
+}
+
+//helper function that converts brukerZipFile into NMRium object
+const getNMRiumObj = async (dataPath, title) => {
+  try {
+    const zip = await fs.readFile(dataPath + '.zip')
+    const fileCollection = await fileCollectionFromZip(zip)
+    const nmriumObj = await read(fileCollection)
+    const newSpectraArr = nmriumObj.spectra
+      .filter(i => i.info.isFt)
+      .map(i => {
+        delete i.originalData
+        i.display.name = title
+        return i
+      })
+    return Promise.resolve({ spectra: newSpectraArr })
+  } catch (error) {
+    Promise.reject(error)
   }
 }

@@ -96,9 +96,8 @@ mongoose.connect(process.env.MONGODB_URL).then(async () => {
     //Initiating socket.io
     const io = require('./socket').init(server)
     io.on('connection', socket => {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Client connected', socket.id)
-      }
+      console.log('Client connected', socket.id)
+
       //storing socketId in submitter to register instrument client
       const { instrumentId } = socket.handshake.query
       if (instrumentId) {

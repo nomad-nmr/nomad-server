@@ -97,7 +97,9 @@ export const toggleActive = (id, token) => {
   return dispatch => {
     dispatch(fetchUsersStart())
     axios
-      .patch('admin/users/toggle-active/' + id, null, { headers: { Authorization: 'Bearer ' + token } })
+      .patch('admin/users/toggle-active/' + id, null, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
       .then(res => dispatch(toggleActiveSuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
@@ -124,7 +126,12 @@ export const fetchUserList = (token, groupId, showInactive, search) => {
   return dispatch => {
     axios
       .get(
-        'admin/users/?list=true&group=' + groupId + '&showInactive=' + showInactive + '&search=' + search,
+        'admin/users/?list=true&group=' +
+          groupId +
+          '&showInactive=' +
+          showInactive +
+          '&search=' +
+          search,
         {
           headers: { Authorization: 'Bearer ' + token }
         }
@@ -138,4 +145,8 @@ export const fetchUserList = (token, groupId, showInactive, search) => {
 
 export const resetUserList = () => ({
   type: actionTypes.RESET_USER_LIST
+})
+
+export const resetUserSearch = () => ({
+  type: actionTypes.RESET_USER_SEARCH
 })

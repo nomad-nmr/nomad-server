@@ -44,9 +44,17 @@ function App() {
     setLoading(true)
 
     try {
-      await axios.put('/data/nmrium', changedData, {
-        headers: { Authorization: 'Bearer ' + authToken }
-      })
+      //Converting to JSON with replacer function replace float64Arrays that would converted incorrectly otherwise
+      const nmriumJSON = JSON.stringify(changedData, (k, v) =>
+        ArrayBuffer.isView(v) ? Array.from(v) : v
+      )
+      await axios.put(
+        '/data/nmrium',
+        { nmriumJSON },
+        {
+          headers: { Authorization: 'Bearer ' + authToken }
+        }
+      )
     } catch (error) {
       setErrorMessage(error.message)
       console.error(error.message)
@@ -59,27 +67,7 @@ function App() {
     console.log(dataUpdate)
 
     if (dataUpdate.spectra.length > 0) {
-      const newSpectra = dataUpdate.spectra.map(i => ({ ...i }))
-
-      // from v 0.28.0 data structure of dataUpdate (object that onDataChange CB returns) has changed
-      // 1D spectra.data arrays have Float64Array format
-      // corresponding arrays (im, re , x) have to be converted in ordinary arrays
-      // otherwise saved .nmrium file does not open correctly
-
-      const newData = {
-        spectra: newSpectra.map(j => {
-          const newDataObj = { ...j.data }
-
-          if (j.info.dimension === 1) {
-            newDataObj.im = Array.from(j.data.im)
-            newDataObj.re = Array.from(j.data.re)
-            newDataObj.x = Array.from(j.data.x)
-          }
-          return { ...j, data: newDataObj }
-        })
-      }
-      console.log(newData)
-      setChangedData(newData)
+      setChangedData({ spectra: dataUpdate.spectra })
     }
   }, [])
 

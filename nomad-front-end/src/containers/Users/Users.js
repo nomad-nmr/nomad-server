@@ -10,7 +10,8 @@ import {
   fetchUsers,
   toggleUserForm,
   toggleActive,
-  fetchGroupList
+  fetchGroupList,
+  resetUserSearch
 } from '../../store/actions/index'
 import { renderDataAccess } from '../../utils/tableUtils'
 
@@ -19,7 +20,15 @@ import { MailOutlined } from '@ant-design/icons'
 const { CheckableTag } = Tag
 
 const Users = props => {
-  const { fetchUsers, fetchGrpList, authToken, showInactive, grpList, searchUserValue } = props
+  const {
+    fetchUsers,
+    fetchGrpList,
+    authToken,
+    showInactive,
+    grpList,
+    searchUserValue,
+    resetUsrSearch
+  } = props
 
   const formRef = useRef({})
   const navigate = useNavigate()
@@ -55,6 +64,11 @@ const Users = props => {
     const grpFilters = grpList.map(grp => ({ text: grp.name, value: grp.id }))
     setGroupFilters(grpFilters)
   }, [grpList])
+
+  useEffect(() => {
+    return () => resetUsrSearch()
+    // eslint-disable-next-line
+  }, [])
 
   const handleTableChange = (pagination, filters, sorter) => {
     setFilters(filters)
@@ -124,7 +138,9 @@ const Users = props => {
       filteredValue: filters.accessLevel || null
     },
     {
-      title: <Tooltip title='If undefined then settings from the group table apply'>Data Access</Tooltip>,
+      title: (
+        <Tooltip title='If undefined then settings from the group table apply'>Data Access</Tooltip>
+      ),
 
       align: 'center',
       render: record => renderDataAccess(record.dataAccess)
@@ -156,7 +172,9 @@ const Users = props => {
           </CheckableTag>
           <MailOutlined
             style={{ color: '#1890ff' }}
-            onClick={() => navigate(`/admin/message?userId=${record._id}&username=${record.username}`)}
+            onClick={() =>
+              navigate(`/admin/message?userId=${record._id}&username=${record.username}`)
+            }
           />
           <Button
             size='small'
@@ -246,7 +264,8 @@ const mapDispatchToProps = dispatch => {
     addUsrHandler: (formData, token) => dispatch(addUser(formData, token)),
     updateUsrHandler: (formData, token) => dispatch(updateUser(formData, token)),
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
-    fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive))
+    fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
+    resetUsrSearch: () => dispatch(resetUserSearch())
   }
 }
 
