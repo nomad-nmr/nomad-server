@@ -285,7 +285,8 @@ exports.getAllowance = async (req, res) => {
           dayAllowance,
           nightAllowance,
           maxNight,
-          nightExpt: instr.status.summary.nightExpt
+          nightExpt: instr.status.summary.nightExpt,
+          dayExpt: instr.status.summary.dayExpt
         })
       })
     )

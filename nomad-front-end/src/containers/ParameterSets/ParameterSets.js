@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Table, Space, Button, Tag, Drawer, Popconfirm, Tooltip } from 'antd'
 import moment from 'moment'
@@ -71,7 +71,10 @@ const ParamSets = props => {
       defaultParamsObj.expt = '00:00:00'
     }
     defaultParamsObj.expt = moment(moment(defaultParamsObj.expt, 'HH:mm:ss'))
-    setTimeout(() => formRef.current.setFieldsValue({ ...record, defaultParams: defaultParamsObj }), 200)
+    setTimeout(
+      () => formRef.current.setFieldsValue({ ...record, defaultParams: defaultParamsObj }),
+      200
+    )
   }
 
   const columns = [
@@ -120,10 +123,10 @@ const ParamSets = props => {
           </Button>
           <Popconfirm
             title={
-              <>
+              <Fragment>
                 <h4>'Are you sure that you want to delete the parameter set.</h4>
                 <p>You can hide it by making it unavailable on all instruments</p>
-              </>
+              </Fragment>
             }
             placement='left'
             onConfirm={() => {
@@ -149,8 +152,8 @@ const ParamSets = props => {
         loading={props.loading}
       />
       <Drawer
-        width='700'
-        visible={props.showForm}
+        width={700}
+        open={props.showForm}
         placement='right'
         onClose={() => {
           props.toggleShowForm()

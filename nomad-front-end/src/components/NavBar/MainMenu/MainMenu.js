@@ -12,6 +12,41 @@ const MainMenu = props => {
   const location = useLocation()
   const { accessLevel } = props
 
+  const items = []
+
+  if (process.env.REACT_APP_SUBMIT_ON === 'true' && props.username) {
+    items.push({
+      key: '/submit',
+      label: <span className={classes.MenuItem}>Book New Job</span>,
+      icon: <DownloadOutlined style={{ fontSize: 20 }} />
+    })
+  }
+
+  if (
+    process.env.REACT_APP_BATCH_SUBMIT_ON === 'true' &&
+    (accessLevel === 'admin' || accessLevel === 'admin-b')
+  ) {
+    items.push({
+      key: '/batch-submit',
+      label: <span className={classes.MenuItem}>Batch Submit</span>,
+      icon: (
+        <img
+          src={batchSubmitIcon}
+          style={{ width: '30px', height: '30px', marginBottom: '8px' }}
+          alt='batch-submit icon'
+        />
+      )
+    })
+  }
+
+  if (process.env.REACT_APP_DATASTORE_ON === 'true' && props.username) {
+    items.push({
+      key: '/search',
+      icon: <SearchOutlined style={{ fontSize: 20 }} />,
+      label: 'Search'
+    })
+  }
+
   return (
     <Menu
       mode='horizontal'
@@ -20,34 +55,8 @@ const MainMenu = props => {
       disabledOverflow={true}
       style={{ marginRight: 30 }}
       selectedKeys={[location.pathname]}
-    >
-      {process.env.REACT_APP_SUBMIT_ON === 'true' && props.username ? (
-        <Menu.Item key='/submit' icon={<DownloadOutlined style={{ fontSize: 20 }} />}>
-          <span className={classes.MenuItem}>Book New Job</span>
-        </Menu.Item>
-      ) : null}
-      {process.env.REACT_APP_BATCH_SUBMIT_ON === 'true' &&
-      (accessLevel === 'admin' || accessLevel === 'admin-b') ? (
-        <Menu.Item
-          key='/batch-submit'
-          icon={
-            <img
-              src={batchSubmitIcon}
-              style={{ width: '30px', height: '30px', marginBottom: '8px' }}
-              alt='batch-submit icon'
-            />
-          }
-        >
-          <span className={classes.MenuItem}>Batch Submit</span>
-        </Menu.Item>
-      ) : null}
-
-      {process.env.REACT_APP_DATASTORE_ON === 'true' && props.username ? (
-        <Menu.Item key='/search' icon={<SearchOutlined style={{ fontSize: 20 }} />}>
-          <span className={classes.MenuItem}>Search</span>
-        </Menu.Item>
-      ) : null}
-    </Menu>
+      items={items}
+    />
   )
 }
 

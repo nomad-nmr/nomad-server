@@ -8,7 +8,7 @@ const AddSampleDrawer = props => {
     <Drawer
       title={`Add Samples to rack ${props.rackTitle}`}
       placement='top'
-      visible={props.visible}
+      open={props.visible}
       closable={props.error}
       maskClosable={props.error}
       onClose={props.error ? props.toggleHandler : null}

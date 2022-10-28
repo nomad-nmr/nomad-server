@@ -28,7 +28,12 @@ const BookSamplesModal = props => {
   }
 
   return (
-    <Modal title='Book Selected Samples' visible={props.visible} onCancel={props.toggleHandler} footer={null}>
+    <Modal
+      title='Book Selected Samples'
+      open={props.visible}
+      onCancel={props.toggleHandler}
+      footer={null}
+    >
       <Form
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
