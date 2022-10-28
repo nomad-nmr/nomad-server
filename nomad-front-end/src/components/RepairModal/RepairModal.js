@@ -108,7 +108,7 @@ const RepairModal = props => {
   )
 
   return (
-    <Modal visible={visible} width='80%' centered footer={null} onCancel={cancelHandler}>
+    <Modal open={visible} width='80%' centered footer={null} onCancel={cancelHandler}>
       <Alert
         message={alertMessage}
         type={alertType}

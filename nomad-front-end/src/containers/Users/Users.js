@@ -219,8 +219,8 @@ const Users = props => {
         showTotal={total => `Total ${total} users`}
       />
       <Drawer
-        width='400'
-        visible={props.usrDrawerVisible}
+        width={400}
+        open={props.usrDrawerVisible}
         placement='right'
         onClose={() => {
           props.toggleUsrDrawer(false)

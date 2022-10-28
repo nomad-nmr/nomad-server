@@ -13,16 +13,77 @@ import {
   DeploymentUnitOutlined,
   BarChartOutlined,
   MailOutlined
-  // BankOutlined
 } from '@ant-design/icons'
-
-const { SubMenu } = Menu
 
 const AdminMenu = props => {
   const location = useLocation()
   const navigate = useNavigate()
 
   const handleClick = e => navigate(e.key)
+
+  const items = [
+    {
+      key: '/dashboard',
+      label: 'Dashboard',
+      icon: <DashboardOutlined />
+    },
+    {
+      key: 'user management',
+      label: 'User Management',
+      icon: <TeamOutlined />,
+      children: [
+        {
+          key: '/admin/users',
+          label: 'Manage Users',
+          icon: <UserOutlined />
+        },
+        {
+          key: '/admin/groups',
+          label: 'Manage Groups',
+          icon: <TeamOutlined />
+        },
+        {
+          key: '/admin/message',
+          label: 'Send Message',
+          icon: <MailOutlined />
+        }
+      ]
+    },
+    {
+      key: 'usage',
+      label: 'Usage Statistics',
+      icon: <BarChartOutlined />,
+      children: [
+        {
+          key: '/admin/history',
+          label: 'Experiment History',
+          icon: <HistoryOutlined />
+        },
+        {
+          key: '/admin/accounts',
+          label: 'Accounting',
+          icon: <PoundOutlined />
+        }
+      ]
+    },
+    {
+      key: 'settings',
+      label: 'Settings',
+      icon: <SettingOutlined />,
+      children: [
+        {
+          key: '/admin/instruments',
+          label: 'Instruments',
+          icon: <DeploymentUnitOutlined />
+        },
+        {
+          key: '/admin/parameter-sets',
+          label: 'Parameter Sets',
+          icon: <ExperimentOutlined />
+        }
+      ]
+    }
+  ]
 
   return (
     <nav>
@@ -34,74 +95,8 @@ const AdminMenu = props => {
         mode='inline'
         defaultSelectedKeys={['/dashboard']}
         selectedKeys={[location.pathname]}
-      >
-        <Menu.Item key='/dashboard'>
-          <DashboardOutlined />
-          <span>Dashboard</span>
-        </Menu.Item>
-        <SubMenu
-          key='user management'
-          title={
-            <span>
-              <TeamOutlined />
-              <span>User Management</span>
-            </span>
-          }
-        >
-          <Menu.Item key='/admin/users'>
-            <UserOutlined />
-            <span>Manage Users</span>
-          </Menu.Item>
-          <Menu.Item key='/admin/groups'>
-            <TeamOutlined />
-            <span>Manage Groups</span>
-          </Menu.Item>
-          <Menu.Item key='/admin/message'>
-            <MailOutlined />
-            <span>Send Message</span>
-          </Menu.Item>
-        </SubMenu>
-        <SubMenu
-          key='usage'
-          title={
-            <span>
-              <BarChartOutlined />
-              <span>Usage Statistics</span>
-            </span>
-          }
-        >
-          <Menu.Item key='/admin/history'>
-            <HistoryOutlined />
-            <span>Experiment History</span>
-          </Menu.Item>
-          <Menu.Item key='/admin/accounts'>
-            <PoundOutlined />
-            <span>Accounting</span>
-          </Menu.Item>
-        </SubMenu>
-        <SubMenu
-          key='settings'
-          title={
-            <span>
-              <SettingOutlined />
-              <span>Settings</span>
-            </span>
-          }
-        >
-          <Menu.Item key='/admin/instruments'>
-            <DeploymentUnitOutlined />
-            <span>Instruments</span>
-          </Menu.Item>
-          <Menu.Item key='/admin/parameter-sets'>
-            <ExperimentOutlined />
-            <span>Parameter Sets</span>
-          </Menu.Item>
-          {/*<Menu.Item key='/admin/grants'>
-            <BankOutlined />
-            <span>Grants</span>
-        </Menu.Item>*/}
-        </SubMenu>
-      </Menu>
+        items={items}
+      />
     </nav>
   )
 }

@@ -54,7 +54,7 @@ const Accounts = props => {
         title='Set Costing for Instruments'
         placement='top'
         closable={true}
-        visible={props.drwVisible}
+        open={props.drwVisible}
         onClose={props.tglDrawer}
         height={250}
       >
