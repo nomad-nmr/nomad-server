@@ -116,7 +116,9 @@ const BookExperimentsForm = props => {
     const paramSet = props.paramSetsData.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
-      return message.warning('Expt calculation cannot be performed. Default parameters were not defined')
+      return message.warning(
+        'Expt calculation cannot be performed. Default parameters were not defined'
+      )
     }
     const newExptState = { ...exptState, [key]: paramSet.defaultParams[4].value }
 
@@ -200,7 +202,7 @@ const BookExperimentsForm = props => {
   }
   const maxNightRejectError = {
     title: 'Total length of night experiments exceeded',
-    content: `The queue of night experiments exceeds maximum length and your experiment would not get executed. 
+    content: `The queue of night experiments exceeds maximum length and your experiment would likely not get executed tonight. 
     Please, try to submit your experiment to a different instrument`
   }
 
@@ -213,9 +215,11 @@ const BookExperimentsForm = props => {
       for (let sampleKey in totalExptState) {
         const instrId = sampleKey.split('-')[0]
 
-        const { dayAllowance, nightAllowance, maxNight, nightExpt } = allowanceData.find(
+        const { dayAllowance, nightAllowance, maxNight, nightExpt, dayExpt } = allowanceData.find(
           i => i.instrId === instrId
         )
+
+        console.log(allowanceData[0])
 
         if (totalExptState[sampleKey] < dayAllowance * 60) {
           if (accumulator[instrId]) {
@@ -227,7 +231,12 @@ const BookExperimentsForm = props => {
           totalExptState[sampleKey] > dayAllowance * 60 &&
           totalExptState[sampleKey] < nightAllowance * 60
         ) {
-          if (moment.duration(nightExpt, 'hh:mm').asSeconds() + totalExptState[sampleKey] > maxNight * 3600) {
+          if (
+            moment.duration(nightExpt, 'hh:mm').asSeconds() +
+              moment.duration(dayExpt, 'hh:mm').asSeconds() +
+              totalExptState[sampleKey] >
+            maxNight * 3600
+          ) {
             return Modal.error(maxNightRejectError)
           }
 
@@ -246,7 +255,10 @@ const BookExperimentsForm = props => {
           return Modal.error(expRejectError)
         }
 
-        if (accumulator[instrId] > dayAllowance * 60 && accumulator[instrId] < nightAllowance * 60) {
+        if (
+          accumulator[instrId] > dayAllowance * 60 &&
+          accumulator[instrId] < nightAllowance * 60
+        ) {
           nightInstrId.push(instrId)
         }
       }
@@ -414,10 +426,15 @@ const BookExperimentsForm = props => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={3} offset={priorityAccess ? 19 : 20} style={{ textAlign: 'right', marginBottom: 10 }}>
+          <Col
+            span={3}
+            offset={priorityAccess ? 19 : 20}
+            style={{ textAlign: 'right', marginBottom: 10 }}
+          >
             <span className={totalExptClass.join(' ')}>
               Total ExpT:
-              {'  ' + moment.duration(totalExptState[key], 'seconds').format('HH:mm:ss', { trim: false })}
+              {'  ' +
+                moment.duration(totalExptState[key], 'seconds').format('HH:mm:ss', { trim: false })}
             </span>
           </Col>
         </Row>
