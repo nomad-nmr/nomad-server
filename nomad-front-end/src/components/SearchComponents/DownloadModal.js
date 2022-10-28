@@ -14,7 +14,7 @@ const DownloadModal = props => {
   }
 
   return (
-    <Modal visible={props.visible} onCancel={props.toggleHandler} width={600} footer={null}>
+    <Modal open={props.visible} onCancel={props.toggleHandler} width={600} footer={null}>
       <Form
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 16 }}
