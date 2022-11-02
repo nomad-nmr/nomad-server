@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
-import { Form, Input, Button, InputNumber, Row, Col } from 'antd'
+import { Form, Input, Button, InputNumber, Row, Col, TimePicker } from 'antd'
+import moment from 'moment'
 
 import classes from '../Form.module.css'
 
@@ -27,6 +28,8 @@ const InstrumentsForm = props => {
   })
 
   const onFinish = values => {
+    values.nightStart = values.nightStart.format('HH:mm')
+    values.nightEnd = values.nightEnd.format('HH:mm')
     // Checking whether to update or add
     if (values._id) {
       props.updateInstrumentsHandler(values, props.authToken)
@@ -42,9 +45,19 @@ const InstrumentsForm = props => {
 
   return (
     <div className={classes.Form}>
-      <Form {...layout} form={form} ref={props.formReference} name='instruments-settings' onFinish={onFinish}>
+      <Form
+        {...layout}
+        form={form}
+        ref={props.formReference}
+        name='instruments-settings'
+        onFinish={onFinish}
+        initialValues={{
+          nightStart: moment('09:00', 'HH:mm'),
+          nightEnd: moment('19:00', 'HH:mm')
+        }}
+      >
         <Row>
-          <Col span={14}>
+          <Col span={8}>
             <Form.Item
               name='name'
               label='Name'
@@ -61,7 +74,7 @@ const InstrumentsForm = props => {
             <Form.Item
               label='Capacity'
               required
-              tooltip='Samplecanger capacity (number of holders)'
+              tooltip='Sample changer capacity (number of holders)'
               name='capacity'
               style={{ textAlign: 'left' }}
               rules={[
@@ -73,7 +86,7 @@ const InstrumentsForm = props => {
             </Form.Item>
           </Col>
 
-          <Col span={9} offset={1}>
+          <Col span={7} offset={1}>
             <Form.Item
               style={{ textAlign: 'left' }}
               name='dayAllowance'
@@ -92,14 +105,14 @@ const InstrumentsForm = props => {
             >
               <InputNumber min={0} />
             </Form.Item>
-            <Form.Item
-              style={{ textAlign: 'left' }}
-              name='maxNight'
-              label='Max Night [h]'
-              tooltip='Maximum length of overnight queue'
-            >
-              <InputNumber min={0} />
+            <Form.Item style={{ textAlign: 'left' }} name='nightStart' label='Night Queue Start'>
+              <TimePicker format='HH:mm' />
             </Form.Item>
+            <Form.Item style={{ textAlign: 'left' }} name='nightEnd' label='Night Queue End'>
+              <TimePicker format='HH:mm' />
+            </Form.Item>
+          </Col>
+          <Col span={7}>
             <Form.Item
               style={{ textAlign: 'left' }}
               name='overheadTime'

@@ -31,6 +31,8 @@ const instrumentSchema = new Schema({
   dayAllowance: Number,
   nightAllowance: Number,
   maxNight: Number,
+  nightStart: String,
+  nightEnd: String,
   overheadTime: Number,
 
   status: {

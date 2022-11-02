@@ -7,6 +7,7 @@ import {
   toggleShowForm,
   addInstrument
 } from '../../store/actions/index'
+import moment from 'moment'
 import { Table, Space, Button, Tag, Tooltip, message, Avatar } from 'antd'
 import Animate from 'rc-animate'
 import InstrumentForm from '../../components/Forms/InstrumentForm/InstrumentForm'
@@ -46,7 +47,9 @@ const Instruments = props => {
     },
     {
       title: () => (
-        <Tooltip title='Maximum total experimental time in day or night queue'>Allowance [min]</Tooltip>
+        <Tooltip title='Maximum total experimental time in day or night queue'>
+          Allowance [min]
+        </Tooltip>
       ),
       children: [
         {
@@ -62,20 +65,28 @@ const Instruments = props => {
       ]
     },
     {
-      title: () => (
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Tooltip title='Max length of overnight queue'>Max Night</Tooltip>
-          <p>[h]</p>
-        </div>
-      ),
-      dataIndex: 'maxNight',
-      align: 'center'
+      title: 'Night Queue',
+      children: [
+        {
+          title: 'Start',
+          dataIndex: 'nightStart',
+          align: 'center'
+        },
+        {
+          title: 'End',
+          dataIndex: 'nightEnd',
+          align: 'center'
+        }
+      ]
     },
+
     {
       title: () => (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <Tooltip title='Avarage time used by machine to change sample, lock and shim'>Overhead</Tooltip>
-          <p>time [s]</p>
+          <Tooltip title='Avarage time used by machine to change sample, lock and shim'>
+            Overhead
+            <p>time [s]</p>
+          </Tooltip>
         </div>
       ),
       dataIndex: 'overheadTime',
@@ -86,7 +97,9 @@ const Instruments = props => {
       title: 'Connected',
       dataIndex: 'isConnected',
       align: 'center',
-      render: record => <Avatar size='small' style={{ backgroundColor: record ? '#389e0d' : '#cf1322' }} />
+      render: record => (
+        <Avatar size='small' style={{ backgroundColor: record ? '#389e0d' : '#cf1322' }} />
+      )
     },
     {
       title: 'Actions',
@@ -100,7 +113,16 @@ const Instruments = props => {
               if (!props.formVisible) {
                 props.toggleForm(true)
               }
-              setTimeout(() => formRef.current.setFieldsValue(record), 100)
+              const formValues = {
+                ...record,
+                nightStart: record.nightStart
+                  ? moment(record.nightStart, 'HH:mm')
+                  : moment('19:00', 'HH:mm'),
+                nightEnd: record.nightEnd
+                  ? moment(record.nightEnd, 'HH:mm')
+                  : moment('09:00', 'HH:mm')
+              }
+              setTimeout(() => formRef.current.setFieldsValue(formValues), 100)
             }}
           >
             Edit

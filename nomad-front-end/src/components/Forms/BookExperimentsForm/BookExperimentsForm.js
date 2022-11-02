@@ -67,14 +67,28 @@ const BookExperimentsForm = props => {
         })
       }
     })
+
     setFormState(newFormState)
+
     if (instrIds.size !== 0) {
       fetchAllowance(token, Array.from(instrIds))
     }
-
     // formState can't be dependency as it gets updated in the hook. That would trigger loop.
     // eslint-disable-next-line
   }, [inputData])
+
+  //This hook creates initial totalExpT state with overhead time for each entry
+  useEffect(() => {
+    const newTotalExptState = {}
+    if (allowanceData.length !== 0) {
+      formState.forEach(entry => {
+        const instrId = entry.key.split('-')[0]
+        const { overheadTime } = allowanceData.find(i => i.instrId === instrId)
+        newTotalExptState[entry.key] = overheadTime
+      })
+    }
+    setTotalExptState(newTotalExptState)
+  }, [allowanceData])
 
   const addExpHandler = e => {
     e.preventDefault()
@@ -113,6 +127,7 @@ const BookExperimentsForm = props => {
   const onParamSetChange = (sampleKey, expNo, paramSetName) => {
     form.resetFields([[sampleKey, 'exps', expNo, 'params']])
     const key = sampleKey + '#' + expNo
+
     const paramSet = props.paramSetsData.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
@@ -123,11 +138,13 @@ const BookExperimentsForm = props => {
     const newExptState = { ...exptState, [key]: paramSet.defaultParams[4].value }
 
     const oldExpt = exptState[key]
-    const newTotalExptValue = moment
+
+    let newTotalExptValue = moment
       .duration(totalExptState[sampleKey], 'seconds')
       .subtract(oldExpt)
       .add(moment.duration(paramSet.defaultParams[4].value))
       .as('seconds')
+
     const newTotalExptState = { ...totalExptState, [sampleKey]: newTotalExptValue }
 
     setExptState(newExptState)
@@ -215,11 +232,7 @@ const BookExperimentsForm = props => {
       for (let sampleKey in totalExptState) {
         const instrId = sampleKey.split('-')[0]
 
-        const { dayAllowance, nightAllowance, maxNight, nightExpt, dayExpt } = allowanceData.find(
-          i => i.instrId === instrId
-        )
-
-        console.log(allowanceData[0])
+        const { dayAllowance, nightAllowance } = allowanceData.find(i => i.instrId === instrId)
 
         if (totalExptState[sampleKey] < dayAllowance * 60) {
           if (accumulator[instrId]) {
@@ -231,15 +244,6 @@ const BookExperimentsForm = props => {
           totalExptState[sampleKey] > dayAllowance * 60 &&
           totalExptState[sampleKey] < nightAllowance * 60
         ) {
-          if (
-            moment.duration(nightExpt, 'hh:mm').asSeconds() +
-              moment.duration(dayExpt, 'hh:mm').asSeconds() +
-              totalExptState[sampleKey] >
-            maxNight * 3600
-          ) {
-            return Modal.error(maxNightRejectError)
-          }
-
           values[sampleKey].night = true
           nightExp = true
         } else {
@@ -249,7 +253,21 @@ const BookExperimentsForm = props => {
 
       const nightInstrId = []
       for (let instrId in accumulator) {
-        const { dayAllowance, nightAllowance } = allowanceData.find(i => i.instrId === instrId)
+        const { dayAllowance, nightAllowance, nightStart, nightEnd, nightExpt, dayExpt } =
+          allowanceData.find(i => i.instrId === instrId)
+
+        const maxNight = moment
+          .duration(moment(nightEnd, 'HH:mm').add(1, 'd').diff(moment(nightStart, 'HH:mm')))
+          .as('minutes')
+
+        const nightQueue = moment.duration(nightExpt, 'HH:mm').as('minutes')
+
+        const dayQueueRemains = Math.round(
+          moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
+            moment.duration(dayExpt, 'HH:mm').as('minutes')
+        )
+
+        console.log(dayQueueRemains, accumulator)
 
         if (accumulator[instrId] > nightAllowance * 60) {
           return Modal.error(expRejectError)

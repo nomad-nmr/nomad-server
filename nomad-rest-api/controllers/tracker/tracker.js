@@ -1,3 +1,5 @@
+const moment = require('moment')
+
 const io = require('../../socket')
 
 const Instrument = require('../../models/instrument')
@@ -43,6 +45,30 @@ exports.updateStatus = async (req, res) => {
         newStatusObj.historyTable
       )
     }
+
+    //adding overhead time into night and day expt queue
+    const nightSamples = new Set()
+    const daySamples = new Set()
+
+    newStatusObj.statusTable.forEach(entry => {
+      if (entry.status === 'Submitted') {
+        if (entry.night) {
+          nightSamples.add(entry.datasetName)
+        } else {
+          daySamples.add(entry.datasetName)
+        }
+      }
+    })
+    const { dayExpt, nightExpt } = newStatusObj.summary
+    const { overheadTime } = instrument
+    newStatusObj.summary.dayExpt = moment
+      .duration(dayExpt, 'HH:mm')
+      .add(moment.duration(overheadTime * daySamples.size, 'seconds'))
+      .format('HH:mm', { trim: false })
+    newStatusObj.summary.nightExpt = moment
+      .duration(nightExpt, 'HH:mm')
+      .add(moment.duration(overheadTime * nightSamples.size, 'seconds'))
+      .format('HH:mm', { trim: false })
 
     instrument.status = newStatusObj
 
