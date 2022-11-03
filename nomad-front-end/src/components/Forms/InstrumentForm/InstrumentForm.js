@@ -53,7 +53,9 @@ const InstrumentsForm = props => {
         onFinish={onFinish}
         initialValues={{
           nightStart: moment('09:00', 'HH:mm'),
-          nightEnd: moment('19:00', 'HH:mm')
+          nightEnd: moment('19:00', 'HH:mm'),
+          dayAllowance: 20,
+          nightAllowance: 120
         }}
       >
         <Row>
