@@ -43,7 +43,7 @@ const MainMenu = props => {
     items.push({
       key: '/search',
       icon: <SearchOutlined style={{ fontSize: 20 }} />,
-      label: 'Search'
+      label: <span className={classes.MenuItem}>Search</span>
     })
   }
 

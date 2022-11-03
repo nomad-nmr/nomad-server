@@ -55,7 +55,7 @@ const NavBar = props => {
       {navLeft}
       <PageHeader />
       <div className={classes.MainMenu}>
-        {location.pathname !== '/search' && location.pathname !== '/batch-submit' ? menuElement : null}
+        {location.pathname === '/dashboard' ? menuElement : null}
         <div className={!menuElement ? classes.Avatar : undefined}>
           <AuthAvatar
             onClick={props.openModalHandler}

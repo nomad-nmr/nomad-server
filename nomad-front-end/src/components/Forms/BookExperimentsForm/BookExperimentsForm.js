@@ -17,7 +17,6 @@ import {
 } from 'antd'
 import moment from 'moment'
 
-// import solvents from '../../../misc/solvents'
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
@@ -79,15 +78,18 @@ const BookExperimentsForm = props => {
 
   //This hook creates initial totalExpT state with overhead time for each entry
   useEffect(() => {
-    const newTotalExptState = {}
+    const newTotalExptState = { ...totalExptState }
     if (allowanceData.length !== 0) {
       formState.forEach(entry => {
         const instrId = entry.key.split('-')[0]
         const { overheadTime } = allowanceData.find(i => i.instrId === instrId)
-        newTotalExptState[entry.key] = overheadTime
+        if (!newTotalExptState[entry.key]) {
+          newTotalExptState[entry.key] = overheadTime
+        }
       })
     }
     setTotalExptState(newTotalExptState)
+    // eslint-disable-next-line
   }, [allowanceData])
 
   const addExpHandler = e => {
@@ -213,90 +215,102 @@ const BookExperimentsForm = props => {
     setModalVisible(false)
   }
 
-  const expRejectError = {
-    title: 'Maximum allowance exceeded',
-    content: 'Total experimental time for at least one instrument has exceeded maximum allowance'
-  }
-  const maxNightRejectError = {
-    title: 'Total length of night experiments exceeded',
-    content: `The queue of night experiments exceeds maximum length and your experiment would likely not get executed tonight. 
-    Please, try to submit your experiment to a different instrument`
-  }
-
   const onFinishHandler = async values => {
-    if (!priorityAccess) {
-      //accumulator is an object total expt of day classified experiments for each instrument in the form
-      const accumulator = {}
-      let nightExp = undefined
+    const expRejectError = {
+      title: 'Maximum allowance exceeded',
+      content: 'Total experimental time for at least one instrument has exceeded maximum allowance'
+    }
+    const maxNightRejectError = {
+      title: 'Total length of night experiments exceeded',
+      content: `The queue of night experiments exceeds maximum length and your experiment would likely not get executed tonight. 
+      Please, try to submit your experiment to a different instrument`
+    }
 
+    const nightQueueWarning = {
+      title: 'Maximum allowance exceeded',
+      content:
+        'The experiments that exceeded peak time allowance or do not fit in the remaining day queue will be submitted into the night queue.',
+      onOk: () => {
+        const nightExptAccumulator = getExptAccumulator(values, totalExptState, true)
+        for (let instrId in nightExptAccumulator) {
+          const { nightAllowance, nightExpt, nightEnd, nightStart } = allowanceData.find(
+            i => i.instrId === instrId
+          )
+
+          const maxNight = Math.abs(
+            moment
+              .duration(moment(nightStart, 'HH:mm').diff(moment(nightEnd, 'HH:mm').add(1, 'day')))
+              .as('seconds')
+          )
+
+          if (
+            moment.duration(nightExpt, 'HH:mm').as('seconds') + nightExptAccumulator[instrId] >
+            maxNight
+          ) {
+            return Modal.error(maxNightRejectError)
+          }
+
+          if (nightExptAccumulator[instrId] > nightAllowance * 60) {
+            return Modal.error(expRejectError)
+          }
+        }
+        props.bookExpsHandler(token, values, props.submittingUserId)
+        navigate('/')
+      }
+    }
+
+    if (!priorityAccess) {
+      //!!!Logic for night/day traffic control!!!
+      //Checking individual experiments. Those that fit night allowance get night tag.
+      //If there is one that does not fit then submission does not proceed.
+      let nightExpSubmit = false
       for (let sampleKey in totalExptState) {
         const instrId = sampleKey.split('-')[0]
 
         const { dayAllowance, nightAllowance } = allowanceData.find(i => i.instrId === instrId)
 
-        if (totalExptState[sampleKey] < dayAllowance * 60) {
-          if (accumulator[instrId]) {
-            accumulator[instrId] += totalExptState[sampleKey]
-          } else {
-            accumulator[instrId] = totalExptState[sampleKey]
-          }
-        } else if (
+        if (
           totalExptState[sampleKey] > dayAllowance * 60 &&
           totalExptState[sampleKey] < nightAllowance * 60
         ) {
           values[sampleKey].night = true
-          nightExp = true
-        } else {
+          nightExpSubmit = true
+        }
+
+        if (totalExptState[sampleKey] > nightAllowance * 60) {
           return Modal.error(expRejectError)
         }
       }
 
-      const nightInstrId = []
-      for (let instrId in accumulator) {
-        const { dayAllowance, nightAllowance, nightStart, nightEnd, nightExpt, dayExpt } =
-          allowanceData.find(i => i.instrId === instrId)
+      //Summing up all day experiments for individual experiments
+      const dayExptAccumulator = getExptAccumulator(values, totalExptState, false)
 
-        const maxNight = moment
-          .duration(moment(nightEnd, 'HH:mm').add(1, 'd').diff(moment(nightStart, 'HH:mm')))
-          .as('minutes')
-
-        const nightQueue = moment.duration(nightExpt, 'HH:mm').as('minutes')
+      //Assessing sums of expt for day experiments
+      for (let instrId in dayExptAccumulator) {
+        const { dayAllowance, nightStart, dayExpt } = allowanceData.find(i => i.instrId === instrId)
 
         const dayQueueRemains = Math.round(
           moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
             moment.duration(dayExpt, 'HH:mm').as('minutes')
         )
 
-        console.log(dayQueueRemains, accumulator)
-
-        if (accumulator[instrId] > nightAllowance * 60) {
-          return Modal.error(expRejectError)
-        }
-
         if (
-          accumulator[instrId] > dayAllowance * 60 &&
-          accumulator[instrId] < nightAllowance * 60
+          dayExptAccumulator[instrId] > dayAllowance * 60 ||
+          dayExptAccumulator[instrId] > dayQueueRemains * 60
         ) {
-          nightInstrId.push(instrId)
+          //if sum of day experiments exceeds day allowance or does not fit into remaining day queue
+          //experiments get night tag and logic for night submitting is triggered
+          for (let sampleKey in values) {
+            if (instrId === sampleKey.split('-')[0]) {
+              values[sampleKey].night = true
+            }
+          }
+          nightExpSubmit = true
         }
       }
 
-      if (nightInstrId.length > 0 || nightExp) {
-        return Modal.confirm({
-          title: 'Maximum allowance exceeded',
-          content:
-            'The experiments that exceeded peak time allowance will be submitted into the night queue.',
-          onOk: () => {
-            for (let sampleKey in values) {
-              const found = nightInstrId.find(id => id === sampleKey.split('-')[0])
-              if (found) {
-                values[sampleKey].night = true
-              }
-            }
-            props.bookExpsHandler(token, values, props.submittingUserId)
-            navigate('/')
-          }
-        })
+      if (nightExpSubmit) {
+        return Modal.confirm(nightQueueWarning)
       }
     }
     props.bookExpsHandler(token, values, props.submittingUserId)
@@ -515,6 +529,24 @@ const BookExperimentsForm = props => {
       )}
     </div>
   )
+}
+
+//Helper function that sums totalExpT stored in state for night or day experiment
+const getExptAccumulator = (formValues, totalExptState, nightOption) => {
+  const exptAccumulator = {}
+  const sampleKeysArr = Object.keys(formValues)
+
+  sampleKeysArr.forEach(sampleKey => {
+    const instrId = sampleKey.split('-')[0]
+    if (nightOption ? formValues[sampleKey].night : !formValues[sampleKey].night) {
+      if (exptAccumulator[instrId]) {
+        exptAccumulator[instrId] += totalExptState[sampleKey]
+      } else {
+        exptAccumulator[instrId] = totalExptState[sampleKey]
+      }
+    }
+  })
+  return exptAccumulator
 }
 
 export default BookExperimentsForm
