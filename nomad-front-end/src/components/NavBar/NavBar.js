@@ -55,7 +55,9 @@ const NavBar = props => {
       {navLeft}
       <PageHeader />
       <div className={classes.MainMenu}>
-        {location.pathname === '/dashboard' ? menuElement : null}
+        {location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin'
+          ? menuElement
+          : null}
         <div className={!menuElement ? classes.Avatar : undefined}>
           <AuthAvatar
             onClick={props.openModalHandler}
