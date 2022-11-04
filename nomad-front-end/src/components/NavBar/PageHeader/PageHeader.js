@@ -62,6 +62,7 @@ const PageHeaderEl = props => {
     statusButtonsData,
     statusButtonClicked,
     username,
+    grpName,
     accessLevel,
     authToken
   } = props
@@ -89,12 +90,15 @@ const PageHeaderEl = props => {
     case '/admin/users':
       headerTitle = 'Manage Users'
       avatarSrc = userIcon
+      const usernameQuery = new URLSearchParams(location.search).get('username')
       extra = (
         <UsersTabControls
           toggleDrawer={props.toggleUsrDrawer}
           searchHandler={props.userSearchHandler}
+          searchDefValue={usernameQuery ? usernameQuery : props.usrSearchValue}
           showInactive={props.showInactiveUsr}
           switchShowInactive={props.switchShowInactiveUsr}
+          query={usernameQuery}
         />
       )
       break
@@ -170,7 +174,7 @@ const PageHeaderEl = props => {
       avatarSrc = batchSubmitIcon
       extra = (
         <BatchSubmitControls
-          user={{ username, accessLevel, authToken }}
+          user={{ username, accessLevel, authToken, grpName }}
           toggleAddRackModal={props.tglAddRack}
           toggleAddSample={props.tglAddSample}
           toggleBookSamples={props.toggleBookSamples}
@@ -239,6 +243,7 @@ const mapStateToProps = state => {
     usrSearchValue: state.users.searchUserValue,
     paramsFormVisible: state.paramSets.formVisible,
     username: state.auth.username,
+    grpName: state.auth.groupName,
     accessLevel: state.auth.accessLevel,
     authToken: state.auth.token,
     addRackModalVisible: state.batchSubmit.addRackVisible,

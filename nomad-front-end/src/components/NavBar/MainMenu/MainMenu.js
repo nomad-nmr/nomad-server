@@ -24,7 +24,7 @@ const MainMenu = props => {
 
   if (
     process.env.REACT_APP_BATCH_SUBMIT_ON === 'true' &&
-    (accessLevel === 'admin' || accessLevel === 'admin-b')
+    (accessLevel === 'admin' || accessLevel === 'admin-b' || accessLevel === 'user-b')
   ) {
     items.push({
       key: '/batch-submit',
@@ -43,7 +43,7 @@ const MainMenu = props => {
     items.push({
       key: '/search',
       icon: <SearchOutlined style={{ fontSize: 20 }} />,
-      label: 'Search'
+      label: <span className={classes.MenuItem}>Search</span>
     })
   }
 

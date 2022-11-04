@@ -265,31 +265,42 @@ exports.getAllowance = async (req, res) => {
     await Promise.all(
       req.query.instrIds.map(async instrId => {
         const instr = await Instrument.findById(instrId)
-        let { dayAllowance, nightAllowance, maxNight } = instr
+        let { dayAllowance, nightAllowance, nightStart, nightEnd, overheadTime } = instr
+
+        const usrSamples = new Set()
+
         instr.status.statusTable.forEach(entry => {
           if (
             entry.username === req.user.username &&
             entry.time &&
             (entry.status === 'Submitted' || entry.status === 'Available')
           ) {
-            const exptMins = moment.duration(entry.time, 'HH:mm:ss').as('minutes')
+            let exptMins = moment.duration(entry.time, 'HH:mm:ss').as('minutes')
+            //adding overhead time for each sample
+            if (!usrSamples.has(entry.datasetName)) {
+              exptMins += overheadTime / 60
+            }
             if (entry.night) {
               nightAllowance -= exptMins
             } else {
               dayAllowance -= exptMins
             }
+            usrSamples.add(entry.datasetName)
           }
         })
         respArr.push({
           instrId,
           dayAllowance,
           nightAllowance,
-          maxNight,
+          nightStart,
+          nightEnd,
+          overheadTime,
           nightExpt: instr.status.summary.nightExpt,
           dayExpt: instr.status.summary.dayExpt
         })
       })
     )
+
     res.send(respArr)
   } catch (error) {
     console.log(error)

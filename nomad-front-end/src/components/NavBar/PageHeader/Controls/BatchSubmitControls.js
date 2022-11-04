@@ -4,7 +4,7 @@ import { Button, message, Modal, Tooltip } from 'antd'
 import classes from '../PageHeader.module.css'
 
 const BatchSubmitControls = props => {
-  const { accessLevel, authToken } = props.user
+  const { accessLevel, authToken, grpName } = props.user
 
   let activeRack = {}
   let activeRackOpen = true
@@ -50,6 +50,12 @@ const BatchSubmitControls = props => {
   const addSampleHandler = () => {
     if (!authToken) {
       props.openAuthModal()
+    }
+    if (activeRack.group.groupName !== grpName) {
+      return Modal.error({
+        title: 'Rack belongs to a different group',
+        content: 'Submitting to a rack that does not belong to your own group is forbidden'
+      })
     }
     props.toggleAddSample()
   }
