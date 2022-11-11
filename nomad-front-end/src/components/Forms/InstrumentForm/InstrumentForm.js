@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Form, Input, Button, InputNumber, Row, Col, TimePicker } from 'antd'
 import moment from 'moment'
 
@@ -22,10 +22,6 @@ const tailLayout = {
 
 const InstrumentsForm = props => {
   const [form] = Form.useForm()
-
-  useEffect(() => {
-    form.resetFields()
-  })
 
   const onFinish = values => {
     values.nightStart = values.nightStart.format('HH:mm')
@@ -120,10 +116,7 @@ const InstrumentsForm = props => {
               name='overheadTime'
               label='Overhead Time [s]'
               tooltip='Avarage time used by machine to change sample, lock and shim'
-              rules={[
-                { type: 'integer', message: 'Overhead time has to be an integer' },
-                { required: true, message: ' Overhead time is required' }
-              ]}
+              rules={[{ required: true, message: ' Overhead time is required' }]}
             >
               <InputNumber min={0} />
             </Form.Item>

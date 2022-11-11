@@ -1,5 +1,8 @@
 const { validationResult } = require('express-validator')
+const moment = require('moment')
+
 const Instrument = require('../../models/instrument')
+const Experiment = require('../../models/experiment')
 const io = require('../../socket')
 const app = require('../../app')
 
@@ -69,12 +72,10 @@ exports.toggleAvailable = async (req, res) => {
     }
     instrument.available = !instrument.available
     const updatedInstrument = await instrument.save()
-    io.getIO()
-      .to('users')
-      .emit('availableUpdate', {
-        _id: updatedInstrument._id,
-        available: updatedInstrument.available
-      })
+    io.getIO().to('users').emit('availableUpdate', {
+      _id: updatedInstrument._id,
+      available: updatedInstrument.available
+    })
     res.send()
   } catch (err) {
     console.log(err)
@@ -94,5 +95,35 @@ exports.toggleActive = async (req, res) => {
   } catch (err) {
     console.log(err)
     res.status(500).send(err)
+  }
+}
+
+exports.getOverheadTime = async (req, res) => {
+  const { instrId } = req.params
+  try {
+    const expsArr = await Experiment.find(
+      { 'instrument.id': instrId, expNo: '10' },
+      'expTime totalExpTime'
+    )
+
+    const filteredExps = expsArr.filter(exp => exp.expTime && exp.totalExpTime)
+
+    const overheadSum = filteredExps.reduce((accumulator, exp) => {
+      accumulator +=
+        moment.duration(exp.totalExpTime, 'HH:mm:ss').as('seconds') -
+        moment.duration(exp.expTime, 'HH:mm:ss').as('seconds')
+
+      return accumulator
+    }, 0)
+
+    const respData = {
+      overheadTime: Math.round(overheadSum / filteredExps.length),
+      expCount: filteredExps.length,
+      instrId
+    }
+    res.send(respData)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send(error)
   }
 }
