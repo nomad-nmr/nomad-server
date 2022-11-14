@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Form, Input, Button, InputNumber, Row, Col, TimePicker } from 'antd'
 import moment from 'moment'
 
@@ -22,6 +22,12 @@ const tailLayout = {
 
 const InstrumentsForm = props => {
   const [form] = Form.useForm()
+
+  const { resetOverheadHandler } = props
+
+  useEffect(() => {
+    return () => resetOverheadHandler()
+  }, [resetOverheadHandler])
 
   const onFinish = values => {
     values.nightStart = values.nightStart.format('HH:mm')

@@ -22,8 +22,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         showForm: !state.showForm,
         tableIsLoading: false,
-        editing: action.payload,
-        overheadCalc: {}
+        editing: action.payload
       }
 
     case actionTypes.FETCH_INSTRUMENTS_TABLE_START:
@@ -108,6 +107,12 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.FETCH_OVERHEAD_SUCCESS:
       return { ...state, overheadCalc: action.payload, calculating: false }
+
+    case actionTypes.RESET_OVERHEAD:
+      return {
+        ...state,
+        overheadCalc: { instrId: action.payload, overheadTime: undefined, expCount: undefined }
+      }
 
     default:
       return state

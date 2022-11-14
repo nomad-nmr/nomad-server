@@ -6,7 +6,8 @@ import {
   toggleActiveInstr,
   toggleShowForm,
   addInstrument,
-  setInstrIdEdit
+  setInstrIdEdit,
+  resetOverhead
 } from '../../store/actions/index'
 import moment from 'moment'
 import { Table, Space, Button, Tag, Tooltip, message, Avatar, Modal, Spin } from 'antd'
@@ -20,8 +21,8 @@ import './Instruments.css'
 const { CheckableTag } = Tag
 
 const Instruments = props => {
-  const { fetchInstr, authToken, showInactive, overheadData, formVisible } = props
-  const { expCount, overheadTime } = overheadData
+  const { fetchInstr, authToken, showInactive, overheadData, formVisible, rstOverhead } = props
+  const { expCount, overheadTime, instrId } = overheadData
   const formRef = useRef({})
 
   useEffect(() => {
@@ -35,14 +36,18 @@ const Instruments = props => {
       Modal.confirm({
         title: 'Overhead time calculation result',
         icon: <CalculatorOutlined />,
-        content: `Calculation based on evaluation of ${expCount} experiments suggests overhead time ${overheadTime}. 
-        Click the "OK" button if you want use the value. Click to discard the value`,
+        content: `Calculation based on evaluation of ${expCount} experiments suggests overhead time ${overheadTime} s. 
+        Click the "OK" button if you want use the value. Click "Cancel" to discard the value`,
         onOk() {
           setTimeout(() => formRef.current.setFieldsValue({ overheadTime }), 100)
+          rstOverhead(instrId)
+        },
+        onCancel() {
+          rstOverhead(instrId)
         }
       })
     }
-  }, [overheadTime])
+  }, [overheadTime, formVisible, instrId, expCount, rstOverhead])
 
   const columns = [
     {
@@ -169,6 +174,7 @@ const Instruments = props => {
       authToken={props.authToken}
       editing={props.editing}
       overheadData={props.overhead}
+      resetOverheadHandler={props.rstOverhead}
     />
   )
 
@@ -226,7 +232,8 @@ const mapDispatchToProps = dispatch => {
     updateInstr: (payload, token) => dispatch(updateInstruments(payload, token)),
     toggleActive: (payload, token) => dispatch(toggleActiveInstr(payload, token)),
     toggleForm: editing => dispatch(toggleShowForm(editing)),
-    setInstrId: instrId => dispatch(setInstrIdEdit(instrId))
+    setInstrId: instrId => dispatch(setInstrIdEdit(instrId)),
+    rstOverhead: instrId => dispatch(resetOverhead(instrId))
   }
 }
 

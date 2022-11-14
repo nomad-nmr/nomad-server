@@ -159,3 +159,8 @@ export const fetchOverheadTime = (instrId, token) => {
       })
   }
 }
+
+export const resetOverhead = instrId => ({
+  type: actionTypes.RESET_OVERHEAD,
+  payload: instrId
+})
