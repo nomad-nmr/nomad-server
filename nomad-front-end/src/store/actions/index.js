@@ -33,7 +33,10 @@ export {
   toggleActiveInstr,
   toggleShowForm,
   toggleShowInactiveInstruments,
-  fetchInstrumentList
+  fetchInstrumentList,
+  fetchOverheadTime,
+  setInstrIdEdit,
+  resetOverhead
 } from './instruments'
 
 export {

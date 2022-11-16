@@ -28,7 +28,8 @@ import {
   toggleDownloadModal,
   toggleSearchForm,
   fetchRepair,
-  toggleCostingDrawer
+  toggleCostingDrawer,
+  fetchOverheadTime
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -131,6 +132,9 @@ const PageHeaderEl = props => {
           showInactive={props.showInactiveInst}
           toggleShowInactive={props.toggleShowInactiveInstr}
           toggleInstForm={props.toggleInstForm}
+          overheadTimeData={props.overheadTimeCalc}
+          fetchOverheadHandler={props.fetchOverhead}
+          token={props.authToken}
         />
       )
       break
@@ -238,6 +242,7 @@ const mapStateToProps = state => {
     grpFormVisible: state.groups.showForm,
     showInactiveGrps: state.groups.showInactive,
     instrList: state.instruments.instrumentList,
+    overheadTimeCalc: state.instruments.overheadCalc,
     instrId: state.paramSets.instrumentId,
     paramsSearchValue: state.paramSets.searchValue,
     usrSearchValue: state.users.searchUserValue,
@@ -282,7 +287,8 @@ const mapDispatchToProps = dispatch => {
     toggleDownloadMdl: () => dispatch(toggleDownloadModal()),
     tglSearchForm: () => dispatch(toggleSearchForm()),
     getRepair: (instrId, token) => dispatch(fetchRepair(instrId, token)),
-    tglCostingDrawer: () => dispatch(toggleCostingDrawer())
+    tglCostingDrawer: () => dispatch(toggleCostingDrawer()),
+    fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token))
   }
 }
 

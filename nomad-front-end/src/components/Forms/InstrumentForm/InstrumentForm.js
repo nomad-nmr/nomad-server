@@ -23,9 +23,11 @@ const tailLayout = {
 const InstrumentsForm = props => {
   const [form] = Form.useForm()
 
+  const { resetOverheadHandler } = props
+
   useEffect(() => {
-    form.resetFields()
-  })
+    return () => resetOverheadHandler()
+  }, [resetOverheadHandler])
 
   const onFinish = values => {
     values.nightStart = values.nightStart.format('HH:mm')
@@ -120,10 +122,7 @@ const InstrumentsForm = props => {
               name='overheadTime'
               label='Overhead Time [s]'
               tooltip='Avarage time used by machine to change sample, lock and shim'
-              rules={[
-                { type: 'integer', message: 'Overhead time has to be an integer' },
-                { required: true, message: ' Overhead time is required' }
-              ]}
+              rules={[{ required: true, message: ' Overhead time is required' }]}
             >
               <InputNumber min={0} />
             </Form.Item>
