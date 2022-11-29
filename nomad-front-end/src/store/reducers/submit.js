@@ -18,7 +18,8 @@ const reducer = (state = initialState, { type, payload }) => {
           instId: payload.instrumentId,
           instrument: payload.instrumentName,
           holder,
-          key: payload.instrumentId + '-' + holder
+          key: payload.instrumentId + '-' + holder,
+          paramsEditing: payload.paramsEditing
         }))
         return {
           ...state,

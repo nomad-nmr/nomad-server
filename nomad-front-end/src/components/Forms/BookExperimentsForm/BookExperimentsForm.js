@@ -429,13 +429,14 @@ const BookExperimentsForm = props => {
                     <Form.Item name={[key, 'exps', expNo, 'params']}>
                       <Input disabled style={disabledStyle} />
                     </Form.Item>
-                    <button
-                      className={classes.ActionButton}
+                    <Button
+                      type='primary'
                       value={key}
                       onClick={e => openModalHandler(e, key, expNo)}
+                      disabled={!sample.paramsEditing}
                     >
                       Edit
-                    </button>
+                    </Button>
                   </Space>
                 </Col>
                 <Col span={2}>{exptState[key + '#' + expNo]}</Col>

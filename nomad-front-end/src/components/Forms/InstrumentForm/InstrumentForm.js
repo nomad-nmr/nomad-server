@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Form, Input, Button, InputNumber, Row, Col, TimePicker } from 'antd'
+import { Form, Input, Button, InputNumber, Row, Col, TimePicker, Switch } from 'antd'
 import moment from 'moment'
 
 import classes from '../Form.module.css'
@@ -57,7 +57,8 @@ const InstrumentsForm = props => {
           nightStart: moment('09:00', 'HH:mm'),
           nightEnd: moment('19:00', 'HH:mm'),
           dayAllowance: 20,
-          nightAllowance: 120
+          nightAllowance: 120,
+          paramsEditing: true
         }}
       >
         <Row>
@@ -125,6 +126,15 @@ const InstrumentsForm = props => {
               rules={[{ required: true, message: ' Overhead time is required' }]}
             >
               <InputNumber min={0} />
+            </Form.Item>
+            <Form.Item
+              style={{ textAlign: 'left' }}
+              name='paramsEditing'
+              label='Parameters Editing'
+              tooltip='Allow or deny users from editing parameters'
+              valuePropName='checked'
+            >
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
             </Form.Item>
           </Col>
         </Row>
