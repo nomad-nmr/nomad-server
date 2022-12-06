@@ -433,7 +433,7 @@ const BookExperimentsForm = props => {
                       type='primary'
                       value={key}
                       onClick={e => openModalHandler(e, key, expNo)}
-                      disabled={!sample.paramsEditing}
+                      disabled={!sample.paramsEditing && !priorityAccess}
                     >
                       Edit
                     </Button>
