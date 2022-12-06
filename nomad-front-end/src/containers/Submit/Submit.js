@@ -151,7 +151,8 @@ const mapDispatchToProps = dispatch => {
   return {
     fetchInstrList: token => dispatch(fetchInstrumentList(token)),
     fetchGrpList: token => dispatch(fetchGroupList(token)),
-    fetchUsrList: (token, groupId, showInactive) => dispatch(fetchUserList(token, groupId, showInactive)),
+    fetchUsrList: (token, groupId, showInactive) =>
+      dispatch(fetchUserList(token, groupId, showInactive)),
     bookSlotsHandler: (token, formData) => dispatch(bookHolders(token, formData)),
     statUpdate: data => dispatch(statusUpdate(data)),
     fetchParamSets: (token, searchParams) => dispatch(fetchParamSets(token, searchParams)),
