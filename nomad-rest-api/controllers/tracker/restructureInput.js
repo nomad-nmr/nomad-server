@@ -66,9 +66,15 @@ const restructureInput = (input, instrument, batchGroups) => {
 
   // Calculating number of errors and
   const errorCount = statusTable.filter(entry => entry.status === 'Error').length
-  const pendingCount = statusTable.filter(
+  const filteredTable = statusTable.filter(
     entry => entry.status === 'Available' && !batchGroups.includes(entry.group)
-  ).length
+  )
+  //counting only holders rather than experiments
+  const pendingDatasetNames = new Set()
+  filteredTable.forEach(i => {
+    pendingDatasetNames.add(i.datasetName)
+  })
+  const pendingCount = pendingDatasetNames.size
 
   const summary = {
     ...instrument.status.summary,

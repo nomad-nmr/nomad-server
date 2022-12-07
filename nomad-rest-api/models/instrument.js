@@ -35,6 +35,11 @@ const instrumentSchema = new Schema({
   nightEnd: String,
   overheadTime: Number,
 
+  paramsEditing: {
+    type: Boolean,
+    default: true
+  },
+
   status: {
     summary: {
       busyUntil: {

@@ -13,7 +13,12 @@ import moment from 'moment'
 import { Table, Space, Button, Tag, Tooltip, message, Avatar, Modal, Spin } from 'antd'
 import Animate from 'rc-animate'
 import InstrumentForm from '../../components/Forms/InstrumentForm/InstrumentForm'
-import { CopyTwoTone, CalculatorOutlined } from '@ant-design/icons'
+import {
+  CopyTwoTone,
+  CalculatorOutlined,
+  CheckCircleOutlined,
+  StopOutlined
+} from '@ant-design/icons'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import './Instruments.css'
@@ -122,6 +127,21 @@ const Instruments = props => {
       render: record => (
         <Avatar size='small' style={{ backgroundColor: record ? '#389e0d' : '#cf1322' }} />
       )
+    },
+    {
+      title: () => (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          Params
+          <p>Editing</p>
+        </div>
+      ),
+      align: 'center',
+      render: record =>
+        record.paramsEditing ? (
+          <CheckCircleOutlined style={{ color: '#389e0d', fontSize: '18px' }} />
+        ) : (
+          <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
+        )
     },
     {
       title: 'Actions',

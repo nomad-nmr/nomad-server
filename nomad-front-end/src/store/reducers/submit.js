@@ -13,12 +13,13 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, loading: true }
 
     case actionTypes.BOOK_HOLDERS_SUCCESS:
-      if (payload.holders) {
+      if (payload.holders.length > 0) {
         const newHolders = payload.holders.map(holder => ({
           instId: payload.instrumentId,
           instrument: payload.instrumentName,
           holder,
-          key: payload.instrumentId + '-' + holder
+          key: payload.instrumentId + '-' + holder,
+          paramsEditing: payload.paramsEditing
         }))
         return {
           ...state,

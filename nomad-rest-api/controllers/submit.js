@@ -7,6 +7,9 @@ const Instrument = require('../models/instrument')
 const ParameterSet = require('../models/parameterSet')
 const User = require('../models/user')
 const Experiment = require('../models/experiment')
+const transporter = require('../utils/emailTransporter')
+
+let alertSent = false
 
 exports.postSubmission = async (req, res) => {
   try {
@@ -130,13 +133,37 @@ exports.postBookHolders = async (req, res) => {
       throw new Error('Submitter error')
     }
 
-    const { capacity, name } = await Instrument.findById(instrumentId, 'capacity name')
+    const { capacity, name, paramsEditing } = await Instrument.findById(
+      instrumentId,
+      'capacity name paramsEditing'
+    )
 
     const availableHolders = submitter.findAvailableHolders(instrumentId, capacity, count)
 
     submitter.updateBookedHolders(instrumentId, availableHolders)
 
-    res.send({ instrumentId, instrumentName: name, holders: availableHolders })
+    //If there are no available holders then queue gets shut down and e-mail to admins is sent.
+    if (availableHolders.length === 0) {
+      const instrument = await Instrument.findByIdAndUpdate(instrumentId, { available: false })
+      const admins = await User.find({ accessLevel: 'admin', isActive: true }, 'email')
+      const recipients = admins.map(i => i.email)
+      if (!alertSent) {
+        await transporter.sendMail({
+          from: process.env.SMTP_SENDER,
+          cc: process.env.SMTP_SENDER,
+          to: recipients,
+          subject: 'NOMAD-ALERT: No holders available',
+          text: `All holders on instrument ${instrument.name} have been booked!`
+        })
+        //Preventing alert to be sent multiple times
+        alertSent = true
+        setTimeout(() => {
+          alertSent = false
+        }, 600000)
+      }
+    }
+
+    res.send({ instrumentId, instrumentName: name, holders: availableHolders, paramsEditing })
   } catch (error) {
     console.log(error)
     res.status(500).send()
