@@ -58,8 +58,8 @@ exports.postMessage = async (req, res) => {
 
     await transporter.sendMail({
       from: process.env.SMTP_SENDER,
-      cc: process.env.SMTP_SENDER,
-      to: [...recipientsSet],
+      to: process.env.SMTP_SENDER,
+      bcc: [...recipientsSet],
       subject: 'NOMAD: ' + (subject ? subject : ''),
       text: message
     })
