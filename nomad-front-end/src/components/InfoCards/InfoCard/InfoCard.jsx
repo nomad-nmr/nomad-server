@@ -3,11 +3,16 @@ import React from 'react'
 import { Card, Row, Col, Tag } from 'antd'
 import moment from 'moment'
 
+// eslint-disable-next-line
+import momentDurationFormatSetup from 'moment-duration-format'
+
 import TrafficLights from '../../TrafficLights/TrafficLights'
 import classes from './InfoCard.module.css'
 
 import nightIcon from '../../../assets/night-mode.svg'
 import dayIcon from '../../../assets/sunny-day.svg'
+
+momentDurationFormatSetup(moment)
 
 const InfoCard = props => {
   const { name, model, probe, available, nightAllowance, dayAllowance } = props.data
@@ -73,7 +78,9 @@ const InfoCard = props => {
             <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
           </Col>
           <Col span={11}>{nightExpt}</Col>
-          <Col span={11}>{moment.duration(nightAllowance, 'm').format('HH:mm', { trim: false })}</Col>
+          <Col span={11}>
+            {moment.duration(nightAllowance, 'm').format('HH:mm', { trim: false })}
+          </Col>
         </Row>
       </div>
     </Card>

@@ -2,12 +2,13 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin-right: 50px;
+  height: 65px;
 }
 
 .Toggle {
   font-size: 20px;
   line-height: 64px;
+  height: 64px;
   padding: 0 24px;
   cursor: pointer;
   transition: all 0.3s;
@@ -32,10 +33,11 @@
   display: flex;
   align-items: center;
   margin-left: auto;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   margin-top: -2px;
 }
 
 .Avatar {
+  height: 64px;
   margin-top: 3px;
 }

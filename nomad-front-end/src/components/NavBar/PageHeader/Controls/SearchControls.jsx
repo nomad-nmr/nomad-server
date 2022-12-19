@@ -27,7 +27,7 @@ const SearchControls = props => {
       </div>
 
       <a
-        href={process.env.REACT_APP_NMRIUM_URL + '/?' + searchParams.toString()}
+        href={import.meta.env.VITE_NMRIUM_URL + '/?' + searchParams.toString()}
         target='_blank'
         rel='noreferrer noopener'
       >

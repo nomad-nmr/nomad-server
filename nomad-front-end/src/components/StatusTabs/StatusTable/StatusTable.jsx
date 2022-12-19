@@ -210,7 +210,8 @@ const StatusTable = props => {
       disabled:
         !props.accessLvl ||
         record.status === 'Running' ||
-        (props.accessLvl !== 'admin' && (record.status === 'Error' || record.username !== props.username))
+        (props.accessLvl !== 'admin' &&
+          (record.status === 'Error' || record.username !== props.username))
     }),
 
     onChange: selectedRowKeys => {
@@ -227,6 +228,7 @@ const StatusTable = props => {
       expandable={{ expandedRowRender }}
       rowSelection={rowSelection}
       pagination={false}
+      rowClassName={classes.TableRow}
     />
   )
 }

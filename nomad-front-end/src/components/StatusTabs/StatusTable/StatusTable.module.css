@@ -1,3 +1,11 @@
 .RowExpansion {
-	background-color: #f0f5ff;
+  background-color: #f0f5ff;
+}
+
+.RowExpansion:hover td {
+  background-color: #fffbe6 !important;
+}
+
+.TableRow:hover td {
+  background-color: #fffbe6 !important;
 }

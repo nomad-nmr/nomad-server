@@ -5,8 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "env-cmd -f ./config/dev.env.js node app.js",
-    "dev": "env-cmd -f ./config/dev.env.js nodemon app.js",
+    "start": "env-cmd -f ../env/api-no-docker.env node app.js",
+    "dev": "env-cmd -f ../env/api-no-docker.env nodemon app.js",
     "dev-docker": "nodemon app.js"
   },
   "keywords": [],

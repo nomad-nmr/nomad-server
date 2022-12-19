@@ -50,7 +50,7 @@ const LoginModal = props => {
       footer={null}
     >
       <Spin tip='Loading ...' spinning={props.loading}>
-        <Form form={form} onFinish={values => onFinish(values)} hideRequiredMark>
+        <Form form={form} onFinish={values => onFinish(values)} style={{ marginTop: '30px' }}>
           <Form.Item
             name='username'
             rules={[
