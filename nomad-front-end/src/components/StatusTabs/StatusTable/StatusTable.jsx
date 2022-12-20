@@ -1,8 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
-// eslint-disable-next-line
-import momentDurationFormatSetup from 'moment-duration-format'
 import { connect } from 'react-redux'
 import { Table, Badge, Tag, Button } from 'antd'
 import {

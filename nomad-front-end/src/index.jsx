@@ -19,9 +19,14 @@ import messageReducer from './store/reducers/message'
 import batchSubmitReducer from './store/reducers/batchSubmit'
 import searchReducer from './store/reducers/search'
 import accountsReducer from './store/reducers/accounts'
+import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 
 import './index.css'
 import App from './App'
+
+//setting up moment library to enable format duration
+momentDurationFormatSetup(moment)
 
 // Enabling Redux-Dev tools
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
