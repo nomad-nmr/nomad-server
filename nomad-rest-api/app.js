@@ -1,18 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
-const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
 const helmet = require('helmet')
-
-const port = process.env.PORT || 8080
-const host = process.env.HOST || '0.0.0.0'
-
-const app = express()
-
-const User = require('./models/user')
-const Group = require('./models/group')
-const Instrument = require('./models/instrument')
-const Submitter = require('./submitter')
+const mongoose = require('mongoose')
 
 const trackerRoutes = require('./routes/tracker')
 const instrumentsRoutes = require('./routes/admin/insruments')
@@ -28,6 +17,8 @@ const messageRoutes = require('./routes/admin/message')
 const batchSubmitRoutes = require('./routes/batch-submit')
 const dataRoutes = require('./routes/data')
 const searchRoutes = require('./routes/search')
+
+const app = express()
 
 app.use(bodyParser.json({ strict: true, limit: '50mb' }))
 app.use(helmet())
@@ -59,73 +50,12 @@ app.use((req, res) => {
   res.status(404).send()
 })
 
-// Setting findByIdAndUpdate() to return updated document
-// Default setting is true
-mongoose.set('returnOriginal', false)
-mongoose.set('strictQuery', true)
+//Connecting testing database
+if (process.env.NODE_ENV === 'test') {
+  mongoose.set('returnOriginal', false)
+  mongoose.set('strictQuery', true)
 
-mongoose.connect(process.env.MONGODB_URL).then(async () => {
-  console.log('DB connected')
-  //CReating default group and admin user (TODO: refactor into utility function that can be used in tracker auto-feed )
-  try {
-    let group = await Group.findOne()
-    //Adding the default group
-    if (!group) {
-      group = new Group()
-      await group.save()
-    }
-
-    // adding default admin user
-    const user = await User.findOne()
-    if (!user) {
-      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12)
-      const adminUser = new User({
-        username: 'admin',
-        password: hashedPassword,
-        accessLevel: 'admin',
-        email: 'admin@' + process.env.EMAIL_SUFFIX,
-        group: group._id
-      })
-      await adminUser.save()
-    }
-
-    //Starting the express server
-    const server = app.listen(port, host, () => {
-      console.log(`Server is running on port ${port}`)
-    })
-
-    //Initiating socket.io
-    const io = require('./socket').init(server)
-    io.on('connection', socket => {
-      console.log('Client connected', socket.id)
-
-      //storing socketId in submitter to register instrument client
-      const { instrumentId } = socket.handshake.query
-      if (instrumentId) {
-        submitter.updateSocket(instrumentId, socket.id)
-      } else {
-        socket.join('users')
-      }
-      //updating submitter state and DB if instrument is disconnected
-      socket.on('disconnect', () => {
-        const { instrumentId } = socket.handshake.query
-        if (instrumentId) {
-          submitter.updateSocket(instrumentId)
-        }
-      })
-    })
-  } catch (error) {
-    console.log(error)
-  }
-})
-
-// Submitter initiation
-const submitter = new Submitter()
-submitter.init()
-
-module.exports.getSubmitter = () => {
-  if (!submitter) {
-    throw new Error('Submitter was not initiated')
-  }
-  return submitter
+  mongoose.connect(process.env.MONGODB_URL)
 }
+
+module.exports = app
