@@ -58,7 +58,7 @@ const NavBar = props => {
         {location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin'
           ? menuElement
           : null}
-        <div className={!menuElement ? classes.Avatar : undefined}>
+        <div className={classes.Avatar}>
           <AuthAvatar
             onClick={props.openModalHandler}
             username={props.username}

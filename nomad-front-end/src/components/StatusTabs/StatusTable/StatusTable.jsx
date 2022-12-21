@@ -1,8 +1,6 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import moment from 'moment'
-// eslint-disable-next-line
-import momentDurationFormatSetup from 'moment-duration-format'
 import { connect } from 'react-redux'
 import { Table, Badge, Tag, Button } from 'antd'
 import {
@@ -210,7 +208,8 @@ const StatusTable = props => {
       disabled:
         !props.accessLvl ||
         record.status === 'Running' ||
-        (props.accessLvl !== 'admin' && (record.status === 'Error' || record.username !== props.username))
+        (props.accessLvl !== 'admin' &&
+          (record.status === 'Error' || record.username !== props.username))
     }),
 
     onChange: selectedRowKeys => {
@@ -227,6 +226,7 @@ const StatusTable = props => {
       expandable={{ expandedRowRender }}
       rowSelection={rowSelection}
       pagination={false}
+      rowClassName={classes.TableRow}
     />
   )
 }

@@ -2,7 +2,7 @@ import React from 'react'
 import { Form, Select, InputNumber, Button, Space } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
-import SelectGrpUsr from '../../Forms/SelectGrpUsr/SelectGrpUsr'
+import SelectGrpUsr from '../SelectGrpUsr/SelectGrpUsr'
 import classes from '../Form.module.css'
 
 const { Option } = Select
@@ -46,7 +46,9 @@ const BookHoldersForm = props => {
           <Form.Item
             label='Number of samples'
             name='count'
-            rules={[{ type: 'integer', required: true, message: 'Number of samples must be integer' }]}
+            rules={[
+              { type: 'integer', required: true, message: 'Number of samples must be integer' }
+            ]}
           >
             <InputNumber min={1} max={5 - props.bookedCount} style={{ width: 60 }} />
           </Form.Item>

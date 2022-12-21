@@ -62,6 +62,7 @@ app.use((req, res) => {
 // Setting findByIdAndUpdate() to return updated document
 // Default setting is true
 mongoose.set('returnOriginal', false)
+mongoose.set('strictQuery', true)
 
 mongoose.connect(process.env.MONGODB_URL).then(async () => {
   console.log('DB connected')

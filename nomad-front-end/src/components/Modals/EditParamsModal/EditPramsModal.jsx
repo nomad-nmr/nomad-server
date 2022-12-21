@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Modal, Form, Input, InputNumber, Row, Col, Button, Space, Divider, message } from 'antd'
 import moment from 'moment'
-// eslint-disable-next-line
-import momentDurationFormatSetup from 'moment-duration-format'
 
 const EditParamsModal = props => {
   const [form] = Form.useForm()

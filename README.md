@@ -6,7 +6,7 @@ Server side code for [NOMAD system](https://www.nomad-nmr.uk/) made out of three
 
 ### nomad-front-end
 
-React front-end bootstrapped with **[Create React App](https://github.com/facebook/create-react-app)**.
+React front-end bootstrapped with **[Vite JS](https://vitejs.dev/)**.
 
 ### nomad-rest-api
 

@@ -9,9 +9,8 @@ import {
   postPasswdReset
 } from './store/actions'
 
-import { Layout, Spin, BackTop, Affix } from 'antd'
+import { Layout, Spin, Affix, FloatButton } from 'antd'
 import classes from './App.module.css'
-import './App.less'
 
 import AdminMenu from './components/AdminMenu/AdminMenu'
 import NavBar from './components/NavBar/NavBar'
@@ -108,7 +107,10 @@ const App = props => {
 
       <Layout>
         <Affix>
-          <Header className={classes.Header}>
+          <Header
+            className={classes.Header}
+            style={{ background: '#ffffff', paddingLeft: 0, paddingRight: 30 }}
+          >
             <NavBar collapsed={adminMenuCollapsed} toggleClicked={toggleAdminMenu} />
           </Header>
         </Affix>
@@ -153,7 +155,7 @@ const App = props => {
                 path='/submit'
                 element={
                   username &&
-                  process.env.REACT_APP_SUBMIT_ON === 'true' &&
+                  import.meta.env.VITE_SUBMIT_ON === 'true' &&
                   accessLevel !== 'user-b' ? (
                     <Submit />
                   ) : (
@@ -164,7 +166,7 @@ const App = props => {
               <Route
                 path='/batch-submit'
                 element={
-                  process.env.REACT_APP_BATCH_SUBMIT_ON === 'true' ? (
+                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
                     <BatchSubmit />
                   ) : (
                     <Navigate to='/dashboard' />
@@ -174,7 +176,7 @@ const App = props => {
               <Route
                 path='/search'
                 element={
-                  process.env.REACT_APP_DATASTORE_ON === 'true' ? (
+                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
                     <Search />
                   ) : (
                     <Navigate to='/dashboard' />
@@ -191,7 +193,7 @@ const App = props => {
             </Routes>
           </Suspense>
           {authModal}
-          <BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
+          <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
         </Content>
         <Footer className={classes.Footer}>
           <Credits />

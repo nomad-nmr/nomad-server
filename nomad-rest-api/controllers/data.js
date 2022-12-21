@@ -192,7 +192,7 @@ const getNMRiumObj = async (dataPath, title) => {
     const zip = await fs.readFile(dataPath + '.zip')
     const fileCollection = await fileCollectionFromZip(zip)
     const nmriumObj = await read(fileCollection)
-    const newSpectraArr = nmriumObj.spectra
+    const newSpectraArr = nmriumObj.data.spectra
       .filter(i => i.info.isFt)
       .map(i => {
         delete i.originalData

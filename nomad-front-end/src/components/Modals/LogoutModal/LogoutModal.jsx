@@ -28,7 +28,7 @@ const LogoutModal = props => {
       }}
       onCancel={cancelClicked}
     >
-      <Text strong>Do you want to sign out?</Text>
+      <p style={{ marginTop: '20px', fontWeight: 600 }}>Do you want to sign out?</p>
     </Modal>
   )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { PageHeader } from 'antd'
+import { PageHeader } from '@ant-design/pro-layout'
 
 import {
   toggleCards,

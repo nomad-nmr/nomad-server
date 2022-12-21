@@ -1,10 +1,10 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import * as serviceWorker from './serviceWorker'
 import { BrowserRouter } from 'react-router-dom'
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
+import { ConfigProvider } from 'antd'
 
 import authReducer from './store/reducers/auth'
 import dashReducer from './store/reducers/dashboard'
@@ -19,9 +19,14 @@ import messageReducer from './store/reducers/message'
 import batchSubmitReducer from './store/reducers/batchSubmit'
 import searchReducer from './store/reducers/search'
 import accountsReducer from './store/reducers/accounts'
+import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 
 import './index.css'
 import App from './App'
+
+//setting up moment library to enable format duration
+momentDurationFormatSetup(moment)
 
 // Enabling Redux-Dev tools
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -53,7 +58,16 @@ const root = createRoot(container)
 root.render(
   <Provider store={store}>
     <BrowserRouter>
-      <App />
+      <ConfigProvider
+        theme={{
+          token: {
+            colorBgLayout: '#fff',
+            borderRadius: 4
+          }
+        }}
+      >
+        <App />
+      </ConfigProvider>
     </BrowserRouter>
   </Provider>
 )
@@ -61,4 +75,4 @@ root.render(
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister()
+// serviceWorker.unregister()

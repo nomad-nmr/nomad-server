@@ -1,6 +1,6 @@
 .PageHeader {
   border-right: 1px solid #f0f0f0;
-  /* border-bottom: 2px solid #1890ff; */
+  padding-top: 12px;
 }
 
 .ExtraContainer {
@@ -15,11 +15,6 @@
   align-items: center;
   padding-left: 20px;
   padding-bottom: 5px;
-  /* display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-items: center;
-    align-items: baseline;
-    margin-top: 4px; */
 }
 
 .SwitchElement label {

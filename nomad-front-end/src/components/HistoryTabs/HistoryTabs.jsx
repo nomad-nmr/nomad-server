@@ -1,7 +1,7 @@
 import React from 'react'
 import { Tabs } from 'antd'
 
-import HistoryTable from '../HistoryTabs/HistoryTable/HistoryTable'
+import HistoryTable from './HistoryTable/HistoryTable'
 
 const historyTabs = props => {
   const items = props.tabsData.map((instr, index) => ({

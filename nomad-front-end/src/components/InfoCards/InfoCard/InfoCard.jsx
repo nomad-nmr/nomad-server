@@ -73,7 +73,9 @@ const InfoCard = props => {
             <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
           </Col>
           <Col span={11}>{nightExpt}</Col>
-          <Col span={11}>{moment.duration(nightAllowance, 'm').format('HH:mm', { trim: false })}</Col>
+          <Col span={11}>
+            {moment.duration(nightAllowance, 'm').format('HH:mm', { trim: false })}
+          </Col>
         </Row>
       </div>
     </Card>

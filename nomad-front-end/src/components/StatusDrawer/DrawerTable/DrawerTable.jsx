@@ -4,9 +4,6 @@ import { Table } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import moment from 'moment'
 
-// eslint-disable-next-line
-import momentDurationFormatSetup from 'moment-duration-format'
-
 import NightDay from '../../NightDay/NightDay'
 import classes from './DrawerTable.module.css'
 import { updatePendingChecked } from '../../../store/actions'
@@ -119,7 +116,9 @@ const DrawerTable = props => {
 
         const timeRemaining =
           totalExptMoment && record.updatedAt
-            ? totalExptMoment.subtract(moment().diff(record.updatedAt)).format('HH:mm:ss', { trim: false })
+            ? totalExptMoment
+                .subtract(moment().diff(record.updatedAt))
+                .format('HH:mm:ss', { trim: false })
             : ''
         return <span>{timeRemaining}</span>
       }
