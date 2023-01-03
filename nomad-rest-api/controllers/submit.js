@@ -2,7 +2,7 @@ const moment = require('moment')
 const bcrypt = require('bcryptjs')
 
 const io = require('../socket')
-const app = require('../app')
+const server = require('../server')
 const Instrument = require('../models/instrument')
 const ParameterSet = require('../models/parameterSet')
 const User = require('../models/user')
@@ -14,7 +14,7 @@ let alertSent = false
 exports.postSubmission = async (req, res) => {
   try {
     const { userId } = req.params
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
 
     const user = userId === 'undefined' ? req.user : await User.findById(userId)
 
@@ -125,7 +125,7 @@ exports.postSubmission = async (req, res) => {
 
 exports.postBookHolders = async (req, res) => {
   try {
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     const { instrumentId, count } = req.body
     const { usedHolders, bookedHolders } = submitter.state.get(instrumentId)
 
@@ -172,7 +172,7 @@ exports.postBookHolders = async (req, res) => {
 
 exports.deleteHolders = (req, res) => {
   try {
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     //Keeping holders booked for 2 mins to allow them to get registered in usedHolders from status table
     //after experiments been booked
     setTimeout(() => {
@@ -190,7 +190,7 @@ exports.deleteHolders = (req, res) => {
 
 exports.deleteHolder = (req, res) => {
   try {
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     const instrumentId = req.params.key.split('-')[0]
     const holder = req.params.key.split('-')[1]
     submitter.cancelBookedHolder(instrumentId, holder)
@@ -214,7 +214,7 @@ exports.deleteExps = (req, res) => {
 exports.putReset = async (req, res) => {
   const { instrId } = req.params
   try {
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     const instrument = await Instrument.findById(instrId, 'status.statusTable')
     if (!instrument) {
       return res.status(404).send('Instrument not found')
@@ -254,7 +254,7 @@ exports.postPending = async (req, res) => {
   const { data, username, password } = req.body
 
   try {
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     //If path is pending-auth authentication takes place
     if (path === 'pending-auth') {
       const user = await User.findOne({ username })
@@ -337,7 +337,7 @@ exports.getAllowance = async (req, res) => {
 
 //Helper function that sends array of holders to be deleted to the client
 const emitDeleteExps = (instrId, holders, res) => {
-  const submitter = app.getSubmitter()
+  const submitter = server.getSubmitter()
   const { socketId } = submitter.state.get(instrId)
 
   if (!socketId) {

@@ -6,7 +6,6 @@ class Submitter {
     //State has following map data structure [instrumentId, {socketId, usedHolders, bookedHolders}]
     // usedHolders is set with numbers of holder being used on given instrument. It gets generated and updated from status table.
     //bookedHolders is array of numbers of holders currently being booked on the instrument
-
     this.state = new Map()
   }
 

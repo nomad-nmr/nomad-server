@@ -7,7 +7,7 @@ const Group = require('../../models/group')
 const restructureInput = require('./restructureInput')
 const expHistAutoFeed = require('./expHistAutoFeed')
 const updateStatusFromHist = require('./updateStatusFromHist')
-const app = require('../../app')
+const server = require('../../server')
 
 exports.ping = async (req, res) => {
   try {
@@ -74,7 +74,7 @@ exports.updateStatus = async (req, res) => {
 
     const instr = await instrument.save()
 
-    const submitter = app.getSubmitter()
+    const submitter = server.getSubmitter()
     submitter.updateUsedHolders(instr._id.toString(), newStatusObj.statusTable)
 
     io.getIO()

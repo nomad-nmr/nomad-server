@@ -5,7 +5,7 @@ const Rack = require('../models/rack')
 const Instrument = require('../models/instrument')
 const Experiment = require('../models/experiment')
 const ParameterSet = require('../models/parameterSet')
-const app = require('../app')
+const server = require('../server')
 const io = require('../socket')
 
 exports.getRacks = async (req, res) => {
@@ -157,7 +157,7 @@ exports.deleteSample = async (req, res) => {
 }
 
 exports.bookSamples = async (req, res) => {
-  const submitter = app.getSubmitter()
+  const submitter = server.getSubmitter()
   const { rackId, instrId, slots, closeQueue, expList } = req.body
 
   try {
@@ -320,7 +320,7 @@ exports.bookSamples = async (req, res) => {
 
 exports.submitSamples = async (req, res) => {
   const { rackId, slots } = req.body
-  const submitter = app.getSubmitter()
+  const submitter = server.getSubmitter()
 
   try {
     const rack = await Rack.findById(rackId)
@@ -369,7 +369,7 @@ exports.submitSamples = async (req, res) => {
 
 exports.cancelBookedSamples = async (req, res) => {
   const { rackId, slots } = req.body
-  const submitter = app.getSubmitter()
+  const submitter = server.getSubmitter()
 
   try {
     const rack = await Rack.findById(rackId)

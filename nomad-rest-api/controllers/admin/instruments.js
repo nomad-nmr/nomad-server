@@ -4,7 +4,7 @@ const moment = require('moment')
 const Instrument = require('../../models/instrument')
 const Experiment = require('../../models/experiment')
 const io = require('../../socket')
-const app = require('../../app')
+const server = require('../../server')
 
 exports.getInstruments = async (req, res) => {
   const searchParams = { isActive: true }
@@ -24,7 +24,7 @@ exports.getInstruments = async (req, res) => {
       return res.send(instrList)
     } else {
       const completeInstrData = instrumentsData.map(instr => {
-        const isConnected = app.getSubmitter().isConnected(instr._id.toString())
+        const isConnected = server.getSubmitter().isConnected(instr._id.toString())
         return { ...instr._doc, isConnected }
       })
       res.send(completeInstrData)
@@ -60,7 +60,7 @@ exports.updateInstruments = async (req, res) => {
     if (!instrument) {
       return res.status(404).send()
     }
-    const isConnected = app.getSubmitter().isConnected(instrument._id.toString())
+    const isConnected = server.getSubmitter().isConnected(instrument._id.toString())
     res.send({ ...instrument._doc, isConnected })
   } catch (err) {
     console.log(err)

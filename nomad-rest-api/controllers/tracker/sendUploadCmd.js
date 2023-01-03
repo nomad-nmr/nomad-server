@@ -1,8 +1,8 @@
 const io = require('../../socket')
-const app = require('../../app')
+const server = require('../../server')
 
 const sendUploadMsg = (instrumentId, metadata) => {
-  const submitter = app.getSubmitter()
+  const submitter = server.getSubmitter()
   const { socketId } = submitter.state.get(instrumentId)
 
   if (!socketId) {
