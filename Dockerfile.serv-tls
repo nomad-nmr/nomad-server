@@ -1,4 +1,4 @@
-FROM node:16 as frontend
+FROM node:18 as frontend
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ ENV VITE_DATASTORE_ON=true
 RUN npm run build
 
 
-FROM node:16 as nmrium
+FROM node:18 as nmrium
 
 WORKDIR /app
 

@@ -26,7 +26,7 @@ const InfoCard = props => {
         padding: '12px 0px 0px 20px'
       }}
       title={
-        <Row>
+        <Row style={{ padding: '15px 0' }}>
           <Col span={6}>
             <div className={classes.trafficLights}>
               <TrafficLights data={props.data} />

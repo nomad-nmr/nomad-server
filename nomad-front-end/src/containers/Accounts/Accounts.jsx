@@ -56,7 +56,7 @@ const Accounts = props => {
         closable={true}
         open={props.drwVisible}
         onClose={props.tglDrawer}
-        height={250}
+        height={300}
       >
         {props.instrumentsCosting.length > 0 && (
           <CostingTable
