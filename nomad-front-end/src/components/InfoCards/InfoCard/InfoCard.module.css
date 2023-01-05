@@ -1,40 +1,42 @@
 .InfoCard {
-	min-width: 240px;
-	text-align: left;
-	margin: 0px 5px 15px 5px;
+  min-width: 240px;
+  text-align: left;
+  margin: 0px 5px 15px 5px;
 }
 
 .CardHead h2 {
-	color: #fff;
-	text-align: left;
-	margin: 0px;
+  color: #fff;
+  text-align: left;
+  margin: 0px;
+  font-weight: 600;
 }
 
 .CardHead h4 {
-	color: #fff;
-	text-align: left;
-	margin: 0px;
+  color: #fff;
+  text-align: left;
+  margin: 0px;
+  font-weight: 600;
 }
 
 .InfoCard ul {
-	list-style: none;
-	padding: 0px;
-	font-size: 14px;
-	/* margin-left: 5px; */
+  list-style: none;
+  padding: 0px;
+  font-size: 14px;
+  /* margin-left: 5px; */
 }
 
 .trafficLights {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
-	background-color: #f0f0f0;
-	border-radius: 4px;
-	padding: 5px;
-	width: 70%;
-	height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  padding: 5px;
+  width: 70%;
+  height: 90px;
 }
 
 .Switch {
-	text-align: center;
-	margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 20px;
 }
