@@ -1,3 +1,6 @@
+// This file was created to configure express app that can be imported by to server.js which makes api server to listen
+// while the app can be also used by supertest for integration tests
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const helmet = require('helmet')

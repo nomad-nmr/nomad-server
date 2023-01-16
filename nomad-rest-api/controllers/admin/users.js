@@ -50,6 +50,7 @@ exports.getUsers = async (req, res) => {
         ).sort({
           username: 'asc'
         })
+
         return res.send(userList)
       } else {
         //for search user select with inactive switch on we return combined list of inactive an ex users from the group
@@ -57,12 +58,11 @@ exports.getUsers = async (req, res) => {
           { ...searchParams, isActive: false },
           'username fullName'
         )
-
         const group = await Group.findById(req.query.group, 'exUsers').populate(
           'exUsers',
           'username fullName'
         )
-        // let sortedUsrList = []
+
         group.exUsers.forEach(usr => {
           const onList = onlyInactiveUsrList.find(i => i.username === usr.username)
           if (!onList) {
@@ -94,6 +94,7 @@ exports.getUsers = async (req, res) => {
       res.status(404).send()
     }
 
+    //formatting time related properties of response array
     const usersArr = users.map(user => {
       const newUser = {
         ...user._doc,
@@ -137,7 +138,7 @@ exports.postUser = async (req, res) => {
     const user = new User(newUserObj)
     const newUser = await user.save()
     await newUser.populate('group', 'groupName')
-    delete newUser.password
+    newUser.password = null
     res.status(201).send(newUser)
   } catch (error) {
     console.log(error)

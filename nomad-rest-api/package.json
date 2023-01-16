@@ -4,8 +4,8 @@
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "scripts": {
-    "test": "env-cmd -f ../env/backend-test.env vitest  --run --reporter verbose",
-    "test-watch":"env-cmd -f ../env/backend-test.env vitest --reporter verbose",
+    "test-once": "env-cmd -f ../env/backend-test.env vitest  --run --reporter verbose ",
+    "test": "env-cmd -f ../env/backend-test.env vitest --reporter verbose",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",
     "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
     "dev-docker": "nodemon server.js"

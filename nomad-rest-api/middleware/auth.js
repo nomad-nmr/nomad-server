@@ -4,7 +4,7 @@ const User = require('../models/user')
 const auth = async (req, res, next) => {
   const authHeader = req.get('Authorization')
   if (!authHeader) {
-    return res.status('403').send('Please authenticate')
+    return res.status(403).send('Please authenticate')
   }
   const token = authHeader.split(' ')[1]
 
