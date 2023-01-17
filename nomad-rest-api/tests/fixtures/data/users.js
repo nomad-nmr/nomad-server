@@ -8,7 +8,7 @@ const testUserOneId = new mongoose.Types.ObjectId()
 const testUserOne = {
   _id: testUserOneId,
   username: 'test1',
-  fullName: 'Test User',
+  fullName: 'Test User One',
   email: 'test1@example.com',
   password: 'SuperSecret1',
   isActive: false,
@@ -25,7 +25,7 @@ const testUserTwoId = new mongoose.Types.ObjectId()
 const testUserTwo = {
   _id: testUserTwoId,
   username: 'test2',
-  fullName: 'Test User',
+  fullName: 'Test User Two',
   email: 'test2@example.com',
   password: 'SuperSecret12',
   isActive: true,

@@ -138,7 +138,7 @@ exports.postUser = async (req, res) => {
     const user = new User(newUserObj)
     const newUser = await user.save()
     await newUser.populate('group', 'groupName')
-    newUser.password = null
+    delete newUser._doc.password
     res.status(201).send(newUser)
   } catch (error) {
     console.log(error)
@@ -175,8 +175,8 @@ exports.updateUser = async (req, res) => {
     //fetching updated user to work on response
     const user = await User.findById(req.body._id).populate('group', 'groupName')
 
-    delete user.password
-    delete user.tokens
+    delete user._doc.password
+    delete user._doc.tokens
     const lastLogin = user._doc.lastLogin
       ? moment(user._doc.lastLogin).format('DD MMM YYYY, HH:mm')
       : '-'

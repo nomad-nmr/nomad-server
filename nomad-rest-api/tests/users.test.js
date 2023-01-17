@@ -1,8 +1,10 @@
 import { it, expect, describe, beforeEach } from 'vitest'
 const request = require('supertest')
+const mongoose = require('mongoose')
 
 const app = require('../app')
 const User = require('../models/user')
+const Group = require('../models/group')
 
 const { setupDatabase } = require('./fixtures/db')
 const { testUserAdmin, testUserOne, testUserTwo } = require('./fixtures/data/users')
@@ -109,7 +111,7 @@ describe('POST /admin/users/', () => {
       .expect(201)
     expect(body._id).toBeDefined()
     expect(body.group.groupName).toBe('test-group-1')
-    expect(body.password).toBeNull()
+    expect(body.password).not.toBeDefined()
 
     // Asserting that the database was changed correctly
     const newUser = await User.findById(body._id)
@@ -201,5 +203,156 @@ describe('POST /admin/users/', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
     expect(body.errors[0].msg).toBe('Full name is invalid')
+  })
+})
+
+describe('PUT /admin/users/', () => {
+  it('should update email and full name of Test User Two', async () => {
+    const { body } = await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserTwo._id,
+        username: testUserTwo.username,
+        fullName: 'Updated User',
+        email: 'new@example.com',
+        groupId: testGroupOne._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(201)
+
+    expect(body.fullName).toBe('Updated User')
+    expect(body.email).toBe('new@example.com')
+    expect(body.password).not.toBeDefined()
+    expect(body.tokens).not.toBeDefined()
+
+    // Asserting that the database was changed correctly
+    const updatedUser = await User.findById(body._id)
+    expect(updatedUser.fullName).toBe('Updated User')
+    expect(updatedUser.email).toBe('new@example.com')
+  })
+
+  it('should fail with status code 403 if the request is not authorised', async () => {
+    await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserTwo._id,
+        username: testUserTwo.username,
+        fullName: 'Updated User',
+        email: 'new@example.com',
+        groupId: testGroupOne._id
+      })
+      .expect(403)
+  })
+
+  it('should fail with status code 403 if the request is authorised by user without admin access', async () => {
+    await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserTwo._id,
+        username: testUserTwo.username,
+        fullName: 'Updated User',
+        email: 'new@example.com',
+        groupId: testGroupOne._id
+      })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should fail with status code 422 if the request if empty string is provided as full name', async () => {
+    const { body } = await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserTwo._id,
+        username: testUserTwo.username,
+        fullName: '',
+        email: 'new@example.com',
+        groupId: testGroupOne._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(422)
+    expect(body.errors[0].msg).toBe('Full name is invalid')
+  })
+
+  it('should fail with status code 422 if the request if invalid email is provided', async () => {
+    const { body } = await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserTwo._id,
+        username: testUserTwo.username,
+        fullName: 'Full Name',
+        email: 'huuuuuuuuu',
+        groupId: testGroupOne._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(422)
+    expect(body.errors[0].msg).toBe('Email is invalid')
+  })
+
+  it('should fail with status code 404 if user id is not found in DB', async () => {
+    await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: new mongoose.Types.ObjectId(),
+        username: testUserTwo.username,
+        fullName: 'Updated User',
+        email: 'new@example.com',
+        groupId: testGroupOne._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(404)
+  })
+
+  it('should move user to a different group and update active status', async () => {
+    const { body } = await request(app)
+      .put('/admin/users/')
+      .send({
+        _id: testUserOne._id,
+        username: testUserOne.username,
+        fullName: testUserOne.fullName,
+        email: testUserOne.email,
+        groupId: testGroupTwo._id,
+        isActive: true
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(201)
+
+    expect(body.isActive).toBe(true)
+
+    //asserting change of oldGroup in DB
+    const oldGroup = await Group.findById(testGroupOne._id)
+    expect(oldGroup.exUsers[0]).toMatchObject(testUserOne._id)
+  })
+})
+
+describe('PATCH /admin/users/toggle-active/:id', () => {
+  it('should toggle active status of user test-1', async () => {
+    const { body } = await request(app)
+      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+    expect(body._id).toBe(testUserOne._id.toString())
+
+    const user = await User.findById(body._id)
+    expect(user.isActive).toBe(true)
+  })
+
+  it('should fail with status code 404 if user id is not found in DB', async () => {
+    await request(app)
+      .patch('/admin/users/toggle-active/' + new mongoose.Types.ObjectId().toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(404)
+  })
+
+  it('should fail with status code 403 if request is not authorized', async () => {
+    await request(app)
+      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .expect(403)
+  })
+
+  it('should fail with status code 403 if request is authorised by user without admin access level', async () => {
+    await request(app)
+      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
   })
 })
