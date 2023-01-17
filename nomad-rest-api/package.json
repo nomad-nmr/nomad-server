@@ -6,7 +6,6 @@
   "scripts": {
     "test-once": "env-cmd -f ../env/backend-test.env vitest  --run --reporter verbose ",
     "test": "env-cmd -f ../env/backend-test.env vitest --reporter verbose",
-    "coverage": "env-cmd -f ../env/backend-test.env vitest run --coverage",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",
     "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
     "dev-docker": "nodemon server.js"
@@ -28,11 +27,9 @@
     "mongoose": "^6.0.5",
     "multer": "^1.4.5-lts.1",
     "nmr-load-save": "^0.7.6",
-    "nodemailer": "^6.4.16",
-    "socket.io": "^4.5.4"
+    "nodemailer": "^6.4.16"
   },
   "devDependencies": {
-    "@vitest/coverage-c8": "^0.27.2",
     "env-cmd": "^10.1.0",
     "nodemon": "^2.0.18",
     "supertest": "^6.3.3",
