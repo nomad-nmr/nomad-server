@@ -4,8 +4,8 @@
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "scripts": {
-    "test-once": "env-cmd -f ../env/backend-test.env vitest  --run --reporter verbose ",
-    "test": "env-cmd -f ../env/backend-test.env vitest --reporter verbose",
+    "test-once": "env-cmd -f ../env/backend.env vitest --run --no-threads",
+    "test": "env-cmd -f ../env/backend.env vitest --no-threads --reporter verbose",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",
     "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
     "dev-docker": "nodemon server.js"
@@ -27,12 +27,13 @@
     "mongoose": "^6.0.5",
     "multer": "^1.4.5-lts.1",
     "nmr-load-save": "^0.7.6",
-    "nodemailer": "^6.4.16"
+    "nodemailer": "^6.4.16",
+    "socket.io": "^4.5.4"
   },
   "devDependencies": {
     "env-cmd": "^10.1.0",
     "nodemon": "^2.0.18",
     "supertest": "^6.3.3",
-    "vitest": "^0.26.2"
+    "vitest": "^0.27.2"
   }
 }

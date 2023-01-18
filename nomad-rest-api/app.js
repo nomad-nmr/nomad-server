@@ -57,8 +57,7 @@ app.use((req, res) => {
 if (process.env.NODE_ENV === 'test') {
   mongoose.set('returnOriginal', false)
   mongoose.set('strictQuery', true)
-
-  mongoose.connect(process.env.MONGODB_URL)
+  mongoose.connect(process.env.MONGODB_URL_TEST)
 }
 
 module.exports = app
