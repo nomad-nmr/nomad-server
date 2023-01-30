@@ -91,7 +91,7 @@ exports.getUsers = async (req, res) => {
       .populate('group', 'groupName')
 
     if (!users) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
     //formatting time related properties of response array

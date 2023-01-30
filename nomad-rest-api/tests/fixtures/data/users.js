@@ -13,6 +13,7 @@ const testUserOne = {
   password: 'SuperSecret1',
   isActive: false,
   group: testGroupOne._id,
+  accessLevel: 'user',
   lastLogin: moment().subtract(2, 'days'),
   tokens: [
     {
@@ -28,6 +29,7 @@ const testUserTwo = {
   fullName: 'Test User Two',
   email: 'test2@example.com',
   password: 'SuperSecret12',
+  accessLevel: 'user-a',
   isActive: true,
   group: testGroupOne._id,
   tokens: [

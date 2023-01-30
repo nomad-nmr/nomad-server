@@ -4,7 +4,8 @@ const testGroupOne = {
   _id: new mongoose.Types.ObjectId(),
   groupName: 'test-group-1',
   isActive: false,
-  description: 'Test Group One'
+  description: 'Test Group One',
+  isBatch: false
 }
 
 const testGroupTwo = {

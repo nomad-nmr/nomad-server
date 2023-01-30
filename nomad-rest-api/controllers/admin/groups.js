@@ -14,7 +14,7 @@ exports.getGroups = async (req, res) => {
   try {
     const groups = await Group.find(searchParams).sort({ groupName: 'asc' })
     if (!groups) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
     if (req.query.list === 'true') {
@@ -59,12 +59,13 @@ exports.updateGroup = async (req, res) => {
   try {
     const group = await Group.findByIdAndUpdate(req.body._id, req.body)
     if (!group) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
     if (!group.isActive) {
       group.setUsersInactive()
     }
+
     //UpdateBatchUsers is a method that updates accessLevel according to group batch-submit status
     group.updateBatchUsers()
 
@@ -80,7 +81,7 @@ exports.toggleActive = async (req, res) => {
   try {
     const group = await Group.findById(req.params.groupId)
     if (!group) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
     group.isActive = !group.isActive
@@ -104,7 +105,7 @@ exports.addUsers = async (req, res) => {
   try {
     const group = await Group.findById(groupId)
     if (!group) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
     let total = 0
@@ -123,10 +124,19 @@ exports.addUsers = async (req, res) => {
           }
           total++
           if (user) {
+            const oldGroupId = user.group
+            const oldGroup = await Group.findById(oldGroupId)
+
             user.group = group._id
             user.accessLevel = group.isBatch ? 'user-b' : 'user'
             user.isActive = group.isActive ? true : false
             await user.save()
+
+            //adding userId in the exUsers array after moving to a new group
+            const exUsersSet = new Set(oldGroup.exUsers)
+            exUsersSet.add(user._id)
+            oldGroup.exUsers = Array.from(exUsersSet)
+            await oldGroup.save()
           } else {
             const hashedPasswd = await bcrypt.hash(Math.random().toString(), 12)
             const newUserObj = {

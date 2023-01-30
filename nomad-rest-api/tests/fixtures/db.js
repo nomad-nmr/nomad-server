@@ -3,8 +3,6 @@ const Group = require('../../models/group')
 const { testUserOne, testUserTwo, testUserAdmin } = require('./data/users')
 const { testGroupOne, testGroupTwo } = require('./data/groups')
 
-testGroupTwo.exUsers.push(testUserOne._id)
-
 exports.setupDatabase = async () => {
   await User.deleteMany()
   await Group.deleteMany()
@@ -13,6 +11,8 @@ exports.setupDatabase = async () => {
   await new User(testUserTwo).save()
   await new User(testUserAdmin).save()
 
+  testGroupTwo.exUsers = []
+  testGroupTwo.exUsers.push(testUserOne._id)
   await new Group(testGroupOne).save()
   await new Group(testGroupTwo).save()
 }

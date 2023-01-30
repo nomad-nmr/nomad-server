@@ -5,7 +5,6 @@ const mongoose = require('mongoose')
 const app = require('../app')
 const User = require('../models/user')
 const Group = require('../models/group')
-
 const { setupDatabase } = require('./fixtures/db')
 const { testUserAdmin, testUserOne, testUserTwo } = require('./fixtures/data/users')
 const { testGroupOne, testGroupTwo } = require('./fixtures/data/groups')
