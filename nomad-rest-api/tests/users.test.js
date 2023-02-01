@@ -1,15 +1,17 @@
-import { it, expect, describe, beforeEach } from 'vitest'
+import { it, expect, describe, beforeEach, beforeAll, afterAll } from 'vitest'
 const request = require('supertest')
 const mongoose = require('mongoose')
 
 const app = require('../app')
 const User = require('../models/user')
 const Group = require('../models/group')
-const { setupDatabase } = require('./fixtures/db')
+const { connectDB, dropDB, setupDB } = require('./fixtures/db')
 const { testUserAdmin, testUserOne, testUserTwo } = require('./fixtures/data/users')
 const { testGroupOne, testGroupTwo } = require('./fixtures/data/groups')
 
-beforeEach(setupDatabase)
+beforeAll(connectDB)
+afterAll(dropDB)
+beforeEach(setupDB)
 
 describe('GET /admin/users/', () => {
   it('should return array of 3 test users with lastLogin descending order', async () => {

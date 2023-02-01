@@ -53,11 +53,4 @@ app.use((req, res) => {
   res.status(404).send()
 })
 
-//Connecting testing database
-if (process.env.NODE_ENV === 'test') {
-  mongoose.set('returnOriginal', false)
-  mongoose.set('strictQuery', true)
-  mongoose.connect(process.env.MONGODB_URL_TEST)
-}
-
 module.exports = app

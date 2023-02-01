@@ -1,15 +1,17 @@
 import mongoose from 'mongoose'
-import { it, expect, describe, beforeEach } from 'vitest'
+import { it, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest'
 const request = require('supertest')
 
 const app = require('../app')
 const Group = require('../models/group')
 const User = require('../models/user')
-const { setupDatabase } = require('./fixtures/db')
+const { connectDB, dropDB, setupDB } = require('./fixtures/db')
 const { testUserAdmin, testUserOne } = require('./fixtures/data/users')
 const { testGroupOne, testGroupTwo } = require('./fixtures/data/groups')
 
-beforeEach(setupDatabase)
+beforeAll(connectDB)
+afterAll(dropDB)
+beforeEach(setupDB)
 
 describe('GET /admin/groups/', () => {
   it('should return an array containing 1 test group object', async () => {

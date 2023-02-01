@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test-once": "env-cmd -f ../env/backend.env vitest --run --threads=false",
-    "test": "env-cmd -f ../env/backend.env vitest  --threads=false --reporter verbose",
+    "test": "env-cmd -f ../env/backend.env vitest  --threads=false q--reporter verbose",
     "coverage": "env-cmd -f ../env/backend.env vitest --threads=false run --coverage",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",
     "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
@@ -34,6 +34,7 @@
   "devDependencies": {
     "@vitest/coverage-c8": "^0.27.2",
     "env-cmd": "^10.1.0",
+    "mongodb-memory-server": "^8.11.4",
     "nodemon": "^2.0.18",
     "supertest": "^6.3.3",
     "vitest": "^0.27.2"
