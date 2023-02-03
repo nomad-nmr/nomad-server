@@ -1,16 +1,21 @@
-const express = require('express')
-const historyControllers = require('../../controllers/admin/expHistory')
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
+import { Router } from 'express'
+import {
+  getHistory,
+  fetchRepair,
+  postRepair,
+  postRefresh
+} from '../../controllers/admin/expHistory.js'
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/data/:instrId/:date', auth, authAdmin, historyControllers.getHistory)
+router.get('/data/:instrId/:date', auth, authAdmin, getHistory)
 
-router.get('/repair/:instrId', auth, authAdmin, historyControllers.fetchRepair)
+router.get('/repair/:instrId', auth, authAdmin, fetchRepair)
 
-router.post('/repair', auth, authAdmin, historyControllers.postRepair)
+router.post('/repair', auth, authAdmin, postRepair)
 
-router.post('/repair-refresh', auth, authAdmin, historyControllers.postRefresh)
+router.post('/repair-refresh', auth, authAdmin, postRefresh)
 
-module.exports = router
+export default router

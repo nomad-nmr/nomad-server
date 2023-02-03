@@ -1,4 +1,4 @@
-const Instrument = require('../../models/instrument')
+import Instrument from '../../models/instrument.js'
 
 const runningExperiments = {
   //runningExperiments.state is array of object holding information about datasetName and ExpNo of an experiment running on each machine
@@ -43,4 +43,4 @@ const runningExperiments = {
   }
 }
 
-module.exports = runningExperiments
+export default runningExperiments

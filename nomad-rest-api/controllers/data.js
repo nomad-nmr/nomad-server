@@ -1,16 +1,14 @@
-const fs = require('fs/promises')
-const path = require('path')
+import fs from 'fs/promises'
+import path from 'path'
 
-const JSZip = require('jszip')
-const moment = require('moment')
-const { read } = require('nmr-load-save')
-const { fileCollectionFromZip } = require('filelist-utils')
+import JSZip from 'jszip'
+import moment from 'moment'
+import { read } from 'nmr-load-save'
+import { fileCollectionFromZip } from 'filelist-utils'
 
-const Experiment = require('../models/experiment')
-const { readFile } = require('fs')
-// const { sendStatus } = require('express/lib/response')
+import Experiment from '../models/experiment.js'
 
-exports.postData = async (req, res) => {
+export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
   try {
     const experiment = await Experiment.findOne({ expId: datasetName + '-' + expNo })
@@ -47,7 +45,7 @@ exports.postData = async (req, res) => {
   }
 }
 
-exports.getExps = async (req, res) => {
+export const getExps = async (req, res) => {
   try {
     const expIds = req.query.exps.split(',')
 
@@ -76,7 +74,7 @@ exports.getExps = async (req, res) => {
   }
 }
 
-exports.getNMRium = async (req, res) => {
+export const getNMRium = async (req, res) => {
   const expIds = req.query.exps.split(',')
   const data = {
     spectra: []
@@ -117,7 +115,7 @@ exports.getNMRium = async (req, res) => {
   }
 }
 
-exports.putNMRium = async (req, res) => {
+export const putNMRium = async (req, res) => {
   try {
     //On frontend nmrium object was converted to JSON with replacer function to replace float64Arrays that would converted incorrectly otherwise
     //Here we have to parse it back to object to allow further manipulation before it gets saved
@@ -149,7 +147,7 @@ exports.putNMRium = async (req, res) => {
   }
 }
 
-exports.getPDF = async (req, res) => {
+export const getPDF = async (req, res) => {
   const { expId } = req.params
   try {
     const experiment = await Experiment.findById(expId)

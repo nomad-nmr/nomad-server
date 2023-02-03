@@ -1,11 +1,11 @@
-const bcrypt = require('bcryptjs')
-const { validationResult } = require('express-validator')
-const moment = require('moment')
+import bcrypt from 'bcryptjs'
+import { validationResult } from 'express-validator'
+import moment from 'moment'
 
-const User = require('../../models/user')
-const Group = require('../../models/group')
+import User from '../../models/user.js'
+import Group from '../../models/group.js'
 
-exports.getUsers = async (req, res) => {
+export async function getUsers(req, res) {
   //setting search parameters according to showInactive settings
   const { showInactive, pageSize, current, accessLevel, group, username, lastLoginOrder } =
     req.query
@@ -114,7 +114,7 @@ exports.getUsers = async (req, res) => {
   }
 }
 
-exports.postUser = async (req, res) => {
+export async function postUser(req, res) {
   const { username, email, accessLevel, fullName, isActive, groupId } = req.body
   const errors = validationResult(req)
 
@@ -146,7 +146,7 @@ exports.postUser = async (req, res) => {
   }
 }
 
-exports.updateUser = async (req, res) => {
+export async function updateUser(req, res) {
   const errors = validationResult(req)
 
   try {
@@ -190,7 +190,7 @@ exports.updateUser = async (req, res) => {
   }
 }
 
-exports.toggleActive = async (req, res) => {
+export async function toggleActive(req, res) {
   try {
     const user = await User.findById(req.params.id)
     if (!user) {

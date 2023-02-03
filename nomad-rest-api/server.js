@@ -1,13 +1,14 @@
-const app = require('./app')
-const mongoose = require('mongoose')
-const bcrypt = require('bcryptjs')
+import app from './app.js'
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
 
 const port = process.env.PORT || 8080
 const host = process.env.HOST || '0.0.0.0'
 
-const User = require('./models/user')
-const Group = require('./models/group')
-const Submitter = require('./submitter')
+import User from './models/user.js'
+import Group from './models/group.js'
+import Submitter from './submitter.js'
+import { initSocket } from './socket.js'
 
 mongoose.set('returnOriginal', false)
 mongoose.set('strictQuery', true)
@@ -44,7 +45,7 @@ if (process.env.NODE_ENV !== 'test') {
       })
 
       //Initiating socket.io
-      const io = require('./socket').init(server)
+      const io = initSocket(server)
       io.on('connection', socket => {
         console.log('Client connected', socket.id)
 
@@ -73,7 +74,7 @@ if (process.env.NODE_ENV !== 'test') {
 const submitter = new Submitter()
 submitter.init()
 
-module.exports.getSubmitter = () => {
+export function getSubmitter() {
   if (!submitter) {
     throw new Error('Submitter was not initiated')
   }

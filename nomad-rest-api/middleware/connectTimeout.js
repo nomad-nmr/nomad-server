@@ -3,4 +3,4 @@ const connectTimeout = (req, res, next) => {
   next()
 }
 
-module.exports = connectTimeout
+export default connectTimeout

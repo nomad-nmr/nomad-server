@@ -1,27 +1,21 @@
-const express = require('express')
+import { Router } from 'express'
 
-const clientAuth = require('../middleware/auth-client')
-const auth = require('../middleware/auth')
-const connectTimeout = require('../middleware/connectTimeout')
-const multerUpload = require('../middleware/multerUpload')
-const dataControllers = require('../controllers/data')
+import clientAuth from '../middleware/auth-client.js'
+import auth from '../middleware/auth.js'
+import connectTimeout from '../middleware/connectTimeout.js'
+import multerUpload from '../middleware/multerUpload.js'
+import { postData, getExps, getNMRium, putNMRium, getPDF } from '../controllers/data.js'
 
-const router = express.Router()
+const router = Router()
 
-router.post(
-  '/auto/:instrumentId',
-  connectTimeout,
-  clientAuth,
-  multerUpload,
-  dataControllers.postData
-)
+router.post('/auto/:instrumentId', connectTimeout, clientAuth, multerUpload, postData)
 
-router.get('/exps', auth, dataControllers.getExps)
+router.get('/exps', auth, getExps)
 
-router.get('/nmrium', auth, dataControllers.getNMRium)
+router.get('/nmrium', auth, getNMRium)
 
-router.put('/nmrium', auth, dataControllers.putNMRium)
+router.put('/nmrium', auth, putNMRium)
 
-router.get('/pdf/:expId', auth, dataControllers.getPDF)
+router.get('/pdf/:expId', auth, getPDF)
 
-module.exports = router
+export default router

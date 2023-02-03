@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
-const testGroupOne = {
+export const testGroupOne = {
   _id: new mongoose.Types.ObjectId(),
   groupName: 'test-group-1',
   isActive: false,
@@ -8,15 +8,10 @@ const testGroupOne = {
   isBatch: false
 }
 
-const testGroupTwo = {
+export const testGroupTwo = {
   _id: new mongoose.Types.ObjectId(),
   groupName: 'test-admins',
   isActive: true,
   description: 'Admins test group',
   exUsers: []
-}
-
-module.exports = {
-  testGroupOne,
-  testGroupTwo
 }

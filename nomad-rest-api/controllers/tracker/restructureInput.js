@@ -90,4 +90,4 @@ const restructureInput = (input, instrument, batchGroups) => {
   return { summary, statusTable, historyTable }
 }
 
-module.exports = restructureInput
+export default restructureInput

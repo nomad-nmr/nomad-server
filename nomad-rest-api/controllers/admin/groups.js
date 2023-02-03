@@ -1,10 +1,10 @@
-const { validationResult } = require('express-validator')
-const bcrypt = require('bcryptjs')
+import { validationResult } from 'express-validator'
+import bcrypt from 'bcryptjs'
 
-const Group = require('../../models/group')
-const User = require('../../models/user')
+import Group from '../../models/group.js'
+import User from '../../models/user.js'
 
-exports.getGroups = async (req, res) => {
+export async function getGroups(req, res) {
   //setting search parameters according to showInactive settings
   const searchParams = { isActive: true }
   if (req.query.showInactive === 'true') {
@@ -39,7 +39,7 @@ exports.getGroups = async (req, res) => {
   }
 }
 
-exports.addGroup = async (req, res) => {
+export async function addGroup(req, res) {
   const { groupName, description, isBatch } = req.body
   const errors = validationResult(req)
   try {
@@ -55,7 +55,7 @@ exports.addGroup = async (req, res) => {
   }
 }
 
-exports.updateGroup = async (req, res) => {
+export async function updateGroup(req, res) {
   try {
     const group = await Group.findByIdAndUpdate(req.body._id, req.body)
     if (!group) {
@@ -77,7 +77,7 @@ exports.updateGroup = async (req, res) => {
   }
 }
 
-exports.toggleActive = async (req, res) => {
+export async function toggleActive(req, res) {
   try {
     const group = await Group.findById(req.params.groupId)
     if (!group) {
@@ -100,7 +100,7 @@ exports.toggleActive = async (req, res) => {
   }
 }
 
-exports.addUsers = async (req, res) => {
+export async function addUsers(req, res) {
   const { groupId } = req.params
   try {
     const group = await Group.findById(groupId)

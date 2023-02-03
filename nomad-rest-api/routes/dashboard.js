@@ -1,12 +1,12 @@
-const express = require('express')
-const dashControllers = require('../controllers/dashboard')
+import { Router } from 'express'
+import { getStatusSummary, getStatusTable, getDrawerTable } from '../controllers/dashboard.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/status-summary', dashControllers.getStatusSummary)
+router.get('/status-summary', getStatusSummary)
 
-router.get('/status-table/:instrId', dashControllers.getStatusTable)
+router.get('/status-table/:instrId', getStatusTable)
 
-router.get('/drawer-table/:id', dashControllers.getDrawerTable)
+router.get('/drawer-table/:id', getDrawerTable)
 
-module.exports = router
+export default router

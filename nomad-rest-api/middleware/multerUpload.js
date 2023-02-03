@@ -1,18 +1,18 @@
 // multer middleware for upload of NMR data
 
-const multer = require('multer')
-const path = require('path')
-const moment = require('moment')
-const { access, mkdir } = require('fs/promises')
+import multer, { diskStorage } from 'multer'
+import { join } from 'path'
+import moment from 'moment'
+import { access, mkdir } from 'fs/promises'
 
 const pathDate = moment().format('YYYY-MM')
 
-const storage = multer.diskStorage({
+const storage = diskStorage({
   destination: async (req, file, cb) => {
     const { group, datasetName } = req.body
     const datastoreRootPath = process.env.DATASTORE_PATH ? process.env.DATASTORE_PATH : 'data'
-    const relativePath = path.join(group, pathDate, datasetName)
-    const storagePath = path.join(datastoreRootPath, relativePath)
+    const relativePath = join(group, pathDate, datasetName)
+    const storagePath = join(datastoreRootPath, relativePath)
 
     try {
       await access(storagePath)
@@ -30,4 +30,4 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage })
 
-module.exports = upload.single('nmrData')
+export default upload.single('nmrData')

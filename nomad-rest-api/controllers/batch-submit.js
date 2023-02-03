@@ -1,14 +1,14 @@
-const { validationResult } = require('express-validator')
-const moment = require('moment')
+import { validationResult } from 'express-validator'
+import moment from 'moment'
 
-const Rack = require('../models/rack')
-const Instrument = require('../models/instrument')
-const Experiment = require('../models/experiment')
-const ParameterSet = require('../models/parameterSet')
-const server = require('../server')
-const io = require('../socket')
+import Rack from '../models/rack.js'
+import Instrument from '../models/instrument.js'
+import Experiment from '../models/experiment.js'
+import ParameterSet from '../models/parameterSet.js'
+import { getSubmitter } from '../server.js'
+import { getIO } from '../socket.js'
 
-exports.getRacks = async (req, res) => {
+export const getRacks = async (req, res) => {
   try {
     const racks = await Rack.find({}).populate('group', 'groupName').sort({ isOpen: 'desc' })
     if (!racks) {
@@ -57,7 +57,7 @@ exports.getRacks = async (req, res) => {
   }
 }
 
-exports.postRack = async (req, res) => {
+export const postRack = async (req, res) => {
   const errors = validationResult(req)
 
   try {
@@ -73,7 +73,7 @@ exports.postRack = async (req, res) => {
   }
 }
 
-exports.closeRack = async (req, res) => {
+export const closeRack = async (req, res) => {
   const { rackId } = req.params
   try {
     const rack = await Rack.findByIdAndUpdate(rackId, { isOpen: false })
@@ -87,7 +87,7 @@ exports.closeRack = async (req, res) => {
   }
 }
 
-exports.deleteRack = async (req, res) => {
+export const deleteRack = async (req, res) => {
   const { rackId } = req.params
   try {
     const rack = await Rack.findByIdAndDelete(rackId)
@@ -101,7 +101,7 @@ exports.deleteRack = async (req, res) => {
   }
 }
 
-exports.addSample = async (req, res) => {
+export const addSample = async (req, res) => {
   const { rackId } = req.params
 
   try {
@@ -139,7 +139,7 @@ exports.addSample = async (req, res) => {
   }
 }
 
-exports.deleteSample = async (req, res) => {
+export const deleteSample = async (req, res) => {
   const { rackId, slot } = req.params
   try {
     const rack = await Rack.findById(rackId).populate('group', 'groupName')
@@ -156,8 +156,8 @@ exports.deleteSample = async (req, res) => {
   }
 }
 
-exports.bookSamples = async (req, res) => {
-  const submitter = server.getSubmitter()
+export const bookSamples = async (req, res) => {
+  const submitter = getSubmitter()
   const { rackId, instrId, slots, closeQueue, expList } = req.body
 
   try {
@@ -306,7 +306,7 @@ exports.bookSamples = async (req, res) => {
       console.log('Error: Client disconnected')
       return res.status(503).send('Client disconnected')
     }
-    io.getIO().to(socketId).emit('book', JSON.stringify(samplesToBook))
+    getIO().to(socketId).emit('book', JSON.stringify(samplesToBook))
 
     res.send({
       rackId: updatedRack._id,
@@ -318,9 +318,9 @@ exports.bookSamples = async (req, res) => {
   }
 }
 
-exports.submitSamples = async (req, res) => {
+export const submitSamples = async (req, res) => {
   const { rackId, slots } = req.body
-  const submitter = server.getSubmitter()
+  const submitter = getSubmitter()
 
   try {
     const rack = await Rack.findById(rackId)
@@ -352,7 +352,7 @@ exports.submitSamples = async (req, res) => {
         return res.status(503).send('Client disconnected')
       }
 
-      io.getIO().to(socketId).emit('submit', JSON.stringify(submitDataObj[instrId]))
+      getIO().to(socketId).emit('submit', JSON.stringify(submitDataObj[instrId]))
     }
 
     rack.samples = updatedSamplesArr
@@ -367,9 +367,9 @@ exports.submitSamples = async (req, res) => {
   }
 }
 
-exports.cancelBookedSamples = async (req, res) => {
+export const cancelBookedSamples = async (req, res) => {
   const { rackId, slots } = req.body
-  const submitter = server.getSubmitter()
+  const submitter = getSubmitter()
 
   try {
     const rack = await Rack.findById(rackId)
@@ -403,7 +403,7 @@ exports.cancelBookedSamples = async (req, res) => {
         return res.status(503).send('Client disconnected')
       }
 
-      io.getIO().to(socketId).emit('delete', JSON.stringify(submitDataObj[instrId]))
+      getIO().to(socketId).emit('delete', JSON.stringify(submitDataObj[instrId]))
     }
 
     rack.samples = updatedSamplesArr

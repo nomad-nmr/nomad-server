@@ -1,11 +1,11 @@
-const mongoose = require('mongoose')
-const jwt = require('jsonwebtoken')
-const moment = require('moment')
+import mongoose from 'mongoose'
+import jwt from 'jsonwebtoken'
+import moment from 'moment'
 
-const { testGroupOne, testGroupTwo } = require('./groups')
+import { testGroupOne, testGroupTwo } from './groups'
 
 const testUserOneId = new mongoose.Types.ObjectId()
-const testUserOne = {
+export const testUserOne = {
   _id: testUserOneId,
   username: 'test1',
   fullName: 'Test User One',
@@ -23,7 +23,7 @@ const testUserOne = {
 }
 
 const testUserTwoId = new mongoose.Types.ObjectId()
-const testUserTwo = {
+export const testUserTwo = {
   _id: testUserTwoId,
   username: 'test2',
   fullName: 'Test User Two',
@@ -40,7 +40,7 @@ const testUserTwo = {
 }
 
 const testUserAdminId = new mongoose.Types.ObjectId()
-const testUserAdmin = {
+export const testUserAdmin = {
   _id: testUserAdminId,
   username: 'admin',
   fullName: 'Admin User',
@@ -55,10 +55,4 @@ const testUserAdmin = {
       token: jwt.sign({ _id: testUserAdminId }, process.env.JWT_SECRET)
     }
   ]
-}
-
-module.exports = {
-  testUserOne,
-  testUserTwo,
-  testUserAdmin
 }

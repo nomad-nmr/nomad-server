@@ -1,14 +1,11 @@
-const moment = require('moment')
+import moment from 'moment'
 
-const Experiment = require('../../models/experiment')
-const Instrument = require('../../models/instrument')
-const User = require('../../models/user')
-const sendUploadCmd = require('../tracker/sendUploadCmd')
-// const io = require('../../socket')
-// const app = require('../../app')
-// const { response } = require('express')
+import Experiment from '../../models/experiment.js'
+import Instrument from '../../models/instrument.js'
+import User from '../../models/user.js'
+import sendUploadCmd from '../tracker/sendUploadCmd.js'
 
-exports.getHistory = async (req, res) => {
+export async function getHistory(req, res) {
   const date = new Date(req.params.date)
   try {
     const experiments = await Experiment.find({
@@ -29,7 +26,7 @@ exports.getHistory = async (req, res) => {
   }
 }
 
-exports.fetchRepair = async (req, res) => {
+export async function fetchRepair(req, res) {
   const { instrId } = req.params
   try {
     const instrument = await Instrument.findById(instrId, 'status.historyTable')
@@ -63,7 +60,7 @@ exports.fetchRepair = async (req, res) => {
   }
 }
 
-exports.postRepair = async (req, res) => {
+export async function postRepair(req, res) {
   const { instrId, exps } = req.body
   try {
     const instrument = await Instrument.findById(
@@ -143,7 +140,7 @@ const getRepairList = async exps => {
   return Promise.resolve(repairList)
 }
 
-exports.postRefresh = async (req, res) => {
+export async function postRefresh(req, res) {
   const { exps } = req.body
   console.log(exps)
   try {

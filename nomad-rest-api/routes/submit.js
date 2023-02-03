@@ -1,27 +1,36 @@
-const express = require('express')
-const auth = require('../middleware/auth')
-const authAdmin = require('../middleware/auth-admin')
+import { Router } from 'express'
+import auth from '../middleware/auth.js'
+import authAdmin from '../middleware/auth-admin.js'
 
-const submitControllers = require('../controllers/submit')
+import {
+  postBookHolders,
+  deleteHolders,
+  deleteHolder,
+  postSubmission,
+  deleteExps,
+  putReset,
+  postPending,
+  getAllowance
+} from '../controllers/submit.js'
 
-const router = express.Router()
+const router = Router()
 
-router.post('/holders', auth, submitControllers.postBookHolders)
+router.post('/holders', auth, postBookHolders)
 
-router.delete('/holders', auth, submitControllers.deleteHolders)
+router.delete('/holders', auth, deleteHolders)
 
-router.delete('/holder/:key', auth, submitControllers.deleteHolder)
+router.delete('/holder/:key', auth, deleteHolder)
 
-router.post('/experiments/:userId', auth, submitControllers.postSubmission)
+router.post('/experiments/:userId', auth, postSubmission)
 
-router.delete('/experiments/:instrId', auth, submitControllers.deleteExps)
+router.delete('/experiments/:instrId', auth, deleteExps)
 
-router.put('/reset/:instrId', auth, authAdmin, submitControllers.putReset)
+router.put('/reset/:instrId', auth, authAdmin, putReset)
 
-router.post('/pending/:type', auth, submitControllers.postPending)
+router.post('/pending/:type', auth, postPending)
 
-router.post('/pending-auth/:type', submitControllers.postPending)
+router.post('/pending-auth/:type', postPending)
 
-router.get('/allowance/', auth, submitControllers.getAllowance)
+router.get('/allowance/', auth, getAllowance)
 
-module.exports = router
+export default router

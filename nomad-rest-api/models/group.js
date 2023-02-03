@@ -1,6 +1,5 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
-const User = require('./user')
+import { Schema, model } from 'mongoose'
+import User from './user.js'
 
 const groupSchema = new Schema(
   {
@@ -80,4 +79,4 @@ groupSchema.methods.getUserCounts = async function () {
   }
 }
 
-module.exports = mongoose.model('Group', groupSchema)
+export default model('Group', groupSchema)

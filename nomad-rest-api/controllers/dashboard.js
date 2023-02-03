@@ -1,9 +1,9 @@
-const Instrument = require('../models/instrument')
-const Group = require('../models/group')
-const moment = require('moment')
-const momentDurationFormatSetup = require('moment-duration-format')
+import moment from 'moment'
 
-exports.getStatusSummary = async (req, res) => {
+import Instrument from '../models/instrument.js'
+import Group from '../models/group.js'
+
+export const getStatusSummary = async (req, res) => {
   try {
     const data = await Instrument.find(
       { isActive: true },
@@ -18,7 +18,7 @@ exports.getStatusSummary = async (req, res) => {
   }
 }
 
-exports.getStatusTable = async (req, res) => {
+export const getStatusTable = async (req, res) => {
   try {
     let data = null
     //instrId is unknown and set to 0 when  the dashboard reloads
@@ -96,7 +96,7 @@ exports.getStatusTable = async (req, res) => {
   }
 }
 
-exports.getDrawerTable = async (req, res) => {
+export const getDrawerTable = async (req, res) => {
   try {
     const data = await Instrument.find(
       { isActive: true },

@@ -1,13 +1,13 @@
 import { it, expect, describe, beforeEach, beforeAll, afterAll } from 'vitest'
-const request = require('supertest')
-const mongoose = require('mongoose')
+import request from 'supertest'
+import mongoose from 'mongoose'
 
-const app = require('../app')
-const User = require('../models/user')
-const Group = require('../models/group')
-const { connectDB, dropDB, setupDB } = require('./fixtures/db')
-const { testUserAdmin, testUserOne, testUserTwo } = require('./fixtures/data/users')
-const { testGroupOne, testGroupTwo } = require('./fixtures/data/groups')
+import app from '../app.js'
+import User from '../models/user.js'
+import Group from '../models/group.js'
+import { connectDB, dropDB, setupDB } from './fixtures/db.js'
+import { testUserAdmin, testUserOne, testUserTwo } from './fixtures/data/users.js'
+import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)

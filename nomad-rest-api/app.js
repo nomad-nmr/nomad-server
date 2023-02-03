@@ -1,27 +1,29 @@
 // This file was created to configure express app that can be imported by to server.js which makes api server to listen
 // while the app can be also used by supertest for integration tests
 
-const express = require('express')
-const bodyParser = require('body-parser')
-const helmet = require('helmet')
-const mongoose = require('mongoose')
+import express from 'express'
+import bodyParser from 'body-parser'
+import helmet from 'helmet'
+import moment from 'moment'
+import momentDurationFormatSetup from 'moment-duration-format'
 
-const trackerRoutes = require('./routes/tracker')
-const instrumentsRoutes = require('./routes/admin/insruments')
-const dashRoutes = require('./routes/dashboard')
-const authRoutes = require('./routes/auth')
-const usersRoutes = require('./routes/admin/users')
-const groupsRoutes = require('./routes/admin/groups')
-const historyRoutes = require('./routes/admin/expHistory')
-const paramSetsRoutes = require('./routes/admin/parameterSets')
-const accountsRoutes = require('./routes/admin/accounts')
-const submitRoutes = require('./routes/submit')
-const messageRoutes = require('./routes/admin/message')
-const batchSubmitRoutes = require('./routes/batch-submit')
-const dataRoutes = require('./routes/data')
-const searchRoutes = require('./routes/search')
+import trackerRoutes from './routes/tracker.js'
+import instrumentsRoutes from './routes/admin/insruments.js'
+import dashRoutes from './routes/dashboard.js'
+import authRoutes from './routes/auth.js'
+import usersRoutes from './routes/admin/users.js'
+import groupsRoutes from './routes/admin/groups.js'
+import historyRoutes from './routes/admin/expHistory.js'
+import paramSetsRoutes from './routes/admin/parameterSets.js'
+import accountsRoutes from './routes/admin/accounts.js'
+import submitRoutes from './routes/submit.js'
+import messageRoutes from './routes/admin/message.js'
+import batchSubmitRoutes from './routes/batch-submit.js'
+import dataRoutes from './routes/data.js'
+import searchRoutes from './routes/search.js'
 
 const app = express()
+momentDurationFormatSetup(moment)
 
 app.use(bodyParser.json({ strict: true, limit: '50mb' }))
 app.use(helmet())
@@ -53,4 +55,4 @@ app.use((req, res) => {
   res.status(404).send()
 })
 
-module.exports = app
+export default app

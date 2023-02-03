@@ -1,14 +1,18 @@
-const express = require('express')
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
-const accountsControllers = require('../../controllers/admin/accounts')
+import { Router } from 'express'
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
+import {
+  getCosts,
+  getInstrumentsCosting,
+  putInstrumentsCosting
+} from '../../controllers/admin/accounts.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/data', auth, authAdmin, accountsControllers.getCosts)
+router.get('/data', auth, authAdmin, getCosts)
 
-router.get('/instruments-costing', auth, authAdmin, accountsControllers.getInstrumentsCosting)
+router.get('/instruments-costing', auth, authAdmin, getInstrumentsCosting)
 
-router.put('/instruments-costing', auth, authAdmin, accountsControllers.putInstrumentsCosting)
+router.put('/instruments-costing', auth, authAdmin, putInstrumentsCosting)
 
-module.exports = router
+export default router

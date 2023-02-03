@@ -1,4 +1,4 @@
-const Instrument = require('./models/instrument')
+import Instrument from './models/instrument.js'
 
 //Class is used to generate submitter object that registers and holds socketId for instrument clients and state of holders on each machine
 class Submitter {
@@ -86,4 +86,4 @@ class Submitter {
   }
 }
 
-module.exports = Submitter
+export default Submitter

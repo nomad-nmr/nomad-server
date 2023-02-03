@@ -1,10 +1,10 @@
-const express = require('express')
-const router = express.Router()
+import { Router } from 'express'
+const router = Router()
 
-const messageControllers = require('../../controllers/admin/message')
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
+import { postMessage } from '../../controllers/admin/message.js'
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
 
-router.post('/', auth, authAdmin, messageControllers.postMessage)
+router.post('/', auth, authAdmin, postMessage)
 
-module.exports = router
+export default router

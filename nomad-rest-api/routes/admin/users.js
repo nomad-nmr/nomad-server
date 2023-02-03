@@ -1,14 +1,14 @@
-const express = require('express')
-const { body } = require('express-validator')
+import { Router } from 'express'
+import { body } from 'express-validator'
 
-const usersControllers = require('../../controllers/admin/users')
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
-const User = require('../../models/user')
+import { getUsers, postUser, updateUser, toggleActive } from '../../controllers/admin/users.js'
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
+import User from '../../models/user.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/', auth, usersControllers.getUsers)
+router.get('/', auth, getUsers)
 
 router.post(
   '/',
@@ -43,7 +43,7 @@ router.post(
   ],
   auth,
   authAdmin,
-  usersControllers.postUser
+  postUser
 )
 
 router.put(
@@ -58,9 +58,9 @@ router.put(
   ],
   auth,
   authAdmin,
-  usersControllers.updateUser
+  updateUser
 )
 
-router.patch('/toggle-active/:id', auth, authAdmin, usersControllers.toggleActive)
+router.patch('/toggle-active/:id', auth, authAdmin, toggleActive)
 
-module.exports = router
+export default router

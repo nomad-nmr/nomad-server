@@ -1,14 +1,14 @@
-const mongoose = require('mongoose')
-const { MongoMemoryServer } = require('mongodb-memory-server')
+import mongoose from 'mongoose'
+import { MongoMemoryServer } from 'mongodb-memory-server'
 
-const User = require('../../models/user')
-const Group = require('../../models/group')
-const { testUserOne, testUserTwo, testUserAdmin } = require('./data/users')
-const { testGroupOne, testGroupTwo } = require('./data/groups')
+import User from '../../models/user.js'
+import Group from '../../models/group.js'
+import { testUserOne, testUserTwo, testUserAdmin } from './data/users'
+import { testGroupOne, testGroupTwo } from './data/groups'
 
 let mongo = null
 
-const connectDB = async () => {
+export const connectDB = async () => {
   mongo = await MongoMemoryServer.create()
   const uri = mongo.getUri()
   mongoose.set('returnOriginal', false)
@@ -16,7 +16,7 @@ const connectDB = async () => {
   await mongoose.connect(uri)
 }
 
-const dropDB = async () => {
+export const dropDB = async () => {
   if (mongo) {
     await mongoose.connection.dropDatabase()
     await mongoose.connection.close()
@@ -24,7 +24,7 @@ const dropDB = async () => {
   }
 }
 
-const setupDB = async () => {
+export const setupDB = async () => {
   await User.deleteMany()
   await Group.deleteMany()
 
@@ -37,5 +37,3 @@ const setupDB = async () => {
   await new Group(testGroupOne).save()
   await new Group(testGroupTwo).save()
 }
-
-module.exports = { connectDB, dropDB, setupDB }

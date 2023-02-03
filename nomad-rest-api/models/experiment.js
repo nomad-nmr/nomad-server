@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+import { Schema, model } from 'mongoose'
 
 const experimentSchema = new Schema(
   {
@@ -68,4 +67,4 @@ const experimentSchema = new Schema(
   { timestamps: true }
 )
 
-module.exports = mongoose.model('Experiment', experimentSchema)
+export default model('Experiment', experimentSchema)

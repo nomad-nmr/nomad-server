@@ -1,7 +1,7 @@
-const User = require('../../models/user')
-const transporter = require('../../utils/emailTransporter')
+import User from '../../models/user.js'
+import transporter from '../../utils/emailTransporter.js'
 
-exports.postMessage = async (req, res) => {
+export async function postMessage(req, res) {
   const { recipients, subject, message } = req.body
   //excludedRec can be undefined if the controller is used to send message upon
   //sample reject
@@ -40,7 +40,6 @@ exports.postMessage = async (req, res) => {
             default:
               throw new Error('Recipient type unknown')
           }
-          //   console.log(users)
           userList = [...userList, ...users]
         })
       )
@@ -63,8 +62,7 @@ exports.postMessage = async (req, res) => {
       subject: 'NOMAD: ' + (subject ? subject : ''),
       text: message
     })
-
-    res.status(200).send(recipientsSet.size.toString())
+    res.status(200).send({ messageCount: recipientsSet.size.toString() })
   } catch (error) {
     console.log(error)
     res.status(500).send(error)

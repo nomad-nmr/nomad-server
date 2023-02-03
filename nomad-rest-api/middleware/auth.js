@@ -1,5 +1,6 @@
-const jwt = require('jsonwebtoken')
-const User = require('../models/user')
+import { verify } from 'jsonwebtoken'
+
+import User from '../models/user.js'
 
 const auth = async (req, res, next) => {
   const authHeader = req.get('Authorization')
@@ -9,7 +10,7 @@ const auth = async (req, res, next) => {
   const token = authHeader.split(' ')[1]
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const decoded = verify(token, process.env.JWT_SECRET)
     if (decoded) {
       const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
       if (!user) {
@@ -25,7 +26,7 @@ const auth = async (req, res, next) => {
       next()
     }
   } catch (error) {
-    const user = await User.findOne({ 'tokens.token': token })
+    const user = await findOne({ 'tokens.token': token })
     if (user) {
       user.removeAuthToken(token)
     }
@@ -33,4 +34,4 @@ const auth = async (req, res, next) => {
   }
 }
 
-module.exports = auth
+export default auth

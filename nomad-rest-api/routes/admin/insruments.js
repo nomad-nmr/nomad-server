@@ -1,13 +1,20 @@
-const express = require('express')
-const { body } = require('express-validator')
-const Instrument = require('../../models/instrument')
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
-const instrumentsController = require('../../controllers/admin/instruments')
+import { Router } from 'express'
+import { body } from 'express-validator'
+import Instrument from '../../models/instrument.js'
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
+import {
+  getInstruments,
+  addInstrument,
+  updateInstruments,
+  toggleAvailable,
+  toggleActive,
+  getOverheadTime
+} from '../../controllers/admin/instruments.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/', auth, instrumentsController.getInstruments)
+router.get('/', auth, getInstruments)
 
 router.post(
   '/',
@@ -33,7 +40,7 @@ router.post(
   ],
   auth,
   authAdmin,
-  instrumentsController.addInstrument
+  addInstrument
 )
 
 router.put(
@@ -53,13 +60,13 @@ router.put(
   ],
   auth,
   authAdmin,
-  instrumentsController.updateInstruments
+  updateInstruments
 )
 
-router.patch('/toggle-available/:id', auth, authAdmin, instrumentsController.toggleAvailable)
+router.patch('/toggle-available/:id', auth, authAdmin, toggleAvailable)
 
-router.patch('/toggle-active/:id', auth, authAdmin, instrumentsController.toggleActive)
+router.patch('/toggle-active/:id', auth, authAdmin, toggleActive)
 
-router.get('/overhead/:instrId', auth, authAdmin, instrumentsController.getOverheadTime)
+router.get('/overhead/:instrId', auth, authAdmin, getOverheadTime)
 
-module.exports = router
+export default router

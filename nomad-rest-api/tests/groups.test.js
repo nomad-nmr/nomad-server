@@ -1,13 +1,13 @@
 import mongoose from 'mongoose'
 import { it, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest'
-const request = require('supertest')
+import request from 'supertest'
 
-const app = require('../app')
-const Group = require('../models/group')
-const User = require('../models/user')
-const { connectDB, dropDB, setupDB } = require('./fixtures/db')
-const { testUserAdmin, testUserOne } = require('./fixtures/data/users')
-const { testGroupOne, testGroupTwo } = require('./fixtures/data/groups')
+import app from '../app'
+import Group from '../models/group.js'
+import User from '../models/user.js'
+import { connectDB, dropDB, setupDB } from './fixtures/db.js'
+import { testUserAdmin, testUserOne } from './fixtures/data/users.js'
+import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)

@@ -1,10 +1,10 @@
-const express = require('express')
-const trackerControllers = require('../controllers/tracker/tracker')
+import { Router } from 'express'
+import { ping, updateStatus } from '../controllers/tracker/tracker.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/ping/:instrumentId', trackerControllers.ping)
+router.get('/ping/:instrumentId', ping)
 
-router.patch('/status', trackerControllers.updateStatus)
+router.patch('/status', updateStatus)
 
-module.exports = router
+export default router

@@ -1,15 +1,25 @@
-const express = require('express')
-const { body } = require('express-validator')
+import { Router } from 'express'
+import { body } from 'express-validator'
 
-const auth = require('../middleware/auth')
-const authAdmin = require('../middleware/auth-admin')
-const Rack = require('../models/rack')
+import auth from '../middleware/auth.js'
+import authAdmin from '../middleware/auth-admin.js'
+import Rack from '../models/rack.js'
 
-const batchSubmitControllers = require('../controllers/batch-submit')
+import {
+  getRacks,
+  postRack,
+  closeRack,
+  deleteRack,
+  addSample,
+  deleteSample,
+  bookSamples,
+  submitSamples,
+  cancelBookedSamples
+} from '../controllers/batch-submit.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/racks', batchSubmitControllers.getRacks)
+router.get('/racks', getRacks)
 
 router.post(
   '/racks',
@@ -30,21 +40,21 @@ router.post(
   ],
   auth,
   authAdmin,
-  batchSubmitControllers.postRack
+  postRack
 )
 
-router.patch('/racks/:rackId', auth, authAdmin, batchSubmitControllers.closeRack)
+router.patch('/racks/:rackId', auth, authAdmin, closeRack)
 
-router.delete('/racks/:rackId', auth, authAdmin, batchSubmitControllers.deleteRack)
+router.delete('/racks/:rackId', auth, authAdmin, deleteRack)
 
-router.post('/sample/:rackId', auth, batchSubmitControllers.addSample)
+router.post('/sample/:rackId', auth, addSample)
 
-router.delete('/sample/:rackId/:slot', auth, batchSubmitControllers.deleteSample)
+router.delete('/sample/:rackId/:slot', auth, deleteSample)
 
-router.post('/book', auth, batchSubmitControllers.bookSamples)
+router.post('/book', auth, bookSamples)
 
-router.post('/submit', auth, batchSubmitControllers.submitSamples)
+router.post('/submit', auth, submitSamples)
 
-router.post('/cancel', auth, batchSubmitControllers.cancelBookedSamples)
+router.post('/cancel', auth, cancelBookedSamples)
 
-module.exports = router
+export default router
