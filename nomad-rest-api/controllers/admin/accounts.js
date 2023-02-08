@@ -1,11 +1,11 @@
-const moment = require('moment')
+import moment from 'moment'
 
-const Experiment = require('../../models/experiment')
-const Group = require('../../models/group')
-const User = require('../../models/user')
-const Instrument = require('../../models/instrument')
+import Experiment from '../../models/experiment.js'
+import Group from '../../models/group.js'
+import User from '../../models/user.js'
+import Instrument from '../../models/instrument.js'
 
-exports.getCosts = async (req, res) => {
+export async function getCosts(req, res) {
   const { groupId, dateRange } = req.query
   try {
     const searchParams = { $and: [{ status: 'Archived' }] }
@@ -166,7 +166,7 @@ const sortNames = inputArray =>
     return 0
   })
 
-exports.getInstrumentsCosting = async (req, res) => {
+export async function getInstrumentsCosting(req, res) {
   try {
     const resData = await Instrument.find({ isActive: true }, 'name cost')
     res.send(resData)
@@ -176,7 +176,7 @@ exports.getInstrumentsCosting = async (req, res) => {
   }
 }
 
-exports.putInstrumentsCosting = async (req, res) => {
+export async function putInstrumentsCosting(req, res) {
   try {
     const instrumentsArray = Object.keys(req.body)
     await Promise.all(

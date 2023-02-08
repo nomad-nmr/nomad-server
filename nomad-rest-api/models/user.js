@@ -1,6 +1,5 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
-const jwt = require('jsonwebtoken')
+import { Schema, model } from 'mongoose'
+import jwt from 'jsonwebtoken'
 
 const userSchema = new Schema(
   {
@@ -95,4 +94,4 @@ userSchema.methods.getDataAccess = async function () {
   return Promise.resolve(dataAccess)
 }
 
-module.exports = mongoose.model('User', userSchema)
+export default model('User', userSchema)

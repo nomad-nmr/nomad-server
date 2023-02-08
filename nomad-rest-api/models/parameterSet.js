@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+import { Schema, model } from 'mongoose'
 
 const parameterSetSchema = new Schema({
   name: {
@@ -38,4 +37,4 @@ const parameterSetSchema = new Schema({
   customParams: [{ name: String, comment: String, value: String }]
 })
 
-module.exports = mongoose.model('ParameterSet', parameterSetSchema)
+export default model('ParameterSet', parameterSetSchema)

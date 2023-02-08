@@ -1,4 +1,4 @@
-const Instrument = require('./models/instrument')
+import Instrument from './models/instrument.js'
 
 //Class is used to generate submitter object that registers and holds socketId for instrument clients and state of holders on each machine
 class Submitter {
@@ -6,7 +6,6 @@ class Submitter {
     //State has following map data structure [instrumentId, {socketId, usedHolders, bookedHolders}]
     // usedHolders is set with numbers of holder being used on given instrument. It gets generated and updated from status table.
     //bookedHolders is array of numbers of holders currently being booked on the instrument
-
     this.state = new Map()
   }
 
@@ -87,4 +86,4 @@ class Submitter {
   }
 }
 
-module.exports = Submitter
+export default Submitter

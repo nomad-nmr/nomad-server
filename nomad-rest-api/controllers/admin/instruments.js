@@ -1,12 +1,12 @@
-const { validationResult } = require('express-validator')
-const moment = require('moment')
+import { validationResult } from 'express-validator'
+import moment from 'moment'
 
-const Instrument = require('../../models/instrument')
-const Experiment = require('../../models/experiment')
-const io = require('../../socket')
-const app = require('../../app')
+import Instrument from '../../models/instrument.js'
+import Experiment from '../../models/experiment.js'
+import { getIO } from '../../socket.js'
+import { getSubmitter } from '../../server.js'
 
-exports.getInstruments = async (req, res) => {
+export const getInstruments = async (req, res) => {
   const searchParams = { isActive: true }
   if (req.query.showInactive === 'true') {
     delete searchParams.isActive
@@ -24,7 +24,7 @@ exports.getInstruments = async (req, res) => {
       return res.send(instrList)
     } else {
       const completeInstrData = instrumentsData.map(instr => {
-        const isConnected = app.getSubmitter().isConnected(instr._id.toString())
+        const isConnected = getSubmitter().isConnected(instr._id.toString())
         return { ...instr._doc, isConnected }
       })
       res.send(completeInstrData)
@@ -35,7 +35,7 @@ exports.getInstruments = async (req, res) => {
   }
 }
 
-exports.addInstrument = async (req, res) => {
+export const addInstrument = async (req, res) => {
   const errors = validationResult(req)
   try {
     if (!errors.isEmpty()) {
@@ -50,7 +50,7 @@ exports.addInstrument = async (req, res) => {
   }
 }
 
-exports.updateInstruments = async (req, res) => {
+export const updateInstruments = async (req, res) => {
   const errors = validationResult(req)
   try {
     if (!errors.isEmpty()) {
@@ -60,7 +60,7 @@ exports.updateInstruments = async (req, res) => {
     if (!instrument) {
       return res.status(404).send()
     }
-    const isConnected = app.getSubmitter().isConnected(instrument._id.toString())
+    const isConnected = getSubmitter().isConnected(instrument._id.toString())
     res.send({ ...instrument._doc, isConnected })
   } catch (err) {
     console.log(err)
@@ -68,7 +68,7 @@ exports.updateInstruments = async (req, res) => {
   }
 }
 
-exports.toggleAvailable = async (req, res) => {
+export const toggleAvailable = async (req, res) => {
   try {
     const instrument = await Instrument.findById(req.params.id)
     if (!instrument) {
@@ -76,7 +76,7 @@ exports.toggleAvailable = async (req, res) => {
     }
     instrument.available = !instrument.available
     const updatedInstrument = await instrument.save()
-    io.getIO().to('users').emit('availableUpdate', {
+    getIO().to('users').emit('availableUpdate', {
       _id: updatedInstrument._id,
       available: updatedInstrument.available
     })
@@ -87,7 +87,7 @@ exports.toggleAvailable = async (req, res) => {
   }
 }
 
-exports.toggleActive = async (req, res) => {
+export const toggleActive = async (req, res) => {
   try {
     const instrument = await Instrument.findById(req.params.id)
     if (!instrument) {
@@ -102,7 +102,7 @@ exports.toggleActive = async (req, res) => {
   }
 }
 
-exports.getOverheadTime = async (req, res) => {
+export const getOverheadTime = async (req, res) => {
   const { instrId } = req.params
   try {
     const expsArr = await Experiment.find(

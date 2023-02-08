@@ -1,21 +1,21 @@
 //Initialization of socket.io
+import { Server } from 'socket.io'
 
 let io
 
-module.exports = {
-	init: httpServer => {
-		io = require('socket.io')(httpServer, {
-			cors: {
-				origin: process.env.FRONT_HOST_URL,
-				methods: ['GET', 'POST']
-			}
-		})
-		return io
-	},
-	getIO: () => {
-		if (!io) {
-			throw new Error('Socket.io not initialized!')
-		}
-		return io
-	}
+export function initSocket(httpServer) {
+  io = new Server(httpServer, {
+    cors: {
+      origin: process.env.FRONT_HOST_URL,
+      methods: ['GET', 'POST']
+    }
+  })
+  return io
+}
+
+export function getIO() {
+  if (!io) {
+    throw new Error('Socket.io not initialized!')
+  }
+  return io
 }

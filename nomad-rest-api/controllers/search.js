@@ -1,8 +1,8 @@
-const moment = require('moment')
+import moment from 'moment'
 
-const Experiment = require('../models/experiment')
+import Experiment from '../models/experiment.js'
 
-exports.fetchExperiments = async (req, res) => {
+export async function fetchExperiments(req, res) {
   const {
     currentPage,
     pageSize,
@@ -141,7 +141,7 @@ exports.fetchExperiments = async (req, res) => {
   }
 }
 
-exports.getDataAccess = async (req, res) => {
+export async function getDataAccess(req, res) {
   try {
     const dataAccess = await req.user.getDataAccess()
     res.send(dataAccess)

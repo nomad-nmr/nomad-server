@@ -2,12 +2,15 @@
   "name": "nomad-rest-api",
   "version": "3.2.2",
   "description": "REST API back-end for NOMAD system",
-  "main": "app.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "env-cmd -f ../env/api-no-docker.env node app.js",
-    "dev": "env-cmd -f ../env/api-no-docker.env nodemon app.js",
-    "dev-docker": "nodemon app.js"
+    "test-once": "env-cmd -f ../env/backend.env vitest --run",
+    "test": "env-cmd -f ../env/backend.env vitest --reporter verbose",
+    "coverage": "env-cmd -f ../env/backend.env vitest run --coverage",
+    "start": "env-cmd -f ../env/api-no-docker.env node server.js",
+    "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
+    "dev-docker": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -30,7 +33,11 @@
     "socket.io": "^4.5.4"
   },
   "devDependencies": {
+    "@vitest/coverage-c8": "^0.27.2",
     "env-cmd": "^10.1.0",
-    "nodemon": "^2.0.18"
+    "mongodb-memory-server": "^8.11.4",
+    "nodemon": "^2.0.18",
+    "supertest": "^6.3.3",
+    "vitest": "^0.27.2"
   }
 }

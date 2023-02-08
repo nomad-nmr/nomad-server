@@ -1,7 +1,7 @@
 //middleware for data upload route that checks
 //whether request comes from client with ID stored in database
 
-const Instrument = require('../models/instrument')
+import Instrument from '../models/instrument.js'
 
 const authClient = async (req, res, next) => {
   const { instrumentId } = req.params
@@ -22,4 +22,4 @@ const authClient = async (req, res, next) => {
   }
 }
 
-module.exports = authClient
+export default authClient

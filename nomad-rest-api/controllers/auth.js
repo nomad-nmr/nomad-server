@@ -1,12 +1,11 @@
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const { validationResult } = require('express-validator')
+import bcrypt from 'bcryptjs'
+import { verify } from 'jsonwebtoken'
+import { validationResult } from 'express-validator'
 
-const User = require('../models/user')
+import User from '../models/user.js'
+import transporter from '../utils/emailTransporter.js'
 
-const transporter = require('../utils/emailTransporter')
-
-exports.postLogin = async (req, res) => {
+export async function postLogin(req, res) {
   try {
     const user = await User.findOne({ username: req.body.username })
 
@@ -39,15 +38,15 @@ exports.postLogin = async (req, res) => {
   }
 }
 
-exports.postLogout = async (req, res) => {
+export async function postLogout(req, res) {
   req.user.removeAuthToken(req.token)
   res.send()
 }
 
-exports.postPasswdReset = async (req, res) => {
+export async function postPasswdReset(req, res) {
   try {
     const { username } = req.body
-    const user = await User.findOne({ username })
+    const user = await findOne({ username })
     if (!user) {
       return res.status(400).send(`Username ${username} was not found in database`)
     }
@@ -69,14 +68,14 @@ exports.postPasswdReset = async (req, res) => {
   }
 }
 
-exports.getPasswdReset = async (req, res) => {
+export async function getPasswdReset(req, res) {
   const token = req.params.token
   try {
-    const user = await User.findOne({ resetToken: token })
+    const user = await findOne({ resetToken: token })
     if (!user) {
       return res.status(404).send('Token is invalid or user does not exist')
     }
-    const decode = jwt.verify(token, user.password)
+    const decode = verify(token, user.password)
     if (decode) {
       res.send({
         username: user.username,
@@ -93,7 +92,7 @@ exports.getPasswdReset = async (req, res) => {
   }
 }
 
-exports.postNewPasswd = async (req, res) => {
+export async function postNewPasswd(req, res) {
   const { username, fullName, password, token } = req.body
   const errors = validationResult(req)
 
@@ -102,11 +101,11 @@ exports.postNewPasswd = async (req, res) => {
       return res.status(422).send(errors)
     }
 
-    const user = await User.findOne({ username, resetToken: token })
+    const user = await findOne({ username, resetToken: token })
     if (!user) {
       return res.status(404).send('Token is invalid or user does not exist')
     }
-    const decode = jwt.verify(token, user.password)
+    const decode = verify(token, user.password)
     if (decode) {
       const newPassword = await bcrypt.hash(password, 12)
       let resetting = true

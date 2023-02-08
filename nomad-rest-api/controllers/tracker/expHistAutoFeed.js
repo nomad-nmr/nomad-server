@@ -1,11 +1,11 @@
-const bcrypt = require('bcryptjs')
+import bcrypt from 'bcryptjs'
 
-const Group = require('../../models/group')
-const User = require('../../models/user')
-const Experiment = require('../../models/experiment')
-const ParameterSet = require('../../models/parameterSet')
-const runningExperiments = require('./runningExperiments')
-const sendUploadCmd = require('./sendUploadCmd')
+import Group from '../../models/group.js'
+import User from '../../models/user.js'
+import Experiment from '../../models/experiment.js'
+import ParameterSet from '../../models/parameterSet.js'
+import runningExps from './runningExperiments.js'
+import sendUploadCmd from './sendUploadCmd.js'
 
 // helper function that updated automatically DB if group, user or parameter set has not been stored yet (auto-feed)
 // & updates exp history every time when experiment stops running (ie. status is changed from "running" to "completed" or "error" )
@@ -14,11 +14,11 @@ const sendUploadCmd = require('./sendUploadCmd')
 const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
   try {
     //getting runningExpState from DB if undefined
-    if (!runningExperiments.state) {
-      await runningExperiments.getState()
+    if (!runningExps.state) {
+      await runningExps.getState()
     }
 
-    const histItem = runningExperiments.update(instrument.id, statusTable)
+    const histItem = runningExps.update(instrument.id, statusTable)
 
     if (histItem) {
       console.log(histItem)
@@ -126,4 +126,4 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
   }
 }
 
-module.exports = expHistAutoFeed
+export default expHistAutoFeed

@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+import { Schema, model } from 'mongoose'
 
 const rackSchema = new Schema({
   title: {
@@ -60,4 +59,4 @@ const rackSchema = new Schema({
   ]
 })
 
-module.exports = mongoose.model('Rack', rackSchema)
+export default model('Rack', rackSchema)

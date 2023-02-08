@@ -1,6 +1,6 @@
-const Experiment = require('../../models/experiment')
-const expHistAutoFeed = require('./expHistAutoFeed')
-const sendUploadCmd = require('./sendUploadCmd')
+import Experiment from '../../models/experiment.js'
+import expHistAutoFeed from './expHistAutoFeed.js'
+import sendUploadCmd from './sendUploadCmd.js'
 
 //updateStatus takes existing status  table from instrument object and compares it with new status table
 // if entry does not exist or there is an existing entry with status change both status table and expHist table are getting updated
@@ -79,4 +79,4 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
   }
 }
 
-module.exports = updateStatusFromHist
+export default updateStatusFromHist

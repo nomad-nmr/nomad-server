@@ -1,9 +1,9 @@
-const { validationResult } = require('express-validator')
+import { validationResult } from 'express-validator'
 
-const ParameterSet = require('../../models/parameterSet')
-const Group = require('../../models/group')
+import ParameterSet from '../../models/parameterSet.js'
+import Group from '../../models/group.js'
 
-exports.getParamSets = async (req, res) => {
+export async function getParamSets(req, res) {
   const { instrumentId, searchValue, list } = req.query
   const group = await Group.findById(req.user.group)
 
@@ -46,7 +46,7 @@ exports.getParamSets = async (req, res) => {
   }
 }
 
-exports.postParamSet = async (req, res) => {
+export async function postParamSet(req, res) {
   const errors = validationResult(req)
 
   try {
@@ -63,7 +63,7 @@ exports.postParamSet = async (req, res) => {
   }
 }
 
-exports.updateParamSet = async (req, res) => {
+export async function updateParamSet(req, res) {
   const errors = validationResult(req)
 
   try {
@@ -81,7 +81,7 @@ exports.updateParamSet = async (req, res) => {
   }
 }
 
-exports.deleteParamSet = async (req, res) => {
+export async function deleteParamSet(req, res) {
   try {
     const paramSet = await ParameterSet.findByIdAndDelete(req.params.id)
     res.send({ message: 'Delete opeartion successful', id: paramSet._id })

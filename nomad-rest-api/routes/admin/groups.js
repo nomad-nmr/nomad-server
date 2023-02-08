@@ -1,14 +1,20 @@
-const express = require('express')
-const { body } = require('express-validator')
+import { Router } from 'express'
+import { body } from 'express-validator'
 
-const auth = require('../../middleware/auth')
-const authAdmin = require('../../middleware/auth-admin')
-const Group = require('../../models/group')
-const groupsController = require('../../controllers/admin/groups')
+import auth from '../../middleware/auth.js'
+import authAdmin from '../../middleware/auth-admin.js'
+import Group from '../../models/group.js'
+import {
+  getGroups,
+  addGroup,
+  updateGroup,
+  toggleActive,
+  addUsers
+} from '../../controllers/admin/groups.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/', auth, groupsController.getGroups)
+router.get('/', auth, getGroups)
 
 router.post(
   '/',
@@ -27,13 +33,13 @@ router.post(
   ],
   auth,
   authAdmin,
-  groupsController.addGroup
+  addGroup
 )
 
-router.put('/', body('description').trim(), auth, authAdmin, groupsController.updateGroup)
+router.put('/', body('description').trim(), auth, authAdmin, updateGroup)
 
-router.patch('/toggle-active/:groupId', auth, authAdmin, groupsController.toggleActive)
+router.patch('/toggle-active/:groupId', auth, authAdmin, toggleActive)
 
-router.post('/add-users/:groupId', auth, authAdmin, groupsController.addUsers)
+router.post('/add-users/:groupId', auth, authAdmin, addUsers)
 
-module.exports = router
+export default router

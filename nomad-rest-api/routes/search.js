@@ -1,12 +1,12 @@
-const express = require('express')
+import { Router } from 'express'
 
-const searchControllers = require('../controllers/search')
-const auth = require('../middleware/auth')
+import { fetchExperiments, getDataAccess } from '../controllers/search.js'
+import auth from '../middleware/auth.js'
 
-const router = express.Router()
+const router = Router()
 
-router.get('/experiments', auth, searchControllers.fetchExperiments)
+router.get('/experiments', auth, fetchExperiments)
 
-router.get('/data-access', auth, searchControllers.getDataAccess)
+router.get('/data-access', auth, getDataAccess)
 
-module.exports = router
+export default router

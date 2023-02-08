@@ -1,15 +1,14 @@
-const moment = require('moment')
+import moment from 'moment'
 
-const io = require('../../socket')
+import { getIO } from '../../socket.js'
+import Instrument from '../../models/instrument.js'
+import Group from '../../models/group.js'
+import restructureInput from './restructureInput.js'
+import expHistAutoFeed from './expHistAutoFeed.js'
+import updateStatusFromHist from './updateStatusFromHist.js'
+import { getSubmitter } from '../../server.js'
 
-const Instrument = require('../../models/instrument')
-const Group = require('../../models/group')
-const restructureInput = require('./restructureInput')
-const expHistAutoFeed = require('./expHistAutoFeed')
-const updateStatusFromHist = require('./updateStatusFromHist')
-const app = require('../../app')
-
-exports.ping = async (req, res) => {
+export const ping = async (req, res) => {
   try {
     const { name } = await Instrument.findById(req.params.instrumentId, 'name')
     res.status(200).send({ name })
@@ -18,7 +17,7 @@ exports.ping = async (req, res) => {
   }
 }
 
-exports.updateStatus = async (req, res) => {
+export const updateStatus = async (req, res) => {
   try {
     const instrument = await Instrument.findById(req.body.instrumentId)
 
@@ -74,10 +73,10 @@ exports.updateStatus = async (req, res) => {
 
     const instr = await instrument.save()
 
-    const submitter = app.getSubmitter()
+    const submitter = getSubmitter()
     submitter.updateUsedHolders(instr._id.toString(), newStatusObj.statusTable)
 
-    io.getIO()
+    getIO()
       .to('users')
       .emit('statusUpdate', { instrId: instr._id, statusSummary: instr.status.summary })
 

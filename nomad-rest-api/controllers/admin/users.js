@@ -1,11 +1,11 @@
-const bcrypt = require('bcryptjs')
-const { validationResult } = require('express-validator')
-const moment = require('moment')
+import bcrypt from 'bcryptjs'
+import { validationResult } from 'express-validator'
+import moment from 'moment'
 
-const User = require('../../models/user')
-const Group = require('../../models/group')
+import User from '../../models/user.js'
+import Group from '../../models/group.js'
 
-exports.getUsers = async (req, res) => {
+export async function getUsers(req, res) {
   //setting search parameters according to showInactive settings
   const { showInactive, pageSize, current, accessLevel, group, username, lastLoginOrder } =
     req.query
@@ -50,6 +50,7 @@ exports.getUsers = async (req, res) => {
         ).sort({
           username: 'asc'
         })
+
         return res.send(userList)
       } else {
         //for search user select with inactive switch on we return combined list of inactive an ex users from the group
@@ -57,12 +58,11 @@ exports.getUsers = async (req, res) => {
           { ...searchParams, isActive: false },
           'username fullName'
         )
-
         const group = await Group.findById(req.query.group, 'exUsers').populate(
           'exUsers',
           'username fullName'
         )
-        // let sortedUsrList = []
+
         group.exUsers.forEach(usr => {
           const onList = onlyInactiveUsrList.find(i => i.username === usr.username)
           if (!onList) {
@@ -91,9 +91,10 @@ exports.getUsers = async (req, res) => {
       .populate('group', 'groupName')
 
     if (!users) {
-      res.status(404).send()
+      return res.status(404).send()
     }
 
+    //formatting time related properties of response array
     const usersArr = users.map(user => {
       const newUser = {
         ...user._doc,
@@ -113,7 +114,7 @@ exports.getUsers = async (req, res) => {
   }
 }
 
-exports.postUser = async (req, res) => {
+export async function postUser(req, res) {
   const { username, email, accessLevel, fullName, isActive, groupId } = req.body
   const errors = validationResult(req)
 
@@ -137,7 +138,7 @@ exports.postUser = async (req, res) => {
     const user = new User(newUserObj)
     const newUser = await user.save()
     await newUser.populate('group', 'groupName')
-    delete newUser.password
+    delete newUser._doc.password
     res.status(201).send(newUser)
   } catch (error) {
     console.log(error)
@@ -145,7 +146,7 @@ exports.postUser = async (req, res) => {
   }
 }
 
-exports.updateUser = async (req, res) => {
+export async function updateUser(req, res) {
   const errors = validationResult(req)
 
   try {
@@ -174,8 +175,8 @@ exports.updateUser = async (req, res) => {
     //fetching updated user to work on response
     const user = await User.findById(req.body._id).populate('group', 'groupName')
 
-    delete user.password
-    delete user.tokens
+    delete user._doc.password
+    delete user._doc.tokens
     const lastLogin = user._doc.lastLogin
       ? moment(user._doc.lastLogin).format('DD MMM YYYY, HH:mm')
       : '-'
@@ -189,7 +190,7 @@ exports.updateUser = async (req, res) => {
   }
 }
 
-exports.toggleActive = async (req, res) => {
+export async function toggleActive(req, res) {
   try {
     const user = await User.findById(req.params.id)
     if (!user) {

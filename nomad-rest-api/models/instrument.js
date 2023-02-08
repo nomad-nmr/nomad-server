@@ -1,5 +1,4 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
+import { Schema, model } from 'mongoose'
 
 const instrumentSchema = new Schema({
   name: {
@@ -70,4 +69,4 @@ const instrumentSchema = new Schema({
   }
 })
 
-module.exports = mongoose.model('Instrument', instrumentSchema)
+export default model('Instrument', instrumentSchema)
