@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test-once": "env-cmd -f ../env/backend.env vitest --run",
-    "test": "env-cmd -f ../env/backend.env vitest",
-    "coverage": "env-cmd -f ../env/backend.env vitest --threads=false run --coverage",
+    "test": "env-cmd -f ../env/backend.env vitest --reporter verbose",
+    "coverage": "env-cmd -f ../env/backend.env vitest run --coverage",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",
     "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
     "dev-docker": "nodemon server.js"
