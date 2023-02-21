@@ -1,4 +1,4 @@
-FROM node:18 as frontend
+FROM node:lts-bullseye-slim as frontend
 
 WORKDIR /app
 
@@ -8,13 +8,11 @@ RUN npm install
 
 COPY ./nomad-front-end .
 
-# ENV SKIP_PREFLIGHT_CHECK=true
-# ENV PORT=3000
+
 #following setting should work for hosting of whole NOMAD app on one machine using nginx reverse proxy 
 ENV VITE_API_URL=/api
-ENV VITE_NMRIUM_URL=/nmrium
 
-#Set true if NOMAD submission is used
+#Switching ON/OFF NOMAD parts
 ENV VITE_SUBMIT_ON=true
 ENV VITE_BATCH_SUBMIT_ON=true
 ENV VITE_DATASTORE_ON=true 
@@ -22,24 +20,9 @@ ENV VITE_DATASTORE_ON=true
 RUN npm run build
 
 
-FROM node:18 as nmrium
-
-WORKDIR /app
-
-COPY ./nomad-nmrium/package.json .
-
-RUN npm install 
-
-COPY ./nomad-nmrium .
-
-RUN npm run build
-
-
 FROM nginx:stable-alpine
 
 COPY --from=frontend /app/dist /react-builds/frontend
-
-COPY --from=nmrium /app/dist /react-builds/nmrium
 
 COPY nginx.conf /etc/nginx/nginx.conf
 

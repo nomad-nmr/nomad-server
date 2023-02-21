@@ -9,6 +9,11 @@
   justify-content: flex-start;
 }
 
+.ExtraContainer img {
+  height: 35px;
+  margin: 0 20px 0 10px;
+}
+
 .SwitchElement {
   display: flex;
   flex-direction: column;

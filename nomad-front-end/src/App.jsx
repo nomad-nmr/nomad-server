@@ -1,5 +1,5 @@
 import React, { useState, Suspense, useEffect } from 'react'
-import { Route, Routes, Navigate, useNavigate } from 'react-router-dom'
+import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import {
   closeAuthModal,
@@ -28,6 +28,7 @@ const { Header, Sider, Content, Footer } = Layout
 const App = props => {
   const [adminMenuCollapsed, setAdminMenuCollapsed] = useState(true)
   const navigate = useNavigate()
+  const location = useLocation()
 
   const toggleAdminMenu = () => {
     setAdminMenuCollapsed(!adminMenuCollapsed)
@@ -62,8 +63,8 @@ const App = props => {
   const Submit = React.lazy(() => import('./containers/Submit/Submit'))
   const BatchSubmit = React.lazy(() => import('./containers/BatchSubmit/BatchSubmit'))
   const Search = React.lazy(() => import('./containers/Search/Search'))
-  // const Grants = React.lazy(() => import('./containers/Grants/Grants'))
   const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
+  const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -92,7 +93,7 @@ const App = props => {
 
   return (
     <Layout>
-      {accessLevel === 'admin' ? (
+      {accessLevel === 'admin' && location.pathname === '/dashboard' ? (
         <Affix className={classes.AdminMenu}>
           <Sider
             trigger={null}
@@ -145,10 +146,7 @@ const App = props => {
                 path='/admin/parameter-sets'
                 element={accessLevel === 'admin' ? <ParameterSets /> : <Navigate to='/dashboard' />}
               />
-              {/* <Route
-                path='/admin/grants'
-                element={accessLevel === 'admin' ? <Grants /> : <Navigate to='/dashboard' />}
-      />*/}
+
               <Route path='/dashboard' element={<Dashboard />} />
               <Route path='/reset/:token' element={<Reset />} />
               <Route
@@ -183,6 +181,16 @@ const App = props => {
                   )
                 }
               />
+              <Route
+                path='/nmrium'
+                element={
+                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                    <NMRium />
+                  ) : (
+                    <Navigate to='/dashboard' />
+                  )
+                }
+              />
 
               <Route path='/500' element={<Error500 />} />
               <Route path='/404' element={<Error404 />} />
@@ -195,7 +203,7 @@ const App = props => {
           {authModal}
           <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
         </Content>
-        <Footer className={classes.Footer}>
+        <Footer>
           <Credits />
         </Footer>
       </Layout>

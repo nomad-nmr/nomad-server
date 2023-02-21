@@ -18,8 +18,15 @@ const { Option } = Select
 const { RangePicker } = DatePicker
 
 const SearchForm = props => {
-  const { fetchInstList, authToken, fetchParamSets, fetchGrpList, fetchDataAccess, dataAccess, grpList } =
-    props
+  const {
+    fetchInstList,
+    authToken,
+    fetchParamSets,
+    fetchGrpList,
+    fetchDataAccess,
+    dataAccess,
+    grpList
+  } = props
 
   const [form] = Form.useForm()
   const [instrumentId, setInstrumentId] = useState(null)

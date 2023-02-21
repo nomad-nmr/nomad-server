@@ -80,14 +80,6 @@ http {
            proxy_pass http://api:8080/socket.io/;
         }
 
-        location /nmrium {
-           autoindex on;
-           index index.html;
-
-           alias /react-builds/nmrium/;
-           
-           try_files $uri $uri/ /index.html;
-       }
 
         error_page 404 /404.html;
         location = /404.html {

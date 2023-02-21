@@ -1,6 +1,6 @@
 # NOMAD server
 
-Server side code for [NOMAD system](https://www.nomad-nmr.uk/) made out of three main building blocks.
+Server side code for [NOMAD system](https://www.nomad-nmr.uk/) made out of two main building blocks.
 
 ---
 
@@ -11,11 +11,6 @@ React front-end bootstrapped with **[Vite JS](https://vitejs.dev/)**.
 ### nomad-rest-api
 
 REST API built using **[Express JS Library](https://expressjs.com/)**.
-
-### nomad-nmrium
-
-Wrapper for **[NMRium](https://www.nmrium.org/)** React component that enables communication with NOMAD REST API.
-The project was bootstrapped using **[Vite JS](https://vitejs.dev/)**.
 
 ---
 

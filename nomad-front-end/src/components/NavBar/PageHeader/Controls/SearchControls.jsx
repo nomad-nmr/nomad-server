@@ -1,17 +1,21 @@
 import React from 'react'
 import { Button, Switch } from 'antd'
+import { useNavigate } from 'react-router-dom'
 
 import classes from '../PageHeader.module.css'
 
 const SearchControls = props => {
   const { searchCheckedState, toggleModal, token } = props
+  const navigate = useNavigate()
 
-  let expsArr = []
-  searchCheckedState.forEach(entry => {
-    expsArr = [...expsArr, ...entry.exps]
-  })
-
-  const searchParams = new URLSearchParams({ expIds: expsArr, token })
+  const openNMRiumHandler = () => {
+    let expsArr = []
+    searchCheckedState.forEach(entry => {
+      expsArr = [...expsArr, ...entry.exps]
+    })
+    props.fetchNMRium(expsArr, token)
+    navigate('/nmrium')
+  }
 
   return (
     <div className={classes.ExtraContainer}>
@@ -26,19 +30,15 @@ const SearchControls = props => {
         />
       </div>
 
-      <a
-        href={import.meta.env.VITE_NMRIUM_URL + '/?' + searchParams.toString()}
-        target='_blank'
-        rel='noreferrer noopener'
+      <Button
+        className={classes.Button}
+        type='primary'
+        disabled={searchCheckedState.length === 0}
+        onClick={() => openNMRiumHandler()}
       >
-        <Button
-          className={classes.Button}
-          type='primary'
-          disabled={searchCheckedState.length === 0}
-        >
-          Open NMRium
-        </Button>
-      </a>
+        {props.addingToNMRium ? 'Add to NNMRium' : 'Open in NMRium'}
+      </Button>
+
       <Button
         className={classes.Button}
         onClick={() => toggleModal()}

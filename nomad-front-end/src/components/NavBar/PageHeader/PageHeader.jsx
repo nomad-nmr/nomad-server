@@ -29,7 +29,9 @@ import {
   toggleSearchForm,
   fetchRepair,
   toggleCostingDrawer,
-  fetchOverheadTime
+  fetchOverheadTime,
+  fetchNMRiumData,
+  saveNMRiumData
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -43,6 +45,7 @@ import UsersTabControls from './Controls/UsersTabControls'
 import DashControls from './Controls/DashControls'
 import SearchControls from './Controls/SearchControls'
 import AccountingControls from './Controls/AccountingControls'
+import NMRiumControls from './Controls/NMRiumControls'
 
 import dashIcon from '../../../assets/dashboard.svg'
 import userIcon from '../../../assets/user.svg'
@@ -55,6 +58,7 @@ import messageIcon from '../../../assets/email.png'
 import batchSubmitIcon from '../../../assets/batch-submit.png'
 import searchIcon from '../../../assets/loupe.svg'
 import accountingIcon from '../../../assets/accounting.png'
+import { setAddingExpsStatus } from '../../../store/actions/nmrium'
 
 const PageHeaderEl = props => {
   const {
@@ -205,6 +209,8 @@ const PageHeaderEl = props => {
           token={props.authToken}
           toggleForm={props.tglSearchForm}
           showForm={props.showSearchForm}
+          fetchNMRium={props.fetchNMRium}
+          addingToNMRium={props.adding}
         />
       )
 
@@ -217,6 +223,17 @@ const PageHeaderEl = props => {
 
       break
 
+    case '/nmrium':
+      extra = (
+        <NMRiumControls
+          token={props.authToken}
+          saveHandler={props.saveNMRium}
+          addExpsHandler={props.setAddExps}
+          data={props.nmriumData}
+        />
+      )
+      break
+
     default:
       headerTitle = ''
       avatarSrc = ''
@@ -226,7 +243,7 @@ const PageHeaderEl = props => {
     <PageHeader
       className={classes.PageHeader}
       title={headerTitle}
-      avatar={{ src: avatarSrc }}
+      avatar={location.pathname !== '/nmrium' && { src: avatarSrc }}
       extra={extra}
     />
   )
@@ -257,7 +274,9 @@ const mapStateToProps = state => {
     slots: state.batchSubmit.selectedSlots,
     checked: state.search.checked,
     showSearchForm: state.search.showForm,
-    selectedInstrId: state.expHistory.instrumentId
+    selectedInstrId: state.expHistory.instrumentId,
+    nmriumData: state.nmrium.changedData,
+    adding: state.nmrium.adding
   }
 }
 
@@ -288,7 +307,10 @@ const mapDispatchToProps = dispatch => {
     tglSearchForm: () => dispatch(toggleSearchForm()),
     getRepair: (instrId, token) => dispatch(fetchRepair(instrId, token)),
     tglCostingDrawer: () => dispatch(toggleCostingDrawer()),
-    fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token))
+    fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
+    fetchNMRium: (expsArr, authToken) => dispatch(fetchNMRiumData(expsArr, authToken)),
+    saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
+    setAddExps: () => dispatch(setAddingExpsStatus())
   }
 }
 

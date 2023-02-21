@@ -21,18 +21,32 @@ import SearchForm from '../../components/SearchComponents/SearchForm'
 import './Search.css'
 
 const Search = props => {
-  const { authToken, openModal, fetchExps, tabData, mdlVisible, checked, showForm, tglSearchForm } = props
+  const {
+    authToken,
+    openAuthModal,
+    fetchExps,
+    tabData,
+    mdlVisible,
+    checked,
+    showForm,
+    tglSearchForm,
+    resetChecked
+  } = props
   //Page size hardcoded to limit number of experiments available to download
   const [searchParams, setSearchParams] = useState({ currentPage: 1, pageSize: 20 })
 
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
-      openModal()
+      openAuthModal()
     } else {
+      resetChecked()
       fetchExps(authToken, searchParams)
     }
-  }, [authToken, openModal, fetchExps, searchParams])
+    return () => {
+      resetChecked()
+    }
+  }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked])
 
   //cleaning function that closes the search form if component dismounts
   useEffect(
@@ -72,7 +86,6 @@ const Search = props => {
             checkedDatasetsHandler={props.updCheckedDatasets}
             checkedExpsHandler={props.updCheckedExps}
             checked={props.checked}
-            resetCheckedState={props.resetChecked}
             currentPage={searchParams.currentPage}
             total={props.total}
             pageHandler={onPageChange}
@@ -104,7 +117,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  openModal: () => dispatch(openAuthModal()),
+  openAuthModal: () => dispatch(openAuthModal()),
   tglSearchForm: () => dispatch(toggleSearchForm()),
   fetchExps: (token, searchParams) => dispatch(fetchExperiments(token, searchParams)),
   updCheckedDatasets: payload => dispatch(updateCheckedDatasets(payload)),
