@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Menu } from 'antd'
 
-import Icon, { DownloadOutlined, SearchOutlined } from '@ant-design/icons'
+import Icon, { DownloadOutlined, SearchOutlined, LineChartOutlined } from '@ant-design/icons'
 import batchIconSvg from './BatchSubmitIcon'
 
 import classes from './MainMenu.module.css'
@@ -16,7 +16,12 @@ const MainMenu = props => {
 
   const items = []
 
-  if (import.meta.env.VITE_SUBMIT_ON === 'true' && props.username) {
+  if (
+    import.meta.env.VITE_SUBMIT_ON === 'true' &&
+    props.username &&
+    location.pathname !== '/nmrium' &&
+    location.pathname !== '/search'
+  ) {
     items.push({
       key: '/submit',
       label: <span className={classes.MenuItem}>Book New Job</span>,
@@ -26,7 +31,9 @@ const MainMenu = props => {
 
   if (
     import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
-    (accessLevel === 'admin' || accessLevel === 'admin-b' || accessLevel === 'user-b')
+    (accessLevel === 'admin' || accessLevel === 'admin-b' || accessLevel === 'user-b') &&
+    location.pathname !== '/nmrium' &&
+    location.pathname !== '/search'
   ) {
     items.push({
       key: '/batch-submit',
@@ -35,11 +42,27 @@ const MainMenu = props => {
     })
   }
 
-  if (import.meta.env.VITE_DATASTORE_ON === 'true' && props.username) {
+  if (
+    import.meta.env.VITE_DATASTORE_ON === 'true' &&
+    props.username &&
+    location.pathname !== '/search'
+  ) {
     items.push({
       key: '/search',
       icon: <SearchOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>Search</span>
+    })
+  }
+
+  if (
+    import.meta.env.VITE_DATASTORE_ON === 'true' &&
+    props.username &&
+    location.pathname !== '/nmrium'
+  ) {
+    items.push({
+      key: '/nmrium',
+      icon: <LineChartOutlined style={{ fontSize: 20 }} />,
+      label: <span className={classes.MenuItem}>NMRium</span>
     })
   }
 

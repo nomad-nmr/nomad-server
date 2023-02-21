@@ -130,3 +130,5 @@ export {
   fetchInstrumentsCosting,
   updateInstrumentsCosting
 } from './accounts'
+
+export { fetchNMRiumData, setChangedData, saveNMRiumData, keepNMRiumChanges } from './nmrium'

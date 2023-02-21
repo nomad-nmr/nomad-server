@@ -9,11 +9,17 @@ import socketIO from '../../assets/websocket.png'
 import nginxLogo from '../../assets/nginx.png'
 import dockerLogo from '../../assets/docker-logo.png'
 import gitHubLogo from '../../assets/GitHub-logo.png'
+import nmriumLogo from '../../assets/nmrium.png'
+
 import classes from './Credits.module.css'
+
+import { version } from '../../../package.json'
 
 const credits = () => {
   return (
     <div className={classes.Credits}>
+      <span className={classes.Version}>{`Version: ${version}`}</span>
+      <Divider type='vertical' />
       <span className={classes.Text}>Powered by</span>
       <a href='https://reactjs.org/'>
         <img src={reactLogo} alt='React Logo' />
@@ -49,6 +55,9 @@ const credits = () => {
       <Divider type='vertical' />
       <a href='https://github.com/nomad-nmr'>
         <img src={gitHubLogo} alt='GitHub Logo' />
+      </a>
+      <a href='https://www.nmrium.org/'>
+        <img src={nmriumLogo} alt='NMRium Logo' />
       </a>
     </div>
   )

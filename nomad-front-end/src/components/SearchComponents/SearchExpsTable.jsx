@@ -8,13 +8,6 @@ import classes from './SearchExpsTable.module.css'
 const SearchExpsTable = props => {
   const { checked, resetCheckedState } = props
 
-  //Hook cleaning checked state on dismount
-  useEffect(() => {
-    return () => {
-      resetCheckedState()
-    }
-  }, [resetCheckedState])
-
   const columns = [
     {
       title: 'Username',

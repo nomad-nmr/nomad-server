@@ -19,6 +19,8 @@ import messageReducer from './store/reducers/message'
 import batchSubmitReducer from './store/reducers/batchSubmit'
 import searchReducer from './store/reducers/search'
 import accountsReducer from './store/reducers/accounts'
+import nmriumReducer from './store/reducers/NMRium'
+
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
 
@@ -48,7 +50,8 @@ const rootReducer = combineReducers({
   message: messageReducer,
   batchSubmit: batchSubmitReducer,
   search: searchReducer,
-  accounts: accountsReducer
+  accounts: accountsReducer,
+  nmrium: nmriumReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))
