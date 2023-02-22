@@ -65,8 +65,9 @@ const reducer = (state = initialState, { type, payload }) => {
         title: 'Add sample to rack success',
         content: (
           <div>
-            Put your sample(s) into rack <span style={{ fontWeight: 600 }}>{racksNew[rIndex].title}</span> in
-            slot(s) <span style={{ fontWeight: 600 }}>{slots.join(', ')}</span>
+            Put your sample(s) into rack{' '}
+            <span style={{ fontWeight: 600 }}>{racksNew[rIndex].title}</span> in slot(s){' '}
+            <span style={{ fontWeight: 600 }}>{slots.join(', ')}</span>
           </div>
         )
       })
@@ -97,12 +98,15 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, bookSamplesVisible: !state.bookSamplesVisible, loading: false }
 
     case actionTypes.BOOKING_SUCCESS:
-      return { ...state, loading: false, bookSamplesVisible: false, selectedSlots: [], racks: updateRacks() }
+      return {
+        ...state,
+        loading: false,
+        bookSamplesVisible: false,
+        selectedSlots: [],
+        racks: updateRacks()
+      }
 
     case actionTypes.SUBMIT_SAMPLES_SUCCESS:
-      return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
-
-    case actionTypes.CANCEL_SAMPLES_SUCCESS:
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
 
     default:

@@ -43,16 +43,13 @@ export const resetChecked = () => ({
   type: actionTypes.RESET_CHECKED
 })
 
-export const downloadExpsStart = () => ({
-  type: actionTypes.DOWNLOAD_EXPS_START
-})
 export const downloadExpsSuccess = () => ({
   type: actionTypes.DOWNLOAD_EXPS_SUCCESS
 })
 
 export const downloadExps = (expIds, fileName, token) => {
   return dispatch => {
-    dispatch(downloadExpsStart())
+    dispatch(fetchExperimentsStart())
     axios
       .get('/data/exps/?' + new URLSearchParams({ exps: expIds }).toString(), {
         responseType: 'blob',
@@ -78,7 +75,7 @@ export const toggleSearchForm = () => ({
 
 export const getPDF = (expId, fileName, token) => {
   return dispatch => {
-    dispatch(downloadExpsStart())
+    dispatch(fetchExperimentsStart())
     axios
       .get('/data/pdf/' + expId, {
         responseType: 'blob',

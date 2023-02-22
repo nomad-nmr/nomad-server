@@ -48,9 +48,6 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_CHECKED:
       return { ...state, checked: [] }
 
-    case actionTypes.DOWNLOAD_EXPS_START:
-      return { ...state, loading: true }
-
     case actionTypes.DOWNLOAD_EXPS_SUCCESS:
       return { ...state, loading: false, checked: [], showDownloadModal: false }
 

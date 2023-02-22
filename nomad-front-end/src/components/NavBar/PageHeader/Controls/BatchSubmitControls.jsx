@@ -75,7 +75,7 @@ const BatchSubmitControls = props => {
     let allBooked = true
     selectedSamples.forEach(sample => {
       if (sample.status !== 'Booked') {
-        return (allBooked = false)
+        allBooked = false
       }
     })
     return allBooked

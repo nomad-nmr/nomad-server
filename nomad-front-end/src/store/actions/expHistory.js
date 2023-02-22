@@ -15,7 +15,9 @@ export const fetchHistory = (token, instrId, date) => {
   return dispatch => {
     dispatch(fetchHistoryStart())
     axios
-      .get('/admin/history/data/' + instrId + '/' + date, { headers: { Authorization: 'Bearer ' + token } })
+      .get('/admin/history/data/' + instrId + '/' + date, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
       .then(res => dispatch(fetchHistorySuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
@@ -33,10 +35,6 @@ export const setInstrId = payload => ({
   payload
 })
 
-export const repairStart = () => ({
-  type: actionTypes.REPAIR_START
-})
-
 export const fetchRepairSuccess = payload => ({
   type: actionTypes.FETCH_REPAIR_SUCCESS,
   payload
@@ -44,7 +42,7 @@ export const fetchRepairSuccess = payload => ({
 
 export const fetchRepair = (instrId, token) => {
   return dispatch => {
-    dispatch(repairStart())
+    dispatch(fetchHistoryStart())
     axios
       .get('/admin/history/repair/' + instrId, { headers: { Authorization: 'Bearer ' + token } })
       .then(res => dispatch(fetchRepairSuccess(res.data)))
@@ -66,9 +64,13 @@ export const postRepairSuccess = payload => ({
 
 export const postRepair = (instrId, exps, token) => {
   return dispatch => {
-    dispatch(repairStart())
+    dispatch(fetchHistoryStart())
     axios
-      .post('/admin/history/repair/', { instrId, exps }, { headers: { Authorization: 'Bearer ' + token } })
+      .post(
+        '/admin/history/repair/',
+        { instrId, exps },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
       .then(res => dispatch(postRepairSuccess(res.data)))
       .catch(err => {
         console.log(err)
@@ -84,7 +86,11 @@ export const getRefresh = (exps, token) => {
   return dispatch => {
     dispatch(repairStart())
     axios
-      .post('/admin/history/repair-refresh/', { exps }, { headers: { Authorization: 'Bearer ' + token } })
+      .post(
+        '/admin/history/repair-refresh/',
+        { exps },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
       .then(res => dispatch(postRepairSuccess(res.data)))
       .catch(err => {
         console.log(err)

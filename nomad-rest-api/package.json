@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt-salt": "^1.1.12",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
@@ -28,16 +29,16 @@
     "moment-duration-format": "^2.3.2",
     "mongoose": "^6.0.5",
     "multer": "^1.4.5-lts.1",
-    "nmr-load-save": "^0.4.6",
+    "nmr-load-save": "^0.4.9",
     "nodemailer": "^6.4.16",
     "socket.io": "^4.5.4"
   },
   "devDependencies": {
-    "@vitest/coverage-c8": "^0.27.2",
+    "@vitest/coverage-c8": "^0.28.5",
     "env-cmd": "^10.1.0",
     "mongodb-memory-server": "^8.11.4",
     "nodemon": "^2.0.18",
     "supertest": "^6.3.3",
-    "vitest": "^0.27.2"
+    "vitest": "^0.28.5"
   }
 }

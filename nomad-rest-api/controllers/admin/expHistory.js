@@ -19,7 +19,7 @@ export async function getHistory(req, res) {
       .populate('user.id', 'fullName')
       .exec()
 
-    res.send(experiments.filter(exp => exp.status !== 'Available'))
+    res.status(200).json(experiments.filter(exp => exp.status !== 'Available'))
   } catch (error) {
     console.log(error)
     res.status(500).send()
@@ -53,7 +53,7 @@ export async function fetchRepair(req, res) {
       })
     )
     repairList.sort((a, b) => a - b)
-    res.send(repairList)
+    res.status(200).json(repairList)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
@@ -109,7 +109,7 @@ export async function postRepair(req, res) {
 
     setTimeout(async () => {
       const repairList = await getRepairList(exps)
-      res.send(repairList)
+      res.status(200).json(repairList)
     }, exps.length * 500)
   } catch (error) {
     console.log(error)
@@ -145,7 +145,7 @@ export async function postRefresh(req, res) {
   console.log(exps)
   try {
     const repairList = await getRepairList(exps)
-    res.send(repairList)
+    res.status(200).json(repairList)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

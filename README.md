@@ -1,6 +1,6 @@
 # NOMAD server
 
-Server side code for [NOMAD system](https://www.nomad-nmr.uk/) made out of two main building blocks.
+Server side code for [NOMAD system](https://www.nomad-nmr.uk/) made out of two main building blocks. These are two individual NPM projects that are in individual folders with corresponding names.
 
 ---
 
@@ -14,7 +14,7 @@ REST API built using **[Express JS Library](https://expressjs.com/)**.
 
 ---
 
-The fourth main component of the system **[nomad-spect-client](https://github.com/nomad-nmr/nomad-spect-client)** is a JS app that runs on NMR spectrometer PC in Node.js runtime environment and enables communication of NOMAD server with Bruker IconNMR software. The code for the spectrometer client is stored in its own repository.
+The third main component of the system **[nomad-spect-client](https://github.com/nomad-nmr/nomad-spect-client)** is a JS app that runs on NMR spectrometer PC in Node.js runtime environment and enables communication of NOMAD server with Bruker IconNMR software. The code for the spectrometer client is stored in its own repository.
 
 ---
 

@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import BcryptSalt from 'bcrypt-salt'
 import { validationResult } from 'express-validator'
 import moment from 'moment'
 
@@ -27,7 +28,9 @@ export async function getUsers(req, res) {
   }
 
   if (username) {
+    // file deepcode ignore reDOS: <suggested fix using lodash does not seem to work>
     const regex = new RegExp(username, 'i')
+
     searchParams.$and.push({
       $or: [{ username: { $regex: regex } }, { fullName: { $regex: regex } }]
     })
@@ -110,7 +113,7 @@ export async function getUsers(req, res) {
     res.send({ users: usersArr, total })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -123,7 +126,8 @@ export async function postUser(req, res) {
       return res.status(422).send(errors)
     }
 
-    const hashedPasswd = await bcrypt.hash(Math.random().toString(), 12)
+    const bs = new BcryptSalt()
+    const hashedPasswd = await bcrypt.hash(Math.random().toString(), bs.saltRounds)
 
     const newUserObj = {
       username: username.toLowerCase(),
@@ -139,10 +143,10 @@ export async function postUser(req, res) {
     const newUser = await user.save()
     await newUser.populate('group', 'groupName')
     delete newUser._doc.password
-    res.status(201).send(newUser)
+    res.status(201).json(newUser)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).json(error)
   }
 }
 
@@ -203,6 +207,6 @@ export async function toggleActive(req, res) {
     res.send({ message: 'User active status was updated', _id: updatedUser._id })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }

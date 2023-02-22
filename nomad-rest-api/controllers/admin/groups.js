@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator'
 import bcrypt from 'bcryptjs'
+import BcryptSalt from 'bcrypt-salt'
 
 import Group from '../../models/group.js'
 import User from '../../models/user.js'
@@ -35,7 +36,7 @@ export async function getGroups(req, res) {
     res.send(resGroups)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).json(error)
   }
 }
 
@@ -48,10 +49,10 @@ export async function addGroup(req, res) {
     }
     const group = new Group({ groupName: groupName.toLowerCase(), description, isBatch })
     const newGroup = await group.save()
-    res.status(201).send(newGroup)
+    res.status(201).json(newGroup)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).json(error)
   }
 }
 
@@ -73,7 +74,7 @@ export async function updateGroup(req, res) {
     res.send({ ...group._doc, ...usersCounts })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -96,7 +97,7 @@ export async function toggleActive(req, res) {
       .send({ message: 'Group active status updated successfully', _id: updatedGroup._id })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -138,7 +139,8 @@ export async function addUsers(req, res) {
             oldGroup.exUsers = Array.from(exUsersSet)
             await oldGroup.save()
           } else {
-            const hashedPasswd = await bcrypt.hash(Math.random().toString(), 12)
+            const bs = new BcryptSalt()
+            const hashedPasswd = await bcrypt.hash(Math.random().toString(), bs.saltRounds)
             const newUserObj = {
               username: username.toLowerCase(),
               password: hashedPasswd,
@@ -158,7 +160,7 @@ export async function addUsers(req, res) {
     res.send({ rejected, newUsers, total })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
   res.send()
 }

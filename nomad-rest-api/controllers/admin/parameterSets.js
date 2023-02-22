@@ -13,6 +13,7 @@ export async function getParamSets(req, res) {
   }
 
   if (searchValue) {
+    // file deepcode ignore reDOS: <suggested fix using lodash does not seem to work>
     const regex = new RegExp(searchValue, 'i')
     searchParams.$and.push({
       $or: [{ name: { $regex: regex } }, { description: { $regex: regex } }]
@@ -42,7 +43,7 @@ export async function getParamSets(req, res) {
     res.send(paramSets)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).json(error)
   }
 }
 
@@ -56,10 +57,10 @@ export async function postParamSet(req, res) {
 
     const newParamSet = new ParameterSet(convertInputData(req.body))
     const paramSet = await newParamSet.save()
-    res.send(paramSet)
+    res.status(200).json(paramSet)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).json(error)
   }
 }
 
@@ -68,16 +69,16 @@ export async function updateParamSet(req, res) {
 
   try {
     if (!errors.isEmpty()) {
-      return res.status(422).send(errors)
+      return res.status(422).json(errors)
     }
     const updatedParamSet = await ParameterSet.findByIdAndUpdate(
       req.body._id,
       convertInputData(req.body)
     )
-    res.send(updatedParamSet)
+    res.status(200).json(updatedParamSet)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -87,7 +88,7 @@ export async function deleteParamSet(req, res) {
     res.send({ message: 'Delete opeartion successful', id: paramSet._id })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 

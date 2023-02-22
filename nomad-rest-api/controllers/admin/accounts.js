@@ -91,8 +91,6 @@ export async function getCosts(req, res) {
             newEntry.totalCost += cost
           })
 
-          newEntry.totalCost = newEntry.totalCost
-
           resData.push(newEntry)
         })
       )

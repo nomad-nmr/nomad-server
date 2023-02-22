@@ -86,7 +86,7 @@ export const bookExperiments = (token, formData, userId) => {
       })
       .then(res => {
         if (res.status === 200) {
-          dispatch(bookExperimentsSuccess(res.data))
+          dispatch(bookExperimentsSuccess())
         }
       })
       .catch(err => {
@@ -95,9 +95,9 @@ export const bookExperiments = (token, formData, userId) => {
   }
 }
 
-export const clearBookedHolders = () => ({
-  type: actionTypes.CLEAR_BOOKED_HOLDERS
-})
+// export const cancelBookedHoldersSuccess = () => ({
+//   type: actionTypes.CLEAR_BOOKED_HOLDERS
+// })
 
 export const fetchAlloawanceSucces = payload => ({
   type: actionTypes.FETCH_ALLOWANCE_SUCCESS,

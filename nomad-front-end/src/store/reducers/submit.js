@@ -52,8 +52,8 @@ const reducer = (state = initialState, { type, payload }) => {
         bookedHolders: []
       }
 
-    case actionTypes.CLEAR_BOOKED_HOLDERS:
-      return { ...state, bookedHolders: [] }
+    // case actionTypes.CLEAR_BOOKED_HOLDERS:
+    //   return { ...state, bookedHolders: [] }
 
     case actionTypes.FETCH_ALLOWANCE_SUCCESS:
       return { ...state, allowance: payload }

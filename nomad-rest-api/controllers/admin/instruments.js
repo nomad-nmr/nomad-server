@@ -31,7 +31,7 @@ export const getInstruments = async (req, res) => {
     }
   } catch (err) {
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).json(err)
   }
 }
 
@@ -43,10 +43,10 @@ export const addInstrument = async (req, res) => {
     }
     const instrument = new Instrument(req.body)
     await instrument.save()
-    res.status(201).send(instrument)
+    res.status(201).json(instrument)
   } catch (err) {
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).json(err)
   }
 }
 
@@ -64,7 +64,7 @@ export const updateInstruments = async (req, res) => {
     res.send({ ...instrument._doc, isConnected })
   } catch (err) {
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -83,7 +83,7 @@ export const toggleAvailable = async (req, res) => {
     res.send()
   } catch (err) {
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -98,7 +98,7 @@ export const toggleActive = async (req, res) => {
     res.send({ message: 'Instrument active status updated', _id: updatedInstrument._id })
   } catch (err) {
     console.log(err)
-    res.status(500).send(err)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -128,6 +128,6 @@ export const getOverheadTime = async (req, res) => {
     res.send(respData)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }

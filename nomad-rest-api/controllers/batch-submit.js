@@ -53,7 +53,7 @@ export const getRacks = async (req, res) => {
     res.send(racks)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -66,10 +66,10 @@ export const postRack = async (req, res) => {
     }
     const newRack = new Rack({ ...req.body, title: req.body.title.toUpperCase() })
     await newRack.save()
-    res.send(newRack)
+    res.status(200).json(newRack)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -80,10 +80,10 @@ export const closeRack = async (req, res) => {
     if (!rack) {
       return res.status(404).send('Rack not found!')
     }
-    res.send(rack._id)
+    res.status(200).json(rack._id)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -94,10 +94,10 @@ export const deleteRack = async (req, res) => {
     if (!rack) {
       return res.status(404).send('Rack not found!')
     }
-    res.send(rack._id)
+    res.status(200).json(rack._id)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -134,7 +134,7 @@ export const addSample = async (req, res) => {
       res.status(406).send({ message: 'Rack is Full!', rackId })
     } else {
       console.log(error.message)
-      res.status(500).send(error)
+      res.status(500).send({ error: 'API error' })
     }
   }
 }
@@ -152,7 +152,7 @@ export const deleteSample = async (req, res) => {
     res.send({ rackId, slot })
   } catch (error) {
     console.log(error.message)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -209,7 +209,7 @@ export const bookSamples = async (req, res) => {
     if (availableHolders.length < slots.length) {
       return res
         .status(400)
-        .send(`Instrument ${instrument.name} does not have enough available holders`)
+        .json(`Instrument ${instrument.name} does not have enough available holders`)
     }
 
     submitter.updateBookedHolders(instrId, availableHolders)
@@ -314,7 +314,7 @@ export const bookSamples = async (req, res) => {
     })
   } catch (error) {
     console.log(error.message)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -363,7 +363,7 @@ export const submitSamples = async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -414,6 +414,6 @@ export const cancelBookedSamples = async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }

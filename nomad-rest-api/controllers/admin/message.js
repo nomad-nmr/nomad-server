@@ -65,6 +65,6 @@ export async function postMessage(req, res) {
     res.status(200).send({ messageCount: recipientsSet.size.toString() })
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }

@@ -13,7 +13,7 @@ export const ping = async (req, res) => {
     const { name } = await Instrument.findById(req.params.instrumentId, 'name')
     res.status(200).send({ name })
   } catch (error) {
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 

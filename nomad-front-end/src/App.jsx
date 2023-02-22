@@ -93,7 +93,8 @@ const App = props => {
 
   return (
     <Layout>
-      {accessLevel === 'admin' && location.pathname === '/dashboard' ? (
+      {accessLevel === 'admin' &&
+      (location.pathname === '/dashboard' || location.pathname.includes('admin')) ? (
         <Affix className={classes.AdminMenu}>
           <Sider
             trigger={null}

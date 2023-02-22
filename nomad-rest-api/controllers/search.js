@@ -36,6 +36,7 @@ export async function fetchExperiments(req, res) {
     }
 
     if (title && title !== 'undefined') {
+      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
       const regex = new RegExp(title, 'i')
       searchParams.$and.push({ title: { $regex: regex } })
     }

@@ -88,7 +88,7 @@ export {
   cancelHolder,
   cancelBookedHolders,
   bookExperiments,
-  clearBookedHolders,
+  cancelBookedHoldersSuccess,
   fetchAllowance
 } from './submit'
 

@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import BcryptSalt from 'bcrypt-salt'
 
 import Group from '../../models/group.js'
 import User from '../../models/user.js'
@@ -48,7 +49,8 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         //AUTO-FEED for user
         let user = await User.findOne({ username: rawHistItemObj.username.toLowerCase() })
         if (!user) {
-          const password = await bcrypt.hash(Math.random().toString(), 12)
+          const bs = new BcryptSalt()
+          const password = await bcrypt.hash(Math.random().toString(), bs.saltRounds)
           const newUser = new User({
             username: rawHistItemObj.username.toLowerCase(),
             group: group._id,

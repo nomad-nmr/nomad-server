@@ -202,11 +202,6 @@ export const submitSamples = (data, token) => {
   }
 }
 
-export const cancelSamplesSuccess = payload => ({
-  type: actionTypes.CANCEL_SAMPLES_SUCCESS,
-  payload
-})
-
 export const cancelSamples = (data, token) => {
   return dispatch => {
     dispatch(loadingStart())
@@ -215,7 +210,7 @@ export const cancelSamples = (data, token) => {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
-        dispatch(cancelSamplesSuccess(res.data))
+        dispatch(submitSamplesSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

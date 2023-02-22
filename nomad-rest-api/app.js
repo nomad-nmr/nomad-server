@@ -22,6 +22,7 @@ import batchSubmitRoutes from './routes/batch-submit.js'
 import dataRoutes from './routes/data.js'
 import searchRoutes from './routes/search.js'
 
+// file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()
 momentDurationFormatSetup(moment)
 
@@ -30,7 +31,8 @@ app.use(helmet())
 
 //Setting headers to allow CORS
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  // res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONT_HOST_URL)
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   next()

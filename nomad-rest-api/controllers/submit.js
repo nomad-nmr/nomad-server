@@ -225,7 +225,7 @@ export const putReset = async (req, res) => {
     instrument.status.statusTable.forEach((row, index) => {
       const prevRow = instrument.status.statusTable[index - 1]
       if (index === 0 || prevRow.datasetName !== row.datasetName) {
-        return holders.push({ number: row.holder, status: [row.status] })
+        holders.push({ number: row.holder, status: [row.status] })
       } else {
         const i = holders.length - 1
         holders[i].status.push(row.status)
@@ -242,7 +242,7 @@ export const putReset = async (req, res) => {
 
     submitter.resetBookedHolders(instrId)
     emitDeleteExps(instrId, holdersToDelete, res)
-    res.send(holdersToDelete)
+    res.status(200).json(holdersToDelete)
   } catch (error) {
     console.log(error)
     res.status(500).send()
@@ -328,7 +328,7 @@ export const getAllowance = async (req, res) => {
       })
     )
 
-    res.send(respArr)
+    res.status(200).json(respArr)
   } catch (error) {
     console.log(error)
     res.status(500).send()

@@ -14,7 +14,7 @@ export const getStatusSummary = async (req, res) => {
     }
     res.send(data)
   } catch (error) {
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -89,10 +89,10 @@ export const getStatusTable = async (req, res) => {
       }
     })
 
-    res.send(tableData)
+    res.status(200).json(tableData)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }
 
@@ -172,6 +172,6 @@ export const getDrawerTable = async (req, res) => {
     res.send(respArray)
   } catch (error) {
     console.log(error)
-    res.status(500).send(error)
+    res.status(500).send({ error: 'API error' })
   }
 }

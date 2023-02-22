@@ -153,7 +153,7 @@ const HistoryTable = props => {
         return 'error'
 
       default:
-        return 'default'
+        return null
     }
   }
 

@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs'
+import BcryptSalt from 'bcrypt-salt'
 import { verify } from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
 
@@ -48,7 +49,7 @@ export async function postPasswdReset(req, res) {
     const { username } = req.body
     const user = await findOne({ username })
     if (!user) {
-      return res.status(400).send(`Username ${username} was not found in database`)
+      return res.status(400).json(`Username ${username} was not found in database`)
     }
     const token = await user.generateResetToken()
     await transporter.sendMail({
@@ -87,7 +88,7 @@ export async function getPasswdReset(req, res) {
       res.status(403).send('Token is invalid')
     } else {
       console.log(error)
-      res.status(500).send(error)
+      res.status(500).send({ error: 'API error' })
     }
   }
 }
@@ -107,7 +108,8 @@ export async function postNewPasswd(req, res) {
     }
     const decode = verify(token, user.password)
     if (decode) {
-      const newPassword = await bcrypt.hash(password, 12)
+      const bs = new BcryptSalt()
+      const newPassword = await bcrypt.hash(password, bs.saltRounds)
       let resetting = true
       if (fullName) {
         user.fullName = fullName
@@ -123,7 +125,7 @@ export async function postNewPasswd(req, res) {
       res.status(403).send('Token is invalid')
     } else {
       console.log(error)
-      res.status(500).send(error)
+      res.status(500).send({ error: 'API error' })
     }
   }
 }

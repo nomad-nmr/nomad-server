@@ -17,7 +17,7 @@ import {
   bookExperiments,
   fetchGroupList,
   fetchUserList,
-  clearBookedHolders,
+  cancelBookedHoldersSuccess,
   fetchAllowance
 } from '../../store/actions'
 
@@ -160,7 +160,7 @@ const mapDispatchToProps = dispatch => {
     logoutHandler: token => dispatch(signOutHandler(token)),
     cancelBookedHoldersHandler: (token, keys) => dispatch(cancelBookedHolders(token, keys)),
     bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
-    clrBookedHolders: () => dispatch(clearBookedHolders()),
+    clrBookedHolders: () => dispatch(cancelBookedHoldersSuccess()),
     fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds))
   }
 }

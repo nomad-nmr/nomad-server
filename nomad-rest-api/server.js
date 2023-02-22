@@ -1,6 +1,7 @@
 import app from './app.js'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
+import BcryptSalt from 'bcrypt-salt'
 
 const port = process.env.PORT || 8080
 const host = process.env.HOST || '0.0.0.0'
@@ -28,7 +29,8 @@ if (process.env.NODE_ENV !== 'test') {
       // adding default admin user
       const user = await User.findOne()
       if (!user) {
-        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12)
+        const bs = new BcryptSalt()
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, bs.saltRounds)
         const adminUser = new User({
           username: 'admin',
           password: hashedPassword,
@@ -54,6 +56,7 @@ if (process.env.NODE_ENV !== 'test') {
         if (instrumentId) {
           submitter.updateSocket(instrumentId, socket.id)
         } else {
+          // deepcode ignore PureMethodReturnValueIgnored: <please specify a reason of ignoring this>
           socket.join('users')
         }
         //updating submitter state and DB if instrument is disconnected

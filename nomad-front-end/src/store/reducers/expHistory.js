@@ -43,9 +43,6 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SET_SELECTED_INSTRUMENT_ID:
       return { ...state, instrumentId: payload }
 
-    case actionTypes.REPAIR_START:
-      return { ...state, isLoading: true }
-
     case actionTypes.FETCH_REPAIR_SUCCESS: {
       return { ...state, isLoading: false, repairList: payload, modalVisible: true }
     }
