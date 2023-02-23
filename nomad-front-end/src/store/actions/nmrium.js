@@ -13,7 +13,9 @@ export const fetchNMRiumData = (exps, token) => {
       .get('/data/nmrium/?' + new URLSearchParams({ exps }).toString(), {
         headers: { Authorization: 'Bearer ' + token }
       })
-      .then(res => dispatch(fetchNMRiumDataSuccess(res.data)))
+      .then(res => {
+        dispatch(fetchNMRiumDataSuccess(res.data))
+      })
       .catch(err => {
         dispatch(errorHandler(err))
       })

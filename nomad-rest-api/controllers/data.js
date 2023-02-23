@@ -108,7 +108,7 @@ export const getNMRium = async (req, res) => {
       })
     )
     const dataJSON = JSON.stringify(data, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
-    res.status(200).json(dataJSON)
+    res.status(200).send(dataJSON)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
@@ -174,7 +174,8 @@ export const getPDF = async (req, res) => {
     })
     if (pdfPath) {
       const pdfBuffer = await zip.file(pdfPath).async('nodebuffer')
-      res.status(200).json(pdfBuffer)
+      // file deepcode ignore XSS: <Sending nodebuffer requires send>
+      res.status(200).send(pdfBuffer)
     } else {
       res.sendStatus(417)
     }
