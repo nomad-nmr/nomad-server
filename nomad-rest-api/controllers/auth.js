@@ -72,7 +72,7 @@ export async function postPasswdReset(req, res) {
 export async function getPasswdReset(req, res) {
   const token = req.params.token
   try {
-    const user = await findOne({ resetToken: token })
+    const user = await User.findOne({ resetToken: token })
     if (!user) {
       return res.status(404).send('Token is invalid or user does not exist')
     }
@@ -102,7 +102,7 @@ export async function postNewPasswd(req, res) {
       return res.status(422).send(errors)
     }
 
-    const user = await findOne({ username, resetToken: token })
+    const user = await User.findOne({ username, resetToken: token })
     if (!user) {
       return res.status(404).send('Token is invalid or user does not exist')
     }

@@ -149,6 +149,7 @@ const App = props => {
               />
 
               <Route path='/dashboard' element={<Dashboard />} />
+
               <Route path='/reset/:token' element={<Reset />} />
               <Route
                 path='/submit'
