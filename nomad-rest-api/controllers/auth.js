@@ -47,7 +47,7 @@ export async function postLogout(req, res) {
 export async function postPasswdReset(req, res) {
   try {
     const { username } = req.body
-    const user = await findOne({ username })
+    const user = await User.findOne({ username })
     if (!user) {
       return res.status(400).json(`Username ${username} was not found in database`)
     }
