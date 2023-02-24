@@ -9,19 +9,18 @@ import transporter from '../utils/emailTransporter.js'
 export async function postLogin(req, res) {
   try {
     const user = await User.findOne({ username: req.body.username })
-
     if (!user) {
-      return res.status(400).send('Wrong username or password')
+      return res.status(400).send({ message: 'Wrong username or password' })
     }
     if (!user.isActive) {
-      return res.status(400).send('User is inactive')
+      return res.status(400).send({ message: 'User is inactive' })
     }
 
     await user.populate('group')
 
     const passMatch = await bcrypt.compare(req.body.password, user.password)
     if (!passMatch) {
-      return res.status(400).send('Wrong username or password')
+      return res.status(400).send({ message: 'Wrong username or password' })
     }
 
     const token = await user.generateAuthToken()
@@ -74,7 +73,7 @@ export async function getPasswdReset(req, res) {
   try {
     const user = await User.findOne({ resetToken: token })
     if (!user) {
-      return res.status(404).send('Token is invalid or user does not exist')
+      return res.status(404).send({ message: 'Token is invalid or user does not exist' })
     }
     const decode = verify(token, user.password)
     if (decode) {
@@ -85,7 +84,7 @@ export async function getPasswdReset(req, res) {
     }
   } catch (error) {
     if (error.name === 'JsonWebTokenError' || 'TokenExpiredError') {
-      res.status(403).send('Token is invalid')
+      res.status(403).send({ message: 'Token is invalid' })
     } else {
       console.log(error)
       res.status(500).send({ error: 'API error' })
@@ -104,14 +103,16 @@ export async function postNewPasswd(req, res) {
 
     const user = await User.findOne({ username, resetToken: token })
     if (!user) {
-      return res.status(404).send('Token is invalid or user does not exist')
+      return res.status(404).send({ message: 'Token is invalid or user does not exist' })
     }
     const decode = verify(token, user.password)
     if (decode) {
       const bs = new BcryptSalt()
       const newPassword = await bcrypt.hash(password, bs.saltRounds)
       let resetting = true
-      if (fullName) {
+      //new users added to the system from .csv file don't have full name and have to fill in password reset form
+      //new users added to DB individually only reset passwords
+      if (user.fullName !== fullName) {
         user.fullName = fullName
         resetting = false
         user.isActive = true
@@ -122,7 +123,7 @@ export async function postNewPasswd(req, res) {
     }
   } catch (error) {
     if (error.name === 'JsonWebTokenError' || 'TokenExpiredError') {
-      res.status(403).send('Token is invalid')
+      res.status(403).send({ message: 'Token is invalid' })
     } else {
       console.log(error)
       res.status(500).send({ error: 'API error' })
