@@ -10,6 +10,7 @@ import nginxLogo from '../../assets/nginx.png'
 import dockerLogo from '../../assets/docker-logo.png'
 import gitHubLogo from '../../assets/GitHub-logo.png'
 import nmriumLogo from '../../assets/nmrium.png'
+import viteLogo from '../../assets/vite-icon.png'
 
 import classes from './Credits.module.css'
 
@@ -27,6 +28,10 @@ const credits = () => {
       <Divider type='vertical' />
       <a href='https://ant.design/'>
         <img src={antdLogo} alt='Ant Design Logo' />
+      </a>
+      <Divider type='vertical' />
+      <a href='https://vitejs.dev/'>
+        <img src={viteLogo} alt='Vite Logo' />
       </a>
       <Divider type='vertical' />
       <a href='https://redux.js.org/'>
