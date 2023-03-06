@@ -34,6 +34,10 @@ const credits = () => {
         <img src={viteLogo} alt='Vite Logo' />
       </a>
       <Divider type='vertical' />
+      <a href='https://www.nmrium.org/'>
+        <img src={nmriumLogo} alt='NMRium Logo' />
+      </a>
+      <Divider type='vertical' />
       <a href='https://redux.js.org/'>
         <img src={reduxLogo} alt='Redux Logo' />
       </a>
@@ -60,9 +64,6 @@ const credits = () => {
       <Divider type='vertical' />
       <a href='https://github.com/nomad-nmr'>
         <img src={gitHubLogo} alt='GitHub Logo' />
-      </a>
-      <a href='https://www.nmrium.org/'>
-        <img src={nmriumLogo} alt='NMRium Logo' />
       </a>
     </div>
   )
