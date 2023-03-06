@@ -22,8 +22,8 @@ router.post(
     body('name', 'Instrument name is invalid')
       .trim()
       .isString()
-      .isLength({ min: 3 })
-      .withMessage('Instrument name minimum length is 3')
+      .isLength({ min: 3, max: 15 })
+      .withMessage('Instrument name minimum length is 3 and maximum 15')
       .custom(value => {
         return Instrument.findOne({ name: value }).then(instrument => {
           if (instrument) {
@@ -34,8 +34,8 @@ router.post(
     body('model', 'Invalid info in model field')
       .trim()
       .isString()
-      .isLength({ max: 50 })
-      .withMessage('Max length of model info is 50'),
+      .isLength({ max: 30 })
+      .withMessage('Max length of model info is 30'),
     body('capacity', 'Capacity must be an integer').isInt()
   ],
   auth,
@@ -54,8 +54,8 @@ router.put(
     body('model', 'Invalid info in model field')
       .trim()
       .isString()
-      .isLength({ max: 20 })
-      .withMessage('Max length of model info is 20'),
+      .isLength({ max: 30 })
+      .withMessage('Max length of model info is 30'),
     body('capacity', 'Capacity must be an integer').isInt()
   ],
   auth,

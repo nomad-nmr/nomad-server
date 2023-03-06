@@ -24,7 +24,6 @@ export const getInstruments = async (req, res) => {
       return res.send(instrList)
     } else {
       const completeInstrData = instrumentsData.map(instr => {
-        console.log(getSubmitter)
         const isConnected = getSubmitter().isConnected(instr._id.toString())
         return { ...instr._doc, isConnected }
       })
