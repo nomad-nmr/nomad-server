@@ -32,7 +32,7 @@ export async function getParamSets(req, res) {
     } else {
       paramSets = await ParameterSet.find(searchParams).sort({ count: 'desc' })
     }
-    if (list) {
+    if (list === 'true') {
       const paramSetsList = paramSets.map(paramSet => ({
         name: paramSet.name,
         description: paramSet.description,
@@ -85,7 +85,7 @@ export async function updateParamSet(req, res) {
 export async function deleteParamSet(req, res) {
   try {
     const paramSet = await ParameterSet.findByIdAndDelete(req.params.id)
-    res.send({ message: 'Delete opeartion successful', id: paramSet._id })
+    res.send({ message: 'Delete successful', id: paramSet._id })
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })
