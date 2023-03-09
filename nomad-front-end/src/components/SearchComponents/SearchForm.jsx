@@ -38,9 +38,9 @@ const SearchForm = props => {
     fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
     fetchDataAccess(authToken)
     fetchGrpList(authToken, false)
-    return () => {
-      form.resetFields()
-    }
+    // return () => {
+    //   form.resetFields()
+    // }
     // eslint-disable-next-line
   }, [])
 

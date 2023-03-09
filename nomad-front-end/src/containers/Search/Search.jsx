@@ -29,7 +29,6 @@ const Search = props => {
     mdlVisible,
     checked,
     showForm,
-    tglSearchForm,
     resetChecked
   } = props
   //Page size hardcoded to limit number of experiments available to download
@@ -40,8 +39,10 @@ const Search = props => {
     if (!authToken) {
       openAuthModal()
     } else {
-      resetChecked()
-      fetchExps(authToken, searchParams)
+      //data are getting fetched only if table is empty or search is performed
+      if (tabData.length === 0 || Object.keys(searchParams).length > 2) {
+        fetchExps(authToken, searchParams)
+      }
     }
     return () => {
       resetChecked()
@@ -49,15 +50,15 @@ const Search = props => {
   }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked])
 
   //cleaning function that closes the search form if component dismounts
-  useEffect(
-    () => () => {
-      if (showForm) {
-        tglSearchForm()
-      }
-    },
-    // eslint-disable-next-line
-    []
-  )
+  // useEffect(
+  //   () => () => {
+  //     if (showForm) {
+  //       tglSearchForm()
+  //     }
+  //   },
+  //   // eslint-disable-next-line
+  //   []
+  // )
 
   const onPageChange = page => {
     const newSearchParams = { ...searchParams }

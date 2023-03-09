@@ -60,6 +60,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.GET_DATA_ACCESS_SUCCESS:
       return { ...state, dataAccess: payload }
 
+    case actionTypes.RESET_SEARCH_DATA:
+      return { ...state, tableData: [] }
+
     default:
       return state
   }

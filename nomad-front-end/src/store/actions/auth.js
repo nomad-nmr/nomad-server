@@ -51,9 +51,14 @@ export const resetNMRiumData = () => ({
   type: actionTypes.RESET_NMRIUM_DATA
 })
 
+export const resetSearchData = () => ({
+  type: actionTypes.RESET_SEARCH_DATA
+})
+
 export const signOutHandler = (token, timeOut) => {
   return dispatch => {
     dispatch(resetNMRiumData())
+    dispatch(resetSearchData())
     axios
       .post('/auth/logout', timeOut, { headers: { Authorization: 'Bearer ' + token } })
       .then(() => {
