@@ -3,8 +3,13 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 
 import User from '../../models/user.js'
 import Group from '../../models/group.js'
+import Instrument from '../../models/instrument'
+import ParameterSet from '../../models/parameterSet.js'
+
 import { testUserOne, testUserTwo, testUserAdmin } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
+import { testInstrOne, testInstrTwo } from './data/instruments'
+import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
 
 let mongo = null
 
@@ -27,6 +32,8 @@ export const dropDB = async () => {
 export const setupDB = async () => {
   await User.deleteMany()
   await Group.deleteMany()
+  await Instrument.deleteMany()
+  await ParameterSet.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
@@ -36,4 +43,11 @@ export const setupDB = async () => {
   testGroupTwo.exUsers.push(testUserOne._id)
   await new Group(testGroupOne).save()
   await new Group(testGroupTwo).save()
+
+  await new Instrument(testInstrOne).save()
+  await new Instrument(testInstrTwo).save()
+
+  await new ParameterSet(testParamSet1).save()
+  await new ParameterSet(testParamSet2).save()
+  await new ParameterSet(testParamsHidden).save()
 }
