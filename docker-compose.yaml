@@ -32,18 +32,6 @@ services:
     depends_on:
       - backend
 
-  # nmrium:
-  #   build: ./nomad-nmrium
-  #   env_file:
-  #     - ./env/nmrium.env
-  #   ports:
-  #     - '3000:3000'
-  #   volumes:
-  #     - ./nomad-nmrium/src:/app/src
-  #     - /app/node_modules
-  #   depends_on:
-  #     - backend
-
   client:
     build: ../nomad-spect-client
     volumes:
