@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Form, Select, Space, Switch } from 'antd'
 
 const SelectGrpUsr = props => {
-  const { inactiveSwitch, fetchUsrListHandler, userList, fetchGrpListHandler, token, formRef } = props
+  const { inactiveSwitch, fetchUsrListHandler, userList, fetchGrpListHandler, token, formRef } =
+    props
 
   let groupList = props.groupList
 

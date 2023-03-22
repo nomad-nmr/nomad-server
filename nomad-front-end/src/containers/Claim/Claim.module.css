@@ -1,0 +1,9 @@
+.FormContainer {
+  display: flex;
+  justify-content: center;
+  margin: 40px;
+}
+
+.Container {
+  margin: 0 70px;
+}

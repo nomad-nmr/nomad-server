@@ -37,6 +37,7 @@ const App = props => {
   const {
     username,
     accessLevel,
+    manualAccess,
     authModalVisible,
     closeModal,
     onSignIn,
@@ -65,6 +66,7 @@ const App = props => {
   const Search = React.lazy(() => import('./containers/Search/Search'))
   const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
   const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
+  const Claim = React.lazy(() => import('./containers/Claim/Claim'))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -193,6 +195,17 @@ const App = props => {
                   )
                 }
               />
+              <Route
+                path='/claim'
+                element={
+                  import.meta.env.VITE_DATASTORE_ON === 'true' &&
+                  (accessLevel === 'admin' || manualAccess) ? (
+                    <Claim />
+                  ) : (
+                    <Navigate to='/dashboard' />
+                  )
+                }
+              />
 
               <Route path='/500' element={<Error500 />} />
               <Route path='/404' element={<Error404 />} />
@@ -218,6 +231,7 @@ const mapStateToProps = state => {
     username: state.auth.username,
     authToken: state.auth.token,
     accessLevel: state.auth.accessLevel,
+    manualAccess: state.auth.manualAccess,
     authModalVisible: state.auth.authModalVisible,
     authSpin: state.auth.loading,
     err: state.errors.error

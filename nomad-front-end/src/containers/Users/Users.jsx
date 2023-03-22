@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Button, Table, Drawer, Tag, Space, Pagination, Tooltip } from 'antd'
+import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
 
 import UserForm from '../../components/Forms/UserForm/UserForm'
 import {
@@ -99,52 +100,69 @@ const Users = props => {
     },
     {
       title: 'Access level',
-      align: 'center',
-      key: 'accessLevel',
-      render: record => {
-        let tagColor = null
-        switch (record.accessLevel) {
-          case 'admin':
-            tagColor = 'red'
-            break
-          case 'admin-b':
-            tagColor = 'orange'
-            break
+      children: [
+        {
+          title: 'Main',
+          align: 'center',
+          key: 'accessLevel',
+          render: record => {
+            let tagColor = null
+            switch (record.accessLevel) {
+              case 'admin':
+                tagColor = 'red'
+                break
+              case 'admin-b':
+                tagColor = 'orange'
+                break
 
-          case 'user':
-            tagColor = 'blue'
-            break
+              case 'user':
+                tagColor = 'blue'
+                break
 
-          case 'user-a':
-            tagColor = 'green'
-            break
+              case 'user-a':
+                tagColor = 'green'
+                break
 
-          case 'user-b':
-            tagColor = 'cyan'
-            break
+              case 'user-b':
+                tagColor = 'cyan'
+                break
 
-          default:
-            break
+              default:
+                break
+            }
+            return <Tag color={tagColor}>{record.accessLevel}</Tag>
+          },
+          filters: [
+            { text: 'admin', value: 'admin' },
+            { text: 'admin-b', value: 'admin-b' },
+            { text: 'user', value: 'user' },
+            { text: 'user-a', value: 'user-a' },
+            { text: 'user-b', value: 'user-b' }
+          ],
+          filteredValue: filters.accessLevel || null
+        },
+        {
+          title: (
+            <Tooltip title='If undefined then settings from the group table apply'>Data</Tooltip>
+          ),
+
+          align: 'center',
+          render: record => renderDataAccess(record.dataAccess)
+        },
+        {
+          title: 'Manual',
+          dataIndex: 'manualAccess',
+          align: 'center',
+          render: record =>
+            record ? (
+              <CheckCircleOutlined style={{ color: '#389e0d', fontSize: '18px' }} />
+            ) : (
+              <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
+            )
         }
-        return <Tag color={tagColor}>{record.accessLevel}</Tag>
-      },
-      filters: [
-        { text: 'admin', value: 'admin' },
-        { text: 'admin-b', value: 'admin-b' },
-        { text: 'user', value: 'user' },
-        { text: 'user-a', value: 'user-a' },
-        { text: 'user-b', value: 'user-b' }
-      ],
-      filteredValue: filters.accessLevel || null
+      ]
     },
-    {
-      title: (
-        <Tooltip title='If undefined then settings from the group table apply'>Data Access</Tooltip>
-      ),
 
-      align: 'center',
-      render: record => renderDataAccess(record.dataAccess)
-    },
     {
       title: 'Last login',
       dataIndex: 'lastLogin',

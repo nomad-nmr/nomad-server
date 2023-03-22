@@ -22,6 +22,12 @@ const instrumentSchema = new Schema({
     required: true,
     default: true
   },
+
+  isManual: {
+    type: Boolean,
+    default: false
+  },
+
   cost: {
     type: Number,
     default: 0

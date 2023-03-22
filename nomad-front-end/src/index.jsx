@@ -20,6 +20,7 @@ import batchSubmitReducer from './store/reducers/batchSubmit'
 import searchReducer from './store/reducers/search'
 import accountsReducer from './store/reducers/accounts'
 import nmriumReducer from './store/reducers/NMRium'
+import claimReducer from './store/reducers/claim'
 
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -51,7 +52,8 @@ const rootReducer = combineReducers({
   batchSubmit: batchSubmitReducer,
   search: searchReducer,
   accounts: accountsReducer,
-  nmrium: nmriumReducer
+  nmrium: nmriumReducer,
+  claim: claimReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))

@@ -18,7 +18,8 @@ export const getInstruments = async (req, res) => {
         return {
           name: instr.name,
           id: instr._id,
-          available: instr.available
+          available: instr.available,
+          isManual: instr.isManual
         }
       })
       return res.send(instrList)

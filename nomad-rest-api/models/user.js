@@ -38,6 +38,10 @@ const userSchema = new Schema(
       required: true,
       default: true
     },
+    manualAccess: {
+      type: Boolean,
+      default: false
+    },
     lastLogin: Date,
 
     tokens: [

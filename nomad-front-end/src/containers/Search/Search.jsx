@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import Animate from 'rc-animate'
 
@@ -34,31 +34,25 @@ const Search = props => {
   //Page size hardcoded to limit number of experiments available to download
   const [searchParams, setSearchParams] = useState({ currentPage: 1, pageSize: 20 })
 
+  const currentPageRef = useRef(searchParams.currentPage)
+
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
       openAuthModal()
-    } else {
-      //data are getting fetched only if table is empty or search is performed
-      if (tabData.length === 0 || Object.keys(searchParams).length > 2) {
-        fetchExps(authToken, searchParams)
-      }
+    } else if (
+      //table data are only fetched if empty or search is performed or page changed
+      tabData.length === 0 ||
+      Object.keys(searchParams).length > 2 ||
+      searchParams.currentPage !== currentPageRef.current
+    ) {
+      fetchExps(authToken, searchParams)
     }
     return () => {
       resetChecked()
     }
+    //!!!tabData in dependencies array leads to infinite loop
   }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked])
-
-  //cleaning function that closes the search form if component dismounts
-  // useEffect(
-  //   () => () => {
-  //     if (showForm) {
-  //       tglSearchForm()
-  //     }
-  //   },
-  //   // eslint-disable-next-line
-  //   []
-  // )
 
   const onPageChange = page => {
     const newSearchParams = { ...searchParams }

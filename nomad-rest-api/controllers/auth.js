@@ -28,6 +28,7 @@ export async function postLogin(req, res) {
     return res.send({
       username: user.username,
       accessLevel: user.accessLevel,
+      manualAccess: user.manualAccess,
       groupName: user.group.groupName,
       token: token,
       expiresIn: process.env.JWT_EXPIRATION

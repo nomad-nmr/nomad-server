@@ -93,6 +93,7 @@ const Submit = props => {
   }
 
   const submitHolders = values => {
+    console.log(values)
     props.bookSlotsHandler(props.authToken, {
       instrumentId: values.instrumentId,
       count: values.count

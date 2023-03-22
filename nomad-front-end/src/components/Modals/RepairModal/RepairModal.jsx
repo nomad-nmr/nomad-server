@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Modal, Table, Alert, message, Button, Space } from 'antd'
 
-import StatusTag from '../StatusTag/StatusTag'
+import StatusTag from '../../StatusTag/StatusTag'
 
 const RepairModal = props => {
   const [checked, setChecked] = useState([])

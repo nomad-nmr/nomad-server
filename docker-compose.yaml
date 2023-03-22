@@ -38,7 +38,8 @@ services:
       - ../nomad-spect-client/src:/app/src
       - ../nomad-spect-client/status_files:/app/status_files
       - ../nomad-spect-client/submit_files:/app/submit_files
-      - /mnt/c/Users/tl12/nomad-data-test/clientData:/app/nmr-data
+      - /mnt/c/Users/tl12/nomad-data-test/clientData/auto:/app/nmr-data/auto
+      - /mnt/c/Users/tl12/nomad-data-test/clientData/manual:/app/nmr-data/manual
     env_file:
       - ./env/client.env
 

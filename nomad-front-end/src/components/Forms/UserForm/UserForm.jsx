@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react'
-import { Form, Input, Button, Select, Checkbox } from 'antd'
+import { Form, Input, Button, Select, Checkbox, Space } from 'antd'
 
 import dataAccessOptions from '../dataAccessOptions'
 import classes from '../Form.module.css'
@@ -108,7 +108,13 @@ const UserForm = props => {
 
   return (
     <div className={classes.formInDrawer}>
-      <Form {...layout} form={form} ref={props.formReference} initialValues={formValues} onFinish={onFinish}>
+      <Form
+        {...layout}
+        form={form}
+        ref={props.formReference}
+        initialValues={formValues}
+        onFinish={onFinish}
+      >
         <Form.Item
           name='username'
           label='Username'
@@ -148,9 +154,13 @@ const UserForm = props => {
         >
           <Select style={{ width: '60%' }}>{newDataAccessOptions}</Select>
         </Form.Item>
+        <Form.Item name='manualAccess' label='Manual Access' valuePropName='checked'>
+          <Checkbox />
+        </Form.Item>
         <Form.Item name='isActive' label='Active' valuePropName='checked'>
           <Checkbox />
         </Form.Item>
+
         <Form.Item hidden name='_id'>
           <Input />
         </Form.Item>

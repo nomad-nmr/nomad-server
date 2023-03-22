@@ -13,11 +13,19 @@ import {
 } from '../../store/actions'
 
 import HistoryTabs from '../../components/HistoryTabs/HistoryTabs'
-import RepairModal from '../../components/RepairModal/RepairModal'
+import RepairModal from '../../components/Modals/RepairModal/RepairModal'
 
 const ExpHistory = props => {
-  const { getInstrList, authToken, fetchHist, instrList, expHistoryDate, setDate, setInstrId, mdlVisible } =
-    props
+  const {
+    getInstrList,
+    authToken,
+    fetchHist,
+    instrList,
+    expHistoryDate,
+    setDate,
+    setInstrId,
+    mdlVisible
+  } = props
 
   const [activeTab, setActiveTab] = useState('0')
 

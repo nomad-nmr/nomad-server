@@ -5,6 +5,7 @@ import history from '../../utils/history'
 const initialState = {
   username: null,
   accessLevel: null,
+  manualAccess: null,
   groupName: null,
   token: null,
   authModalVisible: false,
@@ -40,6 +41,7 @@ const reducer = (state = initialState, action) => {
         username: action.payload.username,
         token: action.payload.token,
         accessLevel: action.payload.accessLevel,
+        manualAccess: action.payload.manualAccess,
         groupName: action.payload.groupName,
         authModalVisible: false,
         loading: false
@@ -67,7 +69,8 @@ const reducer = (state = initialState, action) => {
         userId: null,
         token: null,
         groupName: null,
-        accessLevel: false,
+        accessLevel: null,
+        manualAccess: false,
         authModalVisible: false
       }
 

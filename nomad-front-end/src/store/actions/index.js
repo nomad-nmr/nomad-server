@@ -132,3 +132,5 @@ export {
 } from './accounts'
 
 export { fetchNMRiumData, setChangedData, saveNMRiumData, keepNMRiumChanges } from './nmrium'
+
+export { getManualFolders, resetClaim } from './claim'

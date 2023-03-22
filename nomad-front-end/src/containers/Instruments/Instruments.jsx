@@ -129,6 +129,16 @@ const Instruments = props => {
       )
     },
     {
+      title: 'Manual',
+      align: 'center',
+      render: record =>
+        record.isManual ? (
+          <CheckCircleOutlined style={{ color: '#389e0d', fontSize: '18px' }} />
+        ) : (
+          <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
+        )
+    },
+    {
       title: () => (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           Params

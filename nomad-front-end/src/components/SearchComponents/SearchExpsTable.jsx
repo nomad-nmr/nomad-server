@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Table, Pagination, Button, Tooltip } from 'antd'
 import moment from 'moment'
 import { FilePdfOutlined } from '@ant-design/icons'
@@ -6,7 +6,7 @@ import { FilePdfOutlined } from '@ant-design/icons'
 import classes from './SearchExpsTable.module.css'
 
 const SearchExpsTable = props => {
-  const { checked, resetCheckedState } = props
+  const { checked } = props
 
   const columns = [
     {

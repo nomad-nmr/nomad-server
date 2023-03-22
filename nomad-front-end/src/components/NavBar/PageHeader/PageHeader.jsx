@@ -58,6 +58,8 @@ import messageIcon from '../../../assets/email.png'
 import batchSubmitIcon from '../../../assets/batch-submit.png'
 import searchIcon from '../../../assets/loupe.svg'
 import accountingIcon from '../../../assets/accounting.png'
+import uploadIcon from '../../../assets/uploadIcon.png'
+
 import { setAddingExpsStatus } from '../../../store/actions/nmrium'
 
 const PageHeaderEl = props => {
@@ -220,6 +222,13 @@ const PageHeaderEl = props => {
       headerTitle = 'Accounting'
       avatarSrc = accountingIcon
       extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
+
+      break
+
+    case '/claim':
+      headerTitle = 'Manual Claim'
+      avatarSrc = uploadIcon
+      // extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
 
       break
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import logoRound from '../../../assets/logo-round-small.png'
 import logoWideDark from '../../../assets/logo-wide-dark.png'
 import TweenOne from 'rc-tween-one'
@@ -6,6 +7,7 @@ import TweenOne from 'rc-tween-one'
 import classes from './Logo.module.css'
 
 const Logo = props => {
+  const navigate = useNavigate()
   let logoImg = (
     <TweenOne
       animation={{
@@ -37,7 +39,7 @@ const Logo = props => {
   }
 
   return (
-    <div className={classes.Logo} onClick={() => props.history.push('/dashboard')}>
+    <div className={classes.Logo} onClick={() => navigate('/dashboard')}>
       {logoImg}
     </div>
   )
