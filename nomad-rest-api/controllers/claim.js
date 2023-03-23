@@ -4,13 +4,11 @@ import Group from '../models/group.js'
 
 export const getFolders = async (req, res) => {
   const { instrumentId } = req.params
+
   const groupId = req.query.groupId === 'undefined' ? req.user.group : req.query.groupId
-
   const group = await Group.findById(groupId)
-
   const submitter = getSubmitter()
   const { socketId } = submitter.state.get(instrumentId)
-
   if (!socketId) {
     console.log('Error: Client disconnected')
     return res.status(503).send('Client disconnected')
@@ -27,7 +25,7 @@ export const getFolders = async (req, res) => {
         res.json(response[0])
       } catch (error) {
         console.log(error)
-        res.status(400).send({ message: 'Claient failed to fetch manual folders' })
+        res.status(400).send({ message: 'Client failed to fetch manual folders' })
       }
     })
 }
