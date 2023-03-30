@@ -49,13 +49,18 @@ if (process.env.NODE_ENV !== 'test') {
       //Initiating socket.io
       const io = initSocket(server)
       io.on('connection', socket => {
-        console.log('Client connected', socket.id)
-
+        if (process.env.NODE_ENV === 'dev') {
+          console.log('Client connected', socket.id)
+        }
         //storing socketId in submitter to register instrument client
-        const { instrumentId } = socket.handshake.query
+        const { instrumentId, claimId } = socket.handshake.query
         if (instrumentId) {
           submitter.updateSocket(instrumentId, socket.id)
-        } else {
+        }
+        // else if (claimId) {
+        //   console.log('CLAIM', claimId)
+        // }
+        else {
           // deepcode ignore PureMethodReturnValueIgnored: <please specify a reason of ignoring this>
           socket.join('users')
         }

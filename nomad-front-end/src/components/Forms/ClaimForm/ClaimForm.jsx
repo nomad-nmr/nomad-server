@@ -69,6 +69,7 @@ const ClaimForm = props => {
                   onClick={() => {
                     form.resetFields()
                     props.resetHandler()
+                    props.resetProgress()
                   }}
                 />
               </Tooltip>

@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 
 import ClaimForm from '../../components/Forms/ClaimForm/ClaimForm'
 import ClaimTable from '../../components/ClaimTable/ClaimTable'
+import ClaimProgress from '../../components/ClaimProgress/ClaimProgress'
 import {
   fetchInstrumentList,
   getManualFolders,
@@ -12,10 +13,12 @@ import {
   updateCheckedClaimExps,
   updateCheckedClaimDatasets,
   updateClaimUser,
-  resetFoldersData
+  resetFoldersData,
+  resetClaimProgress
 } from '../../store/actions'
 
 import classes from './Claim.module.css'
+import { ProHelpSelect } from '@ant-design/pro-layout'
 
 const Claim = props => {
   const { authToken, fetchInstrList, fetchGrpList, resetClaim } = props
@@ -48,8 +51,16 @@ const Claim = props => {
           updateUserId={props.updateUser}
           onGroupChange={props.resetFoldersData}
           showArchived={props.showArchived}
+          resetProgress={props.rstClaimProgress}
         />
       </div>
+      {props.claimId && (
+        <ClaimProgress
+          claimId={props.claimId}
+          totalExpClaimed={props.totalExpClaimed}
+          resetHandler={props.rstClaimProgress}
+        />
+      )}
       <ClaimTable
         data={props.data}
         loading={props.loading}
@@ -72,7 +83,9 @@ const mapStateToProps = state => {
     usrList: state.users.userList,
     accessLevel: state.auth.accessLevel,
     checked: state.claim.checked,
-    showArchived: state.claim.showArchived
+    showArchived: state.claim.showArchived,
+    claimId: state.claim.claimId,
+    totalExpClaimed: state.claim.totalExpCount
   }
 }
 
@@ -88,7 +101,8 @@ const mapDispatchToProps = dispatch => {
     updCheckedExps: exps => dispatch(updateCheckedClaimExps(exps)),
     updCheckedData: keys => dispatch(updateCheckedClaimDatasets(keys)),
     updateUser: userId => dispatch(updateClaimUser(userId)),
-    resetFoldersData: () => dispatch(resetFoldersData())
+    resetFoldersData: () => dispatch(resetFoldersData()),
+    rstClaimProgress: () => dispatch(resetClaimProgress())
   }
 }
 

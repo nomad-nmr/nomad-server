@@ -1,4 +1,3 @@
-import { addInstrument } from '../actions'
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
@@ -9,12 +8,14 @@ const initialState = {
   checked: [],
   userId: undefined,
   instrumentId: undefined,
-  showArchived: false
+  showArchived: false,
+  claimId: undefined,
+  totalExpCount: 0
 }
 
 const reducer = (state = initialState, { type, payload }) => {
   switch (type) {
-    case actionTypes.CLAIM_START:
+    case actionTypes.GET_FOLDERS_START:
       return { ...state, loading: true }
 
     case actionTypes.GET_MANUAL_FOLDERS_SUCCESS:
@@ -57,6 +58,14 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.UPDATE_CLAIM_USER:
       return { ...state, userId: payload }
 
+    case actionTypes.CLAIM_START:
+      return {
+        ...state,
+        loading: true,
+        claimId: payload.claimId,
+        totalExpCount: payload.totalExpCount
+      }
+
     case actionTypes.SUBMIT_CLAIM_SUCCESS:
       const newFoldersData = [...state.foldersData]
       payload.forEach(element => {
@@ -90,10 +99,18 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.RESET_FOLDERS_DATA:
-      return { ...state, foldersData: [] }
+      return { ...state, foldersData: [], checked: [] }
 
     case actionTypes.TOGGLE_SHOW_ARCHIVED_SWITCH:
-      return { ...state, showArchived: !state.showArchived, foldersData: [] }
+      return {
+        ...state,
+        showArchived: !state.showArchived,
+        foldersData: [],
+        checked: []
+      }
+
+    case actionTypes.RESET_CLAIM_PROGRESS:
+      return { ...state, claimId: undefined, totalExpCount: 0 }
 
     default:
       return state

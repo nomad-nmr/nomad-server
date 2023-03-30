@@ -241,6 +241,7 @@ const PageHeaderEl = props => {
           accessLevel={props.accessLevel}
           showArchived={props.showArchived}
           showArchivedHandler={props.tglShowArchived}
+          claimId={props.claimId}
         />
       )
 
@@ -303,7 +304,8 @@ const mapStateToProps = state => {
     claimChecked: state.claim.checked,
     claimUserId: state.claim.userId,
     claimInstrId: state.claim.instrumentId,
-    showArchived: state.claim.showArchived
+    showArchived: state.claim.showArchived,
+    claimId: state.claim.claimId
   }
 }
 

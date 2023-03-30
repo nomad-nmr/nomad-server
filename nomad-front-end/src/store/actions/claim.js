@@ -1,9 +1,10 @@
 import * as actionTypes from './actionTypes'
 import axios from '../../axios-instance'
 import errorHandler from './errorHandler'
+import { v4 as uuidv4 } from 'uuid'
 
-export const claimStart = () => ({
-  type: actionTypes.CLAIM_START
+export const getFoldersStart = () => ({
+  type: actionTypes.GET_FOLDERS_START
 })
 
 export const getFoldersSuccess = payload => ({
@@ -13,7 +14,7 @@ export const getFoldersSuccess = payload => ({
 
 export const getManualFolders = (token, instrId, groupId, showArchived) => {
   return dispatch => {
-    dispatch(claimStart())
+    dispatch(getFoldersStart())
     axios
       .get('/claim/folders/' + instrId + '/?groupId=' + groupId + '&showArchived=' + showArchived, {
         headers: { Authorization: 'Bearer ' + token }
@@ -51,13 +52,22 @@ export const submitClaimSuccess = payload => ({
   payload
 })
 
+export const claimStart = payload => ({
+  type: actionTypes.CLAIM_START,
+  payload
+})
 export const submitClaim = (token, payload) => {
   return dispatch => {
-    dispatch(claimStart())
+    const claimId = uuidv4()
+    dispatch(claimStart({ claimId, totalExpCount: payload.expsArr.length }))
     axios
-      .post('/claim', payload, {
-        headers: { Authorization: 'Bearer ' + token }
-      })
+      .post(
+        '/claim',
+        { ...payload, claimId },
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
       .then(res => {
         dispatch(submitClaimSuccess(res.data))
       })
@@ -73,4 +83,8 @@ export const resetFoldersData = () => ({
 
 export const toggleShowArchivedSwitch = () => ({
   type: actionTypes.TOGGLE_SHOW_ARCHIVED_SWITCH
+})
+
+export const resetClaimProgress = () => ({
+  type: actionTypes.RESET_CLAIM_PROGRESS
 })

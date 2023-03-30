@@ -36,7 +36,7 @@ export const getFolders = async (req, res) => {
 }
 
 export const postClaim = async (req, res) => {
-  const { instrumentId, expsArr } = req.body
+  const { instrumentId, expsArr, claimId } = req.body
   const { accessLevel } = req.user
 
   try {
@@ -56,7 +56,11 @@ export const postClaim = async (req, res) => {
 
     const group = await Group.findById(groupId, 'groupName')
 
-    sendUploadCmd(instrumentId, { userId, group: group.groupName, expsArr }, 'upload-manual')
+    sendUploadCmd(
+      instrumentId,
+      { userId, group: group.groupName, expsArr, claimId },
+      'upload-manual'
+    )
 
     res.status(200).json(expsArr)
   } catch (error) {

@@ -29,7 +29,7 @@ vi.mock('../socket.js', () => ({
       timeout: vi.fn(() => ({
         emit: vi.fn((arg1, arg2, cb) => {
           if (arg2.group === 'test-group-1') {
-            cb(null, [arg1])
+            cb(null, [[{ exps: [] }]])
           } else {
             cb(null, ['error'])
           }
@@ -62,13 +62,13 @@ describe('GET /folders/:instrumentId', () => {
     expect(getIO).toBeCalled()
   })
 
+  //TODO: revisit to do better testing of tagArchived function
   it('should broadcast to client get-folders event and return response', async () => {
     const { body } = await request(app)
       .get('/claim/folders/' + testInstrTwo._id + '/?groupId=' + testGroupOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
-
-    expect(body).toMatchObject({ folders: 'get-folders', instrumentId: testInstrTwo._id })
+    expect(body).toMatchObject({ folders: [], instrumentId: testInstrTwo._id })
     expect(getIO).toBeCalled()
   })
 })

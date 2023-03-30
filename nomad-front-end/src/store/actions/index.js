@@ -141,5 +141,6 @@ export {
   updateClaimUser,
   submitClaim,
   resetFoldersData,
-  toggleShowArchivedSwitch
+  toggleShowArchivedSwitch,
+  resetClaimProgress
 } from './claim'

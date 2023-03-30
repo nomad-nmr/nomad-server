@@ -9,6 +9,7 @@ import { fileCollectionFromZip } from 'filelist-utils'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Group from '../models/group.js'
+import { getIO } from '../socket.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -188,7 +189,7 @@ export const getPDF = async (req, res) => {
 }
 
 export const archiveManual = async (req, res) => {
-  console.log(req.body)
+  const { claimId } = req.body
   try {
     const group = await Group.findOne({ groupName: req.body.group })
 
@@ -201,6 +202,9 @@ export const archiveManual = async (req, res) => {
 
     const newManualExperiment = new ManualExperiment(metadataObj)
     await newManualExperiment.save()
+
+    getIO().to('users').emit(claimId, { expId: metadataObj.expId })
+
     res.send()
   } catch (error) {
     console.log(error)

@@ -12,7 +12,7 @@ const ClaimControls = props => {
     expsArr = [...expsArr, ...entry.exps]
   })
 
-  const { accessLevel, userId, instrumentId, token, checked, showArchived } = props
+  const { accessLevel, userId, instrumentId, token, checked, showArchived, claimId } = props
 
   return (
     <div className={classes.ExtraContainer}>
@@ -28,7 +28,7 @@ const ClaimControls = props => {
       </div>
       <div style={{ marginLeft: '30px' }}>
         <Button
-          disabled={checked.length === 0 ? true : false}
+          disabled={checked.length === 0 || claimId ? true : false}
           type='primary'
           onClick={() => {
             if (accessLevel === 'admin' && !userId) {
