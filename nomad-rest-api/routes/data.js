@@ -4,11 +4,20 @@ import clientAuth from '../middleware/auth-client.js'
 import auth from '../middleware/auth.js'
 import connectTimeout from '../middleware/connectTimeout.js'
 import multerUpload from '../middleware/multerUpload.js'
-import { postData, getExps, getNMRium, putNMRium, getPDF } from '../controllers/data.js'
+import {
+  postData,
+  getExps,
+  getNMRium,
+  putNMRium,
+  getPDF,
+  archiveManual
+} from '../controllers/data.js'
 
 const router = Router()
 
 router.post('/auto/:instrumentId', connectTimeout, clientAuth, multerUpload, postData)
+
+router.post('/manual/:instrumentId', connectTimeout, clientAuth, multerUpload, archiveManual)
 
 router.get('/exps', auth, getExps)
 

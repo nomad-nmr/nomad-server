@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 import { Form, Select, Space, Button, Tooltip } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 
@@ -8,8 +8,7 @@ const { Option } = Select
 
 const ClaimForm = props => {
   const [form] = Form.useForm()
-  const formReference = useRef({})
-
+  const { formReference } = props
   //Generating Option list for Select element
   let instrOptions = []
   if (props.instruments) {
@@ -21,7 +20,16 @@ const ClaimForm = props => {
   }
 
   const getFoldersHandler = values => {
-    props.getFolders(props.token, values.instrumentId, values.groupId)
+    props.getFolders(props.token, values.instrumentId, values.groupId, props.showArchived)
+  }
+
+  const updateState = values => {
+    if (values.userId) {
+      props.updateUserId(values.userId)
+    }
+    if (values.groupId) {
+      props.onGroupChange()
+    }
   }
 
   return (
@@ -31,6 +39,7 @@ const ClaimForm = props => {
         layout='inline'
         onFinish={values => getFoldersHandler(values)}
         ref={formReference}
+        onValuesChange={values => updateState(values)}
       >
         <Space size='large' style={{ alignItems: 'flex-start' }}>
           <Form.Item

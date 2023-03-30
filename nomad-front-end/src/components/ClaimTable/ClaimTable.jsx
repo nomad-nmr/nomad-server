@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import classes from './ClaimTable.module.css'
 
 const ClaimTable = props => {
+  const { checked } = props
   const columns = [
     {
       title: 'Dataset Name',
@@ -56,20 +57,32 @@ const ClaimTable = props => {
       }
     ]
 
+    const getCheckedExps = () => {
+      let expsArr = []
+      checked.forEach(entry => {
+        expsArr = [...expsArr, ...entry.exps]
+      })
+      return expsArr
+    }
+
     const selectExps = {
       selectionType: 'checkbox',
       hideSelectAll: true,
       columnTitle: 'Select',
-      // selectedRowKeys: getCheckedExps(),
+      selectedRowKeys: getCheckedExps(),
+      getCheckboxProps: record => {
+        if (record.archived) {
+          return { disabled: true }
+        }
+      },
       onSelect: (record, selected, selectedRows) => {
-        console.log(record, selected, selectedRows)
+        props.updateCheckedExps({
+          datasetName: record.key.split('#/#')[0],
+          //if more datasets have checked exps then selectedRows array have undefined entries
+          //that need to be filtered of
+          exps: selectedRows.filter(row => row).map(row => row.key)
+        })
       }
-      //   props.checkedExpsHandler({
-      //     datasetName: record.datasetName,
-      //     //if more datasets have checked exps then selectedRows array have undefined entries
-      //     //that need to be filtered of
-      //     exps: selectedRows.map(entry => entry && entry.key).filter(entry => entry)
-      //   })
     }
 
     return (
@@ -87,27 +100,27 @@ const ClaimTable = props => {
     selectionType: 'checkbox',
     hideSelectAll: true,
     columnTitle: 'Select',
-    // selectedRowKeys: props.checked.map(entry => entry.datasetName),
+    selectedRowKeys: props.checked.map(entry => entry.datasetName),
     onSelect: (record, selected) => {
-      console.log(record, selected)
+      const payload = {
+        dataset: { datasetName: record.datasetName, exps: record.exps.map(exp => exp.key) },
+        selected
+      }
+      props.checkedDatasetsHandler(payload)
+    },
+    getCheckboxProps: record => {
+      const checkboxProps = {}
+      const index = checked.findIndex(entry => entry.datasetName === record.datasetName)
+      if (index >= 0) {
+        if (record.exps.length > checked[index].exps.length) {
+          checkboxProps.indeterminate = true
+        }
+      }
+      if (record.archived) {
+        checkboxProps.disabled = true
+      }
+      return checkboxProps
     }
-    //   const payload = {
-    //     dataset: { datasetName: record.datasetName, exps: record.exps.map(exp => exp.key) },
-    //     selected
-    //   }
-    //   props.checkedDatasetsHandler(payload)
-    // },
-
-    // getCheckboxProps: record => {
-    //   const index = checked.findIndex(entry => entry.datasetName === record.datasetName)
-    //   if (index >= 0) {
-    //     if (record.exps.length > checked[index].exps.length) {
-    //       return {
-    //         indeterminate: true
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   return (

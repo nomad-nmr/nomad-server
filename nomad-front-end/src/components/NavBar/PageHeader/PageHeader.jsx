@@ -31,7 +31,9 @@ import {
   toggleCostingDrawer,
   fetchOverheadTime,
   fetchNMRiumData,
-  saveNMRiumData
+  saveNMRiumData,
+  submitClaim,
+  toggleShowArchivedSwitch
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -46,6 +48,7 @@ import DashControls from './Controls/DashControls'
 import SearchControls from './Controls/SearchControls'
 import AccountingControls from './Controls/AccountingControls'
 import NMRiumControls from './Controls/NMRiumControls'
+import ClaimControls from './Controls/ClaimControls'
 
 import dashIcon from '../../../assets/dashboard.svg'
 import userIcon from '../../../assets/user.svg'
@@ -228,7 +231,18 @@ const PageHeaderEl = props => {
     case '/claim':
       headerTitle = 'Manual Claim'
       avatarSrc = uploadIcon
-      // extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
+      extra = (
+        <ClaimControls
+          submitClaimHandler={props.submitClaim}
+          token={props.authToken}
+          checked={props.claimChecked}
+          userId={props.claimUserId}
+          instrumentId={props.claimInstrId}
+          accessLevel={props.accessLevel}
+          showArchived={props.showArchived}
+          showArchivedHandler={props.tglShowArchived}
+        />
+      )
 
       break
 
@@ -285,7 +299,11 @@ const mapStateToProps = state => {
     showSearchForm: state.search.showForm,
     selectedInstrId: state.expHistory.instrumentId,
     nmriumData: state.nmrium.changedData,
-    adding: state.nmrium.adding
+    adding: state.nmrium.adding,
+    claimChecked: state.claim.checked,
+    claimUserId: state.claim.userId,
+    claimInstrId: state.claim.instrumentId,
+    showArchived: state.claim.showArchived
   }
 }
 
@@ -319,7 +337,9 @@ const mapDispatchToProps = dispatch => {
     fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
     fetchNMRium: (expsArr, authToken) => dispatch(fetchNMRiumData(expsArr, authToken)),
     saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
-    setAddExps: () => dispatch(setAddingExpsStatus())
+    setAddExps: () => dispatch(setAddingExpsStatus()),
+    submitClaim: (token, payload) => dispatch(submitClaim(token, payload)),
+    tglShowArchived: () => dispatch(toggleShowArchivedSwitch())
   }
 }
 

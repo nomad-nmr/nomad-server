@@ -10,7 +10,6 @@ export function initSocket(httpServer) {
       methods: ['GET', 'POST']
     }
   })
-  console.log(io)
   return io
 }
 

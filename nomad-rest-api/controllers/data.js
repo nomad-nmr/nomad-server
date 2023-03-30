@@ -7,6 +7,8 @@ import { read } from 'nmr-load-save'
 import { fileCollectionFromZip } from 'filelist-utils'
 
 import Experiment from '../models/experiment.js'
+import ManualExperiment from '../models/manualExperiment.js'
+import Group from '../models/group.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -182,6 +184,27 @@ export const getPDF = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
+  }
+}
+
+export const archiveManual = async (req, res) => {
+  console.log(req.body)
+  try {
+    const group = await Group.findOne({ groupName: req.body.group })
+
+    const metadataObj = {
+      ...req.body,
+      expId: req.body.datasetName + '#/#' + req.body.expNo,
+      groupId: group._id,
+      dateCreated: moment(req.body.dateCreated)
+    }
+
+    const newManualExperiment = new ManualExperiment(metadataObj)
+    await newManualExperiment.save()
+    res.send()
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
   }
 }
 

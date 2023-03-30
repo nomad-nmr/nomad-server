@@ -103,7 +103,7 @@ export async function postRepair(req, res) {
           const newExp = new Experiment(newExpHistEntry)
           await newExp.save()
         }
-        sendUploadCmd(instrId, { datasetName, expNo, group: user.group.groupName, repair: true })
+        sendUploadCmd(instrId, { datasetName, expNo, group: user.group.groupName }, 'upload-repair')
       })
     )
 

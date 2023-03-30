@@ -68,7 +68,7 @@ describe('GET /folders/:instrumentId', () => {
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
-    expect(body).toBe('get-folders')
+    expect(body).toMatchObject({ folders: 'get-folders', instrumentId: testInstrTwo._id })
     expect(getIO).toBeCalled()
   })
 })

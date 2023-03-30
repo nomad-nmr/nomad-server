@@ -133,4 +133,13 @@ export {
 
 export { fetchNMRiumData, setChangedData, saveNMRiumData, keepNMRiumChanges } from './nmrium'
 
-export { getManualFolders, resetClaim } from './claim'
+export {
+  getManualFolders,
+  resetClaim,
+  updateCheckedClaimExps,
+  updateCheckedClaimDatasets,
+  updateClaimUser,
+  submitClaim,
+  resetFoldersData,
+  toggleShowArchivedSwitch
+} from './claim'

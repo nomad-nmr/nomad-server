@@ -24,14 +24,6 @@ const reducer = (state = initialState, action) => {
     case actionTypes.HTTP_403_ERROR:
       return { error: '403' }
 
-    case actionTypes.HTTP_400_ERROR:
-      console.log(action)
-      Modal.error({
-        title: action.error.message,
-        content: action.error.response.data.message
-      })
-      return state
-
     case actionTypes.HTTP_OTHER_ERROR:
       console.log(action)
       Modal.error({

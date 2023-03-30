@@ -46,7 +46,11 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               const { datasetName, expNo, group } = entry
               //sending message to client through socket to upload data
               if (process.env.DATASTORE_ON) {
-                sendUploadCmd(instrument._id.toString(), { datasetName, expNo, group })
+                sendUploadCmd(
+                  instrument._id.toString(),
+                  { datasetName, expNo, group },
+                  'upload-auto'
+                )
               }
             }
             if (oldEntry.status !== 'Running' && entry.status === 'Running')
