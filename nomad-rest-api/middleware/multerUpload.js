@@ -23,8 +23,8 @@ const storage = diskStorage({
     cb(null, storagePath)
   },
   filename: async (req, file, cb) => {
-    const { datasetName, expNo } = req.body
-    const fileNameSep = req.body.dataType === 'auto' ? '-' : '#-#'
+    const { datasetName, expNo, dataType } = req.body
+    const fileNameSep = dataType === 'auto' ? '-' : '#-#'
     cb(null, datasetName + fileNameSep + expNo + '.zip')
   }
 })
