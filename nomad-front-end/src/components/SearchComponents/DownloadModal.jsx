@@ -10,7 +10,7 @@ const DownloadModal = props => {
     props.checkedExps.forEach(entry => {
       expsArr = [...expsArr, ...entry.exps]
     })
-    props.downloadHandler(expsArr, values.zipFileName, props.token)
+    props.downloadHandler(expsArr, values.zipFileName, props.dataType, props.token)
   }
 
   return (

@@ -6,7 +6,7 @@
   font-size: 1.5rem;
 }
 
-.fade-form-enter {
+/* .fade-form-enter {
   opacity: 0;
   transform: translateX(-80%);
 }
@@ -39,4 +39,4 @@
     opacity: 0;
     transform: translateX(-80%);
   }
-}
+} */

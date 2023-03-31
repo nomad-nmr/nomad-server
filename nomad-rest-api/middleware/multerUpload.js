@@ -24,7 +24,8 @@ const storage = diskStorage({
   },
   filename: async (req, file, cb) => {
     const { datasetName, expNo } = req.body
-    cb(null, datasetName + '-' + expNo + '.zip')
+    const fileNameSep = req.body.dataType === 'auto' ? '-' : '#-#'
+    cb(null, datasetName + fileNameSep + expNo + '.zip')
   }
 })
 

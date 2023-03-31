@@ -77,7 +77,7 @@ const ClaimTable = props => {
       },
       onSelect: (record, selected, selectedRows) => {
         props.updateCheckedExps({
-          datasetName: record.key.split('#/#')[0],
+          datasetName: record.key.split('#-#')[0],
           //if more datasets have checked exps then selectedRows array have undefined entries
           //that need to be filtered of
           exps: selectedRows.filter(row => row).map(row => row.key)

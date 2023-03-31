@@ -47,11 +47,11 @@ export const downloadExpsSuccess = () => ({
   type: actionTypes.DOWNLOAD_EXPS_SUCCESS
 })
 
-export const downloadExps = (expIds, fileName, token) => {
+export const downloadExps = (expIds, fileName, dataType, token) => {
   return dispatch => {
     dispatch(fetchExperimentsStart())
     axios
-      .get('/data/exps/?' + new URLSearchParams({ exps: expIds }).toString(), {
+      .get('/data/exps/?' + new URLSearchParams({ exps: expIds, dataType }).toString(), {
         responseType: 'blob',
         headers: { Authorization: 'Bearer ' + token }
       })
@@ -69,8 +69,9 @@ export const toggleDownloadModal = () => ({
   type: actionTypes.TOGGLE_DOWNLOAD_MODAL
 })
 
-export const toggleSearchForm = () => ({
-  type: actionTypes.TOGGLE_SEARCH_FORM
+export const toggleSearchForm = payload => ({
+  type: actionTypes.TOGGLE_SEARCH_FORM,
+  payload
 })
 
 export const getPDF = (expId, fileName, token) => {

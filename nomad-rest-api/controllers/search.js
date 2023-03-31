@@ -1,6 +1,7 @@
 import moment from 'moment'
 
 import Experiment from '../models/experiment.js'
+import ManualExperiment from '../models/manualExperiment.js'
 
 export async function fetchExperiments(req, res) {
   const {
@@ -12,7 +13,10 @@ export async function fetchExperiments(req, res) {
     title,
     dateRange,
     groupId,
-    userId
+    userId,
+    dataType,
+    pulseProgram,
+    datasetName
   } = req.query
 
   try {
@@ -41,14 +45,35 @@ export async function fetchExperiments(req, res) {
       searchParams.$and.push({ title: { $regex: regex } })
     }
 
+    if (pulseProgram && pulseProgram !== 'undefined') {
+      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+      const regex = new RegExp(pulseProgram, 'i')
+      searchParams.$and.push({ pulseProgram: { $regex: regex } })
+    }
+
+    if (datasetName && datasetName !== 'undefined') {
+      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+      const regex = new RegExp(datasetName, 'i')
+      searchParams.$and.push({ datasetName: { $regex: regex } })
+    }
+
     if (dateRange && dateRange !== 'undefined') {
       const datesArr = dateRange.split(',')
-      searchParams.$and.push({
-        submittedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
+      searchParams.$and.push(
+        dataType === 'auto'
+          ? {
+              submittedAt: {
+                $gte: new Date(datesArr[0]),
+                $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+              }
+            }
+          : {
+              updatedAt: {
+                $gte: new Date(datesArr[0]),
+                $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+              }
+            }
+      )
     }
 
     const adminSearchLogic = () => {
@@ -89,38 +114,70 @@ export async function fetchExperiments(req, res) {
         throw new Error('Data access rights unknown')
     }
 
-    const total = await Experiment.find(searchParams).countDocuments()
-    const experiments = await Experiment.find(searchParams, excludeProps)
-      .sort({ updatedAt: 'desc' })
-      .skip((currentPage - 1) * pageSize)
-      .limit(+pageSize)
+    let total
+    let experiments
+    if (dataType === 'auto') {
+      total = await Experiment.find(searchParams).countDocuments()
+      experiments = await Experiment.find(searchParams, excludeProps)
+        .sort({ updatedAt: 'desc' })
+        .skip((currentPage - 1) * pageSize)
+        .limit(+pageSize)
+    } else {
+      total = await ManualExperiment.find(searchParams).countDocuments()
+      experiments = await ManualExperiment.find(searchParams)
+        .sort({ updatedAt: 'desc' })
+        .skip((currentPage - 1) * pageSize)
+        .limit(+pageSize)
+    }
 
     const datasets = []
     experiments.forEach(exp => {
       const datasetIndex = datasets.findIndex(dataSet => dataSet.datasetName === exp.datasetName)
 
-      const expObj = {
-        key: exp._id,
-        datasetName: exp.datasetName,
-        expNo: exp.expNo,
-        parameterSet: exp.parameterSet,
-        parameters: exp.parameters,
-        title: exp.title,
-        archivedAt: exp.updatedAt
-      }
+      const expObj =
+        dataType === 'auto'
+          ? {
+              key: exp._id,
+              datasetName: exp.datasetName,
+              expNo: exp.expNo,
+              parameterSet: exp.parameterSet,
+              parameters: exp.parameters,
+              title: exp.title,
+              archivedAt: exp.updatedAt
+            }
+          : {
+              key: exp._id,
+              datasetName: exp.datasetName,
+              expNo: exp.expNo,
+              pulseProgram: exp.pulseProgram,
+              solvent: exp.solvent,
+              title: exp.title,
+              createdAt: exp.dateCreated
+            }
 
       if (datasetIndex < 0) {
-        const newDataSet = {
-          instrument: exp.instrument,
-          user: exp.user,
-          group: exp.group,
-          datasetName: exp.datasetName,
-          key: exp.datasetName,
-          solvent: exp.solvent,
-          title: exp.title,
-          submittedAt: exp.submittedAt,
-          exps: [expObj]
-        }
+        const newDataSet =
+          dataType === 'auto'
+            ? {
+                instrument: exp.instrument,
+                user: exp.user,
+                group: exp.group,
+                datasetName: exp.datasetName,
+                key: exp.datasetName,
+                solvent: exp.solvent,
+                title: exp.title,
+                submittedAt: exp.submittedAt,
+                exps: [expObj]
+              }
+            : {
+                instrument: exp.instrument,
+                user: exp.user,
+                group: exp.group,
+                datasetName: exp.datasetName,
+                key: exp.datasetName,
+                claimedAt: exp.updatedAt,
+                exps: [expObj]
+              }
         datasets.push(newDataSet)
       } else {
         datasets[datasetIndex].exps.push(expObj)

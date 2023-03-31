@@ -25,7 +25,8 @@ const SearchForm = props => {
     fetchGrpList,
     fetchDataAccess,
     dataAccess,
-    grpList
+    grpList,
+    dataType
   } = props
 
   const [form] = Form.useForm()
@@ -93,7 +94,7 @@ const SearchForm = props => {
     <Form
       form={form}
       ref={formRef}
-      onFinish={values => props.submitHandler(values)}
+      onFinish={values => props.submitHandler({ ...values, dataType })}
       style={{ margin: '0 40px 0 40px' }}
     >
       <Row justify='center' gutter={32}>
@@ -105,9 +106,15 @@ const SearchForm = props => {
           </Form.Item>
         </Col>
         <Col span={6}>
-          <Form.Item label='Parameter Set' name='paramSet'>
-            <Select allowClear={true}>{paramSetsOptions}</Select>
-          </Form.Item>
+          {dataType === 'auto' ? (
+            <Form.Item label='Parameter Set' name='paramSet'>
+              <Select allowClear={true}>{paramSetsOptions}</Select>
+            </Form.Item>
+          ) : (
+            <Form.Item label='Pulse program' name='pulseProgram'>
+              <Input allowClear={true} placeholder='Pulse Program' />
+            </Form.Item>
+          )}
         </Col>
         <Col span={3}>
           <Form.Item name='solvent' label='Solvent'>
@@ -126,6 +133,12 @@ const SearchForm = props => {
         </Col>
       </Row>
       <Row justify='center' gutter={32}>
+        <Col span={5}>
+          <Form.Item label='Dataset Name' name='datasetName'>
+            <Input allowClear={true} placeholder='Dataset Name' />
+          </Form.Item>
+        </Col>
+
         {
           //The component has be render only if groupList is not empty
           // That allows to call useEffect efficiently only when the component mounts

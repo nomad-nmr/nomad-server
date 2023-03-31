@@ -4,20 +4,38 @@ const manualExpSchema = new Schema(
   {
     expId: { type: String, required: true, unique: true, index: true },
 
-    instrumentId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'Instrument'
+    instrument: {
+      name: {
+        type: String,
+        required: true
+      },
+      id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'Instrument'
+      }
     },
-    userId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'User'
+    user: {
+      username: {
+        type: String,
+        required: true
+      },
+      id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+      }
     },
-    groupId: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: 'Group'
+    group: {
+      name: {
+        type: String,
+        required: true
+      },
+      id: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: 'Group'
+      }
     },
 
     datasetName: { type: String, required: true },

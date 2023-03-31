@@ -7,10 +7,10 @@ export const fetchNMRiumDataSuccess = payload => ({
   payload
 })
 
-export const fetchNMRiumData = (exps, token) => {
+export const fetchNMRiumData = (exps, token, dataType) => {
   return dispatch => {
     axios
-      .get('/data/nmrium/?' + new URLSearchParams({ exps }).toString(), {
+      .get('/data/nmrium/?' + new URLSearchParams({ exps, dataType }).toString(), {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {

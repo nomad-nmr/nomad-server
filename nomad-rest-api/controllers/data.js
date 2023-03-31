@@ -9,6 +9,8 @@ import { fileCollectionFromZip } from 'filelist-utils'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Group from '../models/group.js'
+import User from '../models/user.js'
+import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
 
 export const postData = async (req, res) => {
@@ -51,12 +53,17 @@ export const postData = async (req, res) => {
 export const getExps = async (req, res) => {
   try {
     const expIds = req.query.exps.split(',')
+    const { dataType } = req.query
 
     const mainZip = new JSZip()
 
     await Promise.all(
       expIds.map(async expId => {
-        const experiment = await Experiment.findById(expId)
+        const experiment =
+          dataType === 'auto'
+            ? await Experiment.findById(expId)
+            : await ManualExperiment.findById(expId)
+
         const zipFilePath = path.join(
           process.env.DATASTORE_PATH,
           experiment.dataPath,
@@ -79,13 +86,19 @@ export const getExps = async (req, res) => {
 
 export const getNMRium = async (req, res) => {
   const expIds = req.query.exps.split(',')
+  const { dataType } = req.query
+
   const data = {
     spectra: []
   }
+
   try {
     await Promise.all(
       expIds.map(async expId => {
-        const experiment = await Experiment.findById(expId)
+        const experiment =
+          dataType === 'auto'
+            ? await Experiment.findById(expId)
+            : await ManualExperiment.findById(expId)
 
         const filePath = path.join(
           process.env.DATASTORE_PATH,
@@ -192,12 +205,22 @@ export const archiveManual = async (req, res) => {
   const { claimId } = req.body
   try {
     const group = await Group.findOne({ groupName: req.body.group })
+    const user = await User.findById(req.body.userId)
+    const instrument = await Instrument.findById(req.body.instrumentId)
+    const { datasetName, expNo, pulseProgram, title, dateCreated, dataPath, solvent } = req.body
 
     const metadataObj = {
-      ...req.body,
-      expId: req.body.datasetName + '#/#' + req.body.expNo,
-      groupId: group._id,
-      dateCreated: moment(req.body.dateCreated)
+      expId: req.body.datasetName + '#-#' + req.body.expNo,
+      instrument: { id: instrument._id, name: instrument.name },
+      user: { id: user._id, username: user.username },
+      group: { id: group._id, name: group.groupName },
+      datasetName,
+      expNo,
+      pulseProgram,
+      solvent,
+      title,
+      dateCreated: moment(dateCreated),
+      dataPath
     }
 
     const newManualExperiment = new ManualExperiment(metadataObj)

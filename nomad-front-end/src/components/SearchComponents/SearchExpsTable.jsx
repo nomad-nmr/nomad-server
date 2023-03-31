@@ -6,65 +6,88 @@ import { FilePdfOutlined } from '@ant-design/icons'
 import classes from './SearchExpsTable.module.css'
 
 const SearchExpsTable = props => {
-  const { checked } = props
+  const { checked, dataType } = props
 
-  const columns = [
+  let columns = [
     {
       title: 'Username',
       dataIndex: ['user', 'username'],
-      align: 'center'
+      align: 'center',
+      width: 200
     },
     {
       title: 'Group',
       dataIndex: ['group', 'name'],
-      align: 'center'
+      align: 'center',
+      width: 200
     },
     {
       title: 'Instrument',
       dataIndex: ['instrument', 'name'],
-      align: 'center'
+      align: 'center',
+      width: 200
     },
-    {
-      title: 'Solvent',
-      dataIndex: 'solvent',
-      align: 'center'
-    },
+
     {
       title: 'Dataset Name',
       dataIndex: 'datasetName',
-      align: 'center'
+      align: 'center',
+      width: 200
     },
     {
       title: 'Exp Count',
       align: 'center',
       render: record => <span>{record.exps.length}</span>,
       width: 100
-    },
-    { title: 'Title', dataIndex: 'title' },
-    {
-      title: 'Submitted At',
-      dataIndex: 'submittedAt',
-      render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
-      align: 'center',
-      width: 150
-    },
-    {
-      title: 'Finished At',
-      dataIndex: 'lastArchivedAt',
-      render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
-      align: 'center',
-      width: 150
     }
   ]
 
-  const expandedRowRender = record => {
-    const columns = [
+  if (dataType === 'auto') {
+    columns = columns.concat([
       {
-        title: 'ExpNo',
-        dataIndex: 'expNo',
-        align: 'center',
-        width: 100
+        title: 'Solvent',
+        dataIndex: 'solvent',
+        align: 'center'
       },
+      { title: 'Title', dataIndex: 'title' },
+      {
+        title: 'Submitted At',
+        dataIndex: 'submittedAt',
+        render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
+        align: 'center',
+        width: 150
+      },
+      {
+        title: 'Finished At',
+        dataIndex: 'lastArchivedAt',
+        render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
+        align: 'center',
+        width: 150
+      }
+    ])
+  } else {
+    columns = columns.concat([
+      {
+        title: 'Claimed At',
+        dataIndex: 'claimedAt',
+        render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
+        align: 'center',
+        width: 150
+      }
+    ])
+  }
+
+  let expandColumns = [
+    {
+      title: 'ExpNo',
+      dataIndex: 'expNo',
+      align: 'center',
+      width: 100
+    }
+  ]
+
+  if (dataType === 'auto') {
+    expandColumns = expandColumns.concat([
       {
         title: 'Parameter Set',
         dataIndex: 'parameterSet',
@@ -102,8 +125,32 @@ const SearchExpsTable = props => {
         align: 'center',
         width: 200
       }
-    ]
+    ])
+  } else {
+    expandColumns = expandColumns.concat([
+      {
+        title: 'Solvent',
+        dataIndex: 'solvent',
+        align: 'center'
+      },
+      {
+        title: 'Pulse Program',
+        dataIndex: 'pulseProgram',
+        align: 'center',
+        width: 200
+      },
+      { title: 'Title', dataIndex: 'title' },
+      {
+        title: 'Created At',
+        dataIndex: 'createdAt',
+        render: record => (record ? moment(record).format('DD-MMM-YY HH:mm') : '-'),
+        align: 'center',
+        width: 200
+      }
+    ])
+  }
 
+  const expandedRowRender = record => {
     //helper function that extracts array of exp._ids from checked state
     const getCheckedExps = () => {
       let expsArr = []
@@ -130,7 +177,7 @@ const SearchExpsTable = props => {
 
     return (
       <Table
-        columns={columns}
+        columns={expandColumns}
         dataSource={record.exps}
         pagination={false}
         rowSelection={selectExps}

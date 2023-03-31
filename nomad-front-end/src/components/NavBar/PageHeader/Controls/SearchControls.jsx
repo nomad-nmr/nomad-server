@@ -1,11 +1,11 @@
 import React from 'react'
-import { Button, Switch } from 'antd'
+import { Button, Radio } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import classes from '../PageHeader.module.css'
 
 const SearchControls = props => {
-  const { searchCheckedState, toggleModal, token } = props
+  const { searchCheckedState, toggleModal, token, dataType } = props
   const navigate = useNavigate()
 
   const openNMRiumHandler = () => {
@@ -13,21 +13,20 @@ const SearchControls = props => {
     searchCheckedState.forEach(entry => {
       expsArr = [...expsArr, ...entry.exps]
     })
-    props.fetchNMRium(expsArr, token)
+    props.fetchNMRium(expsArr, token, dataType)
     navigate('/nmrium')
   }
 
   return (
     <div className={classes.ExtraContainer}>
-      <div className={classes.SwitchElement}>
-        <label>Search Form</label>
-        <Switch
-          size='small'
-          checked={props.showForm}
-          checkedChildren='On'
-          unCheckedChildren='Off'
-          onChange={props.toggleForm}
-        />
+      <div className={classes.RadioContainer}>
+        <Radio.Group
+          onChange={event => props.toggleForm(event.target.value)}
+          value={props.dataType}
+        >
+          <Radio value='auto'>Auto</Radio>
+          <Radio value='manual'>Manual</Radio>
+        </Radio.Group>
       </div>
 
       <Button

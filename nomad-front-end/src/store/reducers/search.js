@@ -8,7 +8,7 @@ const initialState = {
   checked: [],
   showDownloadModal: false,
   total: undefined,
-  showForm: false,
+  dataType: 'auto',
   dataAccess: undefined
 }
 
@@ -55,7 +55,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, showDownloadModal: !state.showDownloadModal }
 
     case actionTypes.TOGGLE_SEARCH_FORM:
-      return { ...state, showForm: !state.showForm }
+      return { ...state, dataType: payload }
 
     case actionTypes.GET_DATA_ACCESS_SUCCESS:
       return { ...state, dataAccess: payload }

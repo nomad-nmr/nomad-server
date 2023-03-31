@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
-import Animate from 'rc-animate'
 
 import SearchExpsTable from '../../components/SearchComponents/SearchExpsTable'
 import DownloadModal from '../../components/SearchComponents/DownloadModal'
@@ -28,31 +27,35 @@ const Search = props => {
     tabData,
     mdlVisible,
     checked,
-    showForm,
-    resetChecked
+    resetChecked,
+    dataType
   } = props
   //Page size hardcoded to limit number of experiments available to download
   const [searchParams, setSearchParams] = useState({ currentPage: 1, pageSize: 20 })
 
   const currentPageRef = useRef(searchParams.currentPage)
+  const dataTypeRef = useRef(dataType)
+
+  console.log(dataType)
 
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
       openAuthModal()
     } else if (
-      //table data are only fetched if empty or search is performed or page changed
+      //table data are only fetched if empty or search is performed or page or data changed
       tabData.length === 0 ||
       Object.keys(searchParams).length > 2 ||
-      searchParams.currentPage !== currentPageRef.current
+      searchParams.currentPage !== currentPageRef.current ||
+      dataType !== dataTypeRef
     ) {
-      fetchExps(authToken, searchParams)
+      fetchExps(authToken, { ...searchParams, dataType })
     }
     return () => {
       resetChecked()
     }
     //!!!tabData in dependencies array leads to infinite loop
-  }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked])
+  }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked, dataType])
 
   const onPageChange = page => {
     const newSearchParams = { ...searchParams }
@@ -72,9 +75,7 @@ const Search = props => {
     <div className='Container'>
       {authToken && (
         <div>
-          <Animate transitionName='fade-form'>
-            {showForm && <SearchForm submitHandler={onFormSubmit} />}
-          </Animate>
+          <SearchForm submitHandler={onFormSubmit} dataType={dataType} />
           <SearchExpsTable
             data={tabData}
             loading={props.loading}
@@ -86,6 +87,7 @@ const Search = props => {
             pageHandler={onPageChange}
             token={authToken}
             getPDF={props.fetchPDF}
+            dataType={dataType}
           />
         </div>
       )}
@@ -95,6 +97,7 @@ const Search = props => {
         downloadHandler={props.downloadExps}
         token={authToken}
         checkedExps={checked}
+        dataType={dataType}
       />
     </div>
   )
@@ -108,7 +111,8 @@ const mapStateToProps = state => ({
   checked: state.search.checked,
   mdlVisible: state.search.showDownloadModal,
   total: state.search.total,
-  showForm: state.search.showForm
+  showForm: state.search.showForm,
+  dataType: state.search.dataType
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -119,7 +123,8 @@ const mapDispatchToProps = dispatch => ({
   updCheckedExps: payload => dispatch(updateCheckedExps(payload)),
   resetChecked: () => dispatch(resetChecked()),
   tglModal: () => dispatch(toggleDownloadModal()),
-  downloadExps: (expIds, fileName, token) => dispatch(downloadExps(expIds, fileName, token)),
+  downloadExps: (expIds, fileName, dataType, token) =>
+    dispatch(downloadExps(expIds, fileName, dataType, token)),
   fetchPDF: (expIds, fileName, token) => dispatch(getPDF(expIds, fileName, token))
 })
 

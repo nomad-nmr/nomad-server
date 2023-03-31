@@ -213,7 +213,7 @@ const PageHeaderEl = props => {
           toggleModal={props.toggleDownloadMdl}
           token={props.authToken}
           toggleForm={props.tglSearchForm}
-          showForm={props.showSearchForm}
+          dataType={props.dataType}
           fetchNMRium={props.fetchNMRium}
           addingToNMRium={props.adding}
         />
@@ -297,7 +297,7 @@ const mapStateToProps = state => {
     racksData: state.batchSubmit.racks,
     slots: state.batchSubmit.selectedSlots,
     checked: state.search.checked,
-    showSearchForm: state.search.showForm,
+    dataType: state.search.dataType,
     selectedInstrId: state.expHistory.instrumentId,
     nmriumData: state.nmrium.changedData,
     adding: state.nmrium.adding,
@@ -333,11 +333,12 @@ const mapDispatchToProps = dispatch => {
     submitSamples: (data, token) => dispatch(submitSamples(data, token)),
     cancelSamples: (data, token) => dispatch(cancelSamples(data, token)),
     toggleDownloadMdl: () => dispatch(toggleDownloadModal()),
-    tglSearchForm: () => dispatch(toggleSearchForm()),
+    tglSearchForm: payload => dispatch(toggleSearchForm(payload)),
     getRepair: (instrId, token) => dispatch(fetchRepair(instrId, token)),
     tglCostingDrawer: () => dispatch(toggleCostingDrawer()),
     fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
-    fetchNMRium: (expsArr, authToken) => dispatch(fetchNMRiumData(expsArr, authToken)),
+    fetchNMRium: (expsArr, authToken, dataType) =>
+      dispatch(fetchNMRiumData(expsArr, authToken, dataType)),
     saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
     setAddExps: () => dispatch(setAddingExpsStatus()),
     submitClaim: (token, payload) => dispatch(submitClaim(token, payload)),

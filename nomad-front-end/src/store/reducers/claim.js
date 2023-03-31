@@ -69,7 +69,7 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SUBMIT_CLAIM_SUCCESS:
       const newFoldersData = [...state.foldersData]
       payload.forEach(element => {
-        const index = newFoldersData.findIndex(i => i.key === element.split('#/#')[0])
+        const index = newFoldersData.findIndex(i => i.key === element.split('#-#')[0])
 
         const newExps = state.showArchived
           ? newFoldersData[index].exps.map(exp => {
