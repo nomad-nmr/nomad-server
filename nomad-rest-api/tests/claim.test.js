@@ -3,10 +3,11 @@ import request from 'supertest'
 import { getIO } from '../socket.js'
 
 import app from '../app'
-import { testUserOne } from './fixtures/data/users.js'
+import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testGroupOne, testGroupTwo } from './fixtures/data/groups'
 import { testInstrOne, testInstrTwo } from './fixtures/data/instruments.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
+import sendUploadMsg from '../controllers/tracker/sendUploadCmd.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -37,6 +38,10 @@ vi.mock('../socket.js', () => ({
       }))
     }))
   }))
+}))
+
+vi.mock('../controllers/tracker/sendUploadCmd.js', () => ({
+  default: vi.fn((...args) => args[1].userId.toString())
 }))
 
 describe('GET /folders/:instrumentId', () => {
@@ -70,5 +75,51 @@ describe('GET /folders/:instrumentId', () => {
       .expect(200)
     expect(body).toMatchObject({ folders: [], instrumentId: testInstrTwo._id })
     expect(getIO).toBeCalled()
+  })
+})
+
+describe('POST /', () => {
+  it('should send upload data command to client with test userId provided in request body', async () => {
+    const { body } = await request(app)
+      .post('/claim/')
+      .send({
+        instrumentId: testInstrOne._id,
+        expsArr: ['test-data'],
+        claimId: 'testClaimId',
+        userId: testUserTwo._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+    expect(body[0]).toBe('test-data')
+
+    expect(sendUploadMsg).toHaveLastReturnedWith(testUserTwo._id.toString())
+  })
+
+  it('should send upload data command with test userId of user that authorised request if userId is not provided in request body', async () => {
+    const { body } = await request(app)
+      .post('/claim/')
+      .send({
+        instrumentId: testInstrOne._id,
+        expsArr: ['test-data'],
+        claimId: 'testClaimId'
+      })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+    expect(body[0]).toBe('test-data')
+
+    expect(sendUploadMsg).toHaveLastReturnedWith(testUserOne._id.toString())
+  })
+
+  it('should fail with status 403 if request is authorised by user without admin access and request body has userId defined', async () => {
+    await request(app)
+      .post('/claim/')
+      .send({
+        instrumentId: testInstrOne._id,
+        expsArr: ['test-data'],
+        claimId: 'testClaimId',
+        userId: testUserTwo._id
+      })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
   })
 })
