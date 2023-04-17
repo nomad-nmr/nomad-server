@@ -14,17 +14,17 @@ const NMRium = props => {
     }
   }, [])
 
-  const nmriumPreferences = {
-    general: {
-      hideGeneralSettings: true,
-      experimentalFeatures: { display: false }
-    },
-    panels: {
-      structuresPanel: { display: false },
-      summaryPanel: { display: false }
-    },
-    toolBarButtons: { import: false }
-  }
+  // const nmriumPreferences = {
+  //   general: {
+  //     hideGeneralSettings: true,
+  //     experimentalFeatures: { display: false }
+  //   },
+  //   panels: {
+  //     structuresPanel: { display: false },
+  //     summaryPanel: { display: false }
+  //   },
+  //   toolBarButtons: { import: false }
+  // }
 
   //Handler for updating state after change inside of NMRium component
   const changeHandler = useCallback(dataUpdate => {
@@ -40,7 +40,6 @@ const NMRium = props => {
           data={data}
           onDataChange={changeHandler}
           emptyText=''
-          preferences={nmriumPreferences}
           workspace='default'
         />
       </div>

@@ -29,7 +29,7 @@ const reducer = (state = initialState, { type, payload }) => {
       } else {
         newSpectra = payload.spectra
       }
-      return { ...state, data: { spectra: newSpectra }, adding: false }
+      return { ...state, data: { version: 4, data: { spectra: newSpectra } }, adding: false }
 
     case actionTypes.SET_CHANGED_DATA:
       return { ...state, changedData: payload }

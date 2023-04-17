@@ -36,8 +36,6 @@ const Search = props => {
   const currentPageRef = useRef(searchParams.currentPage)
   const dataTypeRef = useRef(dataType)
 
-  console.log(dataType)
-
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
