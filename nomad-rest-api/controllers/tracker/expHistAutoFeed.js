@@ -22,10 +22,6 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
     const histItem = runningExps.update(instrument.id, statusTable)
 
     if (histItem) {
-      console.log(histItem)
-    }
-
-    if (histItem) {
       const rawHistItemObj = historyTable.find(
         entry => entry.datasetName === histItem.datasetName && entry.expNo === histItem.expNo
       )

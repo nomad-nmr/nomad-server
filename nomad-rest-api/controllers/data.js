@@ -22,9 +22,10 @@ export const postData = async (req, res) => {
     }
     experiment.dataPath = dataPath
     experiment.status = 'Archived'
-    const now = new moment()
+
+    const completedAt = new moment(experiment.updatedAt)
     experiment.totalExpTime = moment
-      .duration(now.diff(moment(experiment.runningAt)))
+      .duration(completedAt.diff(moment(experiment.runningAt)))
       .format('HH:mm:ss', {
         trim: false
       })
