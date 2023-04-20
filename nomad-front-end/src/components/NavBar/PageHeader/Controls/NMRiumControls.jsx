@@ -27,9 +27,9 @@ const NMRiumControls = props => {
         <Button type='primary' onClick={() => addExperiments()}>
           Add experiments
         </Button>
-        <Button type='primary' onClick={() => saveData()}>
+        {/*<Button type='primary' onClick={() => saveData()}>
           Save
-        </Button>
+  </Button>*/}
       </Space>
     </div>
   )

@@ -2,7 +2,7 @@ import { Modal } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
-  data: { spectra: [] },
+  nmriumState: { data: { spectra: [] }, version: 4 },
   changedData: { spectra: [] },
   spinning: false,
   adding: false
@@ -11,12 +11,12 @@ const initialState = {
 const reducer = (state = initialState, { type, payload }) => {
   switch (type) {
     case actionTypes.FETCH_NMRIUM_SUCCESS:
-      let newSpectra = []
-      const idArray = state.data.spectra.map(i => i.id)
+      const newData = { ...payload }
+      const idArray = state.nmriumState.data.spectra.map(i => i.id)
       if (state.adding) {
         //This code protects from opening same experiment multiple times
-        const noDuplicatesSpectra = payload.spectra.filter(exp => !idArray.includes(exp.id))
-        const duplicatesCount = payload.spectra.length - noDuplicatesSpectra.length
+        const noDuplicatesSpectra = payload.data.spectra.filter(exp => !idArray.includes(exp.id))
+        const duplicatesCount = payload.data.spectra.length - noDuplicatesSpectra.length
         if (duplicatesCount > 0) {
           Modal.warning({
             title: 'Adding duplicate experiments',
@@ -25,11 +25,10 @@ const reducer = (state = initialState, { type, payload }) => {
             } already opened in NMRium and will not be added to avoid duplicates`
           })
         }
-        newSpectra = [...state.data.spectra, ...noDuplicatesSpectra]
-      } else {
-        newSpectra = payload.spectra
+        newData.data.spectra = [...state.nmriumState.data.spectra, ...noDuplicatesSpectra]
       }
-      return { ...state, data: { version: 4, data: { spectra: newSpectra } }, adding: false }
+
+      return { ...state, nmriumState: newData, adding: false }
 
     case actionTypes.SET_CHANGED_DATA:
       return { ...state, changedData: payload }
