@@ -14,20 +14,9 @@ const NMRium = props => {
     }
   }, [])
 
-  const nmriumPreferences = {
-    general: {
-      hideGeneralSettings: true,
-      experimentalFeatures: { display: false }
-    },
-    panels: {
-      structuresPanel: { display: false },
-      summaryPanel: { display: false }
-    },
-    toolBarButtons: { import: false }
-  }
-
   //Handler for updating state after change inside of NMRium component
   const changeHandler = useCallback(dataUpdate => {
+    console.log(dataUpdate)
     if (dataUpdate.spectra.length > 0) {
       setUpdData({ spectra: dataUpdate.spectra })
     }
@@ -38,9 +27,8 @@ const NMRium = props => {
       <div style={{ height: '88vh' }}>
         <NMRiumComponent
           data={data}
-          onDataChange={changeHandler}
+          // onDataChange={input => console.log(input)}
           emptyText=''
-          preferences={nmriumPreferences}
           workspace='default'
         />
       </div>
@@ -49,7 +37,7 @@ const NMRium = props => {
 }
 
 const mapStateToProps = state => ({
-  data: state.nmrium.data,
+  data: state.nmrium.nmriumState,
   spinning: state.nmrium.spinning,
   fetchingData: state.nmrium.fetching
 })

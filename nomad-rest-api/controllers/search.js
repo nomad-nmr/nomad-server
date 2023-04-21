@@ -116,6 +116,7 @@ export async function fetchExperiments(req, res) {
 
     let total
     let experiments
+
     if (dataType === 'auto') {
       total = await Experiment.find(searchParams).countDocuments()
       experiments = await Experiment.find(searchParams, excludeProps)
