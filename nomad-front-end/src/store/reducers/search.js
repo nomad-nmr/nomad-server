@@ -55,7 +55,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, showDownloadModal: !state.showDownloadModal }
 
     case actionTypes.TOGGLE_SEARCH_FORM:
-      return { ...state, dataType: payload }
+      return { ...state, dataType: payload, tableData: [] }
 
     case actionTypes.GET_DATA_ACCESS_SUCCESS:
       return { ...state, dataAccess: payload }

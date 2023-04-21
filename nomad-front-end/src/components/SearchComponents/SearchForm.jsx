@@ -45,6 +45,10 @@ const SearchForm = props => {
     // eslint-disable-next-line
   }, [])
 
+  useEffect(() => {
+    form.resetFields()
+  }, [dataType])
+
   const solventOptions = solvents.map((solvent, i) => (
     <Option value={solvent} key={i}>
       {solvent}

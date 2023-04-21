@@ -30,35 +30,26 @@ const Search = props => {
     resetChecked,
     dataType
   } = props
-  //Page size hardcoded to limit number of experiments available to download
-  const [searchParams, setSearchParams] = useState({ currentPage: 1, pageSize: 20 })
 
-  const currentPageRef = useRef(searchParams.currentPage)
-  const dataTypeRef = useRef(dataType)
+  const [searchParams, setSearchParams] = useState({})
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
       openAuthModal()
-    } else if (
-      //table data are only fetched if empty or search is performed or page or data changed
-      tabData.length === 0 ||
-      Object.keys(searchParams).length > 2 ||
-      searchParams.currentPage !== currentPageRef.current ||
-      dataType !== dataTypeRef
-    ) {
-      fetchExps(authToken, { ...searchParams, dataType })
     }
+
     return () => {
       resetChecked()
     }
     //!!!tabData in dependencies array leads to infinite loop
-  }, [authToken, openAuthModal, fetchExps, searchParams, resetChecked, dataType])
+  }, [authToken, openAuthModal, resetChecked])
 
   const onPageChange = page => {
-    const newSearchParams = { ...searchParams }
-    newSearchParams.currentPage = page
-    setSearchParams(newSearchParams)
+    setCurrentPage(page)
+    //Page size hardcoded to limit number of experiments available to download
+    fetchExps(authToken, { currentPage: page, pageSize: 20, ...searchParams }, dataType)
   }
 
   const onFormSubmit = values => {
@@ -66,7 +57,10 @@ const Search = props => {
     if (dateRange) {
       values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
     }
-    setSearchParams({ ...searchParams, ...values })
+    setSearchParams({ ...values })
+    setCurrentPage(1)
+    //Page size hardcoded to limit number of experiments available to download
+    fetchExps(authToken, { currentPage: 1, pageSize: 20, ...values }, dataType)
   }
 
   return (
@@ -80,7 +74,7 @@ const Search = props => {
             checkedDatasetsHandler={props.updCheckedDatasets}
             checkedExpsHandler={props.updCheckedExps}
             checked={props.checked}
-            currentPage={searchParams.currentPage}
+            currentPage={currentPage}
             total={props.total}
             pageHandler={onPageChange}
             token={authToken}
