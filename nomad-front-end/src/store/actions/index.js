@@ -120,7 +120,8 @@ export {
   toggleDownloadModal,
   toggleSearchForm,
   getPDF,
-  getDataAccess
+  getDataAccess,
+  resetSearch
 } from './search'
 
 export {

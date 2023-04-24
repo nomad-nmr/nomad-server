@@ -52,7 +52,7 @@ export const resetNMRiumData = () => ({
 })
 
 export const resetSearchData = () => ({
-  type: actionTypes.RESET_SEARCH_DATA
+  type: actionTypes.RESET_SEARCH
 })
 
 export const signOutHandler = (token, timeOut) => {

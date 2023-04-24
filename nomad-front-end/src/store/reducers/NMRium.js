@@ -49,7 +49,11 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, data: JSON.parse(nmriumJSON) }
 
     case actionTypes.RESET_NMRIUM_DATA:
-      return { ...state, data: { spectra: [] }, changedData: { spectra: [] } }
+      return {
+        ...state,
+        nmriumState: { data: { spectra: [] }, version: 4 },
+        changedData: { spectra: [] }
+      }
 
     default:
       return state

@@ -21,7 +21,7 @@ export const fetchExperiments = (token, searchParams) => {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
-        dispatch(fetchExperimentsSuccess(res.data))
+        dispatch(fetchExperimentsSuccess({ expData: res.data, searchParams }))
       })
       .catch(err => {
         dispatch(errorHandler(err))
@@ -111,3 +111,7 @@ export const getDataAccess = token => {
       })
   }
 }
+
+export const resetSearch = () => ({
+  type: actionTypes.RESET_SEARCH
+})

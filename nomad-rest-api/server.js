@@ -14,6 +14,8 @@ import { initSocket } from './socket.js'
 mongoose.set('returnOriginal', false)
 mongoose.set('strictQuery', true)
 
+console.log('NODE_ENV', process.env.NODE_ENV)
+
 if (process.env.NODE_ENV !== 'test') {
   mongoose.connect(process.env.MONGODB_URL).then(async () => {
     console.log('DB connected')

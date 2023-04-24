@@ -11,7 +11,8 @@ import {
   fetchGroupList,
   fetchUserList,
   getDataAccess,
-  resetUserList
+  resetUserList,
+  resetSearch
 } from '../../store/actions'
 
 const { Option } = Select
@@ -20,13 +21,16 @@ const { RangePicker } = DatePicker
 const SearchForm = props => {
   const {
     fetchInstList,
+    instList,
     authToken,
     fetchParamSets,
+    paramSets,
     fetchGrpList,
     fetchDataAccess,
     dataAccess,
     grpList,
-    dataType
+    dataType,
+    formValues
   } = props
 
   const [form] = Form.useForm()
@@ -35,10 +39,12 @@ const SearchForm = props => {
   const formRef = useRef({})
 
   useEffect(() => {
-    fetchInstList(authToken)
-    fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
-    fetchDataAccess(authToken)
-    fetchGrpList(authToken, false)
+    if (instList.length === 0 || paramSets.length === 0 || grpList.length === 0) {
+      fetchInstList(authToken)
+      fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
+      fetchDataAccess(authToken)
+      fetchGrpList(authToken, false)
+    }
 
     // eslint-disable-next-line
   }, [])
@@ -46,6 +52,10 @@ const SearchForm = props => {
   useEffect(() => {
     form.resetFields()
   }, [dataType])
+
+  useEffect(() => {
+    form.setFieldsValue(formValues)
+  }, [formValues])
 
   const solventOptions = solvents.map((solvent, i) => (
     <Option value={solvent} key={i}>
@@ -72,7 +82,7 @@ const SearchForm = props => {
   //Generating Option list for Select element
   let instOptions = []
   if (props.instList) {
-    instOptions = props.instList.map(i => (
+    instOptions = instList.map(i => (
       <Option value={i.id} key={i.id}>
         {i.name}{' '}
       </Option>
@@ -81,7 +91,7 @@ const SearchForm = props => {
 
   let refinedParamSets = props.paramSets
   if (instrumentId) {
-    refinedParamSets = props.paramSets.filter(paramSet =>
+    refinedParamSets = paramSets.filter(paramSet =>
       paramSet.availableOn.includes(instrumentId.toString())
     )
   }
@@ -96,8 +106,9 @@ const SearchForm = props => {
     <Form
       form={form}
       ref={formRef}
-      preserve={true}
-      onFinish={values => props.submitHandler({ ...values, dataType })}
+      onFinish={values => {
+        props.submitHandler({ ...values, dataType })
+      }}
       style={{ margin: '0 40px 0 40px' }}
     >
       <Row justify='center' gutter={32}>
@@ -176,8 +187,9 @@ const SearchForm = props => {
                   shape='circle'
                   icon={<CloseOutlined />}
                   onClick={() => {
-                    form.resetFields()
                     props.resetUsrList()
+                    props.resetSearch()
+                    form.resetFields()
                   }}
                 />
               </Tooltip>
@@ -196,7 +208,8 @@ const mapStateToProps = state => ({
   paramSets: state.paramSets.paramSetsData,
   grpList: state.groups.groupList,
   usrList: state.users.userList,
-  grpName: state.auth.groupName
+  grpName: state.auth.groupName,
+  formValues: state.search.formValues
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -206,7 +219,8 @@ const mapDispatchToProps = dispatch => ({
   fetchUsrList: (token, groupId, showInactive, search) =>
     dispatch(fetchUserList(token, groupId, showInactive, search)),
   fetchDataAccess: token => dispatch(getDataAccess(token)),
-  resetUsrList: () => dispatch(resetUserList())
+  resetUsrList: () => dispatch(resetUserList()),
+  resetSearch: () => dispatch(resetSearch())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchForm)
