@@ -123,6 +123,28 @@ export async function fetchExperiments(req, res) {
         .sort({ updatedAt: 'desc' })
         .skip((currentPage - 1) * pageSize)
         .limit(+pageSize)
+
+      //Since pagination is done on experiment level, last dataset can be divided between 2 pages.
+      // Following code amends that by adding missing experiments into the last dataset
+      const lastDatasetName = experiments[experiments.length - 1].datasetName
+      const lastDataSet = await Experiment.find({ datasetName: lastDatasetName }, excludeProps)
+      lastDataSet.forEach(i => {
+        if (!experiments.find(exp => exp.expId === i.expId)) {
+          experiments.push(i)
+        }
+      })
+
+      if (currentPage !== 1) {
+        const firstDataset = await Experiment.find(
+          { datasetName: experiments[0].datasetName },
+          excludeProps
+        )
+        firstDataset.forEach(i => {
+          if (!experiments.find(exp => exp.expId === i.expId)) {
+            experiments.unshift(i)
+          }
+        })
+      }
     } else {
       total = await ManualExperiment.find(searchParams).countDocuments()
       experiments = await ManualExperiment.find(searchParams)

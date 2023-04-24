@@ -39,9 +39,7 @@ const SearchForm = props => {
     fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
     fetchDataAccess(authToken)
     fetchGrpList(authToken, false)
-    // return () => {
-    //   form.resetFields()
-    // }
+
     // eslint-disable-next-line
   }, [])
 
@@ -98,6 +96,7 @@ const SearchForm = props => {
     <Form
       form={form}
       ref={formRef}
+      preserve={true}
       onFinish={values => props.submitHandler({ ...values, dataType })}
       style={{ margin: '0 40px 0 40px' }}
     >
