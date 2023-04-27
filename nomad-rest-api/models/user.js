@@ -71,10 +71,9 @@ userSchema.methods.generateAuthToken = async function () {
   return token
 }
 
-userSchema.methods.removeAuthToken = async function (token) {
+userSchema.methods.removeAuthTokens = async function () {
   const user = this
-  const tokens = user.tokens.filter(t => t.token !== token)
-  user.tokens = tokens
+  user.tokens = []
   await user.save()
 }
 

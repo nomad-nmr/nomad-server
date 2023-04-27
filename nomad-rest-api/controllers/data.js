@@ -23,12 +23,41 @@ export const postData = async (req, res) => {
     experiment.dataPath = dataPath
     experiment.status = 'Archived'
 
-    const completedAt = new moment(experiment.updatedAt)
-    experiment.totalExpTime = moment
-      .duration(completedAt.diff(moment(experiment.runningAt)))
+    const now = new moment()
+    const totalExpTime = moment
+      .duration(now.diff(moment(experiment.runningAt)))
       .format('HH:mm:ss', {
         trim: false
       })
+
+    experiment.totalExpTime = totalExpTime
+
+    //if difference between calculated totalExpTime and expTime is bigger than 10 mins
+    //expTime is saved in DB instead of totalExpTime
+    //This should avoid large accounting entries when client server communication fails
+    //and data are uploaded through repair mechanism
+
+    const expTimeDiff =
+      moment.duration(totalExpTime).asSeconds() - moment.duration(experiment.expTime).asSeconds()
+
+    console.log('DIFF', expTimeDiff, typeof expTimeDiff)
+    console.log(experiment.runningAt)
+
+    if (expTimeDiff > 600 || !experiment.runningAt) {
+      const instrument = await Instrument.findById(experiment.instrument.id)
+      experiment.totalExpTime = experiment.expTime
+
+      if (experiment.expNo === '10') {
+        experiment.totalExpTime = moment
+          .duration(
+            moment.duration(experiment.expTime).asSeconds() + instrument.overheadTime,
+            'seconds'
+          )
+          .format('HH:mm:ss', {
+            trim: false
+          })
+      }
+    }
 
     experiment.save()
 

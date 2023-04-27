@@ -27,7 +27,7 @@ const NMRium = props => {
       <div style={{ height: '88vh' }}>
         <NMRiumComponent
           data={data}
-          // onDataChange={input => console.log(input)}
+          // onChange={data => console.log(data)}
           emptyText=''
           workspace='default'
         />

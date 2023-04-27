@@ -28,7 +28,7 @@ const auth = async (req, res, next) => {
   } catch (error) {
     const user = await User.findOne({ 'tokens.token': token })
     if (user) {
-      user.removeAuthToken(token)
+      user.removeAuthTokens(token)
     }
     res.status(403).send('Please authenticate.')
   }
