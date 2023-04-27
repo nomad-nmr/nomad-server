@@ -4,6 +4,12 @@ import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 
 export async function fetchExperiments(req, res) {
+  //For manual data we can expect large datasets which makes using pagination as used for auto experiments difficult
+  //Therefore maximum number of datasets and or experiments displayed on page is limited
+  //if max numbers are exceeded then truncated=true is returned with response to allow for displaying a warning.
+  const maxDatasets = 20
+  const maxExps = 2000
+
   const {
     currentPage,
     pageSize,
@@ -152,14 +158,14 @@ export async function fetchExperiments(req, res) {
       total = await ManualExperiment.find(searchParams).countDocuments()
       experiments = await ManualExperiment.find(searchParams)
         .sort({ updatedAt: 'desc' })
-        .skip((currentPage - 1) * pageSize)
-        .limit(+pageSize)
+        .limit(maxExps)
     }
 
     const datasets = []
-    experiments.forEach(exp => {
-      const datasetIndex = datasets.findIndex(dataSet => dataSet.datasetName === exp.datasetName)
+    let truncated = false
 
+    for (let exp of experiments) {
+      const datasetIndex = datasets.findIndex(dataSet => dataSet.datasetName === exp.datasetName)
       const expObj =
         dataType === 'auto'
           ? {
@@ -180,7 +186,6 @@ export async function fetchExperiments(req, res) {
               title: exp.title,
               createdAt: exp.dateCreated
             }
-
       if (datasetIndex < 0) {
         const newDataSet =
           dataType === 'auto'
@@ -208,7 +213,14 @@ export async function fetchExperiments(req, res) {
       } else {
         datasets[datasetIndex].exps.push(expObj)
       }
-    })
+      if (datasets.length === maxDatasets) {
+        truncated = true
+        break
+      }
+      if (datasets.length <= maxDatasets && experiments.length === maxExps) {
+        truncated = true
+      }
+    }
 
     //sorting exps to get ascend for expNo
     const sortedDatasets = datasets.map(i => {
@@ -218,7 +230,7 @@ export async function fetchExperiments(req, res) {
       return { ...i, lastArchivedAt }
     })
 
-    res.send({ data: sortedDatasets, total })
+    res.send({ data: sortedDatasets, total, truncated })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

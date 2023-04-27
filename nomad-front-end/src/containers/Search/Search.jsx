@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
+import { Result } from 'antd'
 
 import SearchExpsTable from '../../components/SearchComponents/SearchExpsTable'
 import DownloadModal from '../../components/SearchComponents/DownloadModal'
@@ -81,6 +82,14 @@ const Search = props => {
             getPDF={props.fetchPDF}
             dataType={dataType}
           />
+          {props.truncated && (
+            <Result
+              status='warning'
+              title='Results Truncated'
+              subTitle={`Search returns ${props.total} experiments. 
+              That exceeds table capacity. Please add more criteria to narrow down the search.`}
+            />
+          )}
         </div>
       )}
       <DownloadModal
@@ -104,7 +113,8 @@ const mapStateToProps = state => ({
   mdlVisible: state.search.showDownloadModal,
   total: state.search.total,
   showForm: state.search.showForm,
-  dataType: state.search.dataType
+  dataType: state.search.dataType,
+  truncated: state.search.truncated
 })
 
 const mapDispatchToProps = dispatch => ({
