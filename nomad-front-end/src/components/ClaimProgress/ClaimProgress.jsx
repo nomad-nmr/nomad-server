@@ -8,12 +8,13 @@ const ClaimProgress = props => {
 
   const [count, setCount] = useState(0)
 
-  let percentProgress = (count / totalExpClaimed) * 100
+  let percentProgress = Math.round((count / totalExpClaimed) * 100)
 
   useEffect(() => {
     socket.on(
       claimId,
-      () => {
+      data => {
+        console.log(data.expId)
         const newCount = count + 1
         setCount(newCount)
       },

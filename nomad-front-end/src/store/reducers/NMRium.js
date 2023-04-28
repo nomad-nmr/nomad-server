@@ -28,12 +28,12 @@ const reducer = (state = initialState, { type, payload }) => {
         newData.data.spectra = [...state.nmriumState.data.spectra, ...noDuplicatesSpectra]
       }
 
-      return { ...state, nmriumState: newData, adding: false }
+      return { ...state, nmriumState: newData, adding: false, spinning: false }
 
     case actionTypes.SET_CHANGED_DATA:
       return { ...state, changedData: payload }
 
-    case actionTypes.SAVING_NMRIUM_STARTS:
+    case actionTypes.LOADING_NMRIUM_STARTS:
       return { ...state, spinning: true }
 
     case actionTypes.SAVE_NMRIUM_SUCCESS:

@@ -23,7 +23,7 @@ const NMRium = props => {
   }, [])
 
   return (
-    <Spin tip='Saving' size='large' spinning={props.spinning}>
+    <Spin size='large' spinning={props.spinning}>
       <div style={{ height: '88vh' }}>
         <NMRiumComponent
           data={data}

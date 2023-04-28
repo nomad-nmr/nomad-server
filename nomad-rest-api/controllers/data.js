@@ -124,9 +124,10 @@ export const getNMRium = async (req, res) => {
 
         const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title)
 
-        nmriumDataObj.spectra[0].id = experiment._id
-
-        responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]
+        if (nmriumDataObj.spectra.length > 0) {
+          nmriumDataObj.spectra[0].id = experiment._id
+          responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]
+        }
       })
     )
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
@@ -234,7 +235,11 @@ export const archiveManual = async (req, res) => {
     const newManualExperiment = new ManualExperiment(metadataObj)
     await newManualExperiment.save()
 
-    getIO().to('users').emit(claimId, { expId: metadataObj.expId })
+    //for large datasets multiple messages can arrive to client simultaneously which creates race condition
+    //STO helps to spread messages over time using expNo
+    setTimeout(() => {
+      getIO().to('users').emit(claimId, { expId: metadataObj.expId })
+    }, +metadataObj.expNo * 50)
 
     res.send()
   } catch (error) {

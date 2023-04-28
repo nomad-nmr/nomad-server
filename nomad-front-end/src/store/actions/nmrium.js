@@ -9,6 +9,7 @@ export const fetchNMRiumDataSuccess = payload => ({
 
 export const fetchNMRiumData = (exps, token, dataType) => {
   return dispatch => {
+    dispatch(loadingStarts())
     axios
       .get('/data/nmrium/?' + new URLSearchParams({ exps, dataType }).toString(), {
         headers: { Authorization: 'Bearer ' + token }
@@ -27,8 +28,8 @@ export const setChangedData = payload => ({
   payload
 })
 
-export const savingStarts = () => ({
-  type: actionTypes.SAVING_NMRIUM_STARTS
+export const loadingStarts = () => ({
+  type: actionTypes.LOADING_NMRIUM_STARTS
 })
 
 export const saveNMRiumSuccess = () => ({
@@ -37,7 +38,7 @@ export const saveNMRiumSuccess = () => ({
 
 export const saveNMRiumData = (nmriumJSON, token) => {
   return dispatch => {
-    dispatch(savingStarts())
+    dispatch(loadingStarts())
 
     axios
       .put(
