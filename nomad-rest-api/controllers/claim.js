@@ -3,6 +3,7 @@ import { getSubmitter } from '../server.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
 import ManualExperiment from '../models/manualExperiment.js'
+import Claim from '../models/claim.js'
 import sendUploadCmd from './tracker/sendUploadCmd.js'
 
 export const getFolders = async (req, res) => {
@@ -36,7 +37,8 @@ export const getFolders = async (req, res) => {
 }
 
 export const postClaim = async (req, res) => {
-  const { instrumentId, expsArr, claimId } = req.body
+  console.log(req.body)
+  const { instrumentId, expsArr, claimId, note, expTime } = req.body
   const { accessLevel } = req.user
 
   try {
@@ -55,6 +57,22 @@ export const postClaim = async (req, res) => {
     }
 
     const group = await Group.findById(groupId, 'groupName')
+
+    const folders = new Set()
+    expsArr.forEach(exp => {
+      folders.add(exp.split('#-#')[0])
+    })
+
+    const claim = new Claim({
+      instrument: instrumentId,
+      user: userId,
+      group: groupId,
+      folders: Array.from(folders),
+      note,
+      expTime
+    })
+
+    await claim.save()
 
     sendUploadCmd(
       instrumentId,

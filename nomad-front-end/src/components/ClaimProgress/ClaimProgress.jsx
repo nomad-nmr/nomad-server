@@ -14,7 +14,6 @@ const ClaimProgress = props => {
     socket.on(
       claimId,
       data => {
-        console.log(data.expId)
         const newCount = count + 1
         setCount(newCount)
       },

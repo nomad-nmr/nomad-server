@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Modal, Switch, Space } from 'antd'
 import { ExclamationCircleFilled } from '@ant-design/icons'
 
@@ -7,12 +7,9 @@ import classes from '../PageHeader.module.css'
 const { confirm } = Modal
 
 const ClaimControls = props => {
-  let expsArr = []
-  props.checked.forEach(entry => {
-    expsArr = [...expsArr, ...entry.exps]
-  })
+  const [showModal, setShowModal] = useState(false)
 
-  const { accessLevel, userId, instrumentId, token, checked, showArchived, claimId } = props
+  const { accessLevel, userId, checked, showArchived, claimId } = props
 
   return (
     <div className={classes.ExtraContainer}>
@@ -37,14 +34,15 @@ const ClaimControls = props => {
                 icon: <ExclamationCircleFilled />,
                 content: 'Do you want to claim data for yourself?',
                 onOk() {
-                  props.submitClaimHandler(token, { userId, instrumentId, expsArr })
+                  props.toggleModal()
                 },
                 oncancel() {
                   return
                 }
               })
             } else {
-              props.submitClaimHandler(token, { userId, instrumentId, expsArr })
+              props.toggleModal()
+              // props.submitClaimHandler(token, { userId, instrumentId, expsArr })
             }
           }}
         >

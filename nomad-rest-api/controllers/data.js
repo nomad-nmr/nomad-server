@@ -124,6 +124,7 @@ export const getNMRium = async (req, res) => {
 
         const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title)
 
+        //This if statement excludes empty experiments that otherwise cause failure
         if (nmriumDataObj.spectra.length > 0) {
           nmriumDataObj.spectra[0].id = experiment._id
           responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]

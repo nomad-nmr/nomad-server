@@ -1,4 +1,5 @@
 import * as actionTypes from '../actions/actionTypes'
+import moment from 'moment'
 
 const initialState = {
   foldersData: [],
@@ -10,7 +11,8 @@ const initialState = {
   instrumentId: undefined,
   showArchived: false,
   claimId: undefined,
-  totalExpCount: 0
+  totalExpCount: 0,
+  showModal: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -43,7 +45,8 @@ const reducer = (state = initialState, { type, payload }) => {
           checkedNew[index] = payload
         }
       }
-      return { ...state, checked: checkedNew }
+
+      return { ...state, checked: addTotalExpTime(checkedNew, state.foldersData) }
 
     case actionTypes.UPDATE_CHECKED_CLAIM_DATASETS:
       const { dataset, selected } = payload
@@ -53,7 +56,8 @@ const reducer = (state = initialState, { type, payload }) => {
       } else {
         checkedUpdated = state.checked.filter(entry => entry.datasetName !== dataset.datasetName)
       }
-      return { ...state, checked: checkedUpdated }
+
+      return { ...state, checked: addTotalExpTime(checkedUpdated, state.foldersData) }
 
     case actionTypes.UPDATE_CLAIM_USER:
       return { ...state, userId: payload }
@@ -99,7 +103,7 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.RESET_FOLDERS_DATA:
-      return { ...state, foldersData: [], checked: [] }
+      return { ...state, foldersData: [], checked: [], userId: undefined }
 
     case actionTypes.TOGGLE_SHOW_ARCHIVED_SWITCH:
       return {
@@ -112,9 +116,38 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_CLAIM_PROGRESS:
       return { ...state, claimId: undefined, totalExpCount: 0 }
 
+    case actionTypes.TOGGLE_CLAIM_MODAL:
+      return { ...state, showModal: !state.showModal }
+
     default:
       return state
   }
+}
+
+const addTotalExpTime = (checkedInput, foldersData) => {
+  const checkedOutput = checkedInput.map(entry => {
+    const checkedDataset = foldersData.find(i => i.datasetName === entry.datasetName)
+    let checkedExpsModifiedAt = []
+    let checkedExpsCreatedAt = []
+    if (checkedDataset.exps.length === entry.exps.length) {
+      checkedExpsModifiedAt = checkedDataset.exps.map(exp => moment(exp.dateLastModified))
+      checkedExpsCreatedAt = checkedDataset.exps.map(exp => moment(exp.dateCreated))
+    } else {
+      entry.exps.map(exp => {
+        const checkedExp = checkedDataset.exps.find(i => i.key === exp)
+        if (checkedExp) {
+          checkedExpsModifiedAt.push(moment(checkedExp.dateLastModified))
+          checkedExpsCreatedAt.push(moment(checkedExp.dateCreated))
+        }
+      })
+    }
+    const endTime = moment.max(checkedExpsModifiedAt)
+    const startTime = moment.min(checkedExpsCreatedAt)
+
+    const totalExpTime = moment.duration(endTime.subtract(startTime)).format('HH:mm:ss')
+    return { ...entry, totalExpTime }
+  })
+  return checkedOutput
 }
 
 export default reducer

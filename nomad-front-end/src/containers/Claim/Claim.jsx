@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import ClaimForm from '../../components/Forms/ClaimForm/ClaimForm'
 import ClaimTable from '../../components/ClaimTable/ClaimTable'
 import ClaimProgress from '../../components/ClaimProgress/ClaimProgress'
+import ClaimModal from '../../components/Modals/ClaimModal/ClaimModal'
 import {
   fetchInstrumentList,
   getManualFolders,
@@ -14,14 +15,15 @@ import {
   updateCheckedClaimDatasets,
   updateClaimUser,
   resetFoldersData,
-  resetClaimProgress
+  resetClaimProgress,
+  toggleClaimModal,
+  submitClaim
 } from '../../store/actions'
 
 import classes from './Claim.module.css'
-import { ProHelpSelect } from '@ant-design/pro-layout'
 
 const Claim = props => {
-  const { authToken, fetchInstrList, fetchGrpList, resetClaim } = props
+  const { authToken, fetchInstrList, fetchGrpList, resetClaim, checked } = props
 
   const formReference = useRef({})
 
@@ -34,6 +36,8 @@ const Claim = props => {
   }, [fetchInstrList, authToken, fetchGrpList])
 
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
+
+  const findUser = userId => props.usrList.find(user => user._id === userId)
 
   return (
     <div className={classes.Container}>
@@ -67,7 +71,17 @@ const Claim = props => {
         updateCheckedExps={props.updCheckedExps}
         checkedExps={props.checkedExps}
         checkedDatasetsHandler={props.updCheckedData}
-        checked={props.checked}
+        checked={checked}
+      />
+      <ClaimModal
+        open={props.showModal}
+        toggleModal={props.tglClaimModal}
+        checked={checked}
+        accessLevel={props.accessLevel}
+        user={findUser(props.userId)}
+        instrumentId={props.instrId}
+        claimHandler={props.submitClaim}
+        token={props.authToken}
       />
     </div>
   )
@@ -85,7 +99,10 @@ const mapStateToProps = state => {
     checked: state.claim.checked,
     showArchived: state.claim.showArchived,
     claimId: state.claim.claimId,
-    totalExpClaimed: state.claim.totalExpCount
+    totalExpClaimed: state.claim.totalExpCount,
+    showModal: state.claim.showModal,
+    userId: state.claim.userId,
+    instrId: state.claim.instrumentId
   }
 }
 
@@ -102,7 +119,9 @@ const mapDispatchToProps = dispatch => {
     updCheckedData: keys => dispatch(updateCheckedClaimDatasets(keys)),
     updateUser: userId => dispatch(updateClaimUser(userId)),
     resetFoldersData: () => dispatch(resetFoldersData()),
-    rstClaimProgress: () => dispatch(resetClaimProgress())
+    rstClaimProgress: () => dispatch(resetClaimProgress()),
+    tglClaimModal: () => dispatch(toggleClaimModal()),
+    submitClaim: (token, payload) => dispatch(submitClaim(token, payload))
   }
 }
 

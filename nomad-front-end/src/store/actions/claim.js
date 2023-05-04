@@ -88,3 +88,7 @@ export const toggleShowArchivedSwitch = () => ({
 export const resetClaimProgress = () => ({
   type: actionTypes.RESET_CLAIM_PROGRESS
 })
+
+export const toggleClaimModal = () => ({
+  type: actionTypes.TOGGLE_CLAIM_MODAL
+})

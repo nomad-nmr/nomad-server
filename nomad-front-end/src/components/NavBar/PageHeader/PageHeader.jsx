@@ -32,8 +32,8 @@ import {
   fetchOverheadTime,
   fetchNMRiumData,
   saveNMRiumData,
-  submitClaim,
-  toggleShowArchivedSwitch
+  toggleShowArchivedSwitch,
+  toggleClaimModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -233,15 +233,14 @@ const PageHeaderEl = props => {
       avatarSrc = uploadIcon
       extra = (
         <ClaimControls
-          submitClaimHandler={props.submitClaim}
           token={props.authToken}
           checked={props.claimChecked}
           userId={props.claimUserId}
-          instrumentId={props.claimInstrId}
           accessLevel={props.accessLevel}
           showArchived={props.showArchived}
           showArchivedHandler={props.tglShowArchived}
           claimId={props.claimId}
+          toggleModal={props.tglClaimModal}
         />
       )
 
@@ -303,7 +302,6 @@ const mapStateToProps = state => {
     adding: state.nmrium.adding,
     claimChecked: state.claim.checked,
     claimUserId: state.claim.userId,
-    claimInstrId: state.claim.instrumentId,
     showArchived: state.claim.showArchived,
     claimId: state.claim.claimId
   }
@@ -341,8 +339,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(fetchNMRiumData(expsArr, authToken, dataType)),
     saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
     setAddExps: () => dispatch(setAddingExpsStatus()),
-    submitClaim: (token, payload) => dispatch(submitClaim(token, payload)),
-    tglShowArchived: () => dispatch(toggleShowArchivedSwitch())
+    tglShowArchived: () => dispatch(toggleShowArchivedSwitch()),
+    tglClaimModal: () => dispatch(toggleClaimModal())
   }
 }
 
