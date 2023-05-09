@@ -19,7 +19,12 @@ const claimSchema = new Schema(
     },
     folders: Array,
     note: String,
-    expTime: String
+    expTime: String,
+    status: {
+      type: String,
+      required: true,
+      default: 'Pending'
+    }
   },
   { timestamps: true }
 )

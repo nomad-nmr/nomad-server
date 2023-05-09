@@ -67,6 +67,7 @@ const App = props => {
   const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
   const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
   const Claim = React.lazy(() => import('./containers/Claim/Claim'))
+  const ClaimsHistory = React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -140,6 +141,10 @@ const App = props => {
               <Route
                 path='/admin/history'
                 element={accessLevel === 'admin' ? <ExpHistory /> : <Navigate to='/dashboard' />}
+              />
+              <Route
+                path='/admin/claims-history'
+                element={accessLevel === 'admin' ? <ClaimsHistory /> : <Navigate to='/dashboard' />}
               />
               <Route
                 path='/admin/accounts'

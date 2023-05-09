@@ -12,7 +12,8 @@ import {
   ExperimentOutlined,
   DeploymentUnitOutlined,
   BarChartOutlined,
-  MailOutlined
+  MailOutlined,
+  DownCircleOutlined
 } from '@ant-design/icons'
 
 const AdminMenu = props => {
@@ -63,6 +64,11 @@ const AdminMenu = props => {
           key: '/admin/accounts',
           label: 'Accounting',
           icon: <PoundOutlined />
+        },
+        {
+          key: '/admin/claims-history',
+          label: 'Manual Claims History',
+          icon: <DownCircleOutlined />
         }
       ]
     },

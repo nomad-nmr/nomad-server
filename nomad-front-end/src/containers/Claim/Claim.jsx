@@ -23,7 +23,7 @@ import {
 import classes from './Claim.module.css'
 
 const Claim = props => {
-  const { authToken, fetchInstrList, fetchGrpList, resetClaim, checked } = props
+  const { authToken, fetchInstrList, fetchGrpList, resetClaim, checked, username } = props
 
   const formReference = useRef({})
 
@@ -37,7 +37,12 @@ const Claim = props => {
 
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
 
-  const findUser = userId => props.usrList.find(user => user._id === userId)
+  const findUser = userId => {
+    console.log(userId)
+    if (userId) {
+      return props.usrList.find(user => user._id === userId)
+    } else return { fullName: ' ', username }
+  }
 
   return (
     <div className={classes.Container}>
@@ -102,7 +107,8 @@ const mapStateToProps = state => {
     totalExpClaimed: state.claim.totalExpCount,
     showModal: state.claim.showModal,
     userId: state.claim.userId,
-    instrId: state.claim.instrumentId
+    instrId: state.claim.instrumentId,
+    username: state.auth.username
   }
 }
 

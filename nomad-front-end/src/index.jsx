@@ -21,6 +21,7 @@ import searchReducer from './store/reducers/search'
 import accountsReducer from './store/reducers/accounts'
 import nmriumReducer from './store/reducers/NMRium'
 import claimReducer from './store/reducers/claim'
+import claimsHistoryReducer from './store/reducers/claimsHistory'
 
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -53,7 +54,8 @@ const rootReducer = combineReducers({
   search: searchReducer,
   accounts: accountsReducer,
   nmrium: nmriumReducer,
-  claim: claimReducer
+  claim: claimReducer,
+  claimsHistory: claimsHistoryReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))

@@ -146,3 +146,5 @@ export {
   resetClaimProgress,
   toggleClaimModal
 } from './claim'
+
+export { fetchClaims, patchClaims } from './claimsHistory'

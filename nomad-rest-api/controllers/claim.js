@@ -37,7 +37,6 @@ export const getFolders = async (req, res) => {
 }
 
 export const postClaim = async (req, res) => {
-  console.log(req.body)
   const { instrumentId, expsArr, claimId, note, expTime } = req.body
   const { accessLevel } = req.user
 
@@ -81,6 +80,31 @@ export const postClaim = async (req, res) => {
     )
 
     res.status(200).json(expsArr)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const getClaims = async (req, res) => {
+  try {
+    const claims = await Claim.find({})
+      .populate('instrument', 'name')
+      .populate('user', ['fullName', 'username'])
+      .populate('group', 'groupName')
+
+    res.status(200).json(claims.map(claim => ({ ...claim._doc, key: claim._id })))
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const patchClaims = async (req, res) => {
+  const { claimId, expTime } = req.body
+  try {
+    const claim = await Claim.findByIdAndUpdate(claimId, { expTime })
+    res.status(200).json({ key: claim._id, expTime: claim.expTime })
   } catch (error) {
     console.log(error)
     res.status(500).send()

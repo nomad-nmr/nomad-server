@@ -21,7 +21,7 @@ import messageRoutes from './routes/admin/message.js'
 import batchSubmitRoutes from './routes/batch-submit.js'
 import dataRoutes from './routes/data.js'
 import searchRoutes from './routes/search.js'
-import claimRoutes from './routes/claim.js'
+import claimRoutes from './routes/claims.js'
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()
@@ -53,7 +53,7 @@ app.use('/admin/message', messageRoutes)
 app.use('/batch-submit', batchSubmitRoutes)
 app.use('/data', dataRoutes)
 app.use('/search', searchRoutes)
-app.use('/claim', claimRoutes)
+app.use('/claims', claimRoutes)
 
 app.use((req, res) => {
   res.status(404).send()

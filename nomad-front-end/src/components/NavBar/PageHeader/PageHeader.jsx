@@ -62,6 +62,7 @@ import batchSubmitIcon from '../../../assets/batch-submit.png'
 import searchIcon from '../../../assets/loupe.svg'
 import accountingIcon from '../../../assets/accounting.png'
 import uploadIcon from '../../../assets/uploadIcon.png'
+import claimIcon from '../../../assets/claimIcon.svg'
 
 import { setAddingExpsStatus } from '../../../store/actions/nmrium'
 
@@ -244,6 +245,11 @@ const PageHeaderEl = props => {
         />
       )
 
+      break
+
+    case '/admin/claims-history':
+      headerTitle = 'Manual Claims History'
+      avatarSrc = claimIcon
       break
 
     case '/nmrium':
