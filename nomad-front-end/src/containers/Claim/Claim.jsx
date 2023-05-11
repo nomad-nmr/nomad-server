@@ -38,7 +38,6 @@ const Claim = props => {
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
 
   const findUser = userId => {
-    console.log(userId)
     if (userId) {
       return props.usrList.find(user => user._id === userId)
     } else return { fullName: ' ', username }

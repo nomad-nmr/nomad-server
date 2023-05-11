@@ -33,7 +33,10 @@ import {
   fetchNMRiumData,
   saveNMRiumData,
   toggleShowArchivedSwitch,
-  toggleClaimModal
+  toggleClaimModal,
+  approveChecked,
+  setDateRange,
+  toggleShowApproved
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -49,6 +52,7 @@ import SearchControls from './Controls/SearchControls'
 import AccountingControls from './Controls/AccountingControls'
 import NMRiumControls from './Controls/NMRiumControls'
 import ClaimControls from './Controls/ClaimControls'
+import ClaimsHistControls from './Controls/claimsHistControls'
 
 import dashIcon from '../../../assets/dashboard.svg'
 import userIcon from '../../../assets/user.svg'
@@ -250,6 +254,16 @@ const PageHeaderEl = props => {
     case '/admin/claims-history':
       headerTitle = 'Manual Claims History'
       avatarSrc = claimIcon
+      extra = (
+        <ClaimsHistControls
+          onApprove={props.approveChecked}
+          token={props.authToken}
+          checked={props.checkedClaims}
+          showApproved={props.showApproved}
+          toggleSwitch={props.tglShowApproved}
+          setDateRange={props.setDateRange}
+        />
+      )
       break
 
     case '/nmrium':
@@ -309,7 +323,9 @@ const mapStateToProps = state => {
     claimChecked: state.claim.checked,
     claimUserId: state.claim.userId,
     showArchived: state.claim.showArchived,
-    claimId: state.claim.claimId
+    claimId: state.claim.claimId,
+    checkedClaims: state.claimsHistory.checked,
+    showApproved: state.claimsHistory.showApproved
   }
 }
 
@@ -346,7 +362,10 @@ const mapDispatchToProps = dispatch => {
     saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
     setAddExps: () => dispatch(setAddingExpsStatus()),
     tglShowArchived: () => dispatch(toggleShowArchivedSwitch()),
-    tglClaimModal: () => dispatch(toggleClaimModal())
+    tglClaimModal: () => dispatch(toggleClaimModal()),
+    approveChecked: (token, checked) => dispatch(approveChecked(token, checked)),
+    tglShowApproved: () => dispatch(toggleShowApproved()),
+    setDateRange: dates => dispatch(setDateRange(dates))
   }
 }
 

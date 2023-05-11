@@ -147,4 +147,11 @@ export {
   toggleClaimModal
 } from './claim'
 
-export { fetchClaims, patchClaims } from './claimsHistory'
+export {
+  fetchClaims,
+  patchClaims,
+  updateCheckedClaims,
+  approveChecked,
+  setDateRange,
+  toggleShowApproved
+} from './claimsHistory'

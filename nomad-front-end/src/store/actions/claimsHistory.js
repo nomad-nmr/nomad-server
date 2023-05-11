@@ -11,11 +11,11 @@ export const fetchClaimsSuccess = payload => ({
   payload
 })
 
-export const fetchClaims = token => {
+export const fetchClaims = (token, searchParams) => {
   return dispatch => {
     dispatch(fetchClaimsStart())
     axios
-      .get('/claims/', {
+      .get('/claims/?' + new URLSearchParams(searchParams).toString(), {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
@@ -47,3 +47,38 @@ export const patchClaims = (token, payload) => {
       })
   }
 }
+
+export const updateCheckedClaims = payload => ({
+  type: actionTypes.UPDATE_CHECKED_CLAIMS,
+  payload
+})
+
+export const approveCheckedSuccess = payload => ({
+  type: actionTypes.APPROVE_CHECKED_SUCCESS,
+  payload
+})
+
+export const approveChecked = (token, checked) => {
+  return dispatch => {
+    dispatch(fetchClaimsStart())
+    axios
+      .put('/claims/approve', checked, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(approveCheckedSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const toggleShowApproved = () => ({
+  type: actionTypes.TOGGLE_SHOW_APPROVED
+})
+
+export const setDateRange = payload => ({
+  type: actionTypes.SET_DATE_RANGE,
+  payload
+})

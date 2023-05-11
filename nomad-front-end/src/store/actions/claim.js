@@ -16,9 +16,12 @@ export const getManualFolders = (token, instrId, groupId, showArchived) => {
   return dispatch => {
     dispatch(getFoldersStart())
     axios
-      .get('/claim/folders/' + instrId + '/?groupId=' + groupId + '&showArchived=' + showArchived, {
-        headers: { Authorization: 'Bearer ' + token }
-      })
+      .get(
+        '/claims/folders/' + instrId + '/?groupId=' + groupId + '&showArchived=' + showArchived,
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
       .then(res => {
         dispatch(getFoldersSuccess(res.data))
       })
@@ -62,7 +65,7 @@ export const submitClaim = (token, payload) => {
     dispatch(claimStart({ claimId, totalExpCount: payload.expsArr.length }))
     axios
       .post(
-        '/claim',
+        '/claims',
         { ...payload, claimId },
         {
           headers: { Authorization: 'Bearer ' + token }

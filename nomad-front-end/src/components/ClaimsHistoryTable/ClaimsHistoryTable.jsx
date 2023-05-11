@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Table, Space, Tag, Button } from 'antd'
+import { Table, Space, Tag, Button, Pagination } from 'antd'
 import dayjs from 'dayjs'
+import { responsiveArray } from 'antd/es/_util/responsiveObserver'
 
 const ClaimsHistoryTable = props => {
   const [usernameFilters, setUsernameFilters] = useState([])
@@ -31,6 +32,8 @@ const ClaimsHistoryTable = props => {
       align: 'center',
       dataIndex: 'createdAt',
       width: 150,
+      defaultSortOrder: 'ascend',
+
       sorter: (a, b) => dayjs(b.createdAt).unix() - dayjs(a.createdAt).unix(),
 
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-')
@@ -87,6 +90,7 @@ const ClaimsHistoryTable = props => {
         <Button
           size='small'
           type='link'
+          disabled={record.status === 'Approved'}
           onClick={() => {
             props.onAmend({ claimId: record.key, expTime: record.expTime })
           }}
@@ -100,19 +104,56 @@ const ClaimsHistoryTable = props => {
   const expandElement = record => (
     <Space>
       <span style={{ fontWeight: 700 }}>Folders:</span>
-      {record.folders.map(folder => (
-        <span>{`[${folder}]`}</span>
+      {record.folders.map((folder, index) => (
+        <span key={index}>{`[${folder}]`}</span>
       ))}
+      {record.status === 'Approved' && (
+        <div>
+          <span style={{ fontWeight: 700 }}>Approved at: </span>
+          <span>{dayjs(record.updatedAt).format('DD-MMM-YY HH:mm')}</span>
+        </div>
+      )}
     </Space>
   )
 
+  const rowSelection = {
+    selectionType: 'checkbox',
+    selectedRowKeys: props.selected,
+    selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+    onChange: selectedRowKeys => {
+      props.checkedHandler(selectedRowKeys)
+    },
+    getCheckboxProps: record => ({
+      disabled: record.status === 'Approved'
+    })
+  }
+
   return (
-    <Table
-      columns={columns}
-      dataSource={props.data}
-      size='small'
-      expandable={{ expandedRowRender: expandElement }}
-    />
+    <div>
+      <Table
+        columns={columns}
+        dataSource={props.data}
+        size='small'
+        expandable={{ expandedRowRender: expandElement }}
+        rowSelection={rowSelection}
+        pagination={false}
+      />
+      <Pagination
+        style={{ marginTop: '20px', textAlign: 'right' }}
+        size='small'
+        pageSize={props.pageSize}
+        current={props.currentPage}
+        defaultPageSize={15}
+        showSizeChanger
+        pageSizeOptions={[10, 15, 30, 60, 100]}
+        total={props.total}
+        onChange={page => props.currentPageHandler(page)}
+        onShowSizeChange={(current, size) => {
+          props.currentPageHandler(current)
+          props.pageSizeHandler(size)
+        }}
+      />
+    </div>
   )
 }
 

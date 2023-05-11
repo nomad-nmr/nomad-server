@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 import { getIO } from '../socket.js'
 import { getSubmitter } from '../server.js'
 import Group from '../models/group.js'
@@ -87,13 +89,35 @@ export const postClaim = async (req, res) => {
 }
 
 export const getClaims = async (req, res) => {
+  const { showApproved, dateRange, currentPage, pageSize } = req.query
+
   try {
-    const claims = await Claim.find({})
+    const searchParams = { $and: [{}] }
+
+    if (showApproved === 'false') {
+      searchParams.$and.push({ status: 'Pending' })
+    }
+
+    if (dateRange && dateRange !== 'undefined') {
+      const datesArr = dateRange.split(',')
+      searchParams.$and.push({
+        createdAt: {
+          $gte: new Date(datesArr[0]),
+          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+        }
+      })
+    }
+
+    const total = await Claim.find(searchParams).countDocuments()
+    const claims = await Claim.find(searchParams)
+      .skip((currentPage - 1) * pageSize)
+      .limit(+pageSize)
       .populate('instrument', 'name')
       .populate('user', ['fullName', 'username'])
       .populate('group', 'groupName')
-
-    res.status(200).json(claims.map(claim => ({ ...claim._doc, key: claim._id })))
+    res
+      .status(200)
+      .json({ claims: claims.map(claim => ({ ...claim._doc, key: claim._id })), total })
   } catch (error) {
     console.log(error)
     res.status(500).send()
@@ -105,6 +129,22 @@ export const patchClaims = async (req, res) => {
   try {
     const claim = await Claim.findByIdAndUpdate(claimId, { expTime })
     res.status(200).json({ key: claim._id, expTime: claim.expTime })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const approveClaims = async (req, res) => {
+  try {
+    const respArray = []
+    await Promise.all(
+      req.body.map(async id => {
+        const claim = await Claim.findByIdAndUpdate(id, { status: 'Approved' })
+        respArray.push(claim._id)
+      })
+    )
+    res.status(200).json(respArray)
   } catch (error) {
     console.log(error)
     res.status(500).send()

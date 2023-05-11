@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip } from 'antd'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 
 import SelectGrpUsr from '../Forms/SelectGrpUsr/SelectGrpUsr'
 import solvents from '../../misc/solvents'
@@ -53,8 +54,10 @@ const SearchForm = props => {
     form.resetFields()
   }, [dataType])
 
+  //Effect to preserve form values. DateRange has to be in form of dayjs object.
   useEffect(() => {
-    form.setFieldsValue(formValues)
+    const dateRangeNew = formValues.dateRange && formValues.dateRange.map(date => dayjs(date))
+    form.setFieldsValue({ ...formValues, dateRange: dateRangeNew })
   }, [formValues])
 
   const solventOptions = solvents.map((solvent, i) => (

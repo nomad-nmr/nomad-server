@@ -1,19 +1,21 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
-import { fetchClaims, patchClaims } from '../../store/actions'
+import { fetchClaims, patchClaims, updateCheckedClaims } from '../../store/actions'
 
 import ClaimsHistoryTable from '../../components/ClaimsHistoryTable/ClaimsHistoryTable'
 import AmendClaim from '../../components/Modals/AmendClaim/AmendClaim'
 
 const ClaimsHistory = props => {
-  const { authToken } = props
+  const { authToken, fetchClaims, showApproved, dateRange } = props
 
   const [showModal, setShowModal] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(15)
   const formRef = useRef({})
 
   useEffect(() => {
-    props.fetchClaims(authToken)
-  }, [])
+    fetchClaims(authToken, { showApproved, dateRange, currentPage, pageSize })
+  }, [showApproved, dateRange, pageSize, currentPage])
 
   const amendHandler = values => {
     setShowModal(true)
@@ -23,7 +25,17 @@ const ClaimsHistory = props => {
 
   return (
     <div style={{ margin: '30px 50px 20px 50px' }}>
-      <ClaimsHistoryTable data={props.data} onAmend={amendHandler} />
+      <ClaimsHistoryTable
+        data={props.data}
+        onAmend={amendHandler}
+        checkedHandler={props.updateChecked}
+        selected={props.checked}
+        currentPage={currentPage}
+        total={props.total}
+        pageSize={pageSize}
+        currentPageHandler={setCurrentPage}
+        pageSizeHandler={setPageSize}
+      />
       <AmendClaim
         closeModalHandler={() => setShowModal(false)}
         open={showModal}
@@ -37,13 +49,18 @@ const ClaimsHistory = props => {
 
 const mapStateToProps = state => ({
   authToken: state.auth.token,
-  data: state.claimsHistory.data
+  data: state.claimsHistory.data,
+  checked: state.claimsHistory.checked,
+  showApproved: state.claimsHistory.showApproved,
+  dateRange: state.claimsHistory.dateRange,
+  total: state.claimsHistory.total
 })
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchClaims: token => dispatch(fetchClaims(token)),
-    patchClaims: (token, payload) => dispatch(patchClaims(token, payload))
+    fetchClaims: (token, searchParams) => dispatch(fetchClaims(token, searchParams)),
+    patchClaims: (token, payload) => dispatch(patchClaims(token, payload)),
+    updateChecked: checked => dispatch(updateCheckedClaims(checked))
   }
 }
 
