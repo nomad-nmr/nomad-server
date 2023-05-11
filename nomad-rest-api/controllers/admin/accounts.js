@@ -1,6 +1,7 @@
 import moment from 'moment'
 
 import Experiment from '../../models/experiment.js'
+import Claim from '../../models/claim.js'
 import Group from '../../models/group.js'
 import User from '../../models/user.js'
 import Instrument from '../../models/instrument.js'
@@ -9,11 +10,18 @@ export async function getCosts(req, res) {
   const { groupId, dateRange } = req.query
   try {
     const searchParams = { $and: [{ status: 'Archived' }] }
+    const searchParamsClaims = { $and: [{ status: 'Approved' }] }
 
     if (dateRange && dateRange !== 'undefined' && dateRange !== 'null') {
       const datesArr = dateRange.split(',')
       searchParams.$and.push({
         updatedAt: {
+          $gte: new Date(datesArr[0]),
+          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+        }
+      })
+      searchParamsClaims.$and.push({
+        createdAt: {
           $gte: new Date(datesArr[0]),
           $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
         }
@@ -33,19 +41,29 @@ export async function getCosts(req, res) {
 
           //adding group or user into search parameters
           const entrySearchParams = {}
+          const entrySearchParamsClaims = {}
           entrySearchParams.$and = [...searchParams.$and, { 'group.id': entry._id }]
+          entrySearchParamsClaims.$and = [...searchParamsClaims.$and, { group: entry._id }]
 
           const expArray = await Experiment.find(entrySearchParams, 'instrument totalExpTime')
+          const claimsArray = await Claim.find(entrySearchParamsClaims, 'instrument expTime')
 
           instrumentList.forEach((i, index) => {
             const filteredExpArray = expArray.filter(exp => exp.instrument.name === i.name)
-            const expT = getExpTimeSum(filteredExpArray)
-            const cost = Math.round(moment.duration(expT).asHours() * i.cost * 100) / 100
-            // console.log(cost)
+            const filteredClaimsArray = claimsArray.filter(
+              claim => claim.instrument.toString() === i._id.toString()
+            )
+            const expTimeAuto = getExpTimeSum(filteredExpArray)
+            const expTimeClaims = filteredClaimsArray.reduce(
+              (sum, claim) => sum + Number(claim.expTime),
+              0
+            )
+            const totalExpTime = moment.duration(expTimeAuto).asHours() + expTimeClaims
+            const cost = Math.round(totalExpTime * i.cost * 100) / 100
             newEntry.costsPerInstrument.push({
               instrument: i.name,
-              expCount: filteredExpArray.length,
-              expT,
+              expTimeClaims,
+              expTimeAuto,
               cost
             })
             newEntry.totalCost += cost
@@ -57,13 +75,16 @@ export async function getCosts(req, res) {
       //each entry of the table is user
 
       searchParams.$and = [...searchParams.$and, { 'group.id': groupId }]
+      searchParamsClaims.$and = [...searchParamsClaims.$and, { group: groupId }]
 
       const expArray = await Experiment.find(searchParams, 'instrument totalExpTime user')
+      const claimsArray = await Claim.find(searchParamsClaims, 'instrument expTime user')
 
       //getting list of users out of experiment array
       //to make sure that lists include users that have been moved to a different group
       const usrSet = new Set()
       expArray.forEach(exp => usrSet.add(exp.user.id.toString()))
+      claimsArray.forEach(claim => usrSet.add(claim.user.toString()))
       const usrArray = Array.from(usrSet)
 
       await Promise.all(
@@ -80,12 +101,22 @@ export async function getCosts(req, res) {
             const filteredExpArray = expArray.filter(
               exp => exp.instrument.name === i.name && exp.user.id.toString() === usrId
             )
-            const expT = getExpTimeSum(filteredExpArray)
-            const cost = Math.round(moment.duration(expT).asHours() * i.cost * 100) / 100
+            const filteredClaimsArray = claimsArray.filter(
+              claim =>
+                claim.instrument.toString() === i._id.toString() && claim.user.toString() === usrId
+            )
+            const expTimeAuto = getExpTimeSum(filteredExpArray)
+            const expTimeClaims = filteredClaimsArray.reduce(
+              (sum, claim) => sum + Number(claim.expTime),
+              0
+            )
+            const totalExpTime = moment.duration(expTimeAuto).asHours() + expTimeClaims
+            const cost = Math.round(totalExpTime * i.cost * 100) / 100
+
             newEntry.costsPerInstrument.push({
               instrument: i.name,
-              expCount: filteredExpArray.length,
-              expT,
+              expTimeClaims,
+              expTimeAuto,
               cost
             })
             newEntry.totalCost += cost
@@ -108,21 +139,23 @@ export async function getCosts(req, res) {
     }
 
     resData[0].costsPerInstrument.forEach((col, colIndex) => {
-      const expCountSumArr = []
+      const expTimeClaimsSumArr = []
       const costSumArr = []
-      const expTimeSumArr = []
+      const expTimeAutoSumArr = []
       resData.forEach(row => {
-        expCountSumArr.push(row.costsPerInstrument[colIndex].expCount)
+        expTimeClaimsSumArr.push(row.costsPerInstrument[colIndex].expTimeClaims)
         costSumArr.push(row.costsPerInstrument[colIndex].cost)
-        expTimeSumArr.push(moment.duration(row.costsPerInstrument[colIndex].expT).asSeconds())
+        expTimeAutoSumArr.push(
+          moment.duration(row.costsPerInstrument[colIndex].expTimeAuto).asSeconds()
+        )
       })
       totalEntry.costsPerInstrument.push({
         instrument: col.instrument,
-        expCount: expCountSumArr.reduce((a, b) => a + b, 0),
+        expTimeClaims: expTimeClaimsSumArr.reduce((a, b) => a + b, 0),
         cost: Math.round(costSumArr.reduce((a, b) => a + b, 0) * 100) / 100,
-        expT: moment
+        expTimeAuto: moment
           .duration(
-            expTimeSumArr.reduce((a, b) => a + b, 0),
+            expTimeAutoSumArr.reduce((a, b) => a + b, 0),
             'seconds'
           )
           .format('HH:mm:ss', { trim: false })

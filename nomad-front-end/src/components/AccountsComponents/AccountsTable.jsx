@@ -22,22 +22,28 @@ const AccountsTable = props => {
       title: cost.instrument,
       children: [
         {
-          title: 'Exp Count',
-          dataIndex: 'expCount' + index,
-          align: 'center',
-          width: 20
-        },
-        {
           title: 'Exp Time',
-          dataIndex: 'expTime' + index,
-          align: 'center',
-          width: 20
+          children: [
+            {
+              title: 'Manual',
+              dataIndex: 'expTimeClaims' + index,
+              align: 'center',
+              width: 20
+            },
+            {
+              title: 'Auto',
+              dataIndex: 'expTimeAuto' + index,
+              align: 'center',
+              width: 20
+            }
+          ]
         },
         {
           title: 'Cost [£]',
           dataIndex: 'cost' + index,
           align: 'center',
-          width: 20
+          width: 20,
+          render: record => <span style={{ color: 'blue' }}>{record}</span>
         }
       ]
     })
@@ -59,8 +65,8 @@ const AccountsTable = props => {
       key
     }
     entry.costsPerInstrument.forEach((instr, index) => {
-      newEntry['expCount' + index] = instr.expCount
-      newEntry['expTime' + index] = instr.expT
+      newEntry['expTimeClaims' + index] = instr.expTimeClaims
+      newEntry['expTimeAuto' + index] = instr.expTimeAuto
       newEntry['cost' + index] = instr.cost
     })
     return newEntry
