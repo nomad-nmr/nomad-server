@@ -3,7 +3,7 @@ import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
   nmriumState: { data: { spectra: [] }, version: 4 },
-  changedData: { spectra: [] },
+  changedData: {},
   spinning: false,
   adding: false,
   showFidsModal: false
@@ -44,16 +44,16 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, adding: true }
 
     case actionTypes.KEEP_NMRIUM_CHANGES:
-      const nmriumJSON = JSON.stringify(state.changedData, (k, v) =>
-        ArrayBuffer.isView(v) ? Array.from(v) : v
-      )
-      return { ...state, data: JSON.parse(nmriumJSON) }
+      // const nmriumJSON = JSON.stringify(state.changedData, (k, v) =>
+      //   ArrayBuffer.isView(v) ? Array.from(v) : v
+      // )
+      return { ...state, nmriumState: state.changedData }
 
     case actionTypes.RESET_NMRIUM_DATA:
       return {
         ...state,
         nmriumState: { data: { spectra: [] }, version: 4 },
-        changedData: { spectra: [] }
+        changedData: {}
       }
 
     case actionTypes.TOGGLE_FIDS_MODAL:
