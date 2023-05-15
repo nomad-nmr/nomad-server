@@ -132,7 +132,14 @@ export {
   updateInstrumentsCosting
 } from './accounts'
 
-export { fetchNMRiumData, setChangedData, saveNMRiumData, keepNMRiumChanges } from './nmrium'
+export {
+  fetchNMRiumData,
+  setChangedData,
+  saveNMRiumData,
+  keepNMRiumChanges,
+  setAddingExpsStatus,
+  toggleFidsModal
+} from './nmrium'
 
 export {
   getManualFolders,

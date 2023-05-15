@@ -62,3 +62,7 @@ export const keepNMRiumChanges = () => ({
 export const setAddingExpsStatus = () => ({
   type: actionTypes.SET_ADDING_EXPS_STATUS
 })
+
+export const toggleFidsModal = () => ({
+  type: actionTypes.TOGGLE_FIDS_MODAL
+})

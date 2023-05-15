@@ -27,6 +27,7 @@ const NMRiumControls = props => {
         <Button type='primary' onClick={() => addExperiments()}>
           Add experiments
         </Button>
+        <Button onClick={() => props.toggleModal()}>Add FIDs</Button>
         {/*<Button type='primary' onClick={() => saveData()}>
           Save
   </Button>*/}

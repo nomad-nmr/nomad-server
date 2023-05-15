@@ -3,7 +3,10 @@ import { connect } from 'react-redux'
 import NMRiumComponent from 'nmrium'
 import { Spin } from 'antd'
 
-import { keepNMRiumChanges, setChangedData } from '../../store/actions'
+import FidsModal from './FidsModal/FidsModal'
+import { keepNMRiumChanges, setChangedData, toggleFidsModal } from '../../store/actions'
+
+import classes from './NMRium.module.css'
 
 const NMRium = props => {
   const { data, setUpdData, keepNMRiumChanges } = props
@@ -24,14 +27,16 @@ const NMRium = props => {
 
   return (
     <Spin size='large' spinning={props.spinning}>
+      {/*<div className={classes.Title}>Title</div>*/}
       <div style={{ height: '88vh' }}>
         <NMRiumComponent
           data={data}
-          // onChange={data => console.log(data)}
+          onChange={data => console.log(data)}
           emptyText=''
           workspace='default'
         />
       </div>
+      <FidsModal open={props.fidsModalOpen} cancelHandler={props.tglFidsModal} />
     </Spin>
   )
 }
@@ -39,12 +44,14 @@ const NMRium = props => {
 const mapStateToProps = state => ({
   data: state.nmrium.nmriumState,
   spinning: state.nmrium.spinning,
-  fetchingData: state.nmrium.fetching
+  fetchingData: state.nmrium.fetching,
+  fidsModalOpen: state.nmrium.showFidsModal
 })
 
 const mapDispatchToProps = dispatch => ({
   setUpdData: dataUpdate => dispatch(setChangedData(dataUpdate)),
-  keepNMRiumChanges: () => dispatch(keepNMRiumChanges())
+  keepNMRiumChanges: () => dispatch(keepNMRiumChanges()),
+  tglFidsModal: () => dispatch(toggleFidsModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRium)

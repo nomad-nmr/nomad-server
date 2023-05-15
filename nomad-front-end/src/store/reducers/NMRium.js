@@ -5,7 +5,8 @@ const initialState = {
   nmriumState: { data: { spectra: [] }, version: 4 },
   changedData: { spectra: [] },
   spinning: false,
-  adding: false
+  adding: false,
+  showFidsModal: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -54,6 +55,9 @@ const reducer = (state = initialState, { type, payload }) => {
         nmriumState: { data: { spectra: [] }, version: 4 },
         changedData: { spectra: [] }
       }
+
+    case actionTypes.TOGGLE_FIDS_MODAL:
+      return { ...state, showFidsModal: !state.showFidsModal }
 
     default:
       return state
