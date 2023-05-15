@@ -16,9 +16,11 @@ const NMRium = props => {
 
   //Handler for updating state after change inside of NMRium component
   const changeHandler = useCallback(dataUpdate => {
-    console.log(dataUpdate)
-    if (dataUpdate.spectra.length > 0) {
-      setUpdData({ spectra: dataUpdate.spectra })
+    // console.log(dataUpdate)
+    if (dataUpdate.data.spectra.length > 0) {
+      delete dataUpdate.data.actionType
+      delete dataUpdate.settings
+      setUpdData(dataUpdate)
     }
   }, [])
 
@@ -27,7 +29,7 @@ const NMRium = props => {
       <div style={{ height: '88vh' }}>
         <NMRiumComponent
           data={data}
-          // onChange={data => console.log(data)}
+          onChange={data => changeHandler(data)}
           emptyText=''
           workspace='default'
         />
