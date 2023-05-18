@@ -5,6 +5,7 @@ import JSZip from 'jszip'
 import moment from 'moment'
 import { read } from 'nmr-load-save'
 import { fileCollectionFromZip } from 'filelist-utils'
+import { v4 as uuidv4 } from 'uuid'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
@@ -128,6 +129,7 @@ export const getNMRium = async (req, res) => {
         if (nmriumDataObj.spectra.length > 0) {
           nmriumDataObj.spectra[0].id = experiment._id
           nmriumDataObj.spectra[0].info.title = experiment.title
+          nmriumDataObj.spectra[0].dataType = dataType
 
           responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]
         }
@@ -251,14 +253,56 @@ export const archiveManual = async (req, res) => {
   }
 }
 
+export const getFids = async (req, res) => {
+  const expsArray = req.query.exps.split(',')
+  try {
+    let responseData = []
+    await Promise.all(
+      expsArray.map(async i => {
+        const [expId, dataType] = i.split('/')
+        const experiment =
+          dataType === 'auto'
+            ? await Experiment.findById(expId)
+            : await ManualExperiment.findById(expId)
+
+        const filePath = path.join(
+          process.env.DATASTORE_PATH,
+          experiment.dataPath,
+          experiment.expId
+        )
+
+        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, true)
+
+        //This if statement excludes empty experiments that otherwise cause failure
+        if (nmriumDataObj.spectra.length > 0) {
+          nmriumDataObj.spectra[0].id = experiment._id + '/fid/' + uuidv4()
+          nmriumDataObj.spectra[0].info.title = experiment.title + ' [FID]'
+          nmriumDataObj.spectra[0].dataType = dataType
+          nmriumDataObj.spectra[0].info.name += '/FID'
+
+          responseData = [...responseData, nmriumDataObj.spectra[0]]
+        }
+      })
+    )
+    const respDataJSON = JSON.stringify(responseData, (k, v) =>
+      ArrayBuffer.isView(v) ? Array.from(v) : v
+    )
+
+    res.status(200).send(respDataJSON)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
 //helper function that converts brukerZipFile into NMRium object
-const getNMRiumDataObj = async (dataPath, title) => {
+const getNMRiumDataObj = async (dataPath, title, fid) => {
   try {
     const zip = await fs.readFile(dataPath + '.zip')
     const fileCollection = await fileCollectionFromZip(zip)
     const nmriumObj = await read(fileCollection)
     const newSpectraArr = nmriumObj.nmriumState.data.spectra
-      .filter(i => i.info.isFt)
+      .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
         delete i.originalData
         i.display.name = title

@@ -138,7 +138,8 @@ export {
   saveNMRiumData,
   keepNMRiumChanges,
   setAddingExpsStatus,
-  toggleFidsModal
+  toggleFidsModal,
+  fetchFids
 } from './nmrium'
 
 export {

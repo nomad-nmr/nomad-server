@@ -2,8 +2,11 @@ import { Modal } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
-  nmriumState: { data: { spectra: [] }, version: 4 },
-  changedData: {},
+  nmriumState: {
+    data: { spectra: [] },
+    version: 4
+  },
+  changedData: { data: { spectra: [] }, version: 4 },
   spinning: false,
   adding: false,
   showFidsModal: false
@@ -44,20 +47,23 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, adding: true }
 
     case actionTypes.KEEP_NMRIUM_CHANGES:
-      // const nmriumJSON = JSON.stringify(state.changedData, (k, v) =>
-      //   ArrayBuffer.isView(v) ? Array.from(v) : v
-      // )
       return { ...state, nmriumState: state.changedData }
 
     case actionTypes.RESET_NMRIUM_DATA:
       return {
         ...state,
         nmriumState: { data: { spectra: [] }, version: 4 },
-        changedData: {}
+        changedData: { data: { spectra: [] }, version: 4 }
       }
 
     case actionTypes.TOGGLE_FIDS_MODAL:
       return { ...state, showFidsModal: !state.showFidsModal }
+
+    case actionTypes.FETCH_FIDS_SUCCESS:
+      const newNMRiumState = { ...state.changedData }
+      newNMRiumState.data.spectra = [...state.changedData.data.spectra, ...payload]
+
+      return { ...state, spinning: false, showFidsModal: false, nmriumState: newNMRiumState }
 
     default:
       return state

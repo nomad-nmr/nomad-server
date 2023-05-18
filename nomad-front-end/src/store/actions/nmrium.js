@@ -66,3 +66,24 @@ export const setAddingExpsStatus = () => ({
 export const toggleFidsModal = () => ({
   type: actionTypes.TOGGLE_FIDS_MODAL
 })
+
+export const fetchFidsSuccess = payload => ({
+  type: actionTypes.FETCH_FIDS_SUCCESS,
+  payload
+})
+
+export const fetchFids = (exps, token) => {
+  return dispatch => {
+    dispatch(loadingStarts())
+    axios
+      .get('/data/fids/?' + new URLSearchParams({ exps }).toString(), {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(fetchFidsSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
