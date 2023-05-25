@@ -15,8 +15,9 @@ const initialState = {
 const reducer = (state = initialState, { type, payload }) => {
   switch (type) {
     case actionTypes.FETCH_NMRIUM_SUCCESS:
-      const newData = { ...payload }
+      let newData = { ...payload }
       const idArray = state.nmriumState.data.spectra.map(i => i.id)
+
       if (state.adding) {
         //This code protects from opening same experiment multiple times
         const noDuplicatesSpectra = payload.data.spectra.filter(exp => !idArray.includes(exp.id))
@@ -29,7 +30,9 @@ const reducer = (state = initialState, { type, payload }) => {
             } already opened in NMRium and will not be added to avoid duplicates`
           })
         }
-        newData.data.spectra = [...state.nmriumState.data.spectra, ...noDuplicatesSpectra]
+
+        newData = { ...state.changedData }
+        newData.data.spectra = [...newData.data.spectra, ...noDuplicatesSpectra]
       }
 
       return { ...state, nmriumState: newData, adding: false, spinning: false }

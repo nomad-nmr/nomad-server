@@ -10,7 +10,7 @@ import {
   getNMRium,
   putNMRium,
   getPDF,
-  archiveManual, 
+  archiveManual,
   getFids
 } from '../controllers/data.js'
 
