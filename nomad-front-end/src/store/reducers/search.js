@@ -74,7 +74,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, dataAccess: payload }
 
     case actionTypes.RESET_SEARCH:
-      return { ...state, tableData: [], formFields: {}, total: undefined }
+      return { ...state, tableData: [], formValues: {}, total: undefined }
 
     default:
       return state

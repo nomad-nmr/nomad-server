@@ -62,7 +62,6 @@ const SearchForm = props => {
   }, [formValues])
 
   useEffect(() => {
-    console.log(dataAccess)
     switch (dataAccess) {
       case 'admin':
         setGroupList(grpList)
