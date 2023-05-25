@@ -21,7 +21,7 @@ const SelectGrpUsr = props => {
       setSelectedGroupId(groupId)
     }
     // eslint-disable-next-line
-  }, [])
+  }, [groupList])
 
   //API returns list of all users including inactive and thus we filter to get inactive users only
   if (grpInactiveChecked) {

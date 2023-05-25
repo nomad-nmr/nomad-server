@@ -36,14 +36,15 @@ const SearchForm = props => {
 
   const [form] = Form.useForm()
   const [instrumentId, setInstrumentId] = useState(null)
+  const [groupList, setGroupList] = useState([])
 
   const formRef = useRef({})
 
   useEffect(() => {
+    fetchDataAccess(authToken)
     if (instList.length === 0 || paramSets.length === 0 || grpList.length === 0) {
       fetchInstList(authToken)
       fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
-      fetchDataAccess(authToken)
       fetchGrpList(authToken, false)
     }
 
@@ -60,27 +61,28 @@ const SearchForm = props => {
     form.setFieldsValue({ ...formValues, dateRange: dateRangeNew })
   }, [formValues])
 
+  useEffect(() => {
+    console.log(dataAccess)
+    switch (dataAccess) {
+      case 'admin':
+        setGroupList(grpList)
+        break
+      case 'admin-b':
+        setGroupList(grpList.filter(entry => entry.isBatch))
+        break
+      case 'group':
+        setGroupList(grpList.filter(entry => entry.name === props.grpName))
+        break
+      default:
+        break
+    }
+  }, [grpList, dataAccess])
+
   const solventOptions = solvents.map((solvent, i) => (
     <Option value={solvent} key={i}>
       {solvent}
     </Option>
   ))
-
-  let groupList = []
-
-  switch (dataAccess) {
-    case 'admin':
-      groupList = grpList
-      break
-    case 'admin-b':
-      groupList = grpList.filter(entry => entry.isBatch)
-      break
-    case 'group':
-      groupList = grpList.filter(entry => entry.name === props.grpName)
-      break
-    default:
-      break
-  }
 
   //Generating Option list for Select element
   let instOptions = []
