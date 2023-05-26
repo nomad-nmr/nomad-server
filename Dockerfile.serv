@@ -20,7 +20,7 @@ ENV VITE_DATASTORE_ON=true
 RUN npm run build
 
 
-FROM nginx:stable-alpine
+FROM nginx:mainline-alpine
 
 COPY --from=frontend /app/dist /react-builds/frontend
 
