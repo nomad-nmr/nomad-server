@@ -5,11 +5,13 @@ import User from '../../models/user.js'
 import Group from '../../models/group.js'
 import Instrument from '../../models/instrument'
 import ParameterSet from '../../models/parameterSet.js'
+import Claim from '../../models/claim.js'
 
 import { testUserOne, testUserTwo, testUserAdmin } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
 import { testInstrOne, testInstrTwo } from './data/instruments'
 import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
+import { testClaimOne, testClaimTwo } from './data/claims.js'
 
 let mongo = null
 
@@ -34,6 +36,7 @@ export const setupDB = async () => {
   await Group.deleteMany()
   await Instrument.deleteMany()
   await ParameterSet.deleteMany()
+  await Claim.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
@@ -50,4 +53,7 @@ export const setupDB = async () => {
   await new ParameterSet(testParamSet1).save()
   await new ParameterSet(testParamSet2).save()
   await new ParameterSet(testParamsHidden).save()
+
+  await new Claim(testClaimOne).save()
+  await new Claim(testClaimTwo).save()
 }

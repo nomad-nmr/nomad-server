@@ -17,7 +17,7 @@ router.get('/folders/:instrumentId', auth, getFolders)
 
 router.post('/', auth, postClaim)
 
-router.get('/', auth, getClaims)
+router.get('/', auth, authAdmin, getClaims)
 
 router.patch('/', auth, authAdmin, patchClaims)
 

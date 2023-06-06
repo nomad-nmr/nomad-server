@@ -1,13 +1,16 @@
 import { it, expect, describe, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 import request from 'supertest'
 import { getIO } from '../socket.js'
+import moment from 'moment'
 
 import app from '../app'
 import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testGroupOne, testGroupTwo } from './fixtures/data/groups'
 import { testInstrOne, testInstrTwo } from './fixtures/data/instruments.js'
+import { testClaimTwo } from './fixtures/data/claims.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import sendUploadMsg from '../controllers/tracker/sendUploadCmd.js'
+import Claim from '../models/claim.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -121,5 +124,119 @@ describe('POST /', () => {
       })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
+  })
+})
+
+describe('GET /', () => {
+  it('should return object with 2 test claims if no search params are provided', async () => {
+    const { body } = await request(app)
+      .get('/claims/')
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.total).toBe(2)
+    expect(body.claims.length).toBe(2)
+  })
+
+  it('should fail with status 403 if request is not authorised', async () => {
+    await request(app).get('/claims/').expect(403)
+  })
+
+  it('should fail with status 403 if request is authorised by user without admin access', async () => {
+    await request(app)
+      .get('/claims/')
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should return object with 1 test claims if showApproved search param is false', async () => {
+    const { body } = await request(app)
+      .get('/claims/?' + new URLSearchParams({ showApproved: false }).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.total).toBe(1)
+    expect(body.claims.length).toBe(1)
+    expect(body.claims[0].user).toMatchObject({
+      _id: testUserOne._id,
+      username: 'test1',
+      fullName: 'Test User One'
+    })
+    expect(body.claims[0].group).toMatchObject({ _id: testGroupOne._id, groupName: 'test-group-1' })
+    expect(body.claims[0].instrument).toMatchObject({ _id: testInstrOne._id, name: 'instrument-1' })
+  })
+
+  it('should return object with 1 test claims if showApproved is true and dateRange is to 3 days', async () => {
+    const { body } = await request(app)
+      .get(
+        '/claims/?' +
+          new URLSearchParams({
+            showApproved: true,
+            dateRange: [
+              moment().subtract(3, 'days').format('YYYY-MM-DD'),
+              moment().format('YYYY-MM-DD')
+            ]
+          }).toString()
+      )
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+    expect(body.total).toBe(1)
+    expect(body.claims.length).toBe(1)
+  })
+})
+
+describe('PATCH /', () => {
+  it('should update expTime for testClaimTwo', async () => {
+    const { body } = await request(app)
+      .patch('/claims/')
+      .send({ claimId: testClaimTwo._id, expTime: 8 })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body).toMatchObject({ key: testClaimTwo._id, expTime: '8' })
+
+    //asserting change in DB
+    const claim = await Claim.findById(body.key)
+    expect(claim.expTime).toBe('8')
+  })
+
+  it('should fail with status 403 if request is authorised by user without admin access level', async () => {
+    await request(app)
+      .patch('/claims/')
+      .send({ claimId: testClaimTwo._id, expTime: 8 })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should fail with status 403 if request is not authorised', async () => {
+    await request(app).patch('/claims/').send({ claimId: testClaimTwo._id, expTime: 8 }).expect(403)
+  })
+})
+
+describe('PUT /approve', () => {
+  it('should change status of testClaimRwo to "approve"', async () => {
+    const { body } = await request(app)
+      .put('/claims/approve')
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .send([testClaimTwo._id])
+      .expect(200)
+
+    expect(body[0]).toBe(testClaimTwo._id.toString(0))
+
+    //asserting change in DB
+    const claim = await Claim.findById(body[0])
+    expect(claim.status).toBe('Approved')
+  })
+
+  it('should fail with status 403 if request is authorised by user without admin access level', async () => {
+    await request(app)
+      .put('/claims/approve')
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .send([testClaimTwo._id])
+      .expect(403)
+  })
+
+  it('should fail with status 403 if request is authorised', async () => {
+    await request(app).put('/claims/approve').send([testClaimTwo._id]).expect(403)
   })
 })
