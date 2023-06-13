@@ -133,7 +133,7 @@ const addTotalExpTime = (checkedInput, foldersData) => {
       checkedExpsModifiedAt = checkedDataset.exps.map(exp => moment(exp.dateLastModified))
       checkedExpsCreatedAt = checkedDataset.exps.map(exp => moment(exp.dateCreated))
     } else {
-      entry.exps.map(exp => {
+      entry.exps.forEach(exp => {
         const checkedExp = checkedDataset.exps.find(i => i.key === exp)
         if (checkedExp) {
           checkedExpsModifiedAt.push(moment(checkedExp.dateLastModified))
