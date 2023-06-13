@@ -9,19 +9,19 @@ class Submitter {
     this.state = new Map()
   }
 
-  init() {
-    Instrument.find({ isActive: true }, '_id capacity status.statusTable').then(instrArr => {
-      instrArr.forEach(instr => {
-        const usedHolders = new Set()
-        instr.status.statusTable.forEach(entry => {
-          usedHolders.add(+entry.holder)
-        })
+  async init() {
+    const instrArr = await Instrument.find({ isActive: true }, '_id capacity status.statusTable')
 
-        this.state.set(instr._id.toString(), {
-          socketId: undefined,
-          usedHolders,
-          bookedHolders: []
-        })
+    instrArr.forEach(instr => {
+      const usedHolders = new Set()
+      instr.status.statusTable.forEach(entry => {
+        usedHolders.add(+entry.holder)
+      })
+
+      this.state.set(instr._id.toString(), {
+        socketId: undefined,
+        usedHolders,
+        bookedHolders: []
       })
     })
   }

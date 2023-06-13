@@ -253,6 +253,8 @@ export const postPending = async (req, res) => {
   const path = req.path.split('/')[1]
   const { data, username, password } = req.body
 
+  console.log(req.body, req.params.type)
+
   try {
     const submitter = getSubmitter()
     //If path is pending-auth authentication takes place
@@ -278,11 +280,11 @@ export const postPending = async (req, res) => {
 
       getIO().to(socketId).emit(req.params.type, JSON.stringify(data[instrId]))
     }
+    res.send()
   } catch (error) {
     console.log(error)
     res.status(500).send()
   }
-  res.send()
 }
 
 export const getAllowance = async (req, res) => {

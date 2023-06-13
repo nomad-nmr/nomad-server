@@ -20,8 +20,8 @@ beforeEach(setupDB)
 vi.mock('../server.js', () => ({
   getSubmitter: vi.fn(() => {
     const state = new Map()
-    state.set(testInstrOne._id.toString(), { socketId: null })
-    state.set(testInstrTwo._id.toString(), { socketId: 123 })
+    state.set(testInstrOne._id.toString(), { socketId: 123 })
+    state.set(testInstrTwo._id.toString(), { socketId: null })
     return { state }
   })
 }))
@@ -55,14 +55,14 @@ describe('GET /folders/:instrumentId', () => {
   })
   it('should fail with status 503 if submitter does not return socketId', async () => {
     await request(app)
-      .get('/claims/folders/' + testInstrOne._id + '/?groupId=undefined')
+      .get('/claims/folders/' + testInstrTwo._id + '/?groupId=undefined')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(503)
   })
 
   it('should fail with status 400 if client could not fetch manual folder for group with id provided', async () => {
     const { body } = await request(app)
-      .get('/claims/folders/' + testInstrTwo._id + '/?groupId=' + testGroupTwo._id)
+      .get('/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(400)
 
@@ -73,7 +73,7 @@ describe('GET /folders/:instrumentId', () => {
   //TODO: revisit to do better testing of tagArchived function
   it('should broadcast to client get-folders event and return response', async () => {
     const { body } = await request(app)
-      .get('/claims/folders/' + testInstrTwo._id + '/?groupId=' + testGroupOne._id)
+      .get('/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body).toMatchObject({ folders: [], instrumentId: testInstrTwo._id })

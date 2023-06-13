@@ -35,7 +35,7 @@ describe('GET /admin/instruments/', () => {
       .get('/admin/instruments/?list=true')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
-    expect(body.length).toBe(1)
+    expect(body.length).toBe(2)
     expect(body[0]).toMatchObject({
       id: testInstrOne._id,
       name: 'instrument-1',
@@ -54,7 +54,7 @@ describe('GET /admin/instruments/', () => {
       .expect(200)
 
     expect(getSubmitter).toBeCalled()
-    expect(body.length).toBe(2)
+    expect(body.length).toBe(3)
     expect(body[0].name).toBe(testInstrOne.name)
     expect(body[0].isConnected).toBe(true)
     expect(body[0].paramsEditing).toBe(true)
@@ -92,7 +92,7 @@ describe('POST /admin/instruments/', () => {
     const { body } = await request(app)
       .post('/admin/instruments')
       .send({
-        name: 'instrument-3',
+        name: 'instrument-4',
         model: 'Bruker test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
         capacity: 60
       })
@@ -105,7 +105,7 @@ describe('POST /admin/instruments/', () => {
     const { body } = await request(app)
       .post('/admin/instruments')
       .send({
-        name: 'instrument-3',
+        name: 'instrument-4',
         model: 'Bruker test',
         capacity: 60.2
       })
@@ -141,19 +141,19 @@ describe('POST /admin/instruments/', () => {
     const { body } = await request(app)
       .post('/admin/instruments')
       .send({
-        name: 'instrument-3',
+        name: 'instrument-4',
         model: 'Bruker test',
         capacity: 60
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(201)
-    expect(body).toHaveProperty('name', 'instrument-3')
+    expect(body).toHaveProperty('name', 'instrument-4')
     expect(body).toHaveProperty('available', false)
     expect(body.status.summary).toBeDefined()
 
     //asserting change in DB
     const instrument = await Instrument.findById(body._id)
-    expect(instrument.name).toBe('instrument-3')
+    expect(instrument.name).toBe('instrument-4')
   })
 })
 

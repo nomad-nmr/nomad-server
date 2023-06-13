@@ -9,7 +9,7 @@ import Claim from '../../models/claim.js'
 
 import { testUserOne, testUserTwo, testUserAdmin } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
-import { testInstrOne, testInstrTwo } from './data/instruments'
+import { testInstrOne, testInstrTwo, testInstrThree } from './data/instruments'
 import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
 import { testClaimOne, testClaimTwo } from './data/claims.js'
 
@@ -49,6 +49,7 @@ export const setupDB = async () => {
 
   await new Instrument(testInstrOne).save()
   await new Instrument(testInstrTwo).save()
+  await new Instrument(testInstrThree).save()
 
   await new ParameterSet(testParamSet1).save()
   await new ParameterSet(testParamSet2).save()
