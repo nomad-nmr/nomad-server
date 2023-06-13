@@ -253,8 +253,6 @@ export const postPending = async (req, res) => {
   const path = req.path.split('/')[1]
   const { data, username, password } = req.body
 
-  console.log(req.body, req.params.type)
-
   try {
     const submitter = getSubmitter()
     //If path is pending-auth authentication takes place
