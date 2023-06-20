@@ -7,7 +7,7 @@ import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import { keepNMRiumChanges, setChangedData, toggleFidsModal, fetchFids } from '../../store/actions'
 
 const NMRium = props => {
-  const { data, setUpdData, keepNMRiumChanges, fidsModalOpen, changedData } = props
+  const { data, setUpData, keepNMRiumChanges, fidsModalOpen, changedData } = props
 
   const [modalData, setModalData] = useState([])
 
@@ -40,7 +40,24 @@ const NMRium = props => {
   const changeHandler = useCallback(dataUpdate => {
     delete dataUpdate.data.actionType
     delete dataUpdate.settings
-    setUpdData(dataUpdate)
+    //If the data are of type "NMR FID" NMRium automatically applies all processing filters
+    //Therefore data and info is replaced by originals
+    const newSpectra = dataUpdate.data.spectra.map(i => {
+      const newSpectrum = { ...i }
+      if (i.info.type !== 'NMR FID') {
+        delete newSpectrum.originalData
+        delete newSpectrum.originalInfo
+      } else {
+        newSpectrum.data = { ...newSpectrum.originalData }
+        newSpectrum.info = { ...newSpectrum.originalInfo }
+      }
+
+      return newSpectrum
+    })
+
+    dataUpdate.data.spectra = newSpectra
+
+    setUpData(dataUpdate)
   }, [])
 
   return (
@@ -69,7 +86,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  setUpdData: dataUpdate => dispatch(setChangedData(dataUpdate)),
+  setUpData: dataUpdate => dispatch(setChangedData(dataUpdate)),
   keepNMRiumChanges: () => dispatch(keepNMRiumChanges()),
   tglFidsModal: () => dispatch(toggleFidsModal()),
   fetchFids: (exps, token) => dispatch(fetchFids(exps, token))
