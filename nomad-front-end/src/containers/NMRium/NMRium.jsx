@@ -4,14 +4,35 @@ import NMRiumComponent from 'nmrium'
 import { Spin } from 'antd'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
-import { keepNMRiumChanges, setChangedData, toggleFidsModal, fetchFids } from '../../store/actions'
+import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
+import {
+  keepNMRiumChanges,
+  setChangedData,
+  toggleFidsModal,
+  fetchFids,
+  toggleDataSetModal,
+  fetchGroupList,
+  fetchUserList
+} from '../../store/actions'
 
 const NMRium = props => {
-  const { data, setUpData, keepNMRiumChanges, fidsModalOpen, changedData } = props
+  const {
+    data,
+    setUpData,
+    keepNMRiumChanges,
+    fidsModalOpen,
+    changedData,
+    accessLvl,
+    authToken,
+    fetchGrpList
+  } = props
 
   const [modalData, setModalData] = useState([])
 
   useEffect(() => {
+    if (accessLvl === 'admin') {
+      fetchGrpList(authToken)
+    }
     return () => {
       keepNMRiumChanges()
     }
@@ -70,7 +91,16 @@ const NMRium = props => {
         cancelHandler={props.tglFidsModal}
         data={modalData}
         fetchFids={props.fetchFids}
+        token={authToken}
+      />
+      <DataSetModal
+        open={props.datasetModalOpen}
+        cancelHandler={props.tglDatasetModal}
         token={props.authToken}
+        groupList={props.grpList}
+        userList={props.usrList}
+        onGrpChange={props.fetchUsrList}
+        accessLevel={accessLvl}
       />
     </Spin>
   )
@@ -82,14 +112,22 @@ const mapStateToProps = state => ({
   spinning: state.nmrium.spinning,
   fetchingData: state.nmrium.fetching,
   fidsModalOpen: state.nmrium.showFidsModal,
-  authToken: state.auth.token
+  authToken: state.auth.token,
+  datasetModalOpen: state.nmrium.showDataSetModal,
+  grpList: state.groups.groupList,
+  accessLvl: state.auth.accessLevel,
+  usrList: state.users.userList
 })
 
 const mapDispatchToProps = dispatch => ({
   setUpData: dataUpdate => dispatch(setChangedData(dataUpdate)),
   keepNMRiumChanges: () => dispatch(keepNMRiumChanges()),
   tglFidsModal: () => dispatch(toggleFidsModal()),
-  fetchFids: (exps, token) => dispatch(fetchFids(exps, token))
+  fetchFids: (exps, token) => dispatch(fetchFids(exps, token)),
+  tglDatasetModal: () => dispatch(toggleDataSetModal()),
+  fetchGrpList: token => dispatch(fetchGroupList(token)),
+  fetchUsrList: (token, groupId, showInactive) =>
+    dispatch(fetchUserList(token, groupId, showInactive))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRium)

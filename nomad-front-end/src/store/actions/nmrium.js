@@ -87,3 +87,7 @@ export const fetchFids = (exps, token) => {
       })
   }
 }
+
+export const toggleDataSetModal = () => ({
+  type: actionTypes.TOGGLE_DATASET_MODAL
+})

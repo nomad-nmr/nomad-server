@@ -8,6 +8,16 @@
   flex-direction: row;
   justify-content: flex-start;
 }
+.ExtraContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.ExtraContainer .Text {
+  font-weight: 600;
+  font-size: 1rem;
+}
 
 .ExtraContainer img {
   height: 35px;

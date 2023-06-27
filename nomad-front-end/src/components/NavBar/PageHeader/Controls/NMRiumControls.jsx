@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Space } from 'antd'
+import { Button, Space, Divider } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import nmriumLogo from '../../../../assets/nmrium-logo.svg'
@@ -20,17 +20,29 @@ const NMRiumControls = props => {
     )
     props.saveHandler(nmriumJSON, props.token)
   }
+
+  const saveAsDisabled = props.data.data.spectra.length === 0
+
   return (
     <div className={classes.ExtraContainer}>
       <img src={nmriumLogo} alt='NMRium logo' />
       <Space>
+        <span className={classes.Text}>Add : </span>
         <Button type='primary' onClick={() => addExperiments()}>
-          Add experiments
+          Experiments
         </Button>
-        <Button onClick={() => props.toggleModal()}>Add FIDs</Button>
-        {/*<Button type='primary' onClick={() => saveData()}>
+        <Button onClick={() => props.toggleFidsModal()}>FIDs</Button>
+        <Divider type='vertical' />
+        <Button
+          type='primary'
+          disabled={!props.dataSet.id}
+          onClick={() => console.log('save dataset')}
+        >
           Save
-  </Button>*/}
+        </Button>
+        <Button disabled={saveAsDisabled} onClick={() => props.toggleDatasetModal()}>
+          Save As
+        </Button>
       </Space>
     </div>
   )

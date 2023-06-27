@@ -38,7 +38,8 @@ import {
   setDateRange,
   toggleShowApproved,
   setAddingExpsStatus,
-  toggleFidsModal
+  toggleFidsModal,
+  toggleDataSetModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -273,7 +274,9 @@ const PageHeaderEl = props => {
           saveHandler={props.saveNMRium}
           addExpsHandler={props.setAddExps}
           data={props.nmriumData}
-          toggleModal={props.tglFidsModal}
+          toggleFidsModal={props.tglFidsModal}
+          toggleDatasetModal={props.tglDatasetModal}
+          dataSet={props.dataSet}
         />
       )
       break
@@ -326,7 +329,8 @@ const mapStateToProps = state => {
     showArchived: state.claim.showArchived,
     claimId: state.claim.claimId,
     checkedClaims: state.claimsHistory.checked,
-    showApproved: state.claimsHistory.showApproved
+    showApproved: state.claimsHistory.showApproved,
+    dataSet: state.nmrium.dataSet
   }
 }
 
@@ -367,7 +371,8 @@ const mapDispatchToProps = dispatch => {
     approveChecked: (token, checked) => dispatch(approveChecked(token, checked)),
     tglShowApproved: () => dispatch(toggleShowApproved()),
     setDateRange: dates => dispatch(setDateRange(dates)),
-    tglFidsModal: () => dispatch(toggleFidsModal())
+    tglFidsModal: () => dispatch(toggleFidsModal()),
+    tglDatasetModal: () => dispatch(toggleDataSetModal())
   }
 }
 

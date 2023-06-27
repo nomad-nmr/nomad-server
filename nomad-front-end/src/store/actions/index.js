@@ -139,7 +139,8 @@ export {
   keepNMRiumChanges,
   setAddingExpsStatus,
   toggleFidsModal,
-  fetchFids
+  fetchFids,
+  toggleDataSetModal
 } from './nmrium'
 
 export {

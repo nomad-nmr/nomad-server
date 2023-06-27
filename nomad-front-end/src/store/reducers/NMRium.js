@@ -9,7 +9,9 @@ const initialState = {
   changedData: { data: { spectra: [] }, version: 4 },
   spinning: false,
   adding: false,
-  showFidsModal: false
+  showFidsModal: false,
+  dataSet: { id: undefined },
+  showDataSetModal: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -67,6 +69,9 @@ const reducer = (state = initialState, { type, payload }) => {
       newNMRiumState.data.spectra = [...state.changedData.data.spectra, ...payload]
 
       return { ...state, spinning: false, showFidsModal: false, nmriumState: newNMRiumState }
+
+    case actionTypes.TOGGLE_DATASET_MODAL:
+      return { ...state, showDataSetModal: !state.showDataSetModal }
 
     default:
       return state
