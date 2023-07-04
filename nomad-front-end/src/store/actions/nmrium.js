@@ -32,23 +32,20 @@ export const loadingStarts = () => ({
   type: actionTypes.LOADING_NMRIUM_STARTS
 })
 
-export const saveNMRiumSuccess = () => ({
-  type: actionTypes.SAVE_NMRIUM_SUCCESS
+export const saveDatasetSuccess = payload => ({
+  type: actionTypes.SAVE_DATASET_SUCCESS,
+  payload
 })
 
-export const saveNMRiumData = (nmriumJSON, token) => {
+export const saveDatasetAs = (dataset, token) => {
   return dispatch => {
     dispatch(loadingStarts())
 
     axios
-      .put(
-        '/data/nmrium',
-        { nmriumJSON },
-        {
-          headers: { Authorization: 'Bearer ' + token }
-        }
-      )
-      .then(() => dispatch(saveNMRiumSuccess()))
+      .post('/data/dataset', dataset, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => dispatch(saveDatasetSuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
       })
@@ -91,3 +88,24 @@ export const fetchFids = (exps, token) => {
 export const toggleDataSetModal = () => ({
   type: actionTypes.TOGGLE_DATASET_MODAL
 })
+
+export const fetchDatasetSuccess = payload => ({
+  type: actionTypes.FETCH_DATASET_SUCCESS,
+  payload
+})
+
+export const fetchDataset = (datasetId, token) => {
+  return dispatch => {
+    dispatch(loadingStarts())
+    axios
+      .get('/data/dataset/' + datasetId, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(fetchDatasetSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

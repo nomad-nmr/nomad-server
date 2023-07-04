@@ -31,7 +31,6 @@ import {
   toggleCostingDrawer,
   fetchOverheadTime,
   fetchNMRiumData,
-  saveNMRiumData,
   toggleShowArchivedSwitch,
   toggleClaimModal,
   approveChecked,
@@ -89,8 +88,8 @@ const PageHeaderEl = props => {
 
   const location = useLocation()
 
-  switch (location.pathname) {
-    case '/dashboard':
+  switch (true) {
+    case location.pathname === '/dashboard':
       headerTitle = 'Dashboard'
       avatarSrc = dashIcon
       extra = (
@@ -103,7 +102,7 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/admin/users':
+    case location.pathname === '/admin/users':
       headerTitle = 'Manage Users'
       avatarSrc = userIcon
       const usernameQuery = new URLSearchParams(location.search).get('username')
@@ -119,7 +118,7 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/admin/groups':
+    case location.pathname === '/admin/groups':
       headerTitle = 'Manage Groups'
       avatarSrc = groupIcon
       extra = (
@@ -132,12 +131,12 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/admin/message':
+    case location.pathname === '/admin/message':
       headerTitle = 'Send Message'
       avatarSrc = messageIcon
       break
 
-    case '/admin/instruments':
+    case location.pathname === '/admin/instruments':
       headerTitle = 'Instruments Settings'
       avatarSrc = magnetIcon
       extra = (
@@ -154,7 +153,7 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/admin/parameter-sets':
+    case location.pathname === '/admin/parameter-sets':
       headerTitle = 'Parameter Sets'
       avatarSrc = experimentIcon
       extra = (
@@ -170,7 +169,7 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/admin/history':
+    case location.pathname === '/admin/history':
       headerTitle = 'Experiment History'
       avatarSrc = historyIcon
       extra = (
@@ -183,12 +182,12 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/submit':
+    case location.pathname === '/submit':
       headerTitle = 'Book New Job'
       avatarSrc = submitIcon
       break
 
-    case '/batch-submit':
+    case location.pathname === '/batch-submit':
       headerTitle = 'Batch Submit'
       avatarSrc = batchSubmitIcon
       extra = (
@@ -210,7 +209,7 @@ const PageHeaderEl = props => {
 
       break
 
-    case '/search':
+    case location.pathname === '/search':
       headerTitle = 'Search'
       avatarSrc = searchIcon
       extra = (
@@ -227,14 +226,14 @@ const PageHeaderEl = props => {
 
       break
 
-    case '/admin/accounts':
+    case location.pathname === '/admin/accounts':
       headerTitle = 'Accounting'
       avatarSrc = accountingIcon
       extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
 
       break
 
-    case '/claim':
+    case location.pathname === '/claim':
       headerTitle = 'Manual Claim'
       avatarSrc = uploadIcon
       extra = (
@@ -252,7 +251,7 @@ const PageHeaderEl = props => {
 
       break
 
-    case '/admin/claims-history':
+    case location.pathname === '/admin/claims-history':
       headerTitle = 'Manual Claims History'
       avatarSrc = claimIcon
       extra = (
@@ -267,16 +266,15 @@ const PageHeaderEl = props => {
       )
       break
 
-    case '/nmrium':
+    case location.pathname.includes('/nmrium'):
       extra = (
         <NMRiumControls
           token={props.authToken}
-          saveHandler={props.saveNMRium}
           addExpsHandler={props.setAddExps}
           data={props.nmriumData}
           toggleFidsModal={props.tglFidsModal}
           toggleDatasetModal={props.tglDatasetModal}
-          dataSet={props.dataSet}
+          dataset={props.dataset}
         />
       )
       break
@@ -290,7 +288,7 @@ const PageHeaderEl = props => {
     <PageHeader
       className={classes.PageHeader}
       title={headerTitle}
-      avatar={location.pathname !== '/nmrium' && { src: avatarSrc }}
+      avatar={!location.pathname.includes('/nmrium') && { src: avatarSrc }}
       extra={extra}
     />
   )
@@ -330,7 +328,7 @@ const mapStateToProps = state => {
     claimId: state.claim.claimId,
     checkedClaims: state.claimsHistory.checked,
     showApproved: state.claimsHistory.showApproved,
-    dataSet: state.nmrium.dataSet
+    dataset: state.nmrium.datasetMeta
   }
 }
 
@@ -364,7 +362,6 @@ const mapDispatchToProps = dispatch => {
     fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
     fetchNMRium: (expsArr, authToken, dataType) =>
       dispatch(fetchNMRiumData(expsArr, authToken, dataType)),
-    saveNMRium: (dataJSON, authToken) => dispatch(saveNMRiumData(dataJSON, authToken)),
     setAddExps: () => dispatch(setAddingExpsStatus()),
     tglShowArchived: () => dispatch(toggleShowArchivedSwitch()),
     tglClaimModal: () => dispatch(toggleClaimModal()),

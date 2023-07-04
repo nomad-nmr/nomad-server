@@ -135,12 +135,13 @@ export {
 export {
   fetchNMRiumData,
   setChangedData,
-  saveNMRiumData,
+  saveDatasetAs,
   keepNMRiumChanges,
   setAddingExpsStatus,
   toggleFidsModal,
   fetchFids,
-  toggleDataSetModal
+  toggleDataSetModal,
+  fetchDataset
 } from './nmrium'
 
 export {

@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import NMRiumComponent from 'nmrium'
-import { Spin } from 'antd'
+import { Spin, Space } from 'antd'
+import { useParams } from 'react-router-dom'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
@@ -12,8 +13,12 @@ import {
   fetchFids,
   toggleDataSetModal,
   fetchGroupList,
-  fetchUserList
+  fetchUserList,
+  saveDatasetAs,
+  fetchDataset
 } from '../../store/actions'
+
+import classes from './NMRium.module.css'
 
 const NMRium = props => {
   const {
@@ -27,12 +32,21 @@ const NMRium = props => {
     fetchGrpList
   } = props
 
+  const { user, group, title } = props.datasetMeta
+
   const [modalData, setModalData] = useState([])
+
+  const { datasetId } = useParams()
 
   useEffect(() => {
     if (accessLvl === 'admin') {
       fetchGrpList(authToken)
     }
+
+    if (datasetId !== 'null') {
+      props.fetchDataset(datasetId, authToken)
+    }
+
     return () => {
       keepNMRiumChanges()
     }
@@ -83,6 +97,16 @@ const NMRium = props => {
 
   return (
     <Spin size='large' spinning={props.spinning}>
+      {title && (
+        <div className={classes.TitleBlock}>
+          <span>Dataset title: </span>
+          {title}
+          <span>User: </span>
+          {`${user.fullName} [${user.username}]`}
+          <span>Group: </span>
+          {group.groupName}
+        </div>
+      )}
       <div style={{ height: '88vh' }}>
         <NMRiumComponent data={data} onChange={data => changeHandler(data)} emptyText='' />
       </div>
@@ -101,6 +125,8 @@ const NMRium = props => {
         userList={props.usrList}
         onGrpChange={props.fetchUsrList}
         accessLevel={accessLvl}
+        saveAsHandler={props.saveDatasetAs}
+        nmriumDataOutput={changedData}
       />
     </Spin>
   )
@@ -116,7 +142,8 @@ const mapStateToProps = state => ({
   datasetModalOpen: state.nmrium.showDataSetModal,
   grpList: state.groups.groupList,
   accessLvl: state.auth.accessLevel,
-  usrList: state.users.userList
+  usrList: state.users.userList,
+  datasetMeta: state.nmrium.datasetMeta
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -127,7 +154,9 @@ const mapDispatchToProps = dispatch => ({
   tglDatasetModal: () => dispatch(toggleDataSetModal()),
   fetchGrpList: token => dispatch(fetchGroupList(token)),
   fetchUsrList: (token, groupId, showInactive) =>
-    dispatch(fetchUserList(token, groupId, showInactive))
+    dispatch(fetchUserList(token, groupId, showInactive)),
+  saveDatasetAs: (dataset, token) => dispatch(saveDatasetAs(dataset, token)),
+  fetchDataset: (datasetId, token) => dispatch(fetchDataset(datasetId, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRium)

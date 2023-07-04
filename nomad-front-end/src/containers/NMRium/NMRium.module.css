@@ -1,0 +1,12 @@
+.TitleBlock {
+  z-index: 1;
+  position: fixed;
+  top: 75px;
+  text-align: left;
+  width: 100%;
+}
+
+.TitleBlock span {
+  font-weight: 600;
+  margin-left: 45px;
+}

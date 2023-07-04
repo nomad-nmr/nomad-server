@@ -55,7 +55,7 @@ const MainMenu = props => {
       label: <span className={classes.MenuItem}>Search</span>
     },
     {
-      key: '/nmrium',
+      key: '/nmrium/null',
       icon: <LineChartOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>NMRium</span>
     }

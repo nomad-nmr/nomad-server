@@ -191,7 +191,7 @@ const App = props => {
                 }
               />
               <Route
-                path='/nmrium'
+                path='/nmrium/:datasetId'
                 element={
                   import.meta.env.VITE_DATASTORE_ON === 'true' ? (
                     <NMRium />

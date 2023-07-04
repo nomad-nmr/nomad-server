@@ -13,12 +13,13 @@ const NMRiumControls = props => {
     navigate('/search')
   }
 
-  const saveData = () => {
+  const saveDataAs = values => {
     //Converting to JSON with replacer function replace float64Arrays that would converted incorrectly otherwise
-    const nmriumJSON = JSON.stringify(props.data, (k, v) =>
-      ArrayBuffer.isView(v) ? Array.from(v) : v
-    )
-    props.saveHandler(nmriumJSON, props.token)
+    // const nmriumJSON = JSON.stringify(props.data, (k, v) =>
+    //   ArrayBuffer.isView(v) ? Array.from(v) : v
+    // )
+    // props.saveHandlerAs(nmriumJSON, props.token)
+    console.log(values)
   }
 
   const saveAsDisabled = props.data.data.spectra.length === 0
@@ -35,7 +36,7 @@ const NMRiumControls = props => {
         <Divider type='vertical' />
         <Button
           type='primary'
-          disabled={!props.dataSet.id}
+          disabled={!props.dataset.id}
           onClick={() => console.log('save dataset')}
         >
           Save

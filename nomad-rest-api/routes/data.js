@@ -8,11 +8,12 @@ import {
   postData,
   getExps,
   getNMRium,
-  putNMRium,
   getPDF,
   archiveManual,
   getFids
 } from '../controllers/data.js'
+
+import { postDataset, getDataset } from '../controllers/dataset.js'
 
 const router = Router()
 
@@ -24,10 +25,12 @@ router.get('/exps', auth, getExps)
 
 router.get('/nmrium', auth, getNMRium)
 
-router.put('/nmrium', auth, putNMRium)
-
 router.get('/pdf/:expId', auth, getPDF)
 
 router.get('/fids', auth, getFids)
+
+router.post('/dataset', auth, postDataset)
+
+router.get('/dataset/:datasetId', auth, getDataset)
 
 export default router

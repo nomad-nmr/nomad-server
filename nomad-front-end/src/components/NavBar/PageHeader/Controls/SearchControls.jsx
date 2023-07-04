@@ -14,7 +14,7 @@ const SearchControls = props => {
       expsArr = [...expsArr, ...entry.exps]
     })
     props.fetchNMRium(expsArr, token, dataType)
-    navigate('/nmrium')
+    navigate('/nmrium/null')
   }
 
   return (

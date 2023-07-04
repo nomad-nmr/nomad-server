@@ -1,6 +1,8 @@
 import { Modal } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
 
+import history from '../../utils/history'
+
 const initialState = {
   nmriumState: {
     data: { spectra: [] },
@@ -10,7 +12,7 @@ const initialState = {
   spinning: false,
   adding: false,
   showFidsModal: false,
-  dataSet: { id: undefined },
+  datasetMeta: { id: undefined },
   showDataSetModal: false
 }
 
@@ -45,8 +47,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.LOADING_NMRIUM_STARTS:
       return { ...state, spinning: true }
 
-    case actionTypes.SAVE_NMRIUM_SUCCESS:
-      return { ...state, spinning: false }
+    case actionTypes.SAVE_DATASET_SUCCESS:
+      history.push('/nmrium/' + payload.id)
+      return { ...state, spinning: false, showDataSetModal: false, datasetMeta: payload }
 
     case actionTypes.SET_ADDING_EXPS_STATUS:
       return { ...state, adding: true }
@@ -72,6 +75,14 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.TOGGLE_DATASET_MODAL:
       return { ...state, showDataSetModal: !state.showDataSetModal }
+
+    case actionTypes.FETCH_DATASET_SUCCESS:
+      return {
+        ...state,
+        spinning: false,
+        datasetMeta: payload.datasetMeta,
+        nmriumState: payload.nmriumData
+      }
 
     default:
       return state
