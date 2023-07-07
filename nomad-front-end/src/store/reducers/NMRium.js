@@ -12,7 +12,7 @@ const initialState = {
   spinning: false,
   adding: false,
   showFidsModal: false,
-  datasetMeta: { id: undefined },
+  datasetMeta: { id: null },
   showDataSetModal: false
 }
 
@@ -37,9 +37,11 @@ const reducer = (state = initialState, { type, payload }) => {
 
         newData = { ...state.changedData }
         newData.data.spectra = [...newData.data.spectra, ...noDuplicatesSpectra]
+        history.push('/nmrium/' + state.datasetMeta.id)
+        return { ...state, nmriumState: newData, adding: false, spinning: false }
       }
-
-      return { ...state, nmriumState: newData, adding: false, spinning: false }
+      history.push('/nmrium/null')
+      return { ...state, nmriumState: newData, spinning: false, datasetMeta: { id: null } }
 
     case actionTypes.SET_CHANGED_DATA:
       return { ...state, changedData: payload }
@@ -47,9 +49,12 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.LOADING_NMRIUM_STARTS:
       return { ...state, spinning: true }
 
-    case actionTypes.SAVE_DATASET_SUCCESS:
+    case actionTypes.POST_DATASET_SUCCESS:
       history.push('/nmrium/' + payload.id)
       return { ...state, spinning: false, showDataSetModal: false, datasetMeta: payload }
+
+    case actionTypes.PUT_DATASET_SUCCESS:
+      return { ...state, spinning: false }
 
     case actionTypes.SET_ADDING_EXPS_STATUS:
       return { ...state, adding: true }
@@ -61,7 +66,8 @@ const reducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         nmriumState: { data: { spectra: [] }, version: 4 },
-        changedData: { data: { spectra: [] }, version: 4 }
+        changedData: { data: { spectra: [] }, version: 4 },
+        datasetMeta: { id: null }
       }
 
     case actionTypes.TOGGLE_FIDS_MODAL:

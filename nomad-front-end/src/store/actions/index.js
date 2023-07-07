@@ -136,6 +136,7 @@ export {
   fetchNMRiumData,
   setChangedData,
   saveDatasetAs,
+  saveDataset,
   keepNMRiumChanges,
   setAddingExpsStatus,
   toggleFidsModal,

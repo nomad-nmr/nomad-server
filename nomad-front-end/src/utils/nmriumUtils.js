@@ -1,10 +1,8 @@
 //helper functions that removes data from NMRiumstate object
-export const skimNMRiumdata = dataObj => {
-  dataObj.data.spectra.forEach(i => {
-    i.data = null
-    i.meta = null
-  })
+export const skimNMRiumdata = input => {
+  const newSpectra = input.data.spectra.map(i => ({ ...i, data: null, meta: null }))
+  const output = { ...input, data: { ...input.data, spectra: newSpectra } }
 
-  delete dataObj.view
-  return dataObj
+  delete output.view
+  return output
 }

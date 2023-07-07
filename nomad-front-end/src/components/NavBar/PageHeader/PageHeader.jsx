@@ -38,7 +38,8 @@ import {
   toggleShowApproved,
   setAddingExpsStatus,
   toggleFidsModal,
-  toggleDataSetModal
+  toggleDataSetModal,
+  saveDataset
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -275,6 +276,9 @@ const PageHeaderEl = props => {
           toggleFidsModal={props.tglFidsModal}
           toggleDatasetModal={props.tglDatasetModal}
           dataset={props.dataset}
+          saveHandler={props.saveDataset}
+          accessLevel={props.accessLevel}
+          username={props.username}
         />
       )
       break
@@ -369,7 +373,8 @@ const mapDispatchToProps = dispatch => {
     tglShowApproved: () => dispatch(toggleShowApproved()),
     setDateRange: dates => dispatch(setDateRange(dates)),
     tglFidsModal: () => dispatch(toggleFidsModal()),
-    tglDatasetModal: () => dispatch(toggleDataSetModal())
+    tglDatasetModal: () => dispatch(toggleDataSetModal()),
+    saveDataset: (id, payload, token) => dispatch(saveDataset(id, payload, token))
   }
 }
 

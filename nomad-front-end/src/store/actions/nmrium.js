@@ -32,8 +32,8 @@ export const loadingStarts = () => ({
   type: actionTypes.LOADING_NMRIUM_STARTS
 })
 
-export const saveDatasetSuccess = payload => ({
-  type: actionTypes.SAVE_DATASET_SUCCESS,
+export const postDatasetSuccess = payload => ({
+  type: actionTypes.POST_DATASET_SUCCESS,
   payload
 })
 
@@ -45,7 +45,7 @@ export const saveDatasetAs = (dataset, token) => {
       .post('/data/dataset', dataset, {
         headers: { Authorization: 'Bearer ' + token }
       })
-      .then(res => dispatch(saveDatasetSuccess(res.data)))
+      .then(res => dispatch(postDatasetSuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
       })
@@ -104,6 +104,30 @@ export const fetchDataset = (datasetId, token) => {
       .then(res => {
         dispatch(fetchDatasetSuccess(res.data))
       })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const putDatasetSuccess = payload => ({
+  type: actionTypes.PUT_DATASET_SUCCESS,
+  payload
+})
+
+export const saveDataset = (datasetId, nmriumData, token) => {
+  return dispatch => {
+    dispatch(loadingStarts())
+
+    axios
+      .put(
+        '/data/dataset/' + datasetId,
+        { nmriumData },
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
+      .then(res => dispatch(putDatasetSuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
       })

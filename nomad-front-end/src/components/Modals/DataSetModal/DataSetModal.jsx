@@ -40,7 +40,8 @@ const DataSetModal = props => {
                 whitespace: true,
                 message: 'Please input dataset title!'
               },
-              { min: 5, message: 'Title must have minimum 5 characters' }
+              { min: 5, message: 'Title must have minimum 5 characters' },
+              { max: 80, message: 'Title can have maximum 80 characters' }
             ]}
           >
             <Input />

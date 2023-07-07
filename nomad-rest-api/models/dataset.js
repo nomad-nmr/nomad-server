@@ -4,8 +4,7 @@ const datasetSchema = new Schema(
   {
     title: {
       type: String,
-      required: true,
-      unique: true
+      required: true
     },
     user: {
       type: Schema.Types.ObjectId,

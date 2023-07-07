@@ -1,7 +1,11 @@
 import { Router } from 'express'
+import { body } from 'express-validator'
 
+import { validateNMRiumData } from '../utils/nmriumUtils.js'
 import clientAuth from '../middleware/auth-client.js'
 import auth from '../middleware/auth.js'
+import validateDataAccess from '../middleware/validateDataAccess.js'
+import validateDataWriteAccess from '../middleware/validateDataWriteAccess.js'
 import connectTimeout from '../middleware/connectTimeout.js'
 import multerUpload from '../middleware/multerUpload.js'
 import {
@@ -13,7 +17,7 @@ import {
   getFids
 } from '../controllers/data.js'
 
-import { postDataset, getDataset } from '../controllers/dataset.js'
+import { postDataset, getDataset, putDataset } from '../controllers/dataset.js'
 
 const router = Router()
 
@@ -29,8 +33,30 @@ router.get('/pdf/:expId', auth, getPDF)
 
 router.get('/fids', auth, getFids)
 
-router.post('/dataset', auth, postDataset)
+router.post(
+  '/dataset',
+  [
+    body('title', 'Title is invalid').trim().isString().isLength({ min: 5, max: 80 }),
+    body('nmriumData', 'Raw data has not been archived').custom(values =>
+      validateNMRiumData(values)
+    )
+  ],
+  auth,
+  postDataset
+)
 
-router.get('/dataset/:datasetId', auth, getDataset)
+router.get('/dataset/:datasetId', auth, validateDataAccess, getDataset)
+
+router.put(
+  '/dataset/:datasetId',
+  [
+    body('nmriumData', 'Raw data has not been archived').custom(values =>
+      validateNMRiumData(values)
+    )
+  ],
+  auth,
+  validateDataWriteAccess,
+  putDataset
+)
 
 export default router

@@ -1,12 +1,20 @@
 import path from 'path'
 
+import { validationResult } from 'express-validator'
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
-import { getNMRiumDataObj } from './data.js'
+import Group from '../models/group.js'
+import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
 
 export const postDataset = async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
+
   const { userId, groupId, title, nmriumData } = req.body
+
   const datasetObj = {
     user: userId ? userId : req.user._id,
     group: groupId ? groupId : req.user.group,
@@ -82,6 +90,20 @@ export const getDataset = async (req, res) => {
     res.status(200).send(respJSON)
   } catch (error) {
     console.log(error)
-    res.status(500).send()
+    res.sendStatus(500)
+  }
+}
+
+export const putDataset = async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
+  try {
+    await Dataset.findByIdAndUpdate(req.params.datasetId, req.body)
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
 }

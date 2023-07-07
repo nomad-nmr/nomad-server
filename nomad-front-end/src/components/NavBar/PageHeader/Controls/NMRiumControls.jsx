@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Space, Divider } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { skimNMRiumdata } from '../../../../utils/nmriumUtils'
 
 import nmriumLogo from '../../../../assets/nmrium-logo.svg'
 import classes from '../PageHeader.module.css'
@@ -12,17 +13,10 @@ const NMRiumControls = props => {
     props.addExpsHandler()
     navigate('/search')
   }
-
-  const saveDataAs = values => {
-    //Converting to JSON with replacer function replace float64Arrays that would converted incorrectly otherwise
-    // const nmriumJSON = JSON.stringify(props.data, (k, v) =>
-    //   ArrayBuffer.isView(v) ? Array.from(v) : v
-    // )
-    // props.saveHandlerAs(nmriumJSON, props.token)
-    console.log(values)
-  }
-
+  const { dataset, token, saveHandler, accessLevel, username } = props
   const saveAsDisabled = props.data.data.spectra.length === 0
+  const saveDisabled =
+    !dataset.id || (accessLevel !== 'admin' && username !== dataset.user.username)
 
   return (
     <div className={classes.ExtraContainer}>
@@ -36,8 +30,11 @@ const NMRiumControls = props => {
         <Divider type='vertical' />
         <Button
           type='primary'
-          disabled={!props.dataset.id}
-          onClick={() => console.log('save dataset')}
+          disabled={saveDisabled}
+          onClick={() => {
+            const payload = skimNMRiumdata(props.data)
+            saveHandler(dataset.id, payload, token)
+          }}
         >
           Save
         </Button>

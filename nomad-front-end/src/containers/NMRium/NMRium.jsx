@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import NMRiumComponent from 'nmrium'
-import { Spin, Space } from 'antd'
+import { Spin } from 'antd'
 import { useParams } from 'react-router-dom'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
@@ -17,6 +17,7 @@ import {
   saveDatasetAs,
   fetchDataset
 } from '../../store/actions'
+import history from '../../utils/history'
 
 import classes from './NMRium.module.css'
 
@@ -32,7 +33,7 @@ const NMRium = props => {
     fetchGrpList
   } = props
 
-  const { user, group, title } = props.datasetMeta
+  const { user, group, title, id } = props.datasetMeta
 
   const [modalData, setModalData] = useState([])
 
@@ -45,6 +46,10 @@ const NMRium = props => {
 
     if (datasetId !== 'null') {
       props.fetchDataset(datasetId, authToken)
+    } else {
+      if (id) {
+        history.push('/nmrium/' + id)
+      }
     }
 
     return () => {
@@ -95,9 +100,11 @@ const NMRium = props => {
     setUpData(dataUpdate)
   }, [])
 
-  return (
-    <Spin size='large' spinning={props.spinning}>
-      {title && (
+  let titleElement = null
+
+  if (title) {
+    titleElement = (
+      <div>
         <div className={classes.TitleBlock}>
           <span>Dataset title: </span>
           {title}
@@ -106,8 +113,14 @@ const NMRium = props => {
           <span>Group: </span>
           {group.groupName}
         </div>
-      )}
+      </div>
+    )
+  }
+
+  return (
+    <Spin size='large' spinning={props.spinning}>
       <div style={{ height: '88vh' }}>
+        {titleElement}
         <NMRiumComponent data={data} onChange={data => changeHandler(data)} emptyText='' />
       </div>
       <FidsModal

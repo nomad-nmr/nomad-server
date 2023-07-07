@@ -3,9 +3,7 @@ import path from 'path'
 
 import JSZip from 'jszip'
 import moment from 'moment'
-import { read } from 'nmr-load-save'
-import { fileCollectionFromZip } from 'filelist-utils'
-import { v4 as uuidv4 } from 'uuid'
+import { v1 as uuid } from 'uuid'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
@@ -13,6 +11,7 @@ import Group from '../models/group.js'
 import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
+import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -275,7 +274,7 @@ export const getFids = async (req, res) => {
 
         //This if statement excludes empty experiments that otherwise cause failure
         if (nmriumDataObj.spectra.length > 0) {
-          nmriumDataObj.spectra[0].id = experiment._id + '/fid/' + uuidv4()
+          nmriumDataObj.spectra[0].id = experiment._id + '/fid/' + uuid().split('-')[0]
           nmriumDataObj.spectra[0].info.title = experiment.title + ' [FID]'
           nmriumDataObj.spectra[0].dataType = dataType
           nmriumDataObj.spectra[0].info.name += '/FID'
@@ -292,26 +291,5 @@ export const getFids = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(500).send()
-  }
-}
-
-//helper function that converts brukerZipFile into NMRium object
-export const getNMRiumDataObj = async (dataPath, title, fid) => {
-  try {
-    const zip = await fs.readFile(dataPath + '.zip')
-    const fileCollection = await fileCollectionFromZip(zip)
-    const nmriumObj = await read(fileCollection)
-    const newSpectraArr = nmriumObj.nmriumState.data.spectra
-      .filter(i => (fid ? !i.info.isFt : i.info.isFt))
-      .map(i => {
-        delete i.originalData
-        i.display.name = title
-        return i
-      })
-
-    nmriumObj.nmriumState.data.spectra = [...newSpectraArr]
-    return Promise.resolve(nmriumObj.nmriumState.data)
-  } catch (error) {
-    Promise.reject(error)
   }
 }
