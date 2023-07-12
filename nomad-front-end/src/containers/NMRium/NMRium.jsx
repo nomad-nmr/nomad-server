@@ -15,7 +15,8 @@ import {
   fetchGroupList,
   fetchUserList,
   saveDatasetAs,
-  fetchDataset
+  fetchDataset,
+  openAuthModal
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -45,11 +46,13 @@ const NMRium = props => {
     }
 
     if (datasetId !== 'null') {
-      props.fetchDataset(datasetId, authToken)
-    } else {
-      if (id) {
-        history.push('/nmrium/' + id)
+      if (authToken) {
+        props.fetchDataset(datasetId, authToken)
+      } else {
+        props.openAuthModal()
       }
+    } else if (id) {
+      history.push('/nmrium/' + id)
     }
 
     return () => {
@@ -169,7 +172,8 @@ const mapDispatchToProps = dispatch => ({
   fetchUsrList: (token, groupId, showInactive) =>
     dispatch(fetchUserList(token, groupId, showInactive)),
   saveDatasetAs: (dataset, token) => dispatch(saveDatasetAs(dataset, token)),
-  fetchDataset: (datasetId, token) => dispatch(fetchDataset(datasetId, token))
+  fetchDataset: (datasetId, token) => dispatch(fetchDataset(datasetId, token)),
+  openAuthModal: () => dispatch(openAuthModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRium)
