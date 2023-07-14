@@ -144,38 +144,6 @@ export const getNMRium = async (req, res) => {
   }
 }
 
-// export const putNMRium = async (req, res) => {
-//   try {
-//     //On frontend nmrium object was converted to JSON with replacer function to replace float64Arrays that would converted incorrectly otherwise
-//     //Here we have to parse it back to object to allow further manipulation before it gets saved
-//     const nmriumObj = JSON.parse(req.body.nmriumJSON)
-//     await Promise.all(
-//       nmriumObj.spectra.map(async spect => {
-//         const experiment = await Experiment.findById(spect.id)
-//         const dataAccess = await req.user.getDataAccess()
-//         if (dataAccess !== 'admin' && experiment.user.id.toString() !== req.user._id.toString()) {
-//           throw new Error('forbidden')
-//         }
-//         const filePath = path.join(
-//           process.env.DATASTORE_PATH,
-//           experiment.dataPath,
-//           experiment.expId + '.nmrium'
-//         )
-//         const data = JSON.stringify({ spectra: [spect] })
-//         await fs.writeFile(filePath, data)
-//       })
-//     )
-//     res.send()
-//   } catch (error) {
-//     if (error.message === 'forbidden') {
-//       res.sendStatus(403)
-//     } else {
-//       console.log(error)
-//       res.sendStatus(500)
-//     }
-//   }
-// }
-
 export const getPDF = async (req, res) => {
   const { expId } = req.params
   try {

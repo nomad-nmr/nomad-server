@@ -3,10 +3,6 @@ import axios from '../../axios-instance'
 import errorHandler from './errorHandler'
 import fileDownload from 'js-file-download'
 
-// export const downloadDatasetSuccess = () => ({
-//   type: actionTypes.DOWNLOAD_DATASET_SUCCESS
-// })
-
 export const downloadDataset = (datasetId, fileName, token) => {
   return dispatch => {
     axios
@@ -16,8 +12,26 @@ export const downloadDataset = (datasetId, fileName, token) => {
       })
       .then(res => {
         fileDownload(res.data, fileName + '.zip')
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
 
-        // dispatch(fetchDatasetSuccess(res.data))
+export const patchDatasetSuccess = payload => ({
+  type: actionTypes.PATCH_DATASET_META_SUCCESS,
+  payload
+})
+
+export const patchDataset = (datasetId, metaData, token) => {
+  return dispatch => {
+    axios
+      .patch('/datasets/' + datasetId, metaData, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(patchDatasetSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

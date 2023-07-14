@@ -142,7 +142,8 @@ export {
   toggleFidsModal,
   fetchFids,
   toggleDataSetModal,
-  fetchDataset
+  fetchDataset,
+  editDatasetMeta
 } from './nmrium'
 
 export {
@@ -167,4 +168,4 @@ export {
   toggleShowApproved
 } from './claimsHistory'
 
-export { downloadDataset } from './dataset'
+export { downloadDataset, patchDataset } from './dataset'

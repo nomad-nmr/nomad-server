@@ -166,3 +166,31 @@ export const getBrukerZip = async (req, res) => {
     res.sendStatus(500)
   }
 }
+
+export const patchDataset = async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
+  const { title, userId, groupId } = req.body
+  try {
+    const dataset = await Dataset.findByIdAndUpdate(req.params.datasetId, {
+      title,
+      group: groupId,
+      user: userId
+    })
+      .populate('group', 'groupName')
+      .populate('user', ['username', 'fullName'])
+
+    const respObj = {
+      id: dataset._id,
+      title: dataset.title,
+      user: dataset.user,
+      group: dataset.group
+    }
+    res.status(200).json(respObj)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}

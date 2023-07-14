@@ -133,3 +133,7 @@ export const saveDataset = (datasetId, nmriumData, token) => {
       })
   }
 }
+
+export const editDatasetMeta = () => ({
+  type: actionTypes.EDIT_DATASET_META
+})

@@ -17,7 +17,7 @@ import {
   getFids
 } from '../controllers/data.js'
 
-import { postDataset, getDataset, putDataset, getBrukerZip } from '../controllers/dataset.js'
+import { postDataset, getDataset, putDataset, getBrukerZip } from '../controllers/datasets.js'
 
 const router = Router()
 

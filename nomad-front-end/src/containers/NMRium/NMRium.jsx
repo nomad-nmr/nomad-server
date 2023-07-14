@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import NMRiumComponent from 'nmrium'
-import { Spin } from 'antd'
+import { Spin, Button } from 'antd'
 import { useParams } from 'react-router-dom'
+import { EditOutlined } from '@ant-design/icons'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
@@ -16,7 +17,9 @@ import {
   fetchUserList,
   saveDatasetAs,
   fetchDataset,
-  openAuthModal
+  openAuthModal,
+  editDatasetMeta,
+  patchDataset
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -30,6 +33,7 @@ const NMRium = props => {
     fidsModalOpen,
     changedData,
     accessLvl,
+    username,
     authToken,
     fetchGrpList
   } = props
@@ -115,6 +119,13 @@ const NMRium = props => {
           {`${user.fullName} [${user.username}]`}
           <span>Group: </span>
           {group.groupName}
+          <Button
+            type='link'
+            onClick={() => props.editDataset()}
+            disabled={accessLvl !== 'admin' && username !== user.username}
+          >
+            <EditOutlined />
+          </Button>
         </div>
       </div>
     )
@@ -143,6 +154,9 @@ const NMRium = props => {
         accessLevel={accessLvl}
         saveAsHandler={props.saveDatasetAs}
         nmriumDataOutput={changedData}
+        dataset={props.datasetMeta}
+        editing={props.editing}
+        patchDataset={props.patchDataset}
       />
     </Spin>
   )
@@ -158,8 +172,10 @@ const mapStateToProps = state => ({
   datasetModalOpen: state.nmrium.showDataSetModal,
   grpList: state.groups.groupList,
   accessLvl: state.auth.accessLevel,
+  username: state.auth.username,
   usrList: state.users.userList,
-  datasetMeta: state.nmrium.datasetMeta
+  datasetMeta: state.nmrium.datasetMeta,
+  editing: state.nmrium.editing
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -173,7 +189,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchUserList(token, groupId, showInactive)),
   saveDatasetAs: (dataset, token) => dispatch(saveDatasetAs(dataset, token)),
   fetchDataset: (datasetId, token) => dispatch(fetchDataset(datasetId, token)),
-  openAuthModal: () => dispatch(openAuthModal())
+  openAuthModal: () => dispatch(openAuthModal()),
+  editDataset: () => dispatch(editDatasetMeta()),
+  patchDataset: (datasetId, metaData, token) => dispatch(patchDataset(datasetId, metaData, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRium)

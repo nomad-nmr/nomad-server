@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { Modal, Form, Input, Space, Button } from 'antd'
+import { Modal, Form, Input, Space, Button, message } from 'antd'
 
 import SelectGrpUsr from '../../Forms/SelectGrpUsr/SelectGrpUsr'
 import { skimNMRiumdata } from '../../../utils/nmriumUtils'
@@ -7,18 +7,34 @@ import { skimNMRiumdata } from '../../../utils/nmriumUtils'
 const DataSetModal = props => {
   const [form] = Form.useForm()
   const formReference = useRef({})
+  const { editing, dataset, token } = props
 
-  // useEffect(() => {})
+  useEffect(() => {
+    if (editing) {
+      form.setFieldsValue({
+        title: dataset.title,
+        groupId: dataset.group._id,
+        userId: `[${dataset.user.username}] ${dataset.user.fullName}`
+      })
+    }
+  }, [editing, dataset])
 
   return (
-    <Modal footer={null} width={650} open={props.open} title='Save DataSet As'>
+    <Modal footer={null} width={650} open={props.open} title='Save DataSet As' closeIcon={null}>
       <div style={{ marginTop: '20px' }}>
         <Form
           form={form}
           ref={formReference}
           onFinish={values => {
-            const nmriumData = skimNMRiumdata(props.nmriumDataOutput)
-            props.saveAsHandler({ ...values, nmriumData }, props.token)
+            if (editing) {
+              if (values.groupId && !values.userId) {
+                return message.error('User was not selected!')
+              }
+              props.patchDataset(dataset.id, values, token)
+            } else {
+              const nmriumData = skimNMRiumdata(props.nmriumDataOutput)
+              props.saveAsHandler({ ...values, nmriumData }, token)
+            }
             form.resetFields()
           }}
         >

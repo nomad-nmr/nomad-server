@@ -13,7 +13,8 @@ const initialState = {
   adding: false,
   showFidsModal: false,
   datasetMeta: { id: null },
-  showDataSetModal: false
+  showDataSetModal: false,
+  editing: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -80,7 +81,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, spinning: false, showFidsModal: false, nmriumState: newNMRiumState }
 
     case actionTypes.TOGGLE_DATASET_MODAL:
-      return { ...state, showDataSetModal: !state.showDataSetModal }
+      return { ...state, showDataSetModal: !state.showDataSetModal, editing: false }
 
     case actionTypes.FETCH_DATASET_SUCCESS:
       return {
@@ -89,6 +90,12 @@ const reducer = (state = initialState, { type, payload }) => {
         datasetMeta: payload.datasetMeta,
         nmriumState: payload.nmriumData
       }
+
+    case actionTypes.EDIT_DATASET_META:
+      return { ...state, editing: true, showDataSetModal: true }
+
+    case actionTypes.PATCH_DATASET_META_SUCCESS:
+      return { ...state, showDataSetModal: false, editing: false, datasetMeta: payload }
 
     default:
       return state
