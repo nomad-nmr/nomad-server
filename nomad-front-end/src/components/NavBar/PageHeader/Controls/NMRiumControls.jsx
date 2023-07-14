@@ -1,8 +1,10 @@
 import React from 'react'
-import { Button, Space, Divider } from 'antd'
+import { Button, Space, Divider, message, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { skimNMRiumdata } from '../../../../utils/nmriumUtils'
+import { DownloadOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 
+import { skimNMRiumdata } from '../../../../utils/nmriumUtils'
 import nmriumLogo from '../../../../assets/nmrium-logo.svg'
 import classes from '../PageHeader.module.css'
 
@@ -41,6 +43,24 @@ const NMRiumControls = props => {
         <Button disabled={saveAsDisabled} onClick={() => props.toggleDatasetModal()}>
           Save As
         </Button>
+        <Divider type='vertical' />
+        <CopyToClipboard
+          text={window.location.href}
+          onCopy={() => message.success('Dataset link copied to clipboard')}
+        >
+          <Button type='primary' icon={<ShareAltOutlined />} disabled={!dataset.id}>
+            Share
+          </Button>
+        </CopyToClipboard>
+        <Tooltip title='Download dataset in Bruker format'>
+          <Button
+            icon={<DownloadOutlined />}
+            disabled={!dataset.id}
+            onClick={() => props.downloadHandler(dataset.id, dataset.title, token)}
+          >
+            Download
+          </Button>
+        </Tooltip>
       </Space>
     </div>
   )

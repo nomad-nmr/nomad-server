@@ -166,3 +166,5 @@ export {
   setDateRange,
   toggleShowApproved
 } from './claimsHistory'
+
+export { downloadDataset } from './dataset'

@@ -1,10 +1,12 @@
 import path from 'path'
+import fs from 'fs/promises'
 
 import { validationResult } from 'express-validator'
+import JSZip from 'jszip'
+
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
-import Group from '../models/group.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
 
 export const postDataset = async (req, res) => {
@@ -102,6 +104,63 @@ export const putDataset = async (req, res) => {
   try {
     await Dataset.findByIdAndUpdate(req.params.datasetId, req.body)
     res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const getBrukerZip = async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.datasetId)
+
+    const mainZip = new JSZip()
+
+    await Promise.all(
+      dataset.nmriumData.data.spectra.map(async (i, count) => {
+        if (i.info.type !== 'NMR FID') {
+          const experiment =
+            i.dataType === 'auto'
+              ? await Experiment.findById(i.id)
+              : await ManualExperiment.findById(i.id)
+
+          const { datasetName, expNo } = experiment
+
+          const zipFilePath = path.join(
+            process.env.DATASTORE_PATH,
+            experiment.dataPath,
+            experiment.expId + '.zip'
+          )
+          const zipFile = await fs.readFile(zipFilePath)
+          const zipObject = await JSZip.loadAsync(zipFile)
+
+          const newExpNo = 10 + count
+
+          //Changing subfolder structure in the zip file
+          Object.keys(zipObject.files).forEach(key => {
+            let newKey
+            if (key.split('/').length === 1) {
+              newKey = dataset.title + '/'
+            } else {
+              newKey = key.replace(
+                datasetName + '/' + expNo + '/',
+                dataset.title + '/' + newExpNo + '/'
+              )
+            }
+            zipObject.files[newKey] = zipObject.files[key]
+            delete zipObject.files[key]
+          })
+
+          const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
+          await mainZip.loadAsync(zipContent, { createFolders: true })
+        }
+      })
+    )
+    dataset.nmriumData.data.molecules.forEach(i => {
+      mainZip.file(dataset.title + '/' + i.label + '.mol', i.molfile)
+    })
+
+    mainZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(res)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

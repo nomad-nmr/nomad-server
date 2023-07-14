@@ -39,7 +39,8 @@ import {
   setAddingExpsStatus,
   toggleFidsModal,
   toggleDataSetModal,
-  saveDataset
+  saveDataset,
+  downloadDataset
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -279,6 +280,7 @@ const PageHeaderEl = props => {
           saveHandler={props.saveDataset}
           accessLevel={props.accessLevel}
           username={props.username}
+          downloadHandler={props.downloadDataset}
         />
       )
       break
@@ -374,7 +376,9 @@ const mapDispatchToProps = dispatch => {
     setDateRange: dates => dispatch(setDateRange(dates)),
     tglFidsModal: () => dispatch(toggleFidsModal()),
     tglDatasetModal: () => dispatch(toggleDataSetModal()),
-    saveDataset: (id, payload, token) => dispatch(saveDataset(id, payload, token))
+    saveDataset: (id, payload, token) => dispatch(saveDataset(id, payload, token)),
+    downloadDataset: (datasetId, fileName, token) =>
+      dispatch(downloadDataset(datasetId, fileName, token))
   }
 }
 

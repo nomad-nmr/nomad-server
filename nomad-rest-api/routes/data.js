@@ -17,7 +17,7 @@ import {
   getFids
 } from '../controllers/data.js'
 
-import { postDataset, getDataset, putDataset } from '../controllers/dataset.js'
+import { postDataset, getDataset, putDataset, getBrukerZip } from '../controllers/dataset.js'
 
 const router = Router()
 
@@ -58,5 +58,7 @@ router.put(
   validateDataWriteAccess,
   putDataset
 )
+
+router.get('/dataset-zip/:datasetId', auth, validateDataAccess, getBrukerZip)
 
 export default router

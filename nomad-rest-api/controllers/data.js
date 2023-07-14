@@ -89,8 +89,8 @@ export const getExps = async (req, res) => {
         )
 
         const zipFile = await fs.readFile(zipFilePath)
-        const zibObject = await JSZip.loadAsync(zipFile)
-        const zipContent = await zibObject.generateAsync({ type: 'nodebuffer' })
+        const zipObject = await JSZip.loadAsync(zipFile)
+        const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
         await mainZip.loadAsync(zipContent, { createFolders: true })
       })
     )
