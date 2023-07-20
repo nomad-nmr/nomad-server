@@ -1,7 +1,7 @@
 import axios from '../../axios-instance'
 import fileDownload from 'js-file-download'
 
-import * as actionTypes from '../actions/actionTypes'
+import * as actionTypes from './actionTypes'
 import errorHandler from './errorHandler'
 
 export const fetchExperimentsStart = () => ({
@@ -111,7 +111,3 @@ export const getDataAccess = token => {
       })
   }
 }
-
-export const resetSearch = () => ({
-  type: actionTypes.RESET_SEARCH
-})

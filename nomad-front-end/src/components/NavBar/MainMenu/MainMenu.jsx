@@ -50,9 +50,21 @@ const MainMenu = props => {
 
   const subChildren = [
     {
-      key: '/search',
+      type: 'group',
       icon: <SearchOutlined style={{ fontSize: 20 }} />,
-      label: <span className={classes.MenuItem}>Search</span>
+      label: <span className={classes.MenuItem}>Search</span>,
+      children: [
+        {
+          key: '/search-experiment',
+          icon: <SearchOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Experiments</span>
+        },
+        {
+          key: '/search-dataset',
+          icon: <SearchOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Datasets</span>
+        }
+      ]
     },
     {
       key: '/nmrium/null',

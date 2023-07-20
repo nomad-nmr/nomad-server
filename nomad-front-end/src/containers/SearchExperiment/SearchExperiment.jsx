@@ -18,7 +18,7 @@ import {
 } from '../../store/actions'
 
 import SearchForm from '../../components/SearchComponents/SearchForm'
-import './Search.css'
+import './SearchExperiment.css'
 
 const Search = props => {
   const {

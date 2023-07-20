@@ -38,3 +38,28 @@ export const patchDataset = (datasetId, metaData, token) => {
       })
   }
 }
+
+export const loadingDatasetsStarts = () => ({
+  type: actionTypes.LOADING_DATASETS_START
+})
+
+export const getDatasetsSuccess = payload => ({
+  type: actionTypes.GET_DATASETS_SUCCESS,
+  payload
+})
+
+export const getDatasets = (searchParams, token) => {
+  return dispatch => {
+    dispatch(loadingDatasetsStarts())
+    axios
+      .get('/datasets/?' + new URLSearchParams(searchParams).toString(), {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(getDatasetsSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

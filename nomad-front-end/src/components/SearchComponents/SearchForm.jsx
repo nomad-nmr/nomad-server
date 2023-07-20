@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
+import { useLocation } from 'react-router-dom'
+
 import { connect } from 'react-redux'
 import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip } from 'antd'
 import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
@@ -13,7 +15,7 @@ import {
   fetchUserList,
   getDataAccess,
   resetUserList,
-  resetSearch
+  resetExperimentSearchData
 } from '../../store/actions'
 
 const { Option } = Select
@@ -31,10 +33,15 @@ const SearchForm = props => {
     dataAccess,
     grpList,
     dataType,
-    formValues
+    formValues,
+    username,
+    usrList,
+    grpName
   } = props
 
   const [form] = Form.useForm()
+  const location = useLocation()
+
   const [instrumentId, setInstrumentId] = useState(null)
   const [groupList, setGroupList] = useState([])
 
@@ -42,6 +49,7 @@ const SearchForm = props => {
 
   useEffect(() => {
     fetchDataAccess(authToken)
+
     if (instList.length === 0 || paramSets.length === 0 || grpList.length === 0) {
       fetchInstList(authToken)
       fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
@@ -51,8 +59,18 @@ const SearchForm = props => {
     // eslint-disable-next-line
   }, [])
 
+  //helper function that sets SelectGrpUsr for the user logged in
+  const setGrpUsr = () => {
+    const user = usrList.find(usr => usr.username === username)
+    const group = grpList.find(grp => grp.name === grpName)
+    if (user && group) {
+      form.setFieldsValue({ userId: user._id, groupId: group.id })
+    }
+  }
+
   useEffect(() => {
     form.resetFields()
+    setGrpUsr()
   }, [dataType])
 
   //Effect to preserve form values. DateRange has to be in form of dayjs object.
@@ -76,6 +94,10 @@ const SearchForm = props => {
         break
     }
   }, [grpList, dataAccess])
+
+  useEffect(() => {
+    setGrpUsr()
+  }, [username, usrList])
 
   const solventOptions = solvents.map((solvent, i) => (
     <Option value={solvent} key={i}>
@@ -106,7 +128,7 @@ const SearchForm = props => {
     </Option>
   ))
 
-  return (
+  const formExpElement = (
     <Form
       form={form}
       ref={formRef}
@@ -203,6 +225,82 @@ const SearchForm = props => {
       </Row>
     </Form>
   )
+
+  const formDatasetElement = (
+    <Form
+      form={form}
+      ref={formRef}
+      onFinish={values => {
+        props.submitHandler(values)
+      }}
+      style={{ margin: '0 40px 0 40px' }}
+    >
+      <Row justify='center' gutter={32}>
+        <Col span={6}>
+          <Form.Item label='Title' name='title'>
+            <Input allowClear={true} placeholder='Dataset Title' />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label='Created Date Range' name='createdDateRange'>
+            <RangePicker allowClear={true} />
+          </Form.Item>
+        </Col>
+        <Col span={6}>
+          <Form.Item label='Last Updated Date Range' name='updatedDateRange'>
+            <RangePicker allowClear={true} />
+          </Form.Item>
+        </Col>
+      </Row>
+      <Row justify='center' gutter={32}>
+        {
+          //The component has be render only if groupList is not empty
+          // That allows to call useEffect efficiently only when the component mounts
+          dataAccess !== 'user' && groupList.length !== 0 ? (
+            <Col span={16}>
+              <SelectGrpUsr
+                userList={props.usrList}
+                groupList={groupList}
+                token={authToken}
+                fetchUsrListHandler={props.fetchUsrList}
+                fetchGrpListHandler={props.fetchGrpList}
+                resetUserListHandler={props.resetUsrList}
+                formRef={formRef}
+                inactiveSwitch
+                dataAccessLvl={dataAccess}
+              />
+            </Col>
+          ) : null
+        }
+
+        <Col span={2}>
+          <Space size='large'>
+            <Form.Item>
+              <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>
+                Search
+              </Button>
+            </Form.Item>
+            <Form.Item>
+              <Tooltip title='Reset Form'>
+                <Button
+                  danger
+                  shape='circle'
+                  icon={<CloseOutlined />}
+                  onClick={() => {
+                    props.resetUsrList()
+                    props.resetSearch()
+                    form.resetFields()
+                  }}
+                />
+              </Tooltip>
+            </Form.Item>
+          </Space>
+        </Col>
+      </Row>
+    </Form>
+  )
+
+  return location.pathname === '/search-dataset' ? formDatasetElement : formExpElement
 }
 
 const mapStateToProps = state => ({
@@ -213,7 +311,8 @@ const mapStateToProps = state => ({
   grpList: state.groups.groupList,
   usrList: state.users.userList,
   grpName: state.auth.groupName,
-  formValues: state.search.formValues
+  formValues: state.search.formValues,
+  username: state.auth.username
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -224,7 +323,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchUserList(token, groupId, showInactive, search)),
   fetchDataAccess: token => dispatch(getDataAccess(token)),
   resetUsrList: () => dispatch(resetUserList()),
-  resetSearch: () => dispatch(resetSearch())
+  resetSearch: () => dispatch(resetExperimentSearchData())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchForm)

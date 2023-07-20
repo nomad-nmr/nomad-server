@@ -63,7 +63,10 @@ const App = props => {
   const ParameterSets = React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
   const Submit = React.lazy(() => import('./containers/Submit/Submit'))
   const BatchSubmit = React.lazy(() => import('./containers/BatchSubmit/BatchSubmit'))
-  const Search = React.lazy(() => import('./containers/Search/Search'))
+  const SearchExperiment = React.lazy(() =>
+    import('./containers/SearchExperiment/SearchExperiment')
+  )
+  const SearchDataset = React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
   const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
   const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
   const Claim = React.lazy(() => import('./containers/Claim/Claim'))
@@ -181,10 +184,20 @@ const App = props => {
                 }
               />
               <Route
-                path='/search'
+                path='/search-experiment'
                 element={
                   import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                    <Search />
+                    <SearchExperiment />
+                  ) : (
+                    <Navigate to='/dashboard' />
+                  )
+                }
+              />
+              <Route
+                path='/search-dataset'
+                element={
+                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                    <SearchDataset />
                   ) : (
                     <Navigate to='/dashboard' />
                   )

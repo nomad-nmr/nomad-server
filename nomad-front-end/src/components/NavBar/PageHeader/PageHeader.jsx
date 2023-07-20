@@ -211,8 +211,8 @@ const PageHeaderEl = props => {
 
       break
 
-    case location.pathname === '/search':
-      headerTitle = 'Search'
+    case location.pathname === '/search-experiment':
+      headerTitle = 'Search Experiments'
       avatarSrc = searchIcon
       extra = (
         <SearchControls
@@ -225,6 +225,13 @@ const PageHeaderEl = props => {
           addingToNMRium={props.adding}
         />
       )
+
+      break
+
+    case location.pathname === '/search-dataset':
+      headerTitle = 'Search Datasets'
+      avatarSrc = searchIcon
+      extra = null
 
       break
 

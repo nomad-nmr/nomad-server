@@ -13,7 +13,7 @@ const NMRiumControls = props => {
 
   const addExperiments = () => {
     props.addExpsHandler()
-    navigate('/search')
+    navigate('/search-experiment')
   }
   const { dataset, token, saveHandler, accessLevel, username } = props
   const saveAsDisabled = props.data.data.spectra.length === 0

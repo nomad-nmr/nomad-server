@@ -17,11 +17,12 @@ import paramSetsReducer from './store/reducers/paramSets'
 import submitReducer from './store/reducers/submit'
 import messageReducer from './store/reducers/message'
 import batchSubmitReducer from './store/reducers/batchSubmit'
-import searchReducer from './store/reducers/search'
+import searchExpsReducer from './store/reducers/searchExperiments'
 import accountsReducer from './store/reducers/accounts'
 import nmriumReducer from './store/reducers/NMRium'
 import claimReducer from './store/reducers/claim'
 import claimsHistoryReducer from './store/reducers/claimsHistory'
+import datasetsReducer from './store/reducers/datasets'
 
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -51,11 +52,12 @@ const rootReducer = combineReducers({
   submit: submitReducer,
   message: messageReducer,
   batchSubmit: batchSubmitReducer,
-  search: searchReducer,
+  search: searchExpsReducer,
   accounts: accountsReducer,
   nmrium: nmriumReducer,
   claim: claimReducer,
-  claimsHistory: claimsHistoryReducer
+  claimsHistory: claimsHistoryReducer,
+  datasets: datasetsReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))

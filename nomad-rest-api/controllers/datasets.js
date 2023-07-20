@@ -3,11 +3,13 @@ import fs from 'fs/promises'
 
 import { validationResult } from 'express-validator'
 import JSZip from 'jszip'
+import moment from 'moment'
 
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import { group } from 'console'
 
 export const postDataset = async (req, res) => {
   const errors = validationResult(req)
@@ -189,6 +191,98 @@ export const patchDataset = async (req, res) => {
       group: dataset.group
     }
     res.status(200).json(respObj)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const getDatasets = async (req, res) => {
+  try {
+    const { title, createdDateRange, updatedDateRange, groupId, userId } = req.query
+
+    const dataAccess = await req.user.getDataAccess()
+
+    const searchParams = { $and: [{}] }
+
+    if (title && title !== 'undefined') {
+      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+      const regex = new RegExp(title, 'i')
+      searchParams.$and.push({ title: { $regex: regex } })
+    }
+
+    if (createdDateRange && createdDateRange !== 'undefined') {
+      const datesArr = createdDateRange.split(',')
+      searchParams.$and.push({
+        createdAt: {
+          $gte: new Date(datesArr[0]),
+          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+        }
+      })
+    }
+
+    if (updatedDateRange && updatedDateRange !== 'undefined') {
+      const datesArr = updatedDateRange.split(',')
+      console.log(datesArr)
+      searchParams.$and.push({
+        updatedAt: {
+          $gte: new Date(datesArr[0]),
+          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+        }
+      })
+    }
+
+    const adminSearchLogic = () => {
+      if (groupId && groupId !== 'undefined') {
+        searchParams.$and.push({ group: groupId })
+      }
+
+      if (userId && userId !== 'undefined') {
+        searchParams.$and.push({ user: userId })
+      }
+    }
+
+    //this switch should assure that search is performed in accordance with data access privileges
+    switch (dataAccess) {
+      case 'user':
+        searchParams.$and.push({ user: req.user._id })
+        break
+
+      case 'group':
+        if (userId && userId !== 'undefined') {
+          searchParams.$and.push({ user: userId, group: req.user.group })
+        } else {
+          searchParams.$and.push({ group: req.user.group })
+        }
+        break
+
+      case 'admin-b':
+        adminSearchLogic()
+        if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+          searchParams.$and.push({ user: req.user._id })
+        }
+        break
+
+      case 'admin':
+        adminSearchLogic()
+        break
+      default:
+        throw new Error('Data access rights unknown')
+    }
+
+    const datasets = await Dataset.find(searchParams)
+      .populate('user', 'username')
+      .populate('group', 'groupName')
+    const respData = datasets.map(i => ({
+      key: i._id,
+      username: i.user.username,
+      groupName: i.group.groupName,
+      title: i.title,
+      expCount: i.nmriumData.data.spectra.length,
+      createdAt: i.createdAt,
+      updatedAt: i.updatedAt
+    }))
+    res.status(200).json(respData)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

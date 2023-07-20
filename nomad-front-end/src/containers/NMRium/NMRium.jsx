@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import NMRiumComponent from 'nmrium'
-import { Spin, Button } from 'antd'
+import { Spin, Button, Tooltip } from 'antd'
 import { useParams } from 'react-router-dom'
 import { EditOutlined } from '@ant-design/icons'
 
@@ -119,13 +119,15 @@ const NMRium = props => {
           {`${user.fullName} [${user.username}]`}
           <span>Group: </span>
           {group.groupName}
-          <Button
-            type='link'
-            onClick={() => props.editDataset()}
-            disabled={accessLvl !== 'admin' && username !== user.username}
-          >
-            <EditOutlined />
-          </Button>
+          <Tooltip title='Edit dataset metadata'>
+            <Button
+              type='link'
+              onClick={() => props.editDataset()}
+              disabled={accessLvl !== 'admin' && username !== user.username}
+            >
+              <EditOutlined />
+            </Button>
+          </Tooltip>
         </div>
       </div>
     )

@@ -92,6 +92,7 @@ export async function fetchExperiments(req, res) {
       }
     }
 
+    //this switch should assure that search is performed in accordance with data access privileges
     switch (dataAccess) {
       case 'user':
         searchParams.$and.push({ 'user.id': req.user._id })
@@ -101,14 +102,13 @@ export async function fetchExperiments(req, res) {
         if (userId && userId !== 'undefined') {
           searchParams.$and.push({ 'user.id': userId, 'group.id': req.user.group })
         } else {
-          searchParams.$and.push({ 'user.id': req.user._id })
+          searchParams.$and.push({ 'group.id': req.user.group })
         }
         break
 
       case 'admin-b':
         adminSearchLogic()
         if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
-          req.user.id
           searchParams.$and.push({ 'user.id': req.user._id })
         }
         break

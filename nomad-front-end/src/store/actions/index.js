@@ -6,7 +6,8 @@ export {
   authCheckState,
   postPasswdReset,
   getPasswdReset,
-  postNewPasswd
+  postNewPasswd,
+  resetExperimentSearchData
 } from './auth'
 
 export {
@@ -120,9 +121,8 @@ export {
   toggleDownloadModal,
   toggleSearchForm,
   getPDF,
-  getDataAccess,
-  resetSearch
-} from './search'
+  getDataAccess
+} from './searchExperiments'
 
 export {
   fetchCosts,
@@ -168,4 +168,4 @@ export {
   toggleShowApproved
 } from './claimsHistory'
 
-export { downloadDataset, patchDataset } from './dataset'
+export { downloadDataset, patchDataset, getDatasets } from './datasets'
