@@ -12,9 +12,9 @@ const DataSetModal = props => {
   useEffect(() => {
     if (editing) {
       form.setFieldsValue({
-        title: dataset.title,
-        groupId: dataset.group._id,
-        userId: `[${dataset.user.username}] ${dataset.user.fullName}`
+        title: dataset.title
+        // groupId: dataset.group._id,
+        // userId: dataset.user._id
       })
     }
   }, [editing, dataset])

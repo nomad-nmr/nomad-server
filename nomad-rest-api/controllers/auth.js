@@ -1,10 +1,12 @@
 import bcrypt from 'bcryptjs'
 import BcryptSalt from 'bcrypt-salt'
-import { verify } from 'jsonwebtoken'
+import jsonwebtoken from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
 
 import User from '../models/user.js'
 import transporter from '../utils/emailTransporter.js'
+
+const { verify } = jsonwebtoken
 
 export async function postLogin(req, res) {
   try {

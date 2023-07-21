@@ -16,6 +16,7 @@ const datasetSchema = new Schema(
       required: true,
       ref: 'Group'
     },
+    smiles: Array,
     nmriumData: Object
   },
   { timestamps: true }

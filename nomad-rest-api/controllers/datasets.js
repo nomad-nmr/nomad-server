@@ -4,12 +4,13 @@ import fs from 'fs/promises'
 import { validationResult } from 'express-validator'
 import JSZip from 'jszip'
 import moment from 'moment'
+import openChemLib from 'openchemlib'
+const { Molecule: OCLMolecule } = openChemLib
 
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
-import { group } from 'console'
 
 export const postDataset = async (req, res) => {
   const errors = validationResult(req)
@@ -19,13 +20,15 @@ export const postDataset = async (req, res) => {
 
   const { userId, groupId, title, nmriumData } = req.body
 
-  const datasetObj = {
-    user: userId ? userId : req.user._id,
-    group: groupId ? groupId : req.user.group,
-    title,
-    nmriumData
-  }
   try {
+    const datasetObj = {
+      user: userId ? userId : req.user._id,
+      group: groupId ? groupId : req.user.group,
+      title,
+      nmriumData,
+      smiles: getSmilesfromNMRiumData(nmriumData)
+    }
+
     const dataset = new Dataset(datasetObj)
 
     const { _id } = await dataset.save()
@@ -104,7 +107,10 @@ export const putDataset = async (req, res) => {
     return res.status(422).send(errors)
   }
   try {
-    await Dataset.findByIdAndUpdate(req.params.datasetId, req.body)
+    await Dataset.findByIdAndUpdate(req.params.datasetId, {
+      ...req.body,
+      smiles: getSmilesfromNMRiumData(req.body.nmriumData)
+    })
     res.sendStatus(200)
   } catch (error) {
     console.log(error)
@@ -280,11 +286,26 @@ export const getDatasets = async (req, res) => {
       title: i.title,
       expCount: i.nmriumData.data.spectra.length,
       createdAt: i.createdAt,
-      updatedAt: i.updatedAt
+      updatedAt: i.updatedAt,
+      molSVGs: i.nmriumData.data.molecules.map(mol => {
+        const molecule = OCLMolecule.fromMolfile(mol.molfile)
+        return {
+          svg: molecule.toSVG(150, 150),
+          label: mol.label
+        }
+      })
     }))
     res.status(200).json(respData)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
   }
+}
+
+const getSmilesfromNMRiumData = nmriumData => {
+  const smilesArray = nmriumData.data.molecules.map(i => {
+    const molecule = OCLMolecule.fromMolfile(i.molfile)
+    return molecule.toSmiles()
+  })
+  return smilesArray
 }

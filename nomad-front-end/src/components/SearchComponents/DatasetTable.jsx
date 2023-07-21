@@ -1,8 +1,10 @@
 import React from 'react'
-import { Table, Space, Tooltip, Button } from 'antd'
+import { Table, Space, Tooltip, Button, Modal } from 'antd'
 import dayjs from 'dayjs'
-import { FolderOpenOutlined } from '@ant-design/icons'
+import Icon, { FolderOpenOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
+
+import structureIconSVG from './StructureIcon'
 
 const DatasetTable = props => {
   const navigate = useNavigate()
@@ -32,12 +34,6 @@ const DatasetTable = props => {
       width: 100
     },
     {
-      title: 'Collection',
-      dataIndex: 'collection',
-      align: 'center'
-    },
-
-    {
       title: 'Created At',
       dataIndex: 'createdAt',
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-'),
@@ -54,7 +50,14 @@ const DatasetTable = props => {
     {
       title: 'Actions',
       render: record => (
-        <Space>
+        <Space styles={{ color: 'blue' }}>
+          <Tooltip title='Show chemical structures'>
+            <Button
+              onClick={() => showStructure(record)}
+              disabled={record.molSVGs.length === 0}
+              icon={<Icon component={structureIconSVG} />}
+            />
+          </Tooltip>
           <Tooltip title='Open in NMRium'>
             <Button type='link' onClick={() => navigate('/nmrium/' + record.key)}>
               <FolderOpenOutlined />
@@ -72,6 +75,16 @@ const DatasetTable = props => {
       pagination={false}
     />
   )
+}
+
+const showStructure = record => {
+  const svgElements = record.molSVGs.map(i => <div dangerouslySetInnerHTML={{ __html: i.svg }} />)
+  return Modal.info({
+    content: <Space>{svgElements}</Space>,
+    icon: null,
+    okText: 'Close',
+    width: record.molSVGs.length * 200
+  })
 }
 
 export default DatasetTable

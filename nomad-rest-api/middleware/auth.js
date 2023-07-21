@@ -1,4 +1,4 @@
-import { verify } from 'jsonwebtoken'
+import jsonwebtoken from 'jsonwebtoken'
 
 import User from '../models/user.js'
 
@@ -10,7 +10,7 @@ const auth = async (req, res, next) => {
   const token = authHeader.split(' ')[1]
 
   try {
-    const decoded = verify(token, process.env.JWT_SECRET)
+    const decoded = jsonwebtoken.verify(token, process.env.JWT_SECRET)
     if (decoded) {
       const user = await User.findOne({ _id: decoded._id, 'tokens.token': token })
       if (!user) {
