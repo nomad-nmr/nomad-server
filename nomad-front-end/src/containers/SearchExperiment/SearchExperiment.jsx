@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Result } from 'antd'
 
@@ -58,7 +58,7 @@ const Search = props => {
     if (dateRange) {
       values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
     }
-    setSearchParams({ ...values })
+    setSearchParams(values)
     setCurrentPage(1)
     //Page size hardcoded to limit number of experiments available to download
     fetchExps(authToken, { currentPage: 1, pageSize: 20, ...values }, dataType)

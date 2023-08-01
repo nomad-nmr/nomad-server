@@ -50,7 +50,7 @@ const DatasetTable = props => {
     {
       title: 'Actions',
       render: record => (
-        <Space styles={{ color: 'blue' }}>
+        <Space>
           <Tooltip title='Show chemical structures'>
             <Button
               onClick={() => showStructure(record)}
@@ -59,7 +59,7 @@ const DatasetTable = props => {
             />
           </Tooltip>
           <Tooltip title='Open in NMRium'>
-            <Button type='link' onClick={() => navigate('/nmrium/' + record.key)}>
+            <Button onClick={() => navigate('/nmrium/' + record.key)}>
               <FolderOpenOutlined />
             </Button>
           </Tooltip>

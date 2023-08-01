@@ -2,7 +2,8 @@ import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
   loading: false,
-  data: []
+  data: [],
+  total: 0
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -11,7 +12,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, loading: true }
 
     case actionTypes.GET_DATASETS_SUCCESS:
-      return { ...state, loading: false, data: payload }
+      return { ...state, loading: false, data: payload.datasets, total: payload.total }
 
     case actionTypes.RESET_DATASET_SEARCH:
       return { ...state, data: [] }

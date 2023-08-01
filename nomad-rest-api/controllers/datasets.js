@@ -205,7 +205,8 @@ export const patchDataset = async (req, res) => {
 
 export const getDatasets = async (req, res) => {
   try {
-    const { title, createdDateRange, updatedDateRange, groupId, userId } = req.query
+    const { title, createdDateRange, updatedDateRange, groupId, userId, currentPage, pageSize } =
+      req.query
 
     const dataAccess = await req.user.getDataAccess()
 
@@ -276,9 +277,15 @@ export const getDatasets = async (req, res) => {
         throw new Error('Data access rights unknown')
     }
 
+    console.log(currentPage, pageSize)
+
+    const total = await Dataset.find(searchParams).countDocuments()
     const datasets = await Dataset.find(searchParams)
+      .skip((currentPage - 1) * pageSize)
+      .limit(+pageSize)
       .populate('user', 'username')
       .populate('group', 'groupName')
+
     const respData = datasets.map(i => ({
       key: i._id,
       username: i.user.username,
@@ -295,7 +302,7 @@ export const getDatasets = async (req, res) => {
         }
       })
     }))
-    res.status(200).json(respData)
+    res.status(200).json({ datasets: respData, total })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

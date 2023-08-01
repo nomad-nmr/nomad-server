@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
+import { Pagination } from 'antd'
 
 import SearchForm from '../../components/SearchComponents/SearchForm'
 import DatasetTable from '../../components/SearchComponents/DatasetTable'
@@ -8,6 +9,10 @@ import classes from './SearchDataset.module.css'
 import { getDatasets } from '../../store/actions'
 
 const SearchDataset = props => {
+  const [pageSize, setPageSize] = useState(20)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchParams, setSearchParams] = useState({})
+
   const onFormSubmit = values => {
     const { createdDateRange, updatedDateRange } = values
     if (createdDateRange) {
@@ -20,14 +25,32 @@ const SearchDataset = props => {
     } else {
       values.updatedDateRange = undefined
     }
+    setSearchParams({ ...values })
+    props.getDatasets({ ...values, currentPage, pageSize }, props.authToken)
+  }
 
-    props.getDatasets(values, props.authToken)
+  const onPageChange = (page, size) => {
+    setCurrentPage(page)
+    props.getDatasets({ ...searchParams, currentPage: page, pageSize: size }, props.authToken)
   }
 
   return (
     <div className={classes.Container}>
       <SearchForm submitHandler={values => onFormSubmit(values)} />
       <DatasetTable loading={props.loading} dataSource={props.data} />
+      <Pagination
+        style={{ marginTop: '20px', textAlign: 'right' }}
+        current={currentPage}
+        pageSize={pageSize}
+        onChange={(page, size) => onPageChange(page, size)}
+        showSizeChanger
+        onShowSizeChange={(current, size) => {
+          setCurrentPage(current)
+          setPageSize(size)
+        }}
+        total={props.total}
+        showTotal={total => `Total ${total} datasets`}
+      />
     </div>
   )
 }
@@ -35,7 +58,8 @@ const SearchDataset = props => {
 const mapStateToProps = state => ({
   authToken: state.auth.token,
   loading: state.datasets.loading,
-  data: state.datasets.data
+  data: state.datasets.data,
+  total: state.datasets.total
 })
 
 const mapDispatchToProps = dispatch => ({
