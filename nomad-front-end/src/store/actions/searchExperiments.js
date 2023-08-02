@@ -21,7 +21,7 @@ export const fetchExperiments = (token, searchParams) => {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
-        dispatch(fetchExperimentsSuccess({ expData: res.data, searchParams }))
+        dispatch(fetchExperimentsSuccess({ searchData: res.data, searchParams }))
       })
       .catch(err => {
         dispatch(errorHandler(err))

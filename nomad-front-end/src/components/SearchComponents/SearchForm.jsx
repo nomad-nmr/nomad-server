@@ -15,7 +15,8 @@ import {
   fetchUserList,
   getDataAccess,
   resetUserList,
-  resetExperimentSearchData
+  resetExperimentSearchData,
+  resetDatasetSearch
 } from '../../store/actions'
 
 const { Option } = Select
@@ -33,7 +34,8 @@ const SearchForm = props => {
     dataAccess,
     grpList,
     dataType,
-    formValues,
+    expSearchParams,
+    datasetSearchParams,
     username,
     usrList,
     grpName
@@ -75,9 +77,25 @@ const SearchForm = props => {
 
   //Effect to preserve form values. DateRange has to be in form of dayjs object.
   useEffect(() => {
-    const dateRangeNew = formValues.dateRange && formValues.dateRange.map(date => dayjs(date))
-    form.setFieldsValue({ ...formValues, dateRange: dateRangeNew })
-  }, [formValues])
+    if (location.pathname === '/search-experiment') {
+      const dateRangeNew =
+        expSearchParams.dateRange && expSearchParams.dateRange.map(date => dayjs(date))
+      form.setFieldsValue({ ...expSearchParams, dateRange: dateRangeNew })
+    }
+    if (location.pathname === '/search-dataset') {
+      const createdDateNew =
+        datasetSearchParams.createdDateRange &&
+        datasetSearchParams.createdDateRange.map(date => dayjs(date))
+      const updatedDateNew =
+        datasetSearchParams.updatedDateRange &&
+        datasetSearchParams.updatedDateRange.map(date => dayjs(date))
+      form.setFieldsValue({
+        ...datasetSearchParams,
+        createdDateRange: createdDateNew,
+        updatedDateRange: updatedDateNew
+      })
+    }
+  }, [expSearchParams, datasetSearchParams])
 
   useEffect(() => {
     switch (dataAccess) {
@@ -214,7 +232,7 @@ const SearchForm = props => {
                   icon={<CloseOutlined />}
                   onClick={() => {
                     props.resetUsrList()
-                    props.resetSearch()
+                    props.resetExpSearch()
                     form.resetFields()
                   }}
                 />
@@ -288,7 +306,7 @@ const SearchForm = props => {
                   icon={<CloseOutlined />}
                   onClick={() => {
                     props.resetUsrList()
-                    props.resetSearch()
+                    props.resetDatasetSearch()
                     form.resetFields()
                   }}
                 />
@@ -311,7 +329,8 @@ const mapStateToProps = state => ({
   grpList: state.groups.groupList,
   usrList: state.users.userList,
   grpName: state.auth.groupName,
-  formValues: state.search.formValues,
+  expSearchParams: state.search.formValues,
+  datasetSearchParams: state.datasets.searchParams,
   username: state.auth.username
 })
 
@@ -323,7 +342,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchUserList(token, groupId, showInactive, search)),
   fetchDataAccess: token => dispatch(getDataAccess(token)),
   resetUsrList: () => dispatch(resetUserList()),
-  resetSearch: () => dispatch(resetExperimentSearchData())
+  resetExpSearch: () => dispatch(resetExperimentSearchData()),
+  resetDatasetSearch: () => dispatch(resetDatasetSearch())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchForm)

@@ -56,7 +56,7 @@ export const getDatasets = (searchParams, token) => {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
-        dispatch(getDatasetsSuccess(res.data))
+        dispatch(getDatasetsSuccess({ searchData: res.data, searchParams }))
       })
       .catch(err => {
         dispatch(errorHandler(err))

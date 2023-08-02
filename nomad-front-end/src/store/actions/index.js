@@ -7,7 +7,8 @@ export {
   postPasswdReset,
   getPasswdReset,
   postNewPasswd,
-  resetExperimentSearchData
+  resetExperimentSearchData,
+  resetDatasetSearch
 } from './auth'
 
 export {

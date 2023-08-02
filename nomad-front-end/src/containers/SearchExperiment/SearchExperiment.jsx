@@ -29,10 +29,11 @@ const Search = props => {
     mdlVisible,
     checked,
     resetChecked,
-    dataType
+    dataType,
+    searchParams
   } = props
 
-  const [searchParams, setSearchParams] = useState({})
+  // const [searchParams, setSearchParams] = useState({})
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
@@ -58,7 +59,6 @@ const Search = props => {
     if (dateRange) {
       values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
     }
-    setSearchParams(values)
     setCurrentPage(1)
     //Page size hardcoded to limit number of experiments available to download
     fetchExps(authToken, { currentPage: 1, pageSize: 20, ...values }, dataType)
@@ -114,7 +114,8 @@ const mapStateToProps = state => ({
   total: state.search.total,
   showForm: state.search.showForm,
   dataType: state.search.dataType,
-  truncated: state.search.truncated
+  truncated: state.search.truncated,
+  searchParams: state.search.formValues
 })
 
 const mapDispatchToProps = dispatch => ({

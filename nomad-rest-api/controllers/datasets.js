@@ -277,8 +277,6 @@ export const getDatasets = async (req, res) => {
         throw new Error('Data access rights unknown')
     }
 
-    console.log(currentPage, pageSize)
-
     const total = await Dataset.find(searchParams).countDocuments()
     const datasets = await Dataset.find(searchParams)
       .skip((currentPage - 1) * pageSize)

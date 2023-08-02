@@ -22,15 +22,14 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.FETCH_EXPERIMENTS_SUCCESS:
       const formValues = { ...payload.searchParams }
       delete formValues.currentPage
-      delete formValues.dataType
       delete formValues.pageSize
       return {
         ...state,
-        tableData: payload.expData.data,
+        tableData: payload.searchData.data,
         loading: false,
-        total: payload.expData.total,
+        total: payload.searchData.total,
         formValues,
-        truncated: payload.expData.truncated
+        truncated: payload.searchData.truncated
       }
 
     case actionTypes.UPDATE_CHECKED_DATASETS:

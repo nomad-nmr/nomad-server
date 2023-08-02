@@ -11,7 +11,6 @@ import { getDatasets } from '../../store/actions'
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
-  const [searchParams, setSearchParams] = useState({})
 
   const onFormSubmit = values => {
     const { createdDateRange, updatedDateRange } = values
@@ -25,13 +24,12 @@ const SearchDataset = props => {
     } else {
       values.updatedDateRange = undefined
     }
-    setSearchParams({ ...values })
     props.getDatasets({ ...values, currentPage, pageSize }, props.authToken)
   }
 
   const onPageChange = (page, size) => {
     setCurrentPage(page)
-    props.getDatasets({ ...searchParams, currentPage: page, pageSize: size }, props.authToken)
+    props.getDatasets({ ...props.searchParams, currentPage: page, pageSize: size }, props.authToken)
   }
 
   return (
@@ -59,7 +57,8 @@ const mapStateToProps = state => ({
   authToken: state.auth.token,
   loading: state.datasets.loading,
   data: state.datasets.data,
-  total: state.datasets.total
+  total: state.datasets.total,
+  searchParams: state.datasets.searchParams
 })
 
 const mapDispatchToProps = dispatch => ({

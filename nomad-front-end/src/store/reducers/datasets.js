@@ -3,7 +3,10 @@ import * as actionTypes from '../actions/actionTypes'
 const initialState = {
   loading: false,
   data: [],
-  total: 0
+  total: undefined,
+  //formFields (searchParams) values are stored in Redux state
+  //to keep them preserved through rendering cycles
+  searchParams: {}
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -12,10 +15,19 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, loading: true }
 
     case actionTypes.GET_DATASETS_SUCCESS:
-      return { ...state, loading: false, data: payload.datasets, total: payload.total }
+      const searchParams = { ...payload.searchParams }
+      delete searchParams.currentPage
+      delete searchParams.pageSize
+      return {
+        ...state,
+        loading: false,
+        data: payload.searchData.datasets,
+        total: payload.searchData.total,
+        searchParams
+      }
 
     case actionTypes.RESET_DATASET_SEARCH:
-      return { ...state, data: [] }
+      return { ...state, data: [], searchParams: {}, total: undefined }
 
     default:
       return state
