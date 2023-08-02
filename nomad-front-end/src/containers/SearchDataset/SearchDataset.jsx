@@ -6,7 +6,7 @@ import SearchForm from '../../components/SearchComponents/SearchForm'
 import DatasetTable from '../../components/SearchComponents/DatasetTable'
 
 import classes from './SearchDataset.module.css'
-import { getDatasets } from '../../store/actions'
+import { downloadDataset, getDatasets } from '../../store/actions'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -35,7 +35,12 @@ const SearchDataset = props => {
   return (
     <div className={classes.Container}>
       <SearchForm submitHandler={values => onFormSubmit(values)} />
-      <DatasetTable loading={props.loading} dataSource={props.data} />
+      <DatasetTable
+        loading={props.loading}
+        dataSource={props.data}
+        token={props.authToken}
+        onDownloadDataset={props.downloadDataset}
+      />
       <Pagination
         style={{ marginTop: '20px', textAlign: 'right' }}
         current={currentPage}
@@ -62,7 +67,9 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token))
+  getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
+  downloadDataset: (datasetId, fileName, token) =>
+    dispatch(downloadDataset(datasetId, fileName, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchDataset)

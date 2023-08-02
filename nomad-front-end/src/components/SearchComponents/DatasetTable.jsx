@@ -1,7 +1,7 @@
 import React from 'react'
 import { Table, Space, Tooltip, Button, Modal } from 'antd'
 import dayjs from 'dayjs'
-import Icon, { FolderOpenOutlined } from '@ant-design/icons'
+import Icon, { FolderOpenOutlined, DownloadOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
 import structureIconSVG from './StructureIcon'
@@ -61,6 +61,11 @@ const DatasetTable = props => {
           <Tooltip title='Open in NMRium'>
             <Button onClick={() => navigate('/nmrium/' + record.key)}>
               <FolderOpenOutlined />
+            </Button>
+          </Tooltip>
+          <Tooltip title='Download dataset'>
+            <Button onClick={() => props.onDownloadDataset(record.key, record.title, props.token)}>
+              <DownloadOutlined />
             </Button>
           </Tooltip>
         </Space>
