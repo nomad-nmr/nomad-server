@@ -205,8 +205,24 @@ export const patchDataset = async (req, res) => {
 
 export const getDatasets = async (req, res) => {
   try {
-    const { title, createdDateRange, updatedDateRange, groupId, userId, currentPage, pageSize } =
-      req.query
+    const {
+      title,
+      createdDateRange,
+      updatedDateRange,
+      groupId,
+      userId,
+      currentPage,
+      pageSize,
+      sorterField,
+      sorterOrder
+    } = req.query
+
+    let sorter
+    if (sorterOrder === 'undefined') {
+      sorter = { createdAt: 'desc' }
+    } else {
+      sorter = sorterOrder === 'descend' ? { [sorterField]: 'desc' } : { [sorterField]: 'asc' }
+    }
 
     const dataAccess = await req.user.getDataAccess()
 
@@ -230,7 +246,6 @@ export const getDatasets = async (req, res) => {
 
     if (updatedDateRange && updatedDateRange !== 'undefined') {
       const datesArr = updatedDateRange.split(',')
-      console.log(datesArr)
       searchParams.$and.push({
         updatedAt: {
           $gte: new Date(datesArr[0]),
@@ -281,6 +296,7 @@ export const getDatasets = async (req, res) => {
     const datasets = await Dataset.find(searchParams)
       .skip((currentPage - 1) * pageSize)
       .limit(+pageSize)
+      .sort(sorter)
       .populate('user', 'username')
       .populate('group', 'groupName')
 
@@ -301,6 +317,19 @@ export const getDatasets = async (req, res) => {
       })
     }))
     res.status(200).json({ datasets: respData, total })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const deleteDataset = async (req, res) => {
+  try {
+    const dataset = await Dataset.findByIdAndRemove(req.params.datasetId)
+    if (!dataset) {
+      return res.sendStatus(404)
+    }
+    res.status(200).json({ datasetId: dataset._id })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

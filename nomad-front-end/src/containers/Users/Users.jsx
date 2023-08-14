@@ -167,8 +167,8 @@ const Users = props => {
       title: 'Last login',
       dataIndex: 'lastLogin',
       align: 'center',
-      sorter: (a, b) => a.lastLogin - b.lastLogin,
-      sortOrder: sorter.order
+      sorter: (a, b) => a.lastLogin - b.lastLogin
+      // sortOrder: sorter.order
     },
     {
       title: 'Inactive Days',

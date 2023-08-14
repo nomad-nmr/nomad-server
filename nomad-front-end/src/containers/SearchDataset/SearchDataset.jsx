@@ -6,11 +6,12 @@ import SearchForm from '../../components/SearchComponents/SearchForm'
 import DatasetTable from '../../components/SearchComponents/DatasetTable'
 
 import classes from './SearchDataset.module.css'
-import { downloadDataset, getDatasets } from '../../store/actions'
+import { deleteDataset, downloadDataset, getDatasets } from '../../store/actions'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
+  const [sorterState, setSorterState] = useState({})
 
   const onFormSubmit = values => {
     const { createdDateRange, updatedDateRange } = values
@@ -24,12 +25,48 @@ const SearchDataset = props => {
     } else {
       values.updatedDateRange = undefined
     }
-    props.getDatasets({ ...values, currentPage, pageSize }, props.authToken)
+    props.getDatasets(
+      {
+        ...values,
+        currentPage,
+        pageSize,
+        sorterField: sorterState.field,
+        sorterOrder: sorterState.orderState
+      },
+      props.authToken
+    )
   }
 
   const onPageChange = (page, size) => {
     setCurrentPage(page)
-    props.getDatasets({ ...props.searchParams, currentPage: page, pageSize: size }, props.authToken)
+    props.getDatasets(
+      {
+        ...props.searchParams,
+        currentPage: page,
+        pageSize: size,
+        sorterField: sorterState.field,
+        sorterOrder: sorterState.orderState
+      },
+      props.authToken
+    )
+  }
+
+  const onSorterChange = (pagination, filters, sorter) => {
+    delete sorter.column
+    delete sorter.columnKey
+    setSorterState(sorter)
+    setCurrentPage(1)
+    setPageSize(20)
+    props.getDatasets(
+      {
+        ...props.searchParams,
+        currentPage: 1,
+        pageSize: 20,
+        sorterField: sorter.field,
+        sorterOrder: sorter.order
+      },
+      props.authToken
+    )
   }
 
   return (
@@ -40,6 +77,9 @@ const SearchDataset = props => {
         dataSource={props.data}
         token={props.authToken}
         onDownloadDataset={props.downloadDataset}
+        onDeleteDataset={props.deleteDataset}
+        onSorterChange={onSorterChange}
+        // sorter={sorter}
       />
       <Pagination
         style={{ marginTop: '20px', textAlign: 'right' }}
@@ -68,6 +108,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
+  deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
+
   downloadDataset: (datasetId, fileName, token) =>
     dispatch(downloadDataset(datasetId, fileName, token))
 })

@@ -3,6 +3,10 @@ import Dataset from '../models/dataset.js'
 const validateDataWriteAccess = async (req, res, next) => {
   try {
     const dataset = await Dataset.findById(req.params.datasetId, 'user')
+    if (!dataset) {
+      return res.sendStatus(404)
+    }
+
     const { accessLevel, _id } = req.user
 
     if (accessLevel !== 'admin' && _id.toString() !== dataset.user.toString()) {

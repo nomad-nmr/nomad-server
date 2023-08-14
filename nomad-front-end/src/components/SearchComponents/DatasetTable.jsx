@@ -1,7 +1,7 @@
 import React from 'react'
-import { Table, Space, Tooltip, Button, Modal } from 'antd'
+import { Table, Space, Tooltip, Button, Modal, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
-import Icon, { FolderOpenOutlined, DownloadOutlined } from '@ant-design/icons'
+import Icon, { FolderOpenOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
 import structureIconSVG from './StructureIcon'
@@ -37,6 +37,7 @@ const DatasetTable = props => {
       title: 'Created At',
       dataIndex: 'createdAt',
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-'),
+      sorter: (a, b) => a.createdAt - b.createdAt,
       align: 'center',
       width: 150
     },
@@ -44,11 +45,14 @@ const DatasetTable = props => {
       title: 'Updated At',
       dataIndex: 'updatedAt',
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-'),
+      sorter: (a, b) => a.updatedAt - b.updatedAt,
+      sortDirections: ['descend', 'ascend'],
       align: 'center',
       width: 150
     },
     {
       title: 'Actions',
+      width: 300,
       render: record => (
         <Space>
           <Tooltip title='Show chemical structures'>
@@ -68,6 +72,25 @@ const DatasetTable = props => {
               <DownloadOutlined />
             </Button>
           </Tooltip>
+          <Tooltip title='Delete dataset'>
+            <Popconfirm
+              placement='left'
+              title='Delete the dataset'
+              description={() => (
+                <div>
+                  <div>Are you sure to delete this dataset?</div>
+                  <div style={{ color: 'green' }}>
+                    NMR experiment included in the datasets will remain archived in the datastore!
+                  </div>
+                </div>
+              )}
+              onConfirm={() => props.onDeleteDataset(record.key, props.token)}
+            >
+              <Button danger>
+                <DeleteOutlined />
+              </Button>
+            </Popconfirm>
+          </Tooltip>
         </Space>
       )
     }
@@ -77,7 +100,9 @@ const DatasetTable = props => {
       columns={columns}
       dataSource={props.dataSource}
       loading={props.loading}
+      size='small'
       pagination={false}
+      onChange={props.onSorterChange}
     />
   )
 }

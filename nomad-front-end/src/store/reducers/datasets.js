@@ -29,6 +29,10 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_DATASET_SEARCH:
       return { ...state, data: [], searchParams: {}, total: undefined }
 
+    case actionTypes.DELETE_DATASET_SUCCESS:
+      const newData = state.data.filter(i => i.key !== payload.datasetId)
+      return { ...state, data: newData, loading: false }
+
     default:
       return state
   }

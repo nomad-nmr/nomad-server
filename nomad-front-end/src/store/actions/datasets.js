@@ -49,6 +49,7 @@ export const getDatasetsSuccess = payload => ({
 })
 
 export const getDatasets = (searchParams, token) => {
+  // console.log(searchParams)
   return dispatch => {
     dispatch(loadingDatasetsStarts())
     axios
@@ -57,6 +58,27 @@ export const getDatasets = (searchParams, token) => {
       })
       .then(res => {
         dispatch(getDatasetsSuccess({ searchData: res.data, searchParams }))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const deleteDatasetSuccess = payload => ({
+  type: actionTypes.DELETE_DATASET_SUCCESS,
+  payload
+})
+
+export const deleteDataset = (datasetId, token) => {
+  return dispatch => {
+    dispatch(loadingDatasetsStarts())
+    axios
+      .delete('/datasets/' + datasetId, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(deleteDatasetSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))
