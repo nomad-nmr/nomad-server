@@ -29,7 +29,7 @@
     "moment-duration-format": "^2.3.2",
     "mongoose": "^7.1.1",
     "multer": "^1.4.5-lts.1",
-    "nmr-load-save": "^0.14.0",
+    "nmr-load-save": "^0.17.2",
     "nodemailer": "^6.9.2",
     "openchemlib": "^8.3.0",
     "socket.io": "^4.5.4"
@@ -40,6 +40,6 @@
     "mongodb-memory-server": "^8.12.2",
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3",
-    "vitest": "^0.33.0"
+    "vitest": "^0.34.2"
   }
 }

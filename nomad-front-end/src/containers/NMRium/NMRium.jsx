@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import NMRiumComponent from 'nmrium'
+import { NMRium } from 'nmrium'
 import { Spin, Button, Tooltip } from 'antd'
 import { useParams } from 'react-router-dom'
 import { EditOutlined } from '@ant-design/icons'
@@ -25,7 +25,7 @@ import history from '../../utils/history'
 
 import classes from './NMRium.module.css'
 
-const NMRium = props => {
+const NMRiumContainer = props => {
   const {
     data,
     setUpData,
@@ -137,7 +137,7 @@ const NMRium = props => {
     <Spin size='large' spinning={props.spinning}>
       <div style={{ height: '85vh' }}>
         {titleElement}
-        <NMRiumComponent data={data} onChange={data => changeHandler(data)} emptyText='' />
+        <NMRium data={data} onChange={data => changeHandler(data)} emptyText='' />
       </div>
       <FidsModal
         open={fidsModalOpen}
@@ -196,4 +196,4 @@ const mapDispatchToProps = dispatch => ({
   patchDataset: (datasetId, metaData, token) => dispatch(patchDataset(datasetId, metaData, token))
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(NMRium)
+export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)
