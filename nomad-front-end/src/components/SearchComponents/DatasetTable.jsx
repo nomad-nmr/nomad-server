@@ -12,9 +12,16 @@ const DatasetTable = props => {
   let columns = [
     {
       title: 'Username',
-      dataIndex: 'username',
       align: 'center',
-      width: 200
+      width: 200,
+      render: record =>
+        props.user.accessLevel === 'admin' ? (
+          <Button type='link' onClick={() => navigate(`/admin/users?username=${record.username}`)}>
+            {record.username}
+          </Button>
+        ) : (
+          <span>{record.username}</span>
+        )
     },
     {
       title: 'Group',
@@ -86,7 +93,12 @@ const DatasetTable = props => {
               )}
               onConfirm={() => props.onDeleteDataset(record.key, props.token)}
             >
-              <Button danger>
+              <Button
+                danger
+                disabled={
+                  record.username !== props.user.username && props.user.accessLevel !== 'admin'
+                }
+              >
                 <DeleteOutlined />
               </Button>
             </Popconfirm>

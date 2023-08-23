@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { connect } from 'react-redux'
 import { Pagination } from 'antd'
 
 import SearchForm from '../../components/SearchComponents/SearchForm'
 import DatasetTable from '../../components/SearchComponents/DatasetTable'
+import DatasetCard from '../../components/SearchComponents/DatasetCard'
 
 import classes from './SearchDataset.module.css'
 import { deleteDataset, downloadDataset, getDatasets } from '../../store/actions'
@@ -12,6 +13,8 @@ const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
   const [currentPage, setCurrentPage] = useState(1)
   const [sorterState, setSorterState] = useState({})
+
+  const user = { username: props.username, accessLevel: props.accessLvl }
 
   const onFormSubmit = values => {
     const { createdDateRange, updatedDateRange } = values
@@ -69,18 +72,35 @@ const SearchDataset = props => {
     )
   }
 
+  // console.log(props.data)
+
   return (
     <div className={classes.Container}>
       <SearchForm submitHandler={values => onFormSubmit(values)} />
-      <DatasetTable
-        loading={props.loading}
-        dataSource={props.data}
-        token={props.authToken}
-        onDownloadDataset={props.downloadDataset}
-        onDeleteDataset={props.deleteDataset}
-        onSorterChange={onSorterChange}
-        // sorter={sorter}
-      />
+      {props.displayType === 'table' ? (
+        <DatasetTable
+          loading={props.loading}
+          dataSource={props.data}
+          token={props.authToken}
+          onDownloadDataset={props.downloadDataset}
+          onDeleteDataset={props.deleteDataset}
+          onSorterChange={onSorterChange}
+          user={user}
+        />
+      ) : (
+        <div className={classes.Cards}>
+          {props.data.map(i => (
+            <DatasetCard
+              key={i.key}
+              data={i}
+              onDeleteDataset={props.deleteDataset}
+              onDownloadDataset={props.downloadDataset}
+              token={props.authToken}
+              user={user}
+            />
+          ))}
+        </div>
+      )}
       <Pagination
         style={{ marginTop: '20px', textAlign: 'right' }}
         current={currentPage}
@@ -103,7 +123,10 @@ const mapStateToProps = state => ({
   loading: state.datasets.loading,
   data: state.datasets.data,
   total: state.datasets.total,
-  searchParams: state.datasets.searchParams
+  searchParams: state.datasets.searchParams,
+  displayType: state.datasets.displayType,
+  accessLvl: state.auth.accessLevel,
+  username: state.auth.username
 })
 
 const mapDispatchToProps = dispatch => ({

@@ -6,7 +6,8 @@ const initialState = {
   total: undefined,
   //formFields (searchParams) values are stored in Redux state
   //to keep them preserved through rendering cycles
-  searchParams: {}
+  searchParams: {},
+  displayType: 'table'
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -32,6 +33,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.DELETE_DATASET_SUCCESS:
       const newData = state.data.filter(i => i.key !== payload.datasetId)
       return { ...state, data: newData, loading: false }
+
+    case actionTypes.TOGGLE_DATASET_DISPLAY:
+      return { ...state, displayType: payload }
 
     default:
       return state

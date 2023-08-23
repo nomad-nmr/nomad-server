@@ -40,7 +40,8 @@ import {
   toggleFidsModal,
   toggleDataSetModal,
   saveDataset,
-  downloadDataset
+  downloadDataset,
+  toggleDatasetDisplay
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -52,11 +53,12 @@ import InstrumentsTabControls from './Controls/InstrumentsTabControls'
 import GroupsTabControls from './Controls/GroupsTabControls'
 import UsersTabControls from './Controls/UsersTabControls'
 import DashControls from './Controls/DashControls'
-import SearchControls from './Controls/SearchControls'
+import SearchExpsControls from './Controls/SearchExpsControls'
 import AccountingControls from './Controls/AccountingControls'
 import NMRiumControls from './Controls/NMRiumControls'
 import ClaimControls from './Controls/ClaimControls'
 import ClaimsHistControls from './Controls/claimsHistControls'
+import SearchDatasetControls from './Controls/SearchDatasetControls'
 
 import dashIcon from '../../../assets/dashboard.svg'
 import userIcon from '../../../assets/user.svg'
@@ -215,7 +217,7 @@ const PageHeaderEl = props => {
       headerTitle = 'Search Experiments'
       avatarSrc = searchIcon
       extra = (
-        <SearchControls
+        <SearchExpsControls
           searchCheckedState={props.checked}
           toggleModal={props.toggleDownloadMdl}
           token={props.authToken}
@@ -231,8 +233,12 @@ const PageHeaderEl = props => {
     case location.pathname === '/search-dataset':
       headerTitle = 'Search Datasets'
       avatarSrc = searchIcon
-      extra = null
-
+      extra = (
+        <SearchDatasetControls
+          displayType={props.datasetDisplayType}
+          onDisplayChange={props.tglDatasetDisplay}
+        />
+      )
       break
 
     case location.pathname === '/admin/accounts':
@@ -341,7 +347,8 @@ const mapStateToProps = state => {
     claimId: state.claim.claimId,
     checkedClaims: state.claimsHistory.checked,
     showApproved: state.claimsHistory.showApproved,
-    dataset: state.nmrium.datasetMeta
+    dataset: state.nmrium.datasetMeta,
+    datasetDisplayType: state.datasets.displayType
   }
 }
 
@@ -385,7 +392,8 @@ const mapDispatchToProps = dispatch => {
     tglDatasetModal: () => dispatch(toggleDataSetModal()),
     saveDataset: (id, payload, token) => dispatch(saveDataset(id, payload, token)),
     downloadDataset: (datasetId, fileName, token) =>
-      dispatch(downloadDataset(datasetId, fileName, token))
+      dispatch(downloadDataset(datasetId, fileName, token)),
+    tglDatasetDisplay: value => dispatch(toggleDatasetDisplay(value))
   }
 }
 

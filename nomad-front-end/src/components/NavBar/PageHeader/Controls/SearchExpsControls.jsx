@@ -23,6 +23,8 @@ const SearchControls = props => {
         <Radio.Group
           onChange={event => props.toggleForm(event.target.value)}
           value={props.dataType}
+          optionType='button'
+          buttonStyle='solid'
         >
           <Radio value='auto'>Auto</Radio>
           <Radio value='manual'>Manual</Radio>

@@ -169,4 +169,10 @@ export {
   toggleShowApproved
 } from './claimsHistory'
 
-export { downloadDataset, patchDataset, getDatasets, deleteDataset } from './datasets'
+export {
+  downloadDataset,
+  patchDataset,
+  getDatasets,
+  deleteDataset,
+  toggleDatasetDisplay
+} from './datasets'

@@ -85,3 +85,8 @@ export const deleteDataset = (datasetId, token) => {
       })
   }
 }
+
+export const toggleDatasetDisplay = payload => ({
+  type: actionTypes.TOGGLE_DATASET_DISPLAY,
+  payload
+})
