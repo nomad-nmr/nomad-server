@@ -7,7 +7,14 @@ import DatasetTable from '../../components/SearchComponents/DatasetTable'
 import DatasetCard from '../../components/SearchComponents/DatasetCard'
 
 import classes from './SearchDataset.module.css'
-import { deleteDataset, downloadDataset, getDatasets } from '../../store/actions'
+import {
+  deleteDataset,
+  downloadDataset,
+  getDatasets,
+  resetChecked,
+  resetCheckedInDatasets,
+  updateCheckedExpsInDatasets
+} from '../../store/actions'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -86,6 +93,9 @@ const SearchDataset = props => {
           onDeleteDataset={props.deleteDataset}
           onSorterChange={onSorterChange}
           user={user}
+          checkedHandler={props.updateChecked}
+          checked={props.checked}
+          resetChecked={props.resetChecked}
         />
       ) : (
         <div className={classes.Cards}>
@@ -126,7 +136,8 @@ const mapStateToProps = state => ({
   searchParams: state.datasets.searchParams,
   displayType: state.datasets.displayType,
   accessLvl: state.auth.accessLevel,
-  username: state.auth.username
+  username: state.auth.username,
+  checked: state.datasets.checked
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -134,7 +145,9 @@ const mapDispatchToProps = dispatch => ({
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
 
   downloadDataset: (datasetId, fileName, token) =>
-    dispatch(downloadDataset(datasetId, fileName, token))
+    dispatch(downloadDataset(datasetId, fileName, token)),
+  updateChecked: payload => dispatch(updateCheckedExpsInDatasets(payload)),
+  resetChecked: () => dispatch(resetCheckedInDatasets())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchDataset)

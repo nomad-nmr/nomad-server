@@ -25,7 +25,10 @@ const reducer = (state = initialState, { type, payload }) => {
 
       if (state.adding) {
         //This code protects from opening same experiment multiple times
-        const noDuplicatesSpectra = payload.data.spectra.filter(exp => !idArray.includes(exp.id))
+        const noDuplicatesSpectra = payload.data.spectra.filter(
+          exp => !idArray.includes(exp.id) || exp.info.isFid
+        )
+
         const duplicatesCount = payload.data.spectra.length - noDuplicatesSpectra.length
         if (duplicatesCount > 0) {
           Modal.warning({

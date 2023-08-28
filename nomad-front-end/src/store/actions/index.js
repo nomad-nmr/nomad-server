@@ -144,7 +144,8 @@ export {
   fetchFids,
   toggleDataSetModal,
   fetchDataset,
-  editDatasetMeta
+  editDatasetMeta,
+  fetchExpsFromDatasets
 } from './nmrium'
 
 export {
@@ -174,5 +175,7 @@ export {
   patchDataset,
   getDatasets,
   deleteDataset,
-  toggleDatasetDisplay
+  toggleDatasetDisplay,
+  updateCheckedExpsInDatasets,
+  resetCheckedInDatasets
 } from './datasets'

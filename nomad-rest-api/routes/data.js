@@ -14,7 +14,8 @@ import {
   getNMRium,
   getPDF,
   archiveManual,
-  getFids
+  getFids,
+  getExpsFromDatasets
 } from '../controllers/data.js'
 
 import { postDataset, getDataset, putDataset, getBrukerZip } from '../controllers/datasets.js'
@@ -60,5 +61,7 @@ router.put(
 )
 
 router.get('/dataset-zip/:datasetId', auth, validateDataAccess, getBrukerZip)
+
+router.get('/dataset-exps', auth, getExpsFromDatasets)
 
 export default router

@@ -137,3 +137,20 @@ export const saveDataset = (datasetId, nmriumData, token) => {
 export const editDatasetMeta = () => ({
   type: actionTypes.EDIT_DATASET_META
 })
+
+export const fetchExpsFromDatasets = (token, payload) => {
+  return dispatch => {
+    dispatch(loadingStarts())
+    dispatch(setAddingExpsStatus())
+    axios
+      .get('/data/dataset-exps/?queryJSON=' + JSON.stringify(payload), {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(fetchNMRiumDataSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

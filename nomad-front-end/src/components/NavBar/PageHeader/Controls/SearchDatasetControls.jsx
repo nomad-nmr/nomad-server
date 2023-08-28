@@ -1,9 +1,12 @@
 import React from 'react'
-import { Radio } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { Radio, Button, Tooltip } from 'antd'
 
 import classes from '../PageHeader.module.css'
 
 const SearchDatasetControls = props => {
+  const navigate = useNavigate()
+
   return (
     <div className={classes.ExtraContainer}>
       <div className={classes.RadioContainer}>
@@ -17,6 +20,18 @@ const SearchDatasetControls = props => {
           <Radio value='cards'>Cards</Radio>
         </Radio.Group>
       </div>
+      <Tooltip title='Add selected experiment in NMRium'>
+        <Button
+          type='primary'
+          disabled={props.checked.length === 0}
+          onClick={() => {
+            props.onAddExps(props.token, props.checked)
+            navigate('/nmrium/null')
+          }}
+        >
+          Add to NMRium
+        </Button>
+      </Tooltip>
     </div>
   )
 }

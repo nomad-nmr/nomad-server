@@ -7,6 +7,7 @@ import { v1 as uuid } from 'uuid'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
+import Dataset from '../models/dataset.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
@@ -227,6 +228,7 @@ export const getFids = async (req, res) => {
     await Promise.all(
       expsArray.map(async i => {
         const [expId, dataType] = i.split('/')
+
         const experiment =
           dataType === 'auto'
             ? await Experiment.findById(expId)
@@ -251,6 +253,51 @@ export const getFids = async (req, res) => {
         }
       })
     )
+    const respDataJSON = JSON.stringify(responseData, (k, v) =>
+      ArrayBuffer.isView(v) ? Array.from(v) : v
+    )
+
+    res.status(200).send(respDataJSON)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const getExpsFromDatasets = async (req, res) => {
+  try {
+    const queryArray = JSON.parse(req.query.queryJSON)
+    let newSpectraArray = []
+    await Promise.all(
+      queryArray.map(async entry => {
+        const [datasetId, expIdRaw] = entry.key.split('-')
+        const expId = entry.isFid ? expIdRaw.split('/fid/')[0] : expIdRaw
+
+        const dataset = await Dataset.findById(datasetId)
+        let nmriumSpectrumObj = dataset.nmriumData.data.spectra.find(spec => spec.id === expIdRaw)
+
+        //getting spectra from archived data
+        const experiment =
+          entry.dataType === 'auto'
+            ? await Experiment.findById(expId)
+            : await ManualExperiment.findById(expId)
+        const filePath = path.join(
+          process.env.DATASTORE_PATH,
+          experiment.dataPath,
+          experiment.expId
+        )
+        const rawNMRiumDataObj = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
+
+        //adding extracted data into NMRIum object
+        nmriumSpectrumObj.data = rawNMRiumDataObj.spectra[0].data
+        nmriumSpectrumObj.meta = rawNMRiumDataObj.spectra[0].meta
+
+        newSpectraArray.push(nmriumSpectrumObj)
+      })
+    )
+
+    const responseData = { version: 4, data: { spectra: newSpectraArray } }
+
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
       ArrayBuffer.isView(v) ? Array.from(v) : v
     )

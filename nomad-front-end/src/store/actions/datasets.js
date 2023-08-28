@@ -90,3 +90,12 @@ export const toggleDatasetDisplay = payload => ({
   type: actionTypes.TOGGLE_DATASET_DISPLAY,
   payload
 })
+
+export const updateCheckedExpsInDatasets = payload => ({
+  type: actionTypes.UPDATE_CHECKED_EXPS_IN_DATASETS,
+  payload
+})
+
+export const resetCheckedInDatasets = () => ({
+  type: actionTypes.RESET_CHECKED_DATASETS
+})

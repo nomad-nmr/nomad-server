@@ -300,22 +300,43 @@ export const getDatasets = async (req, res) => {
       .populate('user', 'username')
       .populate('group', 'groupName')
 
-    const respData = datasets.map(i => ({
-      key: i._id,
-      username: i.user.username,
-      groupName: i.group.groupName,
-      title: i.title,
-      expCount: i.nmriumData.data.spectra.length,
-      createdAt: i.createdAt,
-      updatedAt: i.updatedAt,
-      molSVGs: i.nmriumData.data.molecules.map(mol => {
-        const molecule = OCLMolecule.fromMolfile(mol.molfile)
-        return {
-          svg: molecule.toSVG(150, 150),
-          label: mol.label
-        }
+    const respData = datasets.map(i => {
+      const expsInfo = []
+      i.nmriumData.data.spectra.map(spec => {
+        expsInfo.push({
+          key: i.id + '-' + spec.id,
+          dataType: spec.dataType,
+          isFid: spec.info.isFid,
+          dimension: spec.info.dimension,
+          nucleus: spec.info.nucleus,
+          pulseSequence: spec.info.pulseSequence,
+          solvent: spec.info.solvent,
+          name: spec.info.name,
+          title: spec.info.title,
+          date: spec.info.date
+        })
       })
-    }))
+      return {
+        key: i._id,
+        username: i.user.username,
+        groupName: i.group.groupName,
+        title: i.title,
+        expCount: i.nmriumData.data.spectra.length,
+        createdAt: i.createdAt,
+        updatedAt: i.updatedAt,
+        expsInfo,
+        molSVGs: i.nmriumData.data.molecules.map(mol => {
+          const molecule = OCLMolecule.fromMolfile(mol.molfile)
+          return {
+            svg: molecule.toSVG(150, 150, null, {
+              suppressChiralText: true,
+              suppressESR: true
+            }),
+            label: mol.label
+          }
+        })
+      }
+    })
     res.status(200).json({ datasets: respData, total })
   } catch (error) {
     console.log(error)

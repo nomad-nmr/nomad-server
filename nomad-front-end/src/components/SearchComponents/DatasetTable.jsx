@@ -1,13 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Table, Space, Tooltip, Button, Modal, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import Icon, { FolderOpenOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
 import structureIconSVG from './StructureIcon'
+import classes from './SearchExpsTable.module.css'
 
 const DatasetTable = props => {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    return () => {
+      props.resetChecked()
+    }
+  }, [])
 
   let columns = [
     {
@@ -107,6 +114,65 @@ const DatasetTable = props => {
       )
     }
   ]
+
+  const expColumns = [
+    {
+      title: 'Name',
+      align: 'center',
+      dataIndex: 'name'
+    },
+    {
+      title: 'Data Type',
+      align: 'center',
+      dataIndex: 'dataType'
+    },
+
+    {
+      title: 'Nucleus',
+      dataIndex: 'nucleus'
+    },
+    {
+      title: 'Pulse Program',
+      align: 'center',
+      dataIndex: 'pulseSequence'
+    },
+    {
+      title: 'Solvent',
+      align: 'center',
+      dataIndex: 'solvent'
+    },
+    {
+      title: 'Title',
+      align: 'center',
+      dataIndex: 'title'
+    },
+    {
+      title: 'Date',
+      dataIndex: 'date',
+      render: record => (record ? dayjs(record).format('DD-MMM-YY') : '-')
+    }
+  ]
+
+  const expandedRowRender = record => {
+    const selectExps = {
+      selectionType: 'checkbox',
+      columnTitle: 'Select',
+      selectedRowKeys: props.checked.map(i => i.key),
+      onSelect: (record, selected) => props.checkedHandler({ record, selected })
+    }
+
+    return (
+      <Table
+        columns={expColumns}
+        dataSource={record.expsInfo}
+        pagination={false}
+        size='small'
+        rowSelection={selectExps}
+        rowClassName={classes.RowExpansion}
+      />
+    )
+  }
+
   return (
     <Table
       columns={columns}
@@ -115,6 +181,7 @@ const DatasetTable = props => {
       size='small'
       pagination={false}
       onChange={props.onSorterChange}
+      expandable={{ expandedRowRender }}
     />
   )
 }

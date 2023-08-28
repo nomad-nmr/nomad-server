@@ -7,7 +7,8 @@ const initialState = {
   //formFields (searchParams) values are stored in Redux state
   //to keep them preserved through rendering cycles
   searchParams: {},
-  displayType: 'table'
+  displayType: 'table',
+  checked: []
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -36,6 +37,22 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.TOGGLE_DATASET_DISPLAY:
       return { ...state, displayType: payload }
+
+    case actionTypes.UPDATE_CHECKED_EXPS_IN_DATASETS:
+      const { selected, record } = payload
+      let newChecked
+      if (selected) {
+        newChecked = [
+          ...state.checked,
+          { key: record.key, dataType: record.dataType, isFid: record.isFid }
+        ]
+      } else {
+        newChecked = state.checked.filter(i => i.key !== record.key)
+      }
+      return { ...state, checked: newChecked }
+
+    case actionTypes.RESET_CHECKED_DATASETS:
+      return { ...state, checked: [] }
 
     default:
       return state

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button, Space, Divider, message, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { DownloadOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { DownloadOutlined, ShareAltOutlined, SaveOutlined } from '@ant-design/icons'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 
 import { skimNMRiumdata } from '../../../../utils/nmriumUtils'
@@ -33,6 +33,7 @@ const NMRiumControls = props => {
         <Button
           type='primary'
           disabled={saveDisabled}
+          icon={<SaveOutlined />}
           onClick={() => {
             const payload = skimNMRiumdata(props.data)
             saveHandler(dataset.id, payload, token)
@@ -40,7 +41,11 @@ const NMRiumControls = props => {
         >
           Save
         </Button>
-        <Button disabled={saveAsDisabled} onClick={() => props.toggleDatasetModal()}>
+        <Button
+          icon={<SaveOutlined />}
+          disabled={saveAsDisabled}
+          onClick={() => props.toggleDatasetModal()}
+        >
           Save As
         </Button>
         <Divider type='vertical' />
