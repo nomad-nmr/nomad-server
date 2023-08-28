@@ -27,7 +27,7 @@ const validateDataAccess = async (req, res, next) => {
 
       case 'admin-b':
         const { isBatch } = await Group.findById(dataset.group)
-        if (!isBatch) {
+        if (!isBatch && dataset.group.toString() !== req.user.group.toString()) {
           unauthorised = true
         }
         break
