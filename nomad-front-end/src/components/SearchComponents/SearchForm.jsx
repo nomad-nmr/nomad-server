@@ -103,7 +103,7 @@ const SearchForm = props => {
         setGroupList(grpList)
         break
       case 'admin-b':
-        setGroupList(grpList.filter(entry => entry.isBatch))
+        setGroupList(grpList.filter(entry => entry.isBatch || entry.name === props.grpName))
         break
       case 'group':
         setGroupList(grpList.filter(entry => entry.name === props.grpName))
