@@ -159,6 +159,11 @@ export async function updateUser(req, res) {
     }
 
     const updatedUser = { ...req.body, group: req.body.groupId }
+    delete updatedUser.username
+    //username is unique and should not be updated
+    //having username in update object was causing problems
+    //some browsers were sending invalid value
+    console.log(updatedUser)
     const oldUser = await User.findByIdAndUpdate(req.body._id, updatedUser, {
       new: false
     })

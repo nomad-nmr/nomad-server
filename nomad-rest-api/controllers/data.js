@@ -41,9 +41,6 @@ export const postData = async (req, res) => {
     const expTimeDiff =
       moment.duration(totalExpTime).asSeconds() - moment.duration(experiment.expTime).asSeconds()
 
-    console.log('DIFF', expTimeDiff, typeof expTimeDiff)
-    console.log(experiment.runningAt)
-
     if (expTimeDiff > 600 || !experiment.runningAt) {
       const instrument = await Instrument.findById(experiment.instrument.id)
       experiment.totalExpTime = experiment.expTime
