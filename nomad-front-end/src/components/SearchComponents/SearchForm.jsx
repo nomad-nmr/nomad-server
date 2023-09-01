@@ -7,6 +7,7 @@ import { SearchOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
 import SelectGrpUsr from '../Forms/SelectGrpUsr/SelectGrpUsr'
+import StructureEditorModal from '../Modals/StructureEditorModal/StructureEditorModal'
 import solvents from '../../misc/solvents'
 import {
   fetchInstrumentList,
@@ -38,7 +39,8 @@ const SearchForm = props => {
     datasetSearchParams,
     username,
     usrList,
-    grpName
+    grpName,
+    smiles
   } = props
 
   const [form] = Form.useForm()
@@ -46,6 +48,7 @@ const SearchForm = props => {
 
   const [instrumentId, setInstrumentId] = useState(null)
   const [groupList, setGroupList] = useState([])
+  const [showEditor, setShowEditor] = useState(false)
 
   const formRef = useRef({})
 
@@ -255,10 +258,16 @@ const SearchForm = props => {
     >
       <Row justify='center' gutter={32}>
         <Col span={6}>
-          <Form.Item label='Title' name='title'>
-            <Input allowClear={true} placeholder='Dataset Title' />
-          </Form.Item>
+          <Space.Compact style={{ width: '100%' }}>
+            <Form.Item label='SMILES' name='smiles'>
+              <Input placeholder='Input SMILES string or draw molecule' />
+            </Form.Item>
+            <Tooltip title='Open structure editor'>
+              <Button icon={<EditOutlined />} onClick={() => setShowEditor(true)} />
+            </Tooltip>
+          </Space.Compact>
         </Col>
+
         <Col span={6}>
           <Form.Item label='Created Date Range' name='createdDateRange'>
             <RangePicker allowClear={true} />
@@ -272,12 +281,8 @@ const SearchForm = props => {
       </Row>
       <Row justify='center' gutter={32}>
         <Col span={6}>
-          <Form.Item label='SMILES' name='smiles'>
-            <Space.Compact style={{ width: '100%' }}>
-              <Input Placeholder='Input SMILES string or draw structure' />
-
-              <Button icon={<EditOutlined />} />
-            </Space.Compact>
+          <Form.Item label='Title' name='title'>
+            <Input allowClear={true} placeholder='Dataset Title' />
           </Form.Item>
         </Col>
 
@@ -328,7 +333,20 @@ const SearchForm = props => {
     </Form>
   )
 
-  return location.pathname === '/search-dataset' ? formDatasetElement : formExpElement
+  const updateSmilesInput = smiles => {
+    form.setFieldValue('smiles', smiles)
+  }
+
+  return (
+    <div>
+      <StructureEditorModal
+        open={showEditor}
+        openHandler={setShowEditor}
+        smilesHandler={updateSmilesInput}
+      />
+      {location.pathname === '/search-dataset' ? formDatasetElement : formExpElement}
+    </div>
+  )
 }
 
 const mapStateToProps = state => ({

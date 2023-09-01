@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import { connect } from 'react-redux'
 import { Pagination } from 'antd'
 
@@ -11,7 +11,6 @@ import {
   deleteDataset,
   downloadDataset,
   getDatasets,
-  resetChecked,
   resetCheckedInDatasets,
   updateCheckedExpsInDatasets
 } from '../../store/actions'
@@ -78,8 +77,6 @@ const SearchDataset = props => {
       props.authToken
     )
   }
-
-  // console.log(props.data)
 
   return (
     <div className={classes.Container}>
