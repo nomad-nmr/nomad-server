@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip } from 'antd'
-import { SearchOutlined, CloseOutlined } from '@ant-design/icons'
+import { SearchOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
 import SelectGrpUsr from '../Forms/SelectGrpUsr/SelectGrpUsr'
@@ -271,11 +271,21 @@ const SearchForm = props => {
         </Col>
       </Row>
       <Row justify='center' gutter={32}>
+        <Col span={6}>
+          <Form.Item label='SMILES' name='smiles'>
+            <Space.Compact style={{ width: '100%' }}>
+              <Input Placeholder='Input SMILES string or draw structure' />
+
+              <Button icon={<EditOutlined />} />
+            </Space.Compact>
+          </Form.Item>
+        </Col>
+
         {
           //The component has be render only if groupList is not empty
           // That allows to call useEffect efficiently only when the component mounts
           dataAccess !== 'user' && groupList.length !== 0 ? (
-            <Col span={16}>
+            <Col span={14}>
               <SelectGrpUsr
                 userList={props.usrList}
                 groupList={groupList}
