@@ -1,15 +1,17 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Card, Button } from 'antd'
+import { Card, Button, Tooltip } from 'antd'
 import {
   FolderOpenOutlined,
   DownloadOutlined,
   DeleteOutlined,
   RightOutlined,
   LeftOutlined,
-  CloseOutlined
+  CloseOutlined,
+  ShareAltOutlined
 } from '@ant-design/icons'
 
+import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import classes from './DatasetCard.module.css'
 
 const { Meta } = Card
@@ -20,12 +22,27 @@ const DatasetCard = props => {
   const { data, user } = props
 
   const actions = [
-    <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />,
-    <DownloadOutlined onClick={() => props.onDownloadDataset(data.key, data.title, props.token)} />
+    <Tooltip title='Open dataset in NMRium'>
+      <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
+    </Tooltip>,
+    <CopyLinkToClipboard id={data.key}>
+      <Tooltip title='Copy dataset link'>
+        <ShareAltOutlined />
+      </Tooltip>
+    </CopyLinkToClipboard>,
+    <Tooltip title='Download dataset'>
+      <DownloadOutlined
+        onClick={() => props.onDownloadDataset(data.key, data.title, props.token)}
+      />
+    </Tooltip>
   ]
 
   if (user.username === data.username || user.accessLevel === 'admin') {
-    actions.push(<DeleteOutlined onClick={() => props.onDeleteDataset(data.key, props.token)} />)
+    actions.push(
+      <Tooltip title='Delete dataset'>
+        <DeleteOutlined onClick={() => props.onDeleteDataset(data.key, props.token)} />
+      </Tooltip>
+    )
   }
 
   return (

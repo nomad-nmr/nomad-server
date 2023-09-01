@@ -56,7 +56,6 @@ export const postData = async (req, res) => {
           })
       }
     }
-
     experiment.save()
 
     res.send()

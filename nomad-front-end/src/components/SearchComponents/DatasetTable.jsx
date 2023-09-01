@@ -1,9 +1,15 @@
 import React, { useEffect } from 'react'
 import { Table, Space, Tooltip, Button, Modal, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
-import Icon, { FolderOpenOutlined, DownloadOutlined, DeleteOutlined } from '@ant-design/icons'
+import Icon, {
+  FolderOpenOutlined,
+  DownloadOutlined,
+  DeleteOutlined,
+  ShareAltOutlined
+} from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
+import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import structureIconSVG from './StructureIcon'
 import classes from './SearchExpsTable.module.css'
 
@@ -76,11 +82,18 @@ const DatasetTable = props => {
               icon={<Icon component={structureIconSVG} />}
             />
           </Tooltip>
-          <Tooltip title='Open in NMRium'>
+
+          <Tooltip title='Open dataset in NMRium'>
             <Button onClick={() => navigate('/nmrium/' + record.key)}>
               <FolderOpenOutlined />
             </Button>
           </Tooltip>
+          <CopyLinkToClipboard id={record.key}>
+            <Tooltip title='Copy Dataset Link'>
+              <Button icon={<ShareAltOutlined />} />
+            </Tooltip>
+          </CopyLinkToClipboard>
+
           <Tooltip title='Download dataset'>
             <Button onClick={() => props.onDownloadDataset(record.key, record.title, props.token)}>
               <DownloadOutlined />
