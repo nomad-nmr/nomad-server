@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "openchemlib": "^8.5.0",
-    "react-ocl": "^6.1.0"
-  }
-}
