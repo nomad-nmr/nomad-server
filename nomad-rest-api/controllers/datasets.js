@@ -5,7 +5,7 @@ import { validationResult } from 'express-validator'
 import JSZip from 'jszip'
 import moment from 'moment'
 import openChemLib from 'openchemlib'
-const { Molecule: OCLMolecule } = openChemLib
+const { Molecule: OCLMolecule, SSSearcher } = openChemLib
 
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
@@ -203,7 +203,7 @@ export const patchDataset = async (req, res) => {
   }
 }
 
-export const getDatasets = async (req, res) => {
+export const searchDatasets = async (req, res) => {
   try {
     const {
       title,
@@ -214,7 +214,9 @@ export const getDatasets = async (req, res) => {
       currentPage,
       pageSize,
       sorterField,
-      sorterOrder
+      sorterOrder,
+      smiles,
+      substructure
     } = req.query
 
     let sorter
@@ -252,6 +254,10 @@ export const getDatasets = async (req, res) => {
           $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
         }
       })
+    }
+
+    if (smiles !== 'undefined' && (substructure === 'false' || substructure === 'undefined')) {
+      searchParams.$and.push({ smiles })
     }
 
     const adminSearchLogic = () => {
@@ -292,13 +298,32 @@ export const getDatasets = async (req, res) => {
         throw new Error('Data access rights unknown')
     }
 
-    const total = await Dataset.find(searchParams).countDocuments()
-    const datasets = await Dataset.find(searchParams)
+    let total = await Dataset.find(searchParams).countDocuments()
+    let datasets = await Dataset.find(searchParams)
       .skip((currentPage - 1) * pageSize)
       .limit(+pageSize)
       .sort(sorter)
       .populate('user', 'username')
       .populate('group', 'groupName')
+
+    if (smiles !== 'undefined' && substructure === 'true') {
+      const searcher = new SSSearcher()
+      const fragment = OCLMolecule.fromSmiles(smiles)
+      fragment.setFragment(true)
+      searcher.setFragment(fragment)
+
+      datasets = datasets.filter(i => {
+        const hasSubstructure = i.smiles.find(j => {
+          const molecule = OCLMolecule.fromSmiles(j)
+          searcher.setMolecule(molecule)
+          return searcher.isFragmentInMolecule()
+        })
+
+        return hasSubstructure
+      })
+
+      total = datasets.length
+    }
 
     const respData = datasets.map(i => {
       const expsInfo = []

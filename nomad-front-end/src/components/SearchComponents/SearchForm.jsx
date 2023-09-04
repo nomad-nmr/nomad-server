@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { connect } from 'react-redux'
-import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip } from 'antd'
+import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip, Switch } from 'antd'
 import { SearchOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
@@ -257,9 +257,9 @@ const SearchForm = props => {
       style={{ margin: '0 40px 0 40px' }}
     >
       <Row justify='center' gutter={32}>
-        <Col span={6}>
+        <Col span={8}>
           <Space.Compact style={{ width: '100%' }}>
-            <Form.Item label='SMILES' name='smiles'>
+            <Form.Item label='SMILES' name='smiles' style={{ width: '100%' }}>
               <Input placeholder='Input SMILES string or draw molecule' />
             </Form.Item>
             <Tooltip title='Open structure editor'>
@@ -267,8 +267,13 @@ const SearchForm = props => {
             </Tooltip>
           </Space.Compact>
         </Col>
+        <Col span={2}>
+          <Form.Item label='Substructure' name='substructure' valuePropName='checked'>
+            <Switch checkedChildren='ON' unCheckedChildren='OFF' />
+          </Form.Item>
+        </Col>
 
-        <Col span={6}>
+        <Col span={6} offset={1}>
           <Form.Item label='Created Date Range' name='createdDateRange'>
             <RangePicker allowClear={true} />
           </Form.Item>

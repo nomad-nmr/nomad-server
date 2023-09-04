@@ -4,7 +4,7 @@ import { body } from 'express-validator'
 import auth from '../middleware/auth.js'
 import validateDataWriteAccess from '../middleware/validateDataWriteAccess.js'
 
-import { patchDataset, getDatasets, deleteDataset } from '../controllers/datasets.js'
+import { patchDataset, searchDatasets, deleteDataset } from '../controllers/datasets.js'
 
 const router = Router()
 
@@ -16,7 +16,7 @@ router.patch(
   patchDataset
 )
 
-router.get('/', auth, getDatasets)
+router.get('/', auth, searchDatasets)
 
 router.delete('/:datasetId', auth, validateDataWriteAccess, deleteDataset)
 
