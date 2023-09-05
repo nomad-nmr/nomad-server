@@ -219,6 +219,8 @@ export const searchDatasets = async (req, res) => {
       substructure
     } = req.query
 
+    console.log(smiles, substructure)
+
     let sorter
     if (sorterOrder === 'undefined') {
       sorter = { createdAt: 'desc' }
@@ -256,7 +258,11 @@ export const searchDatasets = async (req, res) => {
       })
     }
 
-    if (smiles !== 'undefined' && (substructure === 'false' || substructure === 'undefined')) {
+    if (
+      smiles !== 'undefined' &&
+      smiles.length > 0 &&
+      (substructure === 'false' || substructure === 'undefined')
+    ) {
       searchParams.$and.push({ smiles })
     }
 
@@ -306,7 +312,7 @@ export const searchDatasets = async (req, res) => {
       .populate('user', 'username')
       .populate('group', 'groupName')
 
-    if (smiles !== 'undefined' && substructure === 'true') {
+    if (smiles !== 'undefined' && smiles.length > 0 && substructure === 'true') {
       const searcher = new SSSearcher()
       const fragment = OCLMolecule.fromSmiles(smiles)
       fragment.setFragment(true)

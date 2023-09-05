@@ -50,11 +50,9 @@ const DatasetCard = props => {
       className={classes.Card}
       bodyStyle={{ backgroundColor: '#f6ffed', width: 240 }}
       cover={
-        <div style={{ height: '150px' }}>
+        <div className={classes.Cover}>
           {data.molSVGs.length > 0 ? (
             <div
-              className={classes.Cover}
-              style={{ width: 240 }}
               dangerouslySetInnerHTML={{
                 __html: data.molSVGs[svgIndex].svg
               }}
