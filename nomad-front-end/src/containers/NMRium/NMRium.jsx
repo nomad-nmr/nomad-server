@@ -7,6 +7,7 @@ import { EditOutlined } from '@ant-design/icons'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
+import DatasetTags from '../../components/DatasetTags/DatasetTags'
 import {
   keepNMRiumChanges,
   setChangedData,
@@ -113,11 +114,14 @@ const NMRiumContainer = props => {
     titleElement = (
       <div>
         <div className={classes.TitleBlock}>
-          <span>Dataset title: </span>
+          <span className={classes.TitleSpan}>#Tag: </span>
+          <DatasetTags tags={['tag1', 'tag2']} />
+          <span className={classes.TitleSpan}>Dataset title: </span>
           {title}
-          <span>User: </span>
+
+          <span className={classes.TitleSpan}>User: </span>
           {`${user.fullName} [${user.username}]`}
-          <span>Group: </span>
+          <span className={classes.TitleSpan}>Group: </span>
           {group.groupName}
           <Tooltip title='Edit dataset metadata'>
             <Button

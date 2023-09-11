@@ -20,7 +20,7 @@ const SearchDatasetControls = props => {
           <Radio value='cards'>Cards</Radio>
         </Radio.Group>
       </div>
-      <Tooltip title='Add selected experiment in NMRium'>
+      <Tooltip title='Add selected experiments in NMRium'>
         <Button
           type='primary'
           disabled={props.checked.length === 0}
