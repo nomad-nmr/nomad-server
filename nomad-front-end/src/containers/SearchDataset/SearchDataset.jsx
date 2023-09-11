@@ -12,7 +12,8 @@ import {
   downloadDataset,
   getDatasets,
   resetCheckedInDatasets,
-  updateCheckedExpsInDatasets
+  updateCheckedExpsInDatasets,
+  updateTagsDatasets
 } from '../../store/actions'
 
 const SearchDataset = props => {
@@ -93,6 +94,7 @@ const SearchDataset = props => {
           checkedHandler={props.updateChecked}
           checked={props.checked}
           resetChecked={props.resetChecked}
+          updateTags={props.updateDatasetTags}
         />
       ) : (
         <div className={classes.Cards}>
@@ -144,7 +146,9 @@ const mapDispatchToProps = dispatch => ({
   downloadDataset: (datasetId, fileName, token) =>
     dispatch(downloadDataset(datasetId, fileName, token)),
   updateChecked: payload => dispatch(updateCheckedExpsInDatasets(payload)),
-  resetChecked: () => dispatch(resetCheckedInDatasets())
+  resetChecked: () => dispatch(resetCheckedInDatasets()),
+  updateDatasetTags: (datasetId, tags, token) =>
+    dispatch(updateTagsDatasets(datasetId, tags, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchDataset)

@@ -8,8 +8,28 @@ const DatasetTags = props => {
   const [inputValue, setInputValue] = useState('')
   const inputRef = useRef(null)
 
+  const { tags, datasetId, authToken, patchDataset, inputDisabled } = props
+
   const handleInputChange = e => {
     setInputValue(e.target.value)
+  }
+
+  const handleInputConfirm = () => {
+    if (tags.find(tag => tag === inputValue) || inputValue.length === 0) {
+      setInputValue('')
+      return setInputVisible(false)
+    }
+
+    const newTags = [...tags, inputValue.trim()]
+
+    patchDataset(datasetId, newTags, authToken)
+    setInputVisible(false)
+    setInputValue('')
+  }
+
+  const handleClose = removedTag => {
+    const newTags = tags.filter(tag => tag !== removedTag)
+    patchDataset(datasetId, newTags, authToken)
   }
 
   const tagPlusStyle = {
@@ -17,14 +37,14 @@ const DatasetTags = props => {
     borderStyle: 'dashed'
   }
 
-  const tagChild = props.tags.map(tag => {
+  const tagChild = tags.map(tag => {
     const tagElem = (
       <Tag
-        closable
-        // onClose={e => {
-        //   e.preventDefault()
-        //   handleClose(tag)
-        // }}
+        closable={!inputDisabled}
+        onClose={e => {
+          e.preventDefault()
+          handleClose(tag)
+        }}
         color='cyan'
       >
         {tag}
@@ -41,6 +61,17 @@ const DatasetTags = props => {
       </span>
     )
   })
+
+  let inputTag = null
+
+  if (!inputDisabled) {
+    inputTag = (
+      <Tag onClick={() => setInputVisible(true)} style={tagPlusStyle}>
+        <PlusOutlined /> New Tag
+      </Tag>
+    )
+  }
+
   return (
     <Fragment>
       {tagChild}
@@ -54,13 +85,11 @@ const DatasetTags = props => {
           }}
           value={inputValue}
           onChange={handleInputChange}
-          //   onBlur={handleInputConfirm}
-          //   onPressEnter={handleInputConfirm}
+          onBlur={handleInputConfirm}
+          onPressEnter={handleInputConfirm}
         />
       ) : (
-        <Tag onClick={() => setInputVisible(true)} style={tagPlusStyle}>
-          <PlusOutlined /> New Tag
-        </Tag>
+        inputTag
       )}
     </Fragment>
   )

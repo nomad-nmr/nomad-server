@@ -20,7 +20,8 @@ import {
   fetchDataset,
   openAuthModal,
   editDatasetMeta,
-  patchDataset
+  patchDataset,
+  updateTags
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -39,7 +40,7 @@ const NMRiumContainer = props => {
     fetchGrpList
   } = props
 
-  const { user, group, title, id } = props.datasetMeta
+  const { user, group, title, id, tags } = props.datasetMeta
 
   const [modalData, setModalData] = useState([])
 
@@ -115,7 +116,13 @@ const NMRiumContainer = props => {
       <div>
         <div className={classes.TitleBlock}>
           <span className={classes.TitleSpan}>#Tag: </span>
-          <DatasetTags tags={['tag1', 'tag2']} />
+          <DatasetTags
+            tags={tags ? tags : []}
+            datasetId={id}
+            authToken={authToken}
+            patchDataset={props.updateTags}
+            inputDisabled={accessLvl !== 'admin' && username !== user.username}
+          />
           <span className={classes.TitleSpan}>Dataset title: </span>
           {title}
 
@@ -197,7 +204,8 @@ const mapDispatchToProps = dispatch => ({
   fetchDataset: (datasetId, token) => dispatch(fetchDataset(datasetId, token)),
   openAuthModal: () => dispatch(openAuthModal()),
   editDataset: () => dispatch(editDatasetMeta()),
-  patchDataset: (datasetId, metaData, token) => dispatch(patchDataset(datasetId, metaData, token))
+  patchDataset: (datasetId, metaData, token) => dispatch(patchDataset(datasetId, metaData, token)),
+  updateTags: (datasetId, tagValue, token) => dispatch(updateTags(datasetId, tagValue, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)

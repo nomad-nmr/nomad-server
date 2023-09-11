@@ -257,7 +257,12 @@ const SearchForm = props => {
       style={{ margin: '0 40px 0 40px' }}
     >
       <Row justify='center' gutter={32}>
-        <Col span={8}>
+        <Col span={3}>
+          <Form.Item label='Tags' name='tags'>
+            <Input allowClear={true} placeholder='#Tags' />
+          </Form.Item>
+        </Col>
+        <Col span={7}>
           <Space.Compact style={{ width: '100%' }}>
             <Form.Item label='SMILES' name='smiles' style={{ width: '100%' }}>
               <Input placeholder='Input SMILES string or draw molecule' />
@@ -273,12 +278,12 @@ const SearchForm = props => {
           </Form.Item>
         </Col>
 
-        <Col span={6} offset={1}>
+        <Col span={5} offset={1}>
           <Form.Item label='Created Date Range' name='createdDateRange'>
             <RangePicker allowClear={true} />
           </Form.Item>
         </Col>
-        <Col span={6}>
+        <Col span={5}>
           <Form.Item label='Last Updated Date Range' name='updatedDateRange'>
             <RangePicker allowClear={true} />
           </Form.Item>

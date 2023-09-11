@@ -99,3 +99,27 @@ export const updateCheckedExpsInDatasets = payload => ({
 export const resetCheckedInDatasets = () => ({
   type: actionTypes.RESET_CHECKED_DATASETS
 })
+
+export const updateTagSuccess = payload => ({
+  type: actionTypes.UPDATE_DATASET_TAGS,
+  payload
+})
+
+export const updateTagsDatasets = (datasetId, tags, token) => {
+  return dispatch => {
+    axios
+      .patch(
+        '/datasets/tags/' + datasetId,
+        { tags },
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
+      .then(res => {
+        dispatch(updateTagSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

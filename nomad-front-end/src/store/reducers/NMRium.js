@@ -100,6 +100,10 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.PATCH_DATASET_META_SUCCESS:
       return { ...state, showDataSetModal: false, editing: false, datasetMeta: payload }
 
+    case actionTypes.UPDATE_NMRIUM_TAGS: {
+      return { ...state, datasetMeta: { ...state.datasetMeta, tags: payload.tags } }
+    }
+
     default:
       return state
   }

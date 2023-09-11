@@ -154,3 +154,27 @@ export const fetchExpsFromDatasets = (token, payload) => {
       })
   }
 }
+
+export const updateTagSuccess = payload => ({
+  type: actionTypes.UPDATE_NMRIUM_TAGS,
+  payload
+})
+
+export const updateTags = (datasetId, tags, token) => {
+  return dispatch => {
+    axios
+      .patch(
+        '/datasets/tags/' + datasetId,
+        { tags },
+        {
+          headers: { Authorization: 'Bearer ' + token }
+        }
+      )
+      .then(res => {
+        dispatch(updateTagSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

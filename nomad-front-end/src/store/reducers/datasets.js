@@ -54,6 +54,12 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_CHECKED_DATASETS:
       return { ...state, checked: [] }
 
+    case actionTypes.UPDATE_DATASET_TAGS:
+      const index = state.data.findIndex(i => i.key === payload.datasetId)
+      const newDatasets = [...state.data]
+      newDatasets[index].tags = payload.tags
+      return { ...state, data: newDatasets }
+
     default:
       return state
   }

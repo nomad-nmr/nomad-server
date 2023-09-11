@@ -87,7 +87,8 @@ export const getDataset = async (req, res) => {
         id: dataset._id,
         title: dataset.title,
         user: dataset.user,
-        group: dataset.group
+        group: dataset.group,
+        tags: dataset.tags
       },
       nmriumData: dataset.nmriumData
     }
@@ -194,7 +195,8 @@ export const patchDataset = async (req, res) => {
       id: dataset._id,
       title: dataset.title,
       user: dataset.user,
-      group: dataset.group
+      group: dataset.group,
+      tags: dataset.tags
     }
     res.status(200).json(respObj)
   } catch (error) {
@@ -216,10 +218,9 @@ export const searchDatasets = async (req, res) => {
       sorterField,
       sorterOrder,
       smiles,
-      substructure
+      substructure,
+      tags
     } = req.query
-
-    console.log(smiles, substructure)
 
     let sorter
     if (sorterOrder === 'undefined') {
@@ -264,6 +265,10 @@ export const searchDatasets = async (req, res) => {
       (substructure === 'false' || substructure === 'undefined')
     ) {
       searchParams.$and.push({ smiles })
+    }
+
+    if (tags !== 'undefined' && tags.length > 0) {
+      searchParams.$and.push({ tags })
     }
 
     const adminSearchLogic = () => {
@@ -352,6 +357,7 @@ export const searchDatasets = async (req, res) => {
         username: i.user.username,
         groupName: i.group.groupName,
         title: i.title,
+        tags: i.tags,
         expCount: i.nmriumData.data.spectra.length,
         createdAt: i.createdAt,
         updatedAt: i.updatedAt,
@@ -382,6 +388,21 @@ export const deleteDataset = async (req, res) => {
       return res.sendStatus(404)
     }
     res.status(200).json({ datasetId: dataset._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const updateTags = async (req, res) => {
+  try {
+    const dataset = await Dataset.findById(req.params.datasetId)
+    if (!dataset) {
+      return res.sendStatus(404)
+    }
+    dataset.tags = req.body.tags
+    const savedDataset = await dataset.save()
+    res.status(200).json({ tags: savedDataset.tags, datasetId: savedDataset._id })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

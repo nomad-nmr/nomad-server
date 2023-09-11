@@ -9,6 +9,7 @@ import Icon, {
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
+import DatasetTags from '../DatasetTags/DatasetTags'
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import structureIconSVG from './StructureIcon'
 import classes from './SearchExpsTable.module.css'
@@ -26,7 +27,7 @@ const DatasetTable = props => {
     {
       title: 'Username',
       align: 'center',
-      width: 200,
+      width: 100,
       render: record =>
         props.user.accessLevel === 'admin' ? (
           <Button type='link' onClick={() => navigate(`/admin/users?username=${record.username}`)}>
@@ -40,13 +41,36 @@ const DatasetTable = props => {
       title: 'Group',
       dataIndex: 'groupName',
       align: 'center',
-      width: 200
+      width: 100
     },
     {
       title: 'Dataset Title',
       dataIndex: 'title',
       align: 'center'
     },
+    {
+      title: 'Tags',
+      width: 200,
+      render: record => {
+        console.log(record)
+        return (
+          record && (
+            <div style={{ display: 'flex' }}>
+              <DatasetTags
+                tags={record.tags}
+                inputDisabled={
+                  record.username !== props.user.username && props.user.accessLevel !== 'admin'
+                }
+                patchDataset={props.updateTags}
+                datasetId={record.key}
+                authToken={props.token}
+              />
+            </div>
+          )
+        )
+      }
+    },
+
     {
       title: 'Exp Count',
       align: 'center',
