@@ -113,6 +113,8 @@ export async function addUsers(req, res) {
     let newUsers = 0
     let rejected = 0
 
+    let exUsersObj = {}
+
     await Promise.all(
       req.body.map(async username => {
         if (username.length > 0) {
@@ -124,20 +126,21 @@ export async function addUsers(req, res) {
             return
           }
           total++
+
           if (user) {
             const oldGroupId = user.group
-            const oldGroup = await Group.findById(oldGroupId)
 
             user.group = group._id
             user.accessLevel = group.isBatch ? 'user-b' : 'user'
             user.isActive = group.isActive ? true : false
             await user.save()
 
-            //adding userId in the exUsers array after moving to a new group
-            const exUsersSet = new Set(oldGroup.exUsers)
-            exUsersSet.add(user._id)
-            oldGroup.exUsers = Array.from(exUsersSet)
-            await oldGroup.save()
+            //adding userId in the exUsers object after moving to a new group
+            const oldGroup = await Group.findById(oldGroupId, 'exUsers')
+            if (!exUsersObj[oldGroupId]) {
+              exUsersObj[oldGroupId] = new Set(oldGroup.exUsers)
+            }
+            exUsersObj[oldGroupId].add(user._id)
           } else {
             const bs = new BcryptSalt()
             const hashedPasswd = await bcrypt.hash(Math.random().toString(), bs.saltRounds)
@@ -154,6 +157,13 @@ export async function addUsers(req, res) {
             await user.save()
           }
         }
+      })
+    )
+
+    //updating exUsers in old groups
+    await Promise.all(
+      Object.entries(exUsersObj).map(async entry => {
+        await Group.findByIdAndUpdate(entry[0], { exUsers: Array.from(entry[1]) })
       })
     )
 
