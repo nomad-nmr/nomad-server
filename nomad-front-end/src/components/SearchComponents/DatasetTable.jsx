@@ -228,8 +228,9 @@ const showStructure = record => {
   return Modal.info({
     content: <Space>{svgElements}</Space>,
     icon: null,
-    okText: 'Close',
-    width: record.molSVGs.length * 200
+    width: record.molSVGs.length * 200,
+    maskClosable: true,
+    footer: null
   })
 }
 
