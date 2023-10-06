@@ -310,20 +310,24 @@ export const searchDatasets = async (req, res) => {
     }
 
     let total = await Dataset.find(searchParams).countDocuments()
-    let datasets = await Dataset.find(searchParams)
-      .skip((currentPage - 1) * pageSize)
-      .limit(+pageSize)
-      .sort(sorter)
-      .populate('user', 'username')
-      .populate('group', 'groupName')
+    let datasets
 
     if (smiles !== 'undefined' && smiles.length > 0 && substructure === 'true') {
+      //search including substructure
       const searcher = new SSSearcher()
       const fragment = OCLMolecule.fromSmiles(smiles)
       fragment.setFragment(true)
       searcher.setFragment(fragment)
 
-      datasets = datasets.filter(i => {
+      //getting all datasets that fits searchParams without pagination
+      //If pagination is used substructure search is performed only on one page
+      const datasetsToFilter = await Dataset.find(searchParams)
+        .sort(sorter)
+        .populate('user', 'username')
+        .populate('group', 'groupName')
+
+      //using OCL to filter array to get datasets containing substructure
+      datasets = datasetsToFilter.filter(i => {
         const hasSubstructure = i.smiles.find(j => {
           const molecule = OCLMolecule.fromSmiles(j)
           searcher.setMolecule(molecule)
@@ -333,7 +337,16 @@ export const searchDatasets = async (req, res) => {
         return hasSubstructure
       })
 
-      total = datasets.length
+      //returning total = null disables pagination on front end
+      total = null
+    } else {
+      //dataset search including pagination if substructure is not involved
+      datasets = await Dataset.find(searchParams)
+        .skip((currentPage - 1) * pageSize)
+        .limit(+pageSize)
+        .sort(sorter)
+        .populate('user', 'username')
+        .populate('group', 'groupName')
     }
 
     const respData = datasets.map(i => {

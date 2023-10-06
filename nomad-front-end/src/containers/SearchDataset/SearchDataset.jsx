@@ -110,19 +110,21 @@ const SearchDataset = props => {
           ))}
         </div>
       )}
-      <Pagination
-        style={{ marginTop: '20px', textAlign: 'right' }}
-        current={currentPage}
-        pageSize={pageSize}
-        onChange={(page, size) => onPageChange(page, size)}
-        showSizeChanger
-        onShowSizeChange={(current, size) => {
-          setCurrentPage(current)
-          setPageSize(size)
-        }}
-        total={props.total}
-        showTotal={total => `Total ${total} datasets`}
-      />
+      {props.total !== null && (
+        <Pagination
+          style={{ marginTop: '20px', textAlign: 'right' }}
+          current={currentPage}
+          pageSize={pageSize}
+          onChange={(page, size) => onPageChange(page, size)}
+          showSizeChanger
+          onShowSizeChange={(current, size) => {
+            setCurrentPage(current)
+            setPageSize(size)
+          }}
+          total={props.total}
+          showTotal={total => `Total ${total} datasets`}
+        />
+      )}
     </div>
   )
 }
