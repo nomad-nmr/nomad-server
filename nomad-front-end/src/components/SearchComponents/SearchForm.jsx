@@ -39,8 +39,7 @@ const SearchForm = props => {
     datasetSearchParams,
     username,
     usrList,
-    grpName,
-    smiles
+    grpName
   } = props
 
   const [form] = Form.useForm()
@@ -204,7 +203,7 @@ const SearchForm = props => {
           //The component has be render only if groupList is not empty
           // That allows to call useEffect efficiently only when the component mounts
           dataAccess !== 'user' && groupList.length !== 0 ? (
-            <Col span={16}>
+            <Col span={15}>
               <SelectGrpUsr
                 userList={props.usrList}
                 groupList={groupList}
@@ -215,12 +214,14 @@ const SearchForm = props => {
                 formRef={formRef}
                 inactiveSwitch
                 dataAccessLvl={dataAccess}
+                legacySwitch={true}
+                loggedUser={username}
               />
             </Col>
           ) : null
         }
 
-        <Col span={2}>
+        <Col span={4}>
           <Space size='large'>
             <Form.Item>
               <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>
@@ -283,14 +284,14 @@ const SearchForm = props => {
             <RangePicker allowClear={true} />
           </Form.Item>
         </Col>
-        <Col span={5}>
+        <Col span={6}>
           <Form.Item label='Last Updated Date Range' name='updatedDateRange'>
             <RangePicker allowClear={true} />
           </Form.Item>
         </Col>
       </Row>
       <Row justify='center' gutter={32}>
-        <Col span={6}>
+        <Col span={5}>
           <Form.Item label='Title' name='title'>
             <Input allowClear={true} placeholder='Dataset Title' />
           </Form.Item>
@@ -300,7 +301,7 @@ const SearchForm = props => {
           //The component has be render only if groupList is not empty
           // That allows to call useEffect efficiently only when the component mounts
           dataAccess !== 'user' && groupList.length !== 0 ? (
-            <Col span={14}>
+            <Col span={15}>
               <SelectGrpUsr
                 userList={props.usrList}
                 groupList={groupList}
@@ -311,12 +312,14 @@ const SearchForm = props => {
                 formRef={formRef}
                 inactiveSwitch
                 dataAccessLvl={dataAccess}
+                legacySwitch={true}
+                loggedUser={username}
               />
             </Col>
           ) : null
         }
 
-        <Col span={2}>
+        <Col span={4}>
           <Space size='large'>
             <Form.Item>
               <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>

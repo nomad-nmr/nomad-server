@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { Form, Select, Space, Switch } from 'antd'
 
 const SelectGrpUsr = props => {
-  const { inactiveSwitch, fetchUsrListHandler, userList, fetchGrpListHandler, token, formRef } =
-    props
+  const {
+    inactiveSwitch,
+    fetchUsrListHandler,
+    userList,
+    fetchGrpListHandler,
+    token,
+    formRef,
+    dataAccessLvl
+  } = props
 
   let groupList = props.groupList
 
@@ -12,6 +19,7 @@ const SelectGrpUsr = props => {
   const [grpInactiveChecked, setGrpInactiveChecked] = useState(false)
   const [usrInactiveChecked, setUsrInactiveChecked] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState(undefined)
+  const [legacy, setLegacy] = useState(false)
 
   useEffect(() => {
     if (groupList.length === 1) {
@@ -43,11 +51,12 @@ const SelectGrpUsr = props => {
   return (
     <Space size='large'>
       {inactiveSwitch && (
-        <Form.Item label='Inactive Groups' tooltip='if ON select from inactive groups'>
+        <Form.Item label='Inactive' tooltip='if ON select from inactive groups'>
           <Switch
             disabled={props.dataAccessLvl === 'group'}
             checkedChildren='ON'
             unCheckedChildren='OFF'
+            size='small'
             onChange={checked => {
               setGrpInactiveChecked(checked)
               fetchGrpListHandler(token, checked)
@@ -76,12 +85,13 @@ const SelectGrpUsr = props => {
       </Form.Item>
       {inactiveSwitch && (
         <Form.Item
-          label='Inactive Users'
+          label='Inactive'
           name='inactiveSwitchOn'
           valuePropName='checked'
           tooltip='if ON select from inactive users'
         >
           <Switch
+            size='small'
             checkedChildren='ON'
             unCheckedChildren='OFF'
             onChange={checked => {
@@ -95,8 +105,29 @@ const SelectGrpUsr = props => {
         </Form.Item>
       )}
       <Form.Item label='Username' name='userId'>
-        <Select style={{ width: 250 }}>{usrOptions}</Select>
+        <Select style={{ width: 250 }} disabled={legacy}>
+          {usrOptions}
+        </Select>
       </Form.Item>
+      {props.legacySwitch && (dataAccessLvl === 'group' || dataAccessLvl === 'admin-b') ? (
+        <Form.Item
+          label='Legacy'
+          name='legacyData'
+          valuePropName='checked'
+          tooltip='if ON data acquired for previous groups included in search and data acquired for current group are excluded'
+        >
+          <Switch
+            checkedChildren='ON'
+            unCheckedChildren='OFF'
+            size='small'
+            onChange={() => {
+              setLegacy(!legacy)
+              const user = userList.find(usr => usr.username === props.loggedUser)
+              formRef.current.setFieldsValue({ groupId: undefined, userId: user._id })
+            }}
+          />
+        </Form.Item>
+      ) : null}
     </Space>
   )
 }

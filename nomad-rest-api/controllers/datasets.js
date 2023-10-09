@@ -219,7 +219,8 @@ export const searchDatasets = async (req, res) => {
       sorterOrder,
       smiles,
       substructure,
-      tags
+      tags,
+      legacyData
     } = req.query
 
     let sorter
@@ -281,6 +282,8 @@ export const searchDatasets = async (req, res) => {
       }
     }
 
+    console.log(legacyData)
+
     //this switch should assure that search is performed in accordance with data access privileges
     switch (dataAccess) {
       case 'user':
@@ -288,17 +291,27 @@ export const searchDatasets = async (req, res) => {
         break
 
       case 'group':
-        if (userId && userId !== 'undefined') {
-          searchParams.$and.push({ user: userId, group: req.user.group })
+        if (legacyData === 'true') {
+          searchParams.$and.push({ user: req.user._id })
+          searchParams.$nor = [{ group: req.user.group }]
         } else {
-          searchParams.$and.push({ group: req.user.group })
+          if (userId && userId !== 'undefined') {
+            searchParams.$and.push({ user: userId, group: req.user.group })
+          } else {
+            searchParams.$and.push({ group: req.user.group })
+          }
         }
         break
 
       case 'admin-b':
-        adminSearchLogic()
-        if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+        if (legacyData === 'true') {
           searchParams.$and.push({ user: req.user._id })
+          searchParams.$nor = [{ group: req.user.group }]
+        } else {
+          adminSearchLogic()
+          if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+            searchParams.$and.push({ group: req.user.group })
+          }
         }
         break
 

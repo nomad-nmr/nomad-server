@@ -22,7 +22,8 @@ export async function fetchExperiments(req, res) {
     userId,
     dataType,
     pulseProgram,
-    datasetName
+    datasetName,
+    legacyData
   } = req.query
 
   try {
@@ -99,18 +100,30 @@ export async function fetchExperiments(req, res) {
         break
 
       case 'group':
-        if (userId && userId !== 'undefined') {
-          searchParams.$and.push({ 'user.id': userId, 'group.id': req.user.group })
+        if (legacyData === 'true') {
+          searchParams.$and.push({ 'user.id': req.user._id })
+          searchParams.$nor = [{ 'group.id': req.user.group }]
         } else {
-          searchParams.$and.push({ 'group.id': req.user.group })
+          if (userId && userId !== 'undefined') {
+            searchParams.$and.push({ 'user.id': userId, 'group.id': req.user.group })
+          } else {
+            searchParams.$and.push({ 'group.id': req.user.group })
+          }
         }
+
         break
 
       case 'admin-b':
-        adminSearchLogic()
-        if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+        if (legacyData === 'true') {
           searchParams.$and.push({ 'user.id': req.user._id })
+          searchParams.$nor = [{ 'group.id': req.user.group }]
+        } else {
+          adminSearchLogic()
+          if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+            searchParams.$and.push({ 'group.id': req.user.group })
+          }
         }
+
         break
 
       case 'admin':
