@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Card, Button, Tooltip } from 'antd'
+import { Card, Button, Tooltip, Popconfirm } from 'antd'
 import {
   FolderOpenOutlined,
   DownloadOutlined,
@@ -40,7 +40,21 @@ const DatasetCard = props => {
   if (user.username === data.username || user.accessLevel === 'admin') {
     actions.push(
       <Tooltip title='Delete dataset'>
-        <DeleteOutlined onClick={() => props.onDeleteDataset(data.key, props.token)} />
+        <Popconfirm
+          placement='left'
+          title='Delete the dataset'
+          description={() => (
+            <div>
+              <div>Are you sure to delete this dataset?</div>
+              <div style={{ color: 'green' }}>
+                NMR experiment included in the datasets will remain archived in the datastore!
+              </div>
+            </div>
+          )}
+          onConfirm={() => props.onDeleteDataset(data.key, props.token)}
+        >
+          <DeleteOutlined />
+        </Popconfirm>
       </Tooltip>
     )
   }
