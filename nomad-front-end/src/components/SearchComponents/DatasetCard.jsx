@@ -41,16 +41,22 @@ const DatasetCard = props => {
     actions.push(
       <Tooltip title='Delete dataset'>
         <Popconfirm
-          placement='left'
+          placement='bottom'
           title='Delete the dataset'
-          description={() => (
+          description={
             <div>
-              <div>Are you sure to delete this dataset?</div>
+              <div>
+                Are you sure to delete the dataset with title{' '}
+                <span style={{ fontWeight: 600, color: 'red', fontSize: '13px' }}>
+                  {data.title}
+                </span>
+                ?
+              </div>
               <div style={{ color: 'green' }}>
                 NMR experiment included in the datasets will remain archived in the datastore!
               </div>
             </div>
-          )}
+          }
           onConfirm={() => props.onDeleteDataset(data.key, props.token)}
         >
           <DeleteOutlined />

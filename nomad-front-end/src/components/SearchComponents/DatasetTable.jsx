@@ -52,7 +52,6 @@ const DatasetTable = props => {
       title: 'Tags',
       width: 200,
       render: record => {
-        console.log(record)
         return (
           record && (
             <div style={{ display: 'flex' }}>
@@ -127,14 +126,20 @@ const DatasetTable = props => {
             <Popconfirm
               placement='left'
               title='Delete the dataset'
-              description={() => (
+              description={
                 <div>
-                  <div>Are you sure to delete this dataset?</div>
+                  <div>
+                    Are you sure to delete the datset with title{' '}
+                    <span style={{ fontWeight: 600, color: 'red', fontSize: '13px' }}>
+                      {record.title}
+                    </span>
+                    ?
+                  </div>
                   <div style={{ color: 'green' }}>
                     NMR experiment included in the datasets will remain archived in the datastore!
                   </div>
                 </div>
-              )}
+              }
               onConfirm={() => props.onDeleteDataset(record.key, props.token)}
             >
               <Button
