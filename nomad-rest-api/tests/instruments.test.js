@@ -17,7 +17,8 @@ beforeEach(setupDB)
 
 vi.mock('../server.js', () => ({
   getSubmitter: vi.fn(() => ({
-    isConnected: vi.fn(() => true)
+    isConnected: vi.fn(() => true),
+    addInstrument: vi.fn()
   }))
 }))
 
@@ -150,6 +151,7 @@ describe('POST /admin/instruments/', () => {
     expect(body).toHaveProperty('name', 'instrument-4')
     expect(body).toHaveProperty('available', false)
     expect(body.status.summary).toBeDefined()
+    expect(getSubmitter).toBeCalled()
 
     //asserting change in DB
     const instrument = await Instrument.findById(body._id)
@@ -186,7 +188,7 @@ describe('PUT /admin/instruments/', () => {
     expect(body.errors[0].msg).toBe(`Max length of model info is 30`)
   })
 
-  it('should fail with status 422 if capacity provided is not inetger number', async () => {
+  it('should fail with status 422 if capacity provided is not integer number', async () => {
     const { body } = await request(app)
       .put('/admin/instruments')
       .send({

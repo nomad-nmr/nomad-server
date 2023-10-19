@@ -44,6 +44,9 @@ export const addInstrument = async (req, res) => {
     }
     const instrument = new Instrument(req.body)
     await instrument.save()
+
+    getSubmitter().addInstrument(instrument._id.toString())
+
     res.status(201).json(instrument)
   } catch (err) {
     console.log(err)

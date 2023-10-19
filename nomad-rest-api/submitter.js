@@ -26,6 +26,14 @@ class Submitter {
     })
   }
 
+  addInstrument(instrId) {
+    this.state.set(instrId, {
+      socketId: undefined,
+      usedHolders: [],
+      bookedHolders: []
+    })
+  }
+
   updateSocket(instrId, socketId) {
     const instr = this.state.get(instrId)
     this.state.set(instrId, { ...instr, socketId })
