@@ -5,7 +5,7 @@ import app from '../app'
 import { connectDB, dropDB, setupDB } from './fixtures/db'
 import transporter from '../utils/emailTransporter'
 
-import { testUserAdmin, testUserOne, testUserTwo } from './fixtures/data/users'
+import { testUserAdmin, testUserOne, testUserTwo, testUserThree } from './fixtures/data/users'
 import { testGroupOne } from './fixtures/data/groups'
 
 beforeAll(connectDB)
@@ -86,11 +86,11 @@ describe('POST /admin/message', () => {
     expect(transporter.sendMail).toHaveBeenCalledWith({
       from: process.env.SMTP_SENDER,
       to: process.env.SMTP_SENDER,
-      bcc: [testUserTwo.email, testUserAdmin.email],
+      bcc: [testUserTwo.email, testUserAdmin.email, testUserThree.email],
       subject: 'NOMAD: test',
       text: 'test message'
     })
-    expect(body).toMatchObject({ messageCount: '2' })
+    expect(body).toMatchObject({ messageCount: '3' })
   })
 
   it('should call sendMail to send e-mail to all active users while excluding testUserTwo', async () => {
@@ -117,11 +117,11 @@ describe('POST /admin/message', () => {
     expect(transporter.sendMail).toHaveBeenCalledWith({
       from: process.env.SMTP_SENDER,
       to: process.env.SMTP_SENDER,
-      bcc: [testUserAdmin.email],
+      bcc: [testUserAdmin.email, testUserThree.email],
       subject: 'NOMAD: test',
       text: 'test message'
     })
-    expect(body).toMatchObject({ messageCount: '1' })
+    expect(body).toMatchObject({ messageCount: '2' })
   })
 
   it('should fail with status 403 if request is not authorised by user with admin access', async () => {

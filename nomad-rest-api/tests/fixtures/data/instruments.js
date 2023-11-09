@@ -1,10 +1,10 @@
-import fs from 'fs/promises'
+import fs from 'fs'
 import path from 'path'
 import mongoose from 'mongoose'
 
-const getStatus = async filename => {
+const getStatus = filename => {
   const absPath = path.join(__dirname, filename)
-  const inputJson = await fs.readFile(absPath)
+  const inputJson = fs.readFileSync(absPath)
   return JSON.parse(inputJson)
 }
 

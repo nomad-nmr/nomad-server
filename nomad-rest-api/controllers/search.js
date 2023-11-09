@@ -255,7 +255,7 @@ export async function fetchExperiments(req, res) {
 export async function getDataAccess(req, res) {
   try {
     const dataAccess = await req.user.getDataAccess()
-    res.send(dataAccess)
+    res.send({ dataAccess })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

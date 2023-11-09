@@ -6,12 +6,16 @@ import Group from '../../models/group.js'
 import Instrument from '../../models/instrument'
 import ParameterSet from '../../models/parameterSet.js'
 import Claim from '../../models/claim.js'
+import Experiment from '../../models/experiment.js'
+import Dataset from '../../models/dataset.js'
 
-import { testUserOne, testUserTwo, testUserAdmin } from './data/users'
+import { testUserOne, testUserTwo, testUserAdmin, testUserThree } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
 import { testInstrOne, testInstrTwo, testInstrThree } from './data/instruments'
 import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
 import { testClaimOne, testClaimTwo } from './data/claims.js'
+import { testExpOne, testExpTwo, testExpThree, testExpFour } from './data/experiments.js'
+import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
 
 let mongo = null
 
@@ -37,10 +41,13 @@ export const setupDB = async () => {
   await Instrument.deleteMany()
   await ParameterSet.deleteMany()
   await Claim.deleteMany()
+  await Experiment.deleteMany()
+  await Dataset.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
   await new User(testUserAdmin).save()
+  await new User(testUserThree).save()
 
   testGroupTwo.exUsers = []
   testGroupTwo.exUsers.push(testUserOne._id)
@@ -57,4 +64,13 @@ export const setupDB = async () => {
 
   await new Claim(testClaimOne).save()
   await new Claim(testClaimTwo).save()
+
+  await new Experiment(testExpOne).save()
+  await new Experiment(testExpTwo).save()
+  await new Experiment(testExpThree).save()
+  await new Experiment(testExpFour).save()
+
+  await new Dataset(testDatasetOne).save()
+  await new Dataset(testDatasetTwo).save()
+  await new Dataset(testDatasetThree).save()
 }

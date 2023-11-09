@@ -5,7 +5,8 @@ export const testGroupOne = {
   groupName: 'test-group-1',
   isActive: false,
   description: 'Test Group One',
-  isBatch: false
+  isBatch: false,
+  dataAccess: 'user'
 }
 
 export const testGroupTwo = {

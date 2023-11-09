@@ -270,13 +270,16 @@ export const getExpsFromDatasets = async (req, res) => {
         const expId = entry.isFid ? expIdRaw.split('/fid/')[0] : expIdRaw
 
         const dataset = await Dataset.findById(datasetId)
-        let nmriumSpectrumObj = dataset.nmriumData.data.spectra.find(spec => spec.id === expIdRaw)
+        let nmriumSpectrumObj = dataset.nmriumData.data.spectra.find(
+          spec => spec.id.toString() === expIdRaw
+        )
 
         //getting spectra from archived data
         const experiment =
           entry.dataType === 'auto'
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
+
         const filePath = path.join(
           process.env.DATASTORE_PATH,
           experiment.dataPath,

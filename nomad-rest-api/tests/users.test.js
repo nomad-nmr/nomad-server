@@ -14,13 +14,13 @@ afterAll(dropDB)
 beforeEach(setupDB)
 
 describe('GET /admin/users/', () => {
-  it('should return array of 3 test users with lastLogin descending order', async () => {
+  it('should return array of 4 test users with lastLogin descending order', async () => {
     const { body } = await request(app)
       .get('/admin/users/?current=1&pageSize=10&lastLoginOrder=descend')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
-    expect(body).toHaveProperty('total', 3)
-    expect(body.users.length).toBe(3)
+    expect(body).toHaveProperty('total', 4)
+    expect(body.users.length).toBe(4)
     expect(body.users[0]).toHaveProperty('username', 'admin')
     expect(body.users[1].inactiveDays).toBe(2)
   })
@@ -29,13 +29,13 @@ describe('GET /admin/users/', () => {
     await request(app).get('/admin/users/?current=1&pageSize=10').expect(403)
   })
 
-  it('should return array of 2 active user', async () => {
+  it('should return array of 3 active user', async () => {
     const { body } = await request(app)
       .get('/admin/users/?current=1&pageSize=10&showInactive=false')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
-    expect(body).toHaveProperty('total', 2)
-    expect(body.users.length).toBe(2)
+    expect(body).toHaveProperty('total', 3)
+    expect(body.users.length).toBe(3)
   })
 
   it('should return array with admin test user if "adm" string is provided as username', async () => {
@@ -51,8 +51,8 @@ describe('GET /admin/users/', () => {
       .get(`/admin/users/?current=1&pageSize=10&group=${testGroupTwo._id.toString()}`)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
-    expect(body).toHaveProperty('total', 1)
-    expect(body.users.length).toBe(1)
+    expect(body).toHaveProperty('total', 2)
+    expect(body.users.length).toBe(2)
     expect(body.users[0]).toHaveProperty('username', 'admin')
   })
 

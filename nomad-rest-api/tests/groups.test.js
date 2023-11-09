@@ -30,7 +30,7 @@ describe('GET /admin/groups/', () => {
       .expect(200)
     expect(body.length).toBe(2)
     expect(body[0]).toHaveProperty('groupName', 'test-admins')
-    expect(body[0]).toHaveProperty('totalUserCount', 1)
+    expect(body[0]).toHaveProperty('totalUserCount', 2)
   })
 
   it('should fail with status code 403 if request is not authorised', async () => {

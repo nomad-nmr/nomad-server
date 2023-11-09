@@ -30,11 +30,31 @@ export const testUserTwo = {
   email: 'test2@example.com',
   password: 'SuperSecret12',
   accessLevel: 'user-a',
+  dataAccess: 'group',
   isActive: true,
   group: testGroupOne._id,
   tokens: [
     {
       token: jwt.sign({ _id: testUserTwoId }, process.env.JWT_SECRET)
+    }
+  ]
+}
+
+const testUserThreeId = new mongoose.Types.ObjectId()
+export const testUserThree = {
+  _id: testUserThreeId,
+  username: 'test3',
+  fullName: 'Test User Three',
+  email: 'test3@example.com',
+  password: 'SuperSecret123',
+  accessLevel: 'user',
+  isActive: true,
+  group: testGroupTwo._id,
+  dataAccess: 'group',
+  lastLogin: moment().subtract(3, 'days'),
+  tokens: [
+    {
+      token: jwt.sign({ _id: testUserThreeId }, process.env.JWT_SECRET)
     }
   ]
 }
@@ -45,6 +65,7 @@ export const testUserAdmin = {
   username: 'admin',
   fullName: 'Admin User',
   accessLevel: 'admin',
+  dataAccess: 'admin',
   email: 'admin@example.com',
   password: 'SuperSecret123',
   isActive: true,

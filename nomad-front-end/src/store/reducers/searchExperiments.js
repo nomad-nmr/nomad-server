@@ -70,7 +70,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, dataType: payload, tableData: [], total: undefined }
 
     case actionTypes.GET_DATA_ACCESS_SUCCESS:
-      return { ...state, dataAccess: payload }
+      return { ...state, dataAccess: payload.dataAccess }
 
     case actionTypes.RESET_EXPERIMENT_SEARCH:
       return { ...state, tableData: [], formValues: {}, total: undefined }

@@ -57,6 +57,7 @@ export const getDataset = async (req, res) => {
       .populate('group', 'groupName')
       .populate('user', ['username', 'fullName'])
 
+    //Updating NMR data arrays from raw Bruker zip files
     const spectraArr = await Promise.all(
       dataset.nmriumData.data.spectra.map(async i => {
         const expId = i.info.type === 'NMR FID' ? i.id.split('/fid/')[0] : i.id
@@ -223,8 +224,12 @@ export const searchDatasets = async (req, res) => {
       legacyData
     } = req.query
 
+    if (!currentPage || !pageSize) {
+      return res.send(422)
+    }
+
     let sorter
-    if (sorterOrder === 'undefined') {
+    if (!sorterOrder || sorterOrder === 'undefined') {
       sorter = { createdAt: 'desc' }
     } else {
       sorter = sorterOrder === 'descend' ? { [sorterField]: 'desc' } : { [sorterField]: 'asc' }
@@ -281,8 +286,6 @@ export const searchDatasets = async (req, res) => {
         searchParams.$and.push({ user: userId })
       }
     }
-
-    console.log(legacyData)
 
     //this switch should assure that search is performed in accordance with data access privileges
     switch (dataAccess) {
