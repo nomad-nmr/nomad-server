@@ -95,7 +95,8 @@ export const getDataset = async (req, res) => {
     }
 
     const respJSON = JSON.stringify(respObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
-
+    //.json can't be used as we already convert object to json above using custom function
+    // deepcode ignore XSS: <please specify a reason of ignoring this>
     res.status(200).send(respJSON)
   } catch (error) {
     console.log(error)
@@ -366,21 +367,18 @@ export const searchDatasets = async (req, res) => {
     }
 
     const respData = datasets.map(i => {
-      const expsInfo = []
-      i.nmriumData.data.spectra.map(spec => {
-        expsInfo.push({
-          key: i.id + '-' + spec.id,
-          dataType: spec.dataType,
-          isFid: spec.info.isFid,
-          dimension: spec.info.dimension,
-          nucleus: spec.info.nucleus,
-          pulseSequence: spec.info.pulseSequence,
-          solvent: spec.info.solvent,
-          name: spec.info.name,
-          title: spec.info.title,
-          date: spec.info.date
-        })
-      })
+      const expsInfo = i.nmriumData.data.spectra.map(spec => ({
+        key: i.id + '-' + spec.id,
+        dataType: spec.dataType,
+        isFid: spec.info.isFid,
+        dimension: spec.info.dimension,
+        nucleus: spec.info.nucleus,
+        pulseSequence: spec.info.pulseSequence,
+        solvent: spec.info.solvent,
+        name: spec.info.name,
+        title: spec.info.title,
+        date: spec.info.date
+      }))
       return {
         key: i._id,
         username: i.user.username,
@@ -412,7 +410,7 @@ export const searchDatasets = async (req, res) => {
 
 export const deleteDataset = async (req, res) => {
   try {
-    const dataset = await Dataset.findByIdAndRemove(req.params.datasetId)
+    const dataset = await Dataset.findByIdAndDelete(req.params.datasetId)
     if (!dataset) {
       return res.sendStatus(404)
     }

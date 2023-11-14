@@ -4,6 +4,7 @@ import path from 'path'
 import { it, expect, describe, beforeEach, beforeAll, afterAll, vi } from 'vitest'
 import request from 'supertest'
 import moment from 'moment'
+import mongoose from 'mongoose'
 
 import app from '../app.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
@@ -553,8 +554,9 @@ describe('DELETE /datasets/:datasetId', () => {
   })
 
   it('should fail with error 404 if invalid dataset ID is provided', async () => {
+    const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .delete('/datasets/123456789abc')
+      .delete('/datasets/' + newId.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
@@ -588,8 +590,9 @@ describe('PATCH /datasets/tags/:datasetId', () => {
   })
 
   it('should fail with error 404 if invalid dataset ID is provided', async () => {
+    const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .patch('/datasets/tags/123456789abc')
+      .patch('/datasets/tags/' + newId.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send({ tags: ['test2'] })
       .expect(404)
