@@ -229,7 +229,9 @@ const DatasetTable = props => {
 }
 
 const showStructure = record => {
-  const svgElements = record.molSVGs.map(i => <div dangerouslySetInnerHTML={{ __html: i.svg }} />)
+  const svgElements = record.molSVGs.map((i, index) => (
+    <div key={index} dangerouslySetInnerHTML={{ __html: i.svg }} />
+  ))
   return Modal.info({
     content: <Space>{svgElements}</Space>,
     icon: null,
