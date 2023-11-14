@@ -89,18 +89,12 @@ const NMRiumContainer = props => {
   const changeHandler = useCallback(dataUpdate => {
     delete dataUpdate.data.actionType
     delete dataUpdate.settings
-    //If the data are of type "NMR FID" NMRium automatically applies all processing filters
+    //NMRium automatically applies all processing filters
     //Therefore data and info is replaced by originals
     const newSpectra = dataUpdate.data.spectra.map(i => {
       const newSpectrum = { ...i }
-      if (i.info.type !== 'NMR FID') {
-        delete newSpectrum.originalData
-        delete newSpectrum.originalInfo
-      } else {
-        newSpectrum.data = { ...newSpectrum.originalData }
-        newSpectrum.info = { ...newSpectrum.originalInfo }
-      }
-
+      newSpectrum.data = { ...i.originalData }
+      newSpectrum.info = { ...i.originalInfo }
       return newSpectrum
     })
 
