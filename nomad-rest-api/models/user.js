@@ -44,6 +44,17 @@ const userSchema = new Schema(
     },
     lastLogin: Date,
 
+    stats: {
+      nmriumCount: {
+        type: Number,
+        default: 0
+      },
+      downloadCount: {
+        type: Number,
+        default: 0
+      }
+    },
+
     tokens: [
       {
         token: {

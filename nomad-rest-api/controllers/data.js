@@ -92,6 +92,10 @@ export const getExps = async (req, res) => {
       })
     )
 
+    const user = await User.findById(req.user._id)
+    user.stats.downloadCount += 1
+    await user.save()
+
     mainZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(res)
   } catch (error) {
     console.log(error)
@@ -134,6 +138,11 @@ export const getNMRium = async (req, res) => {
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
       ArrayBuffer.isView(v) ? Array.from(v) : v
     )
+
+    const user = await User.findById(req.user._id)
+    user.stats.nmriumCount += 1
+    await user.save()
+
     res.status(200).send(respDataJSON)
   } catch (error) {
     console.log(error)
