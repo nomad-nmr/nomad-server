@@ -140,7 +140,7 @@ const NMRiumContainer = props => {
 
   return (
     <Spin size='large' spinning={props.spinning}>
-      <div style={{ height: '85vh' }}>
+      <div className={classes.nmriumContainer}>
         {titleElement}
         <NMRium data={data} onChange={data => changeHandler(data)} emptyText='' />
       </div>

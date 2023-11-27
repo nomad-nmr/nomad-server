@@ -28,6 +28,10 @@ import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
 
 import './index.css'
+//Required by NMRium version 0.45.0
+//Without these global styles NMRium does not render correctly
+import './nmriumGlobal.css'
+
 import App from './App'
 
 //setting up moment library to enable format duration
