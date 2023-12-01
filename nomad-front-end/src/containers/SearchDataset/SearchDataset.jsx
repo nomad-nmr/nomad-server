@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Pagination } from 'antd'
 
 import SearchForm from '../../components/SearchComponents/SearchForm'
 import DatasetTable from '../../components/SearchComponents/DatasetTable'
 import DatasetCard from '../../components/SearchComponents/DatasetCard'
+import CollectionModal from '../../components/Modals/CollectionModal/CollectionModal'
 
 import classes from './SearchDataset.module.css'
 import {
@@ -12,8 +13,12 @@ import {
   downloadDataset,
   getDatasets,
   resetCheckedInDatasets,
+  updateCheckedDatasetsSearch,
   updateCheckedExpsInDatasets,
-  updateTagsDatasets
+  updateTagsDatasets,
+  toggleCollectionModal,
+  addDatasetsToCollection,
+  getCollectionsList
 } from '../../store/actions'
 
 const SearchDataset = props => {
@@ -22,6 +27,14 @@ const SearchDataset = props => {
   const [sorterState, setSorterState] = useState({})
 
   const user = { username: props.username, accessLevel: props.accessLvl }
+
+  useEffect(() => {
+    props.fetchCollectionsList(props.authToken)
+
+    return () => {
+      props.resetChecked()
+    }
+  }, [])
 
   const onFormSubmit = values => {
     const { createdDateRange, updatedDateRange } = values
@@ -79,6 +92,11 @@ const SearchDataset = props => {
     )
   }
 
+  const modalCancelHandler = () => {
+    props.tglModal()
+    props.resetChecked()
+  }
+
   return (
     <div className={classes.Container}>
       <SearchForm submitHandler={values => onFormSubmit(values)} />
@@ -91,23 +109,29 @@ const SearchDataset = props => {
           onDeleteDataset={props.deleteDataset}
           onSorterChange={onSorterChange}
           user={user}
-          checkedHandler={props.updateChecked}
-          checked={props.checked}
-          resetChecked={props.resetChecked}
+          checkedExpsHandler={props.updateCheckedExps}
+          checkedDatasetsHandler={props.updateCheckedDatasets}
+          checkedExps={props.checkedExps}
+          checkedDatasets={props.checkedDatasets}
           updateTags={props.updateDatasetTags}
         />
       ) : (
         <div className={classes.Cards}>
-          {props.data.map(i => (
-            <DatasetCard
-              key={i.key}
-              data={i}
-              onDeleteDataset={props.deleteDataset}
-              onDownloadDataset={props.downloadDataset}
-              token={props.authToken}
-              user={user}
-            />
-          ))}
+          {props.data.map(i => {
+            const checked = props.checkedDatasets.find(id => id === i.key)
+            return (
+              <DatasetCard
+                key={i.key}
+                checked={checked}
+                data={i}
+                onDeleteDataset={props.deleteDataset}
+                onDownloadDataset={props.downloadDataset}
+                checkedDatasetsHandler={props.updateCheckedDatasets}
+                token={props.authToken}
+                user={user}
+              />
+            )
+          })}
         </div>
       )}
       {props.total !== null && (
@@ -125,6 +149,15 @@ const SearchDataset = props => {
           showTotal={total => `Total ${total} datasets`}
         />
       )}
+      <CollectionModal
+        open={props.modalOpen}
+        cancelHandler={modalCancelHandler}
+        data={props.checkedDatasets}
+        token={props.authToken}
+        requestHandler={props.addToCollection}
+        fetchCollections={props.fetchCollectionsList}
+        collectionList={props.collectionList}
+      />
     </div>
   )
 }
@@ -138,19 +171,25 @@ const mapStateToProps = state => ({
   displayType: state.datasets.displayType,
   accessLvl: state.auth.accessLevel,
   username: state.auth.username,
-  checked: state.datasets.checked
+  checkedExps: state.datasets.checkedExps,
+  checkedDatasets: state.datasets.checkedDatasets,
+  modalOpen: state.datasets.showModal,
+  collectionList: state.datasets.collectionList
 })
 
 const mapDispatchToProps = dispatch => ({
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
-
   downloadDataset: (datasetId, fileName, token) =>
     dispatch(downloadDataset(datasetId, fileName, token)),
-  updateChecked: payload => dispatch(updateCheckedExpsInDatasets(payload)),
+  updateCheckedExps: payload => dispatch(updateCheckedExpsInDatasets(payload)),
   resetChecked: () => dispatch(resetCheckedInDatasets()),
   updateDatasetTags: (datasetId, tags, token) =>
-    dispatch(updateTagsDatasets(datasetId, tags, token))
+    dispatch(updateTagsDatasets(datasetId, tags, token)),
+  updateCheckedDatasets: payload => dispatch(updateCheckedDatasetsSearch(payload)),
+  tglModal: () => dispatch(toggleCollectionModal()),
+  addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
+  fetchCollectionsList: token => dispatch(getCollectionsList(token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SearchDataset)

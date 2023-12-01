@@ -178,6 +178,10 @@ export {
   deleteDataset,
   toggleDatasetDisplay,
   updateCheckedExpsInDatasets,
+  updateCheckedDatasetsSearch,
   resetCheckedInDatasets,
-  updateTagsDatasets
+  updateTagsDatasets,
+  toggleCollectionModal,
+  addDatasetsToCollection,
+  getCollectionsList
 } from './datasets'

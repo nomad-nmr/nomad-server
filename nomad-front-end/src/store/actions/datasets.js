@@ -96,6 +96,11 @@ export const updateCheckedExpsInDatasets = payload => ({
   payload
 })
 
+export const updateCheckedDatasetsSearch = payload => ({
+  type: actionTypes.UPDATE_CHECKED_DATASETS_SEARCH,
+  payload
+})
+
 export const resetCheckedInDatasets = () => ({
   type: actionTypes.RESET_CHECKED_DATASETS
 })
@@ -117,6 +122,51 @@ export const updateTagsDatasets = (datasetId, tags, token) => {
       )
       .then(res => {
         dispatch(updateTagSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const toggleCollectionModal = () => ({
+  type: actionTypes.TOGGLE_COLLECTION_MODAL
+})
+
+export const addDatasetsToCollectionSuccess = payload => ({
+  type: actionTypes.ADD_DATASETS_TO_COLLECTION_SUCCESS,
+  payload
+})
+
+export const addDatasetsToCollection = (data, token) => {
+  return dispatch => {
+    dispatch(loadingDatasetsStarts())
+    axios
+      .post('/collections/', data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(addDatasetsToCollectionSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const getCollectionsListSuccess = payload => ({
+  type: actionTypes.GET_COLLECTION_LIST_SUCCESS,
+  payload
+})
+
+export const getCollectionsList = token => {
+  return dispatch => {
+    axios
+      .get('/collections/?list=true', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(getCollectionsListSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

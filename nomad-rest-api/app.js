@@ -24,6 +24,7 @@ import searchRoutes from './routes/search.js'
 import claimRoutes from './routes/claims.js'
 import datasetsRoutes from './routes/datasets.js'
 import statsRoutes from './routes/admin/stats.js'
+import collectionRoutes from './routes/collections.js'
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()
@@ -58,6 +59,7 @@ app.use('/search', searchRoutes)
 app.use('/claims', claimRoutes)
 app.use('/datasets', datasetsRoutes)
 app.use('/stats', statsRoutes)
+app.use('/collections', collectionRoutes)
 
 app.use((req, res) => {
   res.status(404).send()

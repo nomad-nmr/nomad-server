@@ -42,7 +42,8 @@ import {
   saveDataset,
   downloadDataset,
   toggleDatasetDisplay,
-  fetchExpsFromDatasets
+  fetchExpsFromDatasets,
+  toggleCollectionModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -238,9 +239,11 @@ const PageHeaderEl = props => {
         <SearchDatasetControls
           displayType={props.datasetDisplayType}
           onDisplayChange={props.tglDatasetDisplay}
-          checked={props.checkedExpsInDatasets}
+          checkedExps={props.checkedExpsInDatasets}
+          checkedDatasets={props.checkedDatasetsSearch}
           onAddExps={props.fetchExpsFromDatasets}
           token={props.authToken}
+          modalHandler={props.tglColModal}
         />
       )
       break
@@ -353,7 +356,8 @@ const mapStateToProps = state => {
     showApproved: state.claimsHistory.showApproved,
     dataset: state.nmrium.datasetMeta,
     datasetDisplayType: state.datasets.displayType,
-    checkedExpsInDatasets: state.datasets.checked
+    checkedExpsInDatasets: state.datasets.checkedExps,
+    checkedDatasetsSearch: state.datasets.checkedDatasets
   }
 }
 
@@ -399,7 +403,8 @@ const mapDispatchToProps = dispatch => {
     downloadDataset: (datasetId, fileName, token) =>
       dispatch(downloadDataset(datasetId, fileName, token)),
     tglDatasetDisplay: value => dispatch(toggleDatasetDisplay(value)),
-    fetchExpsFromDatasets: (token, payload) => dispatch(fetchExpsFromDatasets(token, payload))
+    fetchExpsFromDatasets: (token, payload) => dispatch(fetchExpsFromDatasets(token, payload)),
+    tglColModal: () => dispatch(toggleCollectionModal())
   }
 }
 

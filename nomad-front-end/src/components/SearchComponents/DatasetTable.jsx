@@ -17,12 +17,6 @@ import classes from './SearchExpsTable.module.css'
 const DatasetTable = props => {
   const navigate = useNavigate()
 
-  useEffect(() => {
-    return () => {
-      props.resetChecked()
-    }
-  }, [])
-
   let columns = [
     {
       title: 'Username',
@@ -95,7 +89,7 @@ const DatasetTable = props => {
     },
     {
       title: 'Actions',
-      width: 300,
+      width: 270,
       render: record => (
         <Space>
           <Tooltip title='Show chemical structures'>
@@ -199,8 +193,8 @@ const DatasetTable = props => {
     const selectExps = {
       selectionType: 'checkbox',
       columnTitle: 'Select',
-      selectedRowKeys: props.checked.map(i => i.key),
-      onSelect: (record, selected) => props.checkedHandler({ record, selected })
+      selectedRowKeys: props.checkedExps.map(i => i.key),
+      onSelect: (record, selected) => props.checkedExpsHandler({ record, selected })
     }
 
     return (
@@ -215,6 +209,13 @@ const DatasetTable = props => {
     )
   }
 
+  const selectDatasets = {
+    selectionType: 'checkbox',
+    columnTitle: 'Select',
+    selectedRowKeys: props.checkedDatasets,
+    onSelect: (record, selected) => props.checkedDatasetsHandler({ key: record.key, selected })
+  }
+
   return (
     <Table
       columns={columns}
@@ -224,6 +225,7 @@ const DatasetTable = props => {
       pagination={false}
       onChange={props.onSorterChange}
       expandable={{ expandedRowRender }}
+      rowSelection={selectDatasets}
     />
   )
 }

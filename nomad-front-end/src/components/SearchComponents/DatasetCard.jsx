@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Card, Button, Tooltip, Popconfirm } from 'antd'
+import { Card, Button, Tooltip, Popconfirm, Checkbox } from 'antd'
 import {
   FolderOpenOutlined,
   DownloadOutlined,
@@ -21,7 +21,12 @@ const DatasetCard = props => {
   const [svgIndex, setSvgIndex] = useState(0)
   const { data, user } = props
 
+  const onCheckboxChange = e => {
+    props.checkedDatasetsHandler({ selected: e.target.checked, key: data.key })
+  }
+
   const actions = [
+    <Checkbox checked={props.checked} onChange={onCheckboxChange} />,
     <Tooltip title='Open dataset in NMRium'>
       <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
     </Tooltip>,
@@ -73,6 +78,7 @@ const DatasetCard = props => {
         <div className={classes.Cover}>
           {data.molSVGs.length > 0 ? (
             <div
+              className={classes.Structure}
               dangerouslySetInnerHTML={{
                 __html: data.molSVGs[svgIndex].svg
               }}

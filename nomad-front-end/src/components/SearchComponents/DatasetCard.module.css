@@ -8,6 +8,13 @@
   padding: 10px;
 }
 
+.Structure {
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .NoStructure {
   margin-top: 70px;
   font-size: 20px;

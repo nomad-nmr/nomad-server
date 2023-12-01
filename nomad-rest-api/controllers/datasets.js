@@ -394,7 +394,8 @@ export const searchDatasets = async (req, res) => {
           return {
             svg: molecule.toSVG(150, 150, null, {
               suppressChiralText: true,
-              suppressESR: true
+              suppressESR: true,
+              autoCrop: true
             }),
             label: mol.label
           }
