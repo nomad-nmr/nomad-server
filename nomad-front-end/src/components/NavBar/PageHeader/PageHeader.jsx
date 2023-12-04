@@ -75,6 +75,7 @@ import searchIcon from '../../../assets/loupe.svg'
 import accountingIcon from '../../../assets/accounting.png'
 import uploadIcon from '../../../assets/uploadIcon.png'
 import claimIcon from '../../../assets/claimIcon.svg'
+import collectionIcon from '../../../assets/folder-icon.png'
 
 const PageHeaderEl = props => {
   const {
@@ -303,6 +304,11 @@ const PageHeaderEl = props => {
           downloadHandler={props.downloadDataset}
         />
       )
+      break
+
+    case location.pathname === '/collections':
+      headerTitle = 'Collections'
+      avatarSrc = collectionIcon
       break
 
     default:

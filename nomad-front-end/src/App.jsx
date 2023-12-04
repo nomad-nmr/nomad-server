@@ -71,6 +71,7 @@ const App = props => {
   const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
   const Claim = React.lazy(() => import('./containers/Claim/Claim'))
   const ClaimsHistory = React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
+  const Collections = React.lazy(() => import('./containers/Collections/Collections'))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -219,6 +220,16 @@ const App = props => {
                   import.meta.env.VITE_DATASTORE_ON === 'true' &&
                   (accessLevel === 'admin' || manualAccess) ? (
                     <Claim />
+                  ) : (
+                    <Navigate to='/dashboard' />
+                  )
+                }
+              />
+              <Route
+                path='/collections'
+                element={
+                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                    <Collections />
                   ) : (
                     <Navigate to='/dashboard' />
                   )

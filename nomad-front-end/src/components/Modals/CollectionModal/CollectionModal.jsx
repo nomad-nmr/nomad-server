@@ -43,6 +43,8 @@ const CollectionModal = props => {
             onSelect={value => {
               if (value === '##-new-##') {
                 setNewCollection(true)
+              } else {
+                setNewCollection(false)
               }
             }}
           />

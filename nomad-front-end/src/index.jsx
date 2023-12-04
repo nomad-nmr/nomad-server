@@ -23,6 +23,7 @@ import nmriumReducer from './store/reducers/NMRium'
 import claimReducer from './store/reducers/claim'
 import claimsHistoryReducer from './store/reducers/claimsHistory'
 import datasetsReducer from './store/reducers/datasets'
+import collectionsReducer from './store/reducers/collections'
 
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -61,7 +62,8 @@ const rootReducer = combineReducers({
   nmrium: nmriumReducer,
   claim: claimReducer,
   claimsHistory: claimsHistoryReducer,
-  datasets: datasetsReducer
+  datasets: datasetsReducer,
+  collections: collectionsReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))

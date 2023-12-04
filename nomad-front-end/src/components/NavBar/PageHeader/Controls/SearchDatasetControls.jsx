@@ -1,6 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Radio, Button, Tooltip, Space } from 'antd'
+import { LineChartOutlined, FolderAddOutlined } from '@ant-design/icons'
 
 import classes from '../PageHeader.module.css'
 
@@ -25,6 +26,7 @@ const SearchDatasetControls = props => {
         <Tooltip title='Add selected datasets to collection'>
           <Button
             type='primary'
+            icon={<FolderAddOutlined />}
             disabled={props.checkedDatasets.length === 0}
             onClick={() => props.modalHandler()}
           >
@@ -33,6 +35,7 @@ const SearchDatasetControls = props => {
         </Tooltip>
         <Tooltip title='Add selected experiments to NMRium'>
           <Button
+            icon={<LineChartOutlined />}
             disabled={props.checkedExps.length === 0}
             onClick={() => {
               props.onAddExps(props.token, props.checkedExps)

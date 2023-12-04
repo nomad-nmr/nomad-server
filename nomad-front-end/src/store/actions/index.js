@@ -185,3 +185,5 @@ export {
   addDatasetsToCollection,
   getCollectionsList
 } from './datasets'
+
+export { fetchCollections } from './collections'

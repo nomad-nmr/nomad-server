@@ -7,7 +7,8 @@ import Icon, {
   SearchOutlined,
   LineChartOutlined,
   UploadOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  FolderOutlined
 } from '@ant-design/icons'
 import batchIconSvg from './BatchSubmitIcon'
 
@@ -65,6 +66,11 @@ const MainMenu = props => {
           label: <span className={classes.MenuItem}>Datasets</span>
         }
       ]
+    },
+    {
+      key: '/collections',
+      icon: <FolderOutlined style={{ fontSize: 20 }} />,
+      label: <span className={classes.MenuItem}>Collections</span>
     },
     {
       key: '/nmrium/null',

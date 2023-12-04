@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Radio, Popconfirm } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { LineChartOutlined, DownloadOutlined } from '@ant-design/icons'
 
 import classes from '../PageHeader.module.css'
 
@@ -53,6 +54,7 @@ const SearchControls = props => {
       </div>
 
       <Button
+        icon={<LineChartOutlined />}
         className={classes.Button}
         type='primary'
         disabled={searchCheckedState.length === 0}
@@ -71,7 +73,11 @@ const SearchControls = props => {
         onCancel={() => toggleModal()}
         onConfirm={() => openNMRiumHandler()}
       >
-        <Button className={classes.Button} disabled={searchCheckedState.length === 0}>
+        <Button
+          icon={<DownloadOutlined />}
+          className={classes.Button}
+          disabled={searchCheckedState.length === 0}
+        >
           Download
         </Button>
       </Popconfirm>

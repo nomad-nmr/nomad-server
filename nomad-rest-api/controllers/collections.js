@@ -45,11 +45,21 @@ export const postCollection = async (req, res) => {
 
 export const getCollections = async (req, res) => {
   try {
+    let respData
+    const collections = await Collection.find({ user: req.user.id }).sort({ updatedAt: 'desc' })
+
     if (req.query.list === 'true') {
-      const collections = await Collection.find({ user: req.user.id })
-      const respData = collections.map(i => ({ label: i.title, value: i._id }))
-      res.status(200).json(respData)
+      respData = collections.map(i => ({ label: i.title, value: i._id }))
+    } else {
+      respData = collections.map(i => ({
+        key: i._id,
+        title: i.title,
+        datasetsCount: i.datasets.length,
+        createdAt: i.createdAt,
+        updatedAt: i.updatedAt
+      }))
     }
+    res.status(200).send(respData)
   } catch (error) {
     console.log(error)
     res.status(500).send()
