@@ -186,4 +186,11 @@ export {
   getCollectionsList
 } from './datasets'
 
-export { fetchCollections } from './collections'
+export {
+  fetchCollections,
+  openCollection,
+  toggleCollectionDisplay,
+  returnToCollectionList,
+  deleteCollection,
+  removeDatasets
+} from './collections'

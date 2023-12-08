@@ -226,7 +226,7 @@ const App = props => {
                 }
               />
               <Route
-                path='/collections'
+                path='/collections/:collectionId'
                 element={
                   import.meta.env.VITE_DATASTORE_ON === 'true' ? (
                     <Collections />

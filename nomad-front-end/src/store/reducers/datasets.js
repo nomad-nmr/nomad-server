@@ -61,6 +61,9 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.UPDATE_DATASET_TAGS:
       const index = state.data.findIndex(i => i.key === payload.datasetId)
+      if (index < 0) {
+        return { ...state }
+      }
       const newDatasets = [...state.data]
       newDatasets[index].tags = payload.tags
       return { ...state, data: newDatasets }

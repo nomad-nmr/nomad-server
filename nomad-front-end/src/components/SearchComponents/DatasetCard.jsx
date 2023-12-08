@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Card, Button, Tooltip, Popconfirm, Checkbox } from 'antd'
+import { Card, Button, Tooltip, Popconfirm, Checkbox, Tag } from 'antd'
 import {
   FolderOpenOutlined,
   DownloadOutlined,
@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
+import DatasetTags from '../DatasetTags/DatasetTags'
 import classes from './DatasetCard.module.css'
 
 const { Meta } = Card
@@ -30,7 +31,7 @@ const DatasetCard = props => {
     <Tooltip title='Open dataset in NMRium'>
       <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
     </Tooltip>,
-    <CopyLinkToClipboard id={data.key}>
+    <CopyLinkToClipboard id={data.key} path='nmrium'>
       <Tooltip title='Copy dataset link'>
         <ShareAltOutlined />
       </Tooltip>
@@ -58,7 +59,7 @@ const DatasetCard = props => {
                 ?
               </div>
               <div style={{ color: 'green' }}>
-                NMR experiment included in the datasets will remain archived in the datastore!
+                NMR experiments included in the dataset will remain archived in the datastore!
               </div>
             </div>
           }
@@ -73,9 +74,18 @@ const DatasetCard = props => {
   return (
     <Card
       className={classes.Card}
-      bodyStyle={{ backgroundColor: '#f6ffed', width: 240 }}
+      bodyStyle={{ backgroundColor: '#f6ffed', width: 240, fontSize: '8 px' }}
       cover={
         <div className={classes.Cover}>
+          <div style={{ width: '220px' }}>
+            <DatasetTags
+              tags={data.tags}
+              inputDisabled={data.username !== user.username && user.accessLevel !== 'admin'}
+              patchDataset={props.updateTags}
+              datasetId={data.key}
+              authToken={props.token}
+            />
+          </div>
           {data.molSVGs.length > 0 ? (
             <div
               className={classes.Structure}
@@ -108,7 +118,11 @@ const DatasetCard = props => {
       }
       actions={actions}
     >
-      <Meta title={data.title} className={classes.Meta} />
+      <Meta
+        description={
+          <span style={{ color: 'black', fontWeight: 500, fontSize: 'small' }}>{data.title}</span>
+        }
+      />
     </Card>
   )
 }

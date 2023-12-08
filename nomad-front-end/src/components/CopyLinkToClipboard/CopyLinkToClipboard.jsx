@@ -5,8 +5,8 @@ import { CopyToClipboard } from 'react-copy-to-clipboard'
 const CopyLinkToClipboard = props => {
   return (
     <CopyToClipboard
-      text={props.id ? window.location.origin + '/nmrium/' + props.id : window.location.href}
-      onCopy={() => message.success('Dataset link copied to clipboard')}
+      text={props.id ? window.location.origin + `/${props.path}/` + props.id : window.location.href}
+      onCopy={() => message.success('Link copied to clipboard')}
     >
       {props.children}
     </CopyToClipboard>

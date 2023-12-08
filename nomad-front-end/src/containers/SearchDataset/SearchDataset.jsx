@@ -129,6 +129,7 @@ const SearchDataset = props => {
                 checkedDatasetsHandler={props.updateCheckedDatasets}
                 token={props.authToken}
                 user={user}
+                updateTags={props.updateDatasetTags}
               />
             )
           })}

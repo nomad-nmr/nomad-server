@@ -54,7 +54,8 @@ const DatasetTags = props => {
       <span
         key={tag}
         style={{
-          display: 'inline-block'
+          display: 'inline-block',
+          margin: '5px 0'
         }}
       >
         {tagElem}
@@ -73,7 +74,7 @@ const DatasetTags = props => {
   }
 
   return (
-    <Fragment>
+    <div>
       {tagChild}
       {inputVisible ? (
         <Input
@@ -91,7 +92,7 @@ const DatasetTags = props => {
       ) : (
         inputTag
       )}
-    </Fragment>
+    </div>
   )
 }
 

@@ -43,7 +43,10 @@ import {
   downloadDataset,
   toggleDatasetDisplay,
   fetchExpsFromDatasets,
-  toggleCollectionModal
+  toggleCollectionModal,
+  toggleCollectionDisplay,
+  returnToCollectionList,
+  removeDatasets
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -61,6 +64,7 @@ import NMRiumControls from './Controls/NMRiumControls'
 import ClaimControls from './Controls/ClaimControls'
 import ClaimsHistControls from './Controls/claimsHistControls'
 import SearchDatasetControls from './Controls/SearchDatasetControls'
+import CollectionControls from './Controls/CollectionControls'
 
 import dashIcon from '../../../assets/dashboard.svg'
 import userIcon from '../../../assets/user.svg'
@@ -306,9 +310,22 @@ const PageHeaderEl = props => {
       )
       break
 
-    case location.pathname === '/collections':
+    case location.pathname.includes('/collections'):
       headerTitle = 'Collections'
       avatarSrc = collectionIcon
+      extra = (
+        <CollectionControls
+          token={props.authToken}
+          displayType={props.collectionDisplayType}
+          onDisplayChange={props.tglColDisplay}
+          closeHandler={props.toCollectionList}
+          checkedExps={props.checkedExpsInDatasets}
+          checkedDatasets={props.checkedDatasetsSearch}
+          onAddExps={props.fetchExpsFromDatasets}
+          removeHandler={props.removeDatasets}
+          id={props.collectionId}
+        />
+      )
       break
 
     default:
@@ -363,7 +380,9 @@ const mapStateToProps = state => {
     dataset: state.nmrium.datasetMeta,
     datasetDisplayType: state.datasets.displayType,
     checkedExpsInDatasets: state.datasets.checkedExps,
-    checkedDatasetsSearch: state.datasets.checkedDatasets
+    checkedDatasetsSearch: state.datasets.checkedDatasets,
+    collectionDisplayType: state.collections.displayType,
+    collectionId: state.collections.id
   }
 }
 
@@ -410,7 +429,10 @@ const mapDispatchToProps = dispatch => {
       dispatch(downloadDataset(datasetId, fileName, token)),
     tglDatasetDisplay: value => dispatch(toggleDatasetDisplay(value)),
     fetchExpsFromDatasets: (token, payload) => dispatch(fetchExpsFromDatasets(token, payload)),
-    tglColModal: () => dispatch(toggleCollectionModal())
+    tglColModal: () => dispatch(toggleCollectionModal()),
+    tglColDisplay: value => dispatch(toggleCollectionDisplay(value)),
+    toCollectionList: () => dispatch(returnToCollectionList()),
+    removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token))
   }
 }
 

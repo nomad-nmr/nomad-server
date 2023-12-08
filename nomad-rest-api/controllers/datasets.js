@@ -10,6 +10,7 @@ const { Molecule: OCLMolecule, SSSearcher } = openChemLib
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
+import Collection from '../models/collection.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
 
 export const postDataset = async (req, res) => {
@@ -366,42 +367,8 @@ export const searchDatasets = async (req, res) => {
         .populate('group', 'groupName')
     }
 
-    const respData = datasets.map(i => {
-      const expsInfo = i.nmriumData.data.spectra.map(spec => ({
-        key: i.id + '-' + spec.id,
-        dataType: spec.dataType,
-        isFid: spec.info.isFid,
-        dimension: spec.info.dimension,
-        nucleus: spec.info.nucleus,
-        pulseSequence: spec.info.pulseSequence,
-        solvent: spec.info.solvent,
-        name: spec.info.name,
-        title: spec.info.title,
-        date: spec.info.date
-      }))
-      return {
-        key: i._id,
-        username: i.user.username,
-        groupName: i.group.groupName,
-        title: i.title,
-        tags: i.tags,
-        expCount: i.nmriumData.data.spectra.length,
-        createdAt: i.createdAt,
-        updatedAt: i.updatedAt,
-        expsInfo,
-        molSVGs: i.nmriumData.data.molecules.map(mol => {
-          const molecule = OCLMolecule.fromMolfile(mol.molfile)
-          return {
-            svg: molecule.toSVG(150, 150, null, {
-              suppressChiralText: true,
-              suppressESR: true,
-              autoCrop: true
-            }),
-            label: mol.label
-          }
-        })
-      }
-    })
+    const respData = getDatasetResp(datasets)
+
     res.status(200).json({ datasets: respData, total })
   } catch (error) {
     console.log(error)
@@ -409,13 +376,62 @@ export const searchDatasets = async (req, res) => {
   }
 }
 
+//helper function for formatting dataset array of datasets
+//used in collections controller
+export const getDatasetResp = datasetsInput => {
+  return datasetsInput.map(i => {
+    const expsInfo = i.nmriumData.data.spectra.map(spec => ({
+      key: i.id + '-' + spec.id,
+      dataType: spec.dataType,
+      isFid: spec.info.isFid,
+      dimension: spec.info.dimension,
+      nucleus: spec.info.nucleus,
+      pulseSequence: spec.info.pulseSequence,
+      solvent: spec.info.solvent,
+      name: spec.info.name,
+      title: spec.info.title,
+      date: spec.info.date
+    }))
+    return {
+      key: i._id,
+      username: i.user.username,
+      groupName: i.group.groupName,
+      title: i.title,
+      tags: i.tags,
+      expCount: i.nmriumData.data.spectra.length,
+      createdAt: i.createdAt,
+      updatedAt: i.updatedAt,
+      expsInfo,
+      molSVGs: i.nmriumData.data.molecules.map(mol => {
+        const molecule = OCLMolecule.fromMolfile(mol.molfile)
+        return {
+          svg: molecule.toSVG(150, 150, null, {
+            suppressChiralText: true,
+            suppressESR: true,
+            autoCrop: true
+          }),
+          label: mol.label
+        }
+      })
+    }
+  })
+}
+
 export const deleteDataset = async (req, res) => {
   try {
     const dataset = await Dataset.findByIdAndDelete(req.params.datasetId)
+    Promise.all(
+      dataset.inCollections.map(async id => {
+        const collection = await Collection.findById(id)
+        const newDatasets = collection.datasets.filter(i => i.toString() !== dataset._id.toString())
+        collection.datasets = newDatasets
+        await collection.save()
+      })
+    )
     if (!dataset) {
       return res.sendStatus(404)
     }
-    res.status(200).json({ datasetId: dataset._id })
+    res.status(200).json({ datasetId: dataset._id, inCollections: dataset.inCollections })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

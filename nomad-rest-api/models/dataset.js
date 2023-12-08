@@ -18,7 +18,8 @@ const datasetSchema = new Schema(
     },
     smiles: Array,
     nmriumData: Object,
-    tags: Array
+    tags: Array,
+    inCollections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }]
   },
   { timestamps: true }
 )

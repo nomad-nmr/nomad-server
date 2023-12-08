@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Table, Space, Tooltip, Button, Modal, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import Icon, {
@@ -92,7 +92,7 @@ const DatasetTable = props => {
       width: 270,
       render: record => (
         <Space>
-          <Tooltip title='Show chemical structures'>
+          <Tooltip title='Show chemical structures' placement='left'>
             <Button
               onClick={() => showStructure(record)}
               disabled={record.molSVGs.length === 0}
@@ -100,37 +100,37 @@ const DatasetTable = props => {
             />
           </Tooltip>
 
-          <Tooltip title='Open dataset in NMRium'>
+          <Tooltip title='Open dataset in NMRium' placement='left'>
             <Button onClick={() => navigate('/nmrium/' + record.key)}>
               <FolderOpenOutlined />
             </Button>
           </Tooltip>
-          <CopyLinkToClipboard id={record.key}>
-            <Tooltip title='Copy Dataset Link'>
+          <CopyLinkToClipboard id={record.key} path='nmrium'>
+            <Tooltip title='Copy Dataset Link' placement='left'>
               <Button icon={<ShareAltOutlined />} />
             </Tooltip>
           </CopyLinkToClipboard>
 
-          <Tooltip title='Download dataset'>
+          <Tooltip title='Download dataset' placement='left'>
             <Button onClick={() => props.onDownloadDataset(record.key, record.title, props.token)}>
               <DownloadOutlined />
             </Button>
           </Tooltip>
-          <Tooltip title='Delete dataset'>
+          <Tooltip title='Delete dataset' placement='left'>
             <Popconfirm
               placement='left'
               title='Delete the dataset'
               description={
                 <div>
                   <div>
-                    Are you sure to delete the datset with title{' '}
+                    Are you sure to delete the dataset with title{' '}
                     <span style={{ fontWeight: 600, color: 'red', fontSize: '13px' }}>
                       {record.title}
                     </span>
                     ?
                   </div>
                   <div style={{ color: 'green' }}>
-                    NMR experiment included in the datasets will remain archived in the datastore!
+                    NMR experiments included in the dataset will remain archived in the datastore!
                   </div>
                 </div>
               }
@@ -193,7 +193,7 @@ const DatasetTable = props => {
     const selectExps = {
       selectionType: 'checkbox',
       columnTitle: 'Select',
-      selectedRowKeys: props.checkedExps.map(i => i.key),
+      // selectedRowKeys: props.checkedExps.map(i => i.key),
       onSelect: (record, selected) => props.checkedExpsHandler({ record, selected })
     }
 

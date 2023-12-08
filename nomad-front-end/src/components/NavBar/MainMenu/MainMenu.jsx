@@ -68,7 +68,7 @@ const MainMenu = props => {
       ]
     },
     {
-      key: '/collections',
+      key: '/collections/list',
       icon: <FolderOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>Collections</span>
     },
