@@ -1,8 +1,11 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { Tooltip, Button } from 'antd'
+import { EditOutlined } from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
+import CollectionMetaModal from '../../components/Modals/CollectionMetaModal/CollectionMetaModal.jsx'
 import DatasetTable from '../../components/SearchComponents/DatasetTable.jsx'
 import DatasetCard from '../../components/SearchComponents/DatasetCard.jsx'
 import classes from './Collections.module.css'
@@ -21,10 +24,21 @@ import {
 } from '../../store/actions'
 
 const Collections = props => {
-  const { authToken, fetchCollections, data, loading, title, openCollection, openAuthModal } = props
-  const user = { username: props.username, accessLevel: props.accessLvl }
+  const {
+    authToken,
+    fetchCollections,
+    data,
+    loading,
+    title,
+    openCollection,
+    openAuthModal,
+    accessLvl,
+    username
+  } = props
+  const user = { username, accessLevel: accessLvl }
 
   const { collectionId } = useParams()
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     if (authToken) {
@@ -60,6 +74,17 @@ const Collections = props => {
         <div className={classes.TitleBlock}>
           <span>Collection title:</span>
           {title}
+          <div className={classes.EditIcon}>
+            <Tooltip title='Edit collection metadata'>
+              <Button
+                type='link'
+                onClick={() => setModalOpen(true)}
+                disabled={accessLvl !== 'admin' && username !== user.username}
+              >
+                <EditOutlined style={{ fontSize: '18px' }} />
+              </Button>
+            </Tooltip>
+          </div>
         </div>
 
         {props.displayType === 'table' ? (
@@ -100,7 +125,12 @@ const Collections = props => {
     )
   }
 
-  return <div className={classes.Container}>{mainElement}</div>
+  return (
+    <div>
+      <div className={classes.Container}>{mainElement}</div>
+      <CollectionMetaModal open={modalOpen} openHandler={setModalOpen} />
+    </div>
+  )
 }
 
 const mapStateToProps = state => ({

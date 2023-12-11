@@ -20,7 +20,13 @@ const DataSetModal = props => {
   }, [editing, dataset])
 
   return (
-    <Modal footer={null} width={650} open={props.open} title='Save DataSet As' closeIcon={null}>
+    <Modal
+      footer={null}
+      width={650}
+      open={props.open}
+      title={editing ? 'Edit dataset metadata' : 'Save dataset as'}
+      closeIcon={null}
+    >
       <div style={{ marginTop: '20px' }}>
         <Form
           form={form}
