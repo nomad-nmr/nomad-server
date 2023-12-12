@@ -104,3 +104,24 @@ export const removeDatasets = (collectionId, datasetIds, token) => {
       })
   }
 }
+
+export const updateCollectionSuccess = payload => ({
+  type: actionTypes.UPDATE_COLLECTION_META_SUCCESS,
+  payload
+})
+
+export const updateCollectionMeta = (collectionId, data, token) => {
+  return dispatch => {
+    dispatch(fetchCollectionsStarts())
+    axios
+      .patch('/collections/metadata/' + collectionId, data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(updateCollectionSuccess(res.data))
+      })
+      .catch(error => {
+        dispatch(errorHandler(error))
+      })
+  }
+}

@@ -192,5 +192,6 @@ export {
   toggleCollectionDisplay,
   returnToCollectionList,
   deleteCollection,
-  removeDatasets
+  removeDatasets,
+  updateCollectionMeta
 } from './collections'

@@ -20,7 +20,8 @@ import {
   resetCheckedInDatasets,
   updateCheckedExpsInDatasets,
   updateCheckedDatasetsSearch,
-  updateTagsDatasets
+  updateTagsDatasets,
+  updateCollectionMeta
 } from '../../store/actions'
 
 const Collections = props => {
@@ -128,7 +129,14 @@ const Collections = props => {
   return (
     <div>
       <div className={classes.Container}>{mainElement}</div>
-      <CollectionMetaModal open={modalOpen} openHandler={setModalOpen} />
+      <CollectionMetaModal
+        open={modalOpen}
+        openHandler={setModalOpen}
+        updateHandler={props.updateCollection}
+        collectionId={collectionId}
+        title={props.title}
+        token={authToken}
+      />
     </div>
   )
 }
@@ -158,7 +166,9 @@ const mapDispatchToProps = dispatch => ({
   updateCheckedExps: payload => dispatch(updateCheckedExpsInDatasets(payload)),
   updateCheckedDatasets: payload => dispatch(updateCheckedDatasetsSearch(payload)),
   updateDatasetTags: (datasetId, tags, token) =>
-    dispatch(updateTagsDatasets(datasetId, tags, token))
+    dispatch(updateTagsDatasets(datasetId, tags, token)),
+  updateCollection: (collectionId, data, token) =>
+    dispatch(updateCollectionMeta(collectionId, data, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)

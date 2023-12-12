@@ -1,3 +1,4 @@
+import { ReactReduxContext } from 'react-redux'
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
@@ -75,6 +76,8 @@ const reducer = (state = initialState, { type, payload }) => {
         data: { datasets: remainDatasets, collections: patchedCollections }
       }
 
+    case actionTypes.UPDATE_COLLECTION_META_SUCCESS:
+      return { ...state, loading: false }
     default:
       return state
   }

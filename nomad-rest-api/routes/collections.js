@@ -8,7 +8,8 @@ import {
   postCollection,
   getDatasets,
   deleteCollection,
-  removeDatasets
+  removeDatasets,
+  patchMetadata
 } from '../controllers/collections.js'
 
 const router = Router()
@@ -22,5 +23,7 @@ router.get('/datasets/:collectionId', auth, getDatasets)
 router.delete('/:collectionId', auth, deleteCollection)
 
 router.patch('/datasets/:collectionId', auth, removeDatasets)
+
+router.patch('/metadata/:collectionId', auth, patchMetadata)
 
 export default router

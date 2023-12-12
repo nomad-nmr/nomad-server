@@ -1,9 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Modal, Form, Input, Space, Button } from 'antd'
 
 const CollectionMetaModal = props => {
   const { openHandler } = props
   const [form] = Form.useForm()
+
+  useEffect(() => {
+    form.setFieldValue('title', props.title)
+  })
 
   return (
     <Modal
@@ -14,7 +18,10 @@ const CollectionMetaModal = props => {
       onCancel={() => openHandler(false)}
     >
       <div style={{ marginTop: '20px' }}>
-        <Form form={form}>
+        <Form
+          form={form}
+          onFinish={values => props.updateHandler(props.collectionId, values, props.token)}
+        >
           <Form.Item
             name='title'
             label='Title'

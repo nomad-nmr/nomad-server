@@ -137,3 +137,13 @@ export const removeDatasets = async (req, res) => {
     res.status(500).send()
   }
 }
+
+export const patchMetadata = (req, res) => {
+  try {
+    console.log(req.params.collectionId, req.body)
+    res.status(200).send()
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
