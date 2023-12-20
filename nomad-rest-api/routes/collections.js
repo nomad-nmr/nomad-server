@@ -24,6 +24,11 @@ router.delete('/:collectionId', auth, deleteCollection)
 
 router.patch('/datasets/:collectionId', auth, removeDatasets)
 
-router.patch('/metadata/:collectionId', auth, patchMetadata)
+router.patch(
+  '/metadata/:collectionId',
+  auth,
+  [body('title', 'Title is invalid').trim().isString().isLength({ min: 5, max: 80 })],
+  patchMetadata
+)
 
 export default router

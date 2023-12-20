@@ -1,8 +1,14 @@
+import { validationResult } from 'express-validator'
+
 import Collection from '../models/collection.js'
 import Dataset from '../models/dataset.js'
 import { getDatasetResp } from './datasets.js'
 
 export const postCollection = async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
   try {
     const { collection, newTitle, datasets } = req.body
     if (collection === '##-new-##' && !newTitle) {
@@ -138,10 +144,17 @@ export const removeDatasets = async (req, res) => {
   }
 }
 
-export const patchMetadata = (req, res) => {
+export const patchMetadata = async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
   try {
-    console.log(req.params.collectionId, req.body)
-    res.status(200).send()
+    const collection = await Collection.findByIdAndUpdate(req.params.collectionId, req.body)
+    if (!collection) {
+      return res.status(404).send()
+    }
+    res.status(200).send({ id: collection._id, title: collection.title })
   } catch (error) {
     console.log(error)
     res.status(500).send()

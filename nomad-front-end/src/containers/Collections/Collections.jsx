@@ -30,7 +30,7 @@ const Collections = props => {
     fetchCollections,
     data,
     loading,
-    title,
+    metaData,
     openCollection,
     openAuthModal,
     accessLvl,
@@ -69,12 +69,12 @@ const Collections = props => {
     />
   )
 
-  if (title) {
+  if (metaData.id) {
     mainElement = (
       <Fragment>
         <div className={classes.TitleBlock}>
           <span>Collection title:</span>
-          {title}
+          {metaData.title}
           <div className={classes.EditIcon}>
             <Tooltip title='Edit collection metadata'>
               <Button
@@ -133,8 +133,7 @@ const Collections = props => {
         open={modalOpen}
         openHandler={setModalOpen}
         updateHandler={props.updateCollection}
-        collectionId={collectionId}
-        title={props.title}
+        metaData={metaData}
         token={authToken}
       />
     </div>
@@ -143,7 +142,7 @@ const Collections = props => {
 
 const mapStateToProps = state => ({
   data: state.collections.data,
-  title: state.collections.title,
+  metaData: state.collections.meta,
   loading: state.collections.loading,
   authToken: state.auth.token,
   accessLvl: state.auth.accessLevel,

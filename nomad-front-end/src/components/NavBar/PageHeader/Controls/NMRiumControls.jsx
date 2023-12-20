@@ -1,7 +1,12 @@
 import React from 'react'
 import { Button, Space, Divider, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { DownloadOutlined, ShareAltOutlined, SaveOutlined } from '@ant-design/icons'
+import {
+  DownloadOutlined,
+  ShareAltOutlined,
+  SaveOutlined,
+  FolderAddOutlined
+} from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../../../CopyLinkToClipboard/CopyLinkToClipboard'
 import { skimNMRiumdata } from '../../../../utils/nmriumUtils'
@@ -48,6 +53,15 @@ const NMRiumControls = props => {
         >
           Save As
         </Button>
+        <Tooltip title='Add dataset to collection'>
+          <Button
+            icon={<FolderAddOutlined />}
+            disabled={saveDisabled}
+            onClick={() => props.toggleColModal()}
+          >
+            Add
+          </Button>
+        </Tooltip>
         <Divider type='vertical' />
 
         <CopyLinkToClipboard>

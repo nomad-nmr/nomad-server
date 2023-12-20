@@ -4,8 +4,7 @@ import * as actionTypes from '../actions/actionTypes'
 const initialState = {
   data: { collections: [], datasets: [] },
   loading: false,
-  id: undefined,
-  title: undefined,
+  meta: { id: undefined, title: undefined },
   displayType: undefined
 }
 
@@ -23,8 +22,10 @@ const reducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         data: updatedData,
-        id: payload.id,
-        title: payload.title,
+        meta: {
+          id: payload.id,
+          title: payload.title
+        },
         loading: false,
         displayType: 'table'
       }
@@ -33,7 +34,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, displayType: payload }
 
     case actionTypes.RETURN_TO_COLLECTION_LIST:
-      return { ...state, title: undefined, displayType: undefined, id: undefined }
+      return { ...state, displayType: undefined, meta: { id: undefined, title: undefined } }
 
     case actionTypes.DELETE_DATASET_SUCCESS:
       const newCollections = state.data.collections.map(coll => {
@@ -77,7 +78,18 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.UPDATE_COLLECTION_META_SUCCESS:
-      return { ...state, loading: false }
+      const amendedCol = state.data.collections.map(col => {
+        if (col.key === payload.id) {
+          col.title = payload.title
+        }
+        return col
+      })
+      return {
+        ...state,
+        loading: false,
+        meta: { ...payload },
+        data: { ...state.data, collections: amendedCol }
+      }
     default:
       return state
   }

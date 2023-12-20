@@ -306,6 +306,7 @@ const PageHeaderEl = props => {
           accessLevel={props.accessLevel}
           username={props.username}
           downloadHandler={props.downloadDataset}
+          toggleColModal={props.tglColModal}
         />
       )
       break

@@ -64,7 +64,7 @@ const CollectionsTable = props => {
       width: 250,
       render: record => (
         <Space>
-          <Tooltip title='Open collection'>
+          <Tooltip title='Open collection' placement='left'>
             <Button
               onClick={() => {
                 props.openHandler(token, record.key)

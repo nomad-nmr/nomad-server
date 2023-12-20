@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NMRium } from 'nmrium'
 import { Spin, Button, Tooltip } from 'antd'
@@ -7,6 +7,7 @@ import { EditOutlined } from '@ant-design/icons'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
+import CollectionModal from '../../components/Modals/CollectionModal/CollectionModal'
 import DatasetTags from '../../components/DatasetTags/DatasetTags'
 import {
   keepNMRiumChanges,
@@ -21,7 +22,10 @@ import {
   openAuthModal,
   editDatasetMeta,
   patchDataset,
-  updateTags
+  updateTags,
+  getCollectionsList,
+  addDatasetsToCollection,
+  toggleCollectionModal
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -139,11 +143,13 @@ const NMRiumContainer = props => {
   }
 
   return (
-    <Spin size='large' spinning={props.spinning}>
-      <div className={classes.nmriumContainer}>
-        {titleElement}
-        <NMRium data={data} onChange={data => changeHandler(data)} emptyText='' />
-      </div>
+    <Fragment>
+      <Spin size='large' spinning={props.spinning}>
+        <div className={classes.nmriumContainer}>
+          {titleElement}
+          <NMRium data={data} onChange={data => changeHandler(data)} emptyText='' />
+        </div>
+      </Spin>
       <FidsModal
         open={fidsModalOpen}
         cancelHandler={props.tglFidsModal}
@@ -165,7 +171,16 @@ const NMRiumContainer = props => {
         editing={props.editing}
         patchDataset={props.patchDataset}
       />
-    </Spin>
+      <CollectionModal
+        open={props.colModalOpen}
+        cancelHandler={props.tglColModal}
+        data={[id]}
+        token={props.authToken}
+        requestHandler={props.addToCollection}
+        fetchCollections={props.fetchCollectionsList}
+        collectionList={props.collectionList}
+      />
+    </Fragment>
   )
 }
 
@@ -182,7 +197,9 @@ const mapStateToProps = state => ({
   username: state.auth.username,
   usrList: state.users.userList,
   datasetMeta: state.nmrium.datasetMeta,
-  editing: state.nmrium.editing
+  editing: state.nmrium.editing,
+  collectionList: state.datasets.collectionList,
+  colModalOpen: state.datasets.showModal
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -199,7 +216,10 @@ const mapDispatchToProps = dispatch => ({
   openAuthModal: () => dispatch(openAuthModal()),
   editDataset: () => dispatch(editDatasetMeta()),
   patchDataset: (datasetId, metaData, token) => dispatch(patchDataset(datasetId, metaData, token)),
-  updateTags: (datasetId, tagValue, token) => dispatch(updateTags(datasetId, tagValue, token))
+  updateTags: (datasetId, tagValue, token) => dispatch(updateTags(datasetId, tagValue, token)),
+  fetchCollectionsList: token => dispatch(getCollectionsList(token)),
+  addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
+  tglColModal: () => dispatch(toggleCollectionModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)

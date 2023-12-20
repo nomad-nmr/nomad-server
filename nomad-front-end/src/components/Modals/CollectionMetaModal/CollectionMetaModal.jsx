@@ -6,7 +6,7 @@ const CollectionMetaModal = props => {
   const [form] = Form.useForm()
 
   useEffect(() => {
-    form.setFieldValue('title', props.title)
+    form.setFieldValue('title', props.metaData.title)
   })
 
   return (
@@ -20,7 +20,10 @@ const CollectionMetaModal = props => {
       <div style={{ marginTop: '20px' }}>
         <Form
           form={form}
-          onFinish={values => props.updateHandler(props.collectionId, values, props.token)}
+          onFinish={values => {
+            props.updateHandler(props.metaData.id, values, props.token)
+            openHandler(false)
+          }}
         >
           <Form.Item
             name='title'
