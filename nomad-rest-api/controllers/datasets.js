@@ -12,6 +12,7 @@ import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Collection from '../models/collection.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import zipDataset from '../utils/zipDataset.js'
 
 export const postDataset = async (req, res) => {
   const errors = validationResult(req)
@@ -124,53 +125,9 @@ export const putDataset = async (req, res) => {
 
 export const getBrukerZip = async (req, res) => {
   try {
-    const dataset = await Dataset.findById(req.params.datasetId)
-
     const mainZip = new JSZip()
 
-    await Promise.all(
-      dataset.nmriumData.data.spectra.map(async (i, count) => {
-        if (i.info.type !== 'NMR FID') {
-          const experiment =
-            i.dataType === 'auto'
-              ? await Experiment.findById(i.id)
-              : await ManualExperiment.findById(i.id)
-
-          const { datasetName, expNo } = experiment
-
-          const zipFilePath = path.join(
-            process.env.DATASTORE_PATH,
-            experiment.dataPath,
-            experiment.expId + '.zip'
-          )
-          const zipFile = await fs.readFile(zipFilePath)
-          const zipObject = await JSZip.loadAsync(zipFile)
-
-          const newExpNo = 10 + count
-
-          //Changing subfolder structure in the zip file
-          Object.keys(zipObject.files).forEach(key => {
-            let newKey
-            if (key.split('/').length === 1) {
-              newKey = dataset.title + '/'
-            } else {
-              newKey = key.replace(
-                datasetName + '/' + expNo + '/',
-                dataset.title + '/' + newExpNo + '/'
-              )
-            }
-            zipObject.files[newKey] = zipObject.files[key]
-            delete zipObject.files[key]
-          })
-
-          const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
-          await mainZip.loadAsync(zipContent, { createFolders: true })
-        }
-      })
-    )
-    dataset.nmriumData.data.molecules.forEach(i => {
-      mainZip.file(dataset.title + '/' + i.label + '.mol', i.molfile)
-    })
+    await zipDataset(mainZip, req.params.datasetId)
 
     mainZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(res)
   } catch (error) {
