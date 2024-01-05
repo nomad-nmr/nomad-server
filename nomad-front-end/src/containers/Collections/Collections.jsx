@@ -21,7 +21,8 @@ import {
   updateCheckedExpsInDatasets,
   updateCheckedDatasetsSearch,
   updateTagsDatasets,
-  updateCollectionMeta
+  updateCollectionMeta,
+  downloadCollection
 } from '../../store/actions'
 
 const Collections = props => {
@@ -66,6 +67,7 @@ const Collections = props => {
       token={authToken}
       openHandler={openCollection}
       deleteHandler={props.deleteCollection}
+      downloadHandler={props.downloadCollection}
     />
   )
 
@@ -167,7 +169,8 @@ const mapDispatchToProps = dispatch => ({
   updateDatasetTags: (datasetId, tags, token) =>
     dispatch(updateTagsDatasets(datasetId, tags, token)),
   updateCollection: (collectionId, data, token) =>
-    dispatch(updateCollectionMeta(collectionId, data, token))
+    dispatch(updateCollectionMeta(collectionId, data, token)),
+  downloadCollection: (colId, token) => dispatch(downloadCollection(colId, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)

@@ -32,7 +32,8 @@
     "nmr-load-save": "^0.23.6",
     "nodemailer": "^6.9.2",
     "openchemlib": "^8.3.0",
-    "socket.io": "^4.5.4"
+    "socket.io": "^4.5.4",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@vitest/coverage-c8": "^0.33.0",

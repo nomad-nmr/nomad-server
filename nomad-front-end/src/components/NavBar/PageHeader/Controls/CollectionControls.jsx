@@ -1,7 +1,12 @@
 import React from 'react'
 import { Radio, Button, Space, Divider, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { RollbackOutlined, DeleteOutlined, LineChartOutlined } from '@ant-design/icons'
+import {
+  RollbackOutlined,
+  DeleteOutlined,
+  LineChartOutlined,
+  DownloadOutlined
+} from '@ant-design/icons'
 
 import history from '../../../../utils/history'
 import classes from '../PageHeader.module.css'
@@ -51,6 +56,13 @@ const CollectionControls = props => {
               </Button>
             </Tooltip>
 
+            <Divider type='vertical' />
+            <Button
+              icon={<DownloadOutlined />}
+              onClick={() => props.downloadHandler(props.id, token)}
+            >
+              Download
+            </Button>
             <Divider type='vertical' />
 
             <Tooltip title='Close and return to list of collections'>

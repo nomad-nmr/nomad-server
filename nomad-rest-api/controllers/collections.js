@@ -1,8 +1,16 @@
+import fs from 'fs'
+import path from 'path'
+import { mkdir } from 'fs/promises'
+
 import { validationResult } from 'express-validator'
+import JSZip from 'jszip'
+import { v4 as uuidv4 } from 'uuid'
 
 import Collection from '../models/collection.js'
 import Dataset from '../models/dataset.js'
 import { getDatasetResp } from './datasets.js'
+import zipDataset from '../utils/zipDataset.js'
+import transporter from '../utils/emailTransporter.js'
 
 export const postCollection = async (req, res) => {
   const errors = validationResult(req)
@@ -155,6 +163,57 @@ export const patchMetadata = async (req, res) => {
       return res.status(404).send()
     }
     res.status(200).send({ id: collection._id, title: collection.title })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const getZip = async (req, res) => {
+  const { user } = req
+  try {
+    const collection = await Collection.findById(req.params.collectionId)
+    const mainZip = new JSZip()
+
+    await Promise.all(
+      collection.datasets.map(async id => {
+        await zipDataset(mainZip, id)
+      })
+    )
+
+    const uuid = uuidv4()
+    const uuidPath = path.join(process.env.DOWNLOADS_PATH, uuid)
+
+    await mkdir(uuidPath)
+
+    const sanitisedTitle = collection.title.replace(/[\/\\]/, '_') + '.zip'
+    const zipPath = path.join(uuidPath, sanitisedTitle)
+
+    mainZip
+      .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
+      .pipe(fs.createWriteStream(zipPath))
+      .on('finish', function () {
+        transporter.sendMail({
+          from: process.env.SMTP_SENDER,
+          to: user.email,
+          subject: 'NOMAD-3 data collection download link',
+          html: `<p>Dear user ${user.fullName ? user.fullName : user.username}</p>
+          <p>Use the link bellow to download data collection "${collection.title}"</p>
+          <p><a href="${
+            process.env.FRONT_HOST_URL
+          }/downloads/${uuid}/${sanitisedTitle}">Download Collection Link</a></p>
+          <p>Please note that the link is valid for ${
+            +process.env.COLLECTION_DOWNLOAD_TIMEOUT / 60000
+          } minutes only</p>
+          `
+        })
+      })
+
+    setTimeout(() => {
+      fs.rmSync(uuidPath, { recursive: true, force: true })
+    }, process.env.COLLECTION_DOWNLOAD_TIMEOUT)
+
+    res.status(200).json({ email: user.email, title: collection.title })
   } catch (error) {
     console.log(error)
     res.status(500).send()

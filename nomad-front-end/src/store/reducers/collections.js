@@ -1,4 +1,5 @@
-import { ReactReduxContext } from 'react-redux'
+import { Modal } from 'antd'
+
 import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
@@ -90,6 +91,14 @@ const reducer = (state = initialState, { type, payload }) => {
         meta: { ...payload },
         data: { ...state.data, collections: amendedCol }
       }
+
+    case actionTypes.DOWNLOAD_COLLECTION_SUCCESS:
+      Modal.info({
+        title: 'Download collection',
+        content: `E-mail with the download link for collection "${payload.title}" will be sent to email address ${payload.email}`
+      })
+      return { ...state, loading: false }
+
     default:
       return state
   }

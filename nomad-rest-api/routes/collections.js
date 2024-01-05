@@ -9,7 +9,8 @@ import {
   getDatasets,
   deleteCollection,
   removeDatasets,
-  patchMetadata
+  patchMetadata,
+  getZip
 } from '../controllers/collections.js'
 
 const router = Router()
@@ -30,5 +31,7 @@ router.patch(
   [body('title', 'Title is invalid').trim().isString().isLength({ min: 5, max: 80 })],
   patchMetadata
 )
+
+router.get('/zip/:collectionId', auth, getZip)
 
 export default router

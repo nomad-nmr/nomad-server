@@ -2,7 +2,12 @@ import React from 'react'
 import { Table, Space, Tooltip, Button, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import { useNavigate } from 'react-router'
-import { FolderOpenOutlined, ShareAltOutlined, DeleteOutlined } from '@ant-design/icons'
+import {
+  FolderOpenOutlined,
+  ShareAltOutlined,
+  DeleteOutlined,
+  DownloadOutlined
+} from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import history from '../../utils/history'
@@ -79,6 +84,11 @@ const CollectionsTable = props => {
               <Button icon={<ShareAltOutlined />} />
             </Tooltip>
           </CopyLinkToClipboard>
+          <Tooltip title='Download collection' placement='left'>
+            <Button onClick={() => props.downloadHandler(record.key, token)}>
+              <DownloadOutlined />
+            </Button>
+          </Tooltip>
           <Popconfirm
             placement='left'
             title='Delete the collection'

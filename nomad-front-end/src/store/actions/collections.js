@@ -125,3 +125,24 @@ export const updateCollectionMeta = (collectionId, data, token) => {
       })
   }
 }
+
+export const downloadCollectionSuccess = payload => ({
+  type: actionTypes.DOWNLOAD_COLLECTION_SUCCESS,
+  payload
+})
+
+export const downloadCollection = (collectionId, token) => {
+  return dispatch => {
+    dispatch(fetchCollectionsStarts())
+    axios
+      .get('/collections/zip/' + collectionId, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(downloadCollectionSuccess(res.data))
+      })
+      .catch(error => {
+        dispatch(errorHandler(error))
+      })
+  }
+}

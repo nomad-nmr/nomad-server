@@ -16,6 +16,7 @@ services:
     volumes:
       - ./nomad-rest-api:/app
       - ./datastore:/app/datastore
+      - ./downloads:/app/downloads
       - /app/node_modules
     depends_on:
       - mongodb
@@ -29,6 +30,7 @@ services:
     volumes:
       - ./nomad-front-end/src:/app/src
       - /app/node_modules
+      - ./downloads:/app/downloads
     depends_on:
       - backend
 

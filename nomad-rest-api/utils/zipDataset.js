@@ -10,6 +10,7 @@ import ManualExperiment from '../models/manualExperiment.js'
 const zipDataset = async (jszipfile, datasetId) => {
   try {
     const dataset = await Dataset.findById(datasetId)
+    const sanitisedTitle = dataset.title.replace(/[\/\\]/, '_')
 
     await Promise.all(
       dataset.nmriumData.data.spectra.map(async (i, count) => {
@@ -35,11 +36,11 @@ const zipDataset = async (jszipfile, datasetId) => {
           Object.keys(zipObject.files).forEach(key => {
             let newKey
             if (key.split('/').length === 1) {
-              newKey = dataset.title + '/'
+              newKey = sanitisedTitle + '/'
             } else {
               newKey = key.replace(
                 datasetName + '/' + expNo + '/',
-                dataset.title + '/' + newExpNo + '/'
+                sanitisedTitle + '/' + newExpNo + '/'
               )
             }
             zipObject.files[newKey] = zipObject.files[key]
@@ -52,7 +53,7 @@ const zipDataset = async (jszipfile, datasetId) => {
       })
     )
     dataset.nmriumData.data.molecules.forEach(i => {
-      jszipfile.file(dataset.title + '/' + i.label + '.mol', i.molfile)
+      jszipfile.file(sanitisedTitle + '/' + i.label + '.mol', i.molfile)
     })
 
     return Promise.resolve()

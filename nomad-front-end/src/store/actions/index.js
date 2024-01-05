@@ -193,5 +193,6 @@ export {
   returnToCollectionList,
   deleteCollection,
   removeDatasets,
-  updateCollectionMeta
+  updateCollectionMeta,
+  downloadCollection
 } from './collections'

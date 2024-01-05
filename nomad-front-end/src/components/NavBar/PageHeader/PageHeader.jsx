@@ -46,7 +46,8 @@ import {
   toggleCollectionModal,
   toggleCollectionDisplay,
   returnToCollectionList,
-  removeDatasets
+  removeDatasets,
+  downloadCollection
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -325,6 +326,7 @@ const PageHeaderEl = props => {
           onAddExps={props.fetchExpsFromDatasets}
           removeHandler={props.removeDatasets}
           id={props.collectionId}
+          downloadHandler={props.downloadCollection}
         />
       )
       break
@@ -383,7 +385,7 @@ const mapStateToProps = state => {
     checkedExpsInDatasets: state.datasets.checkedExps,
     checkedDatasetsSearch: state.datasets.checkedDatasets,
     collectionDisplayType: state.collections.displayType,
-    collectionId: state.collections.id
+    collectionId: state.collections.meta.id
   }
 }
 
@@ -433,7 +435,8 @@ const mapDispatchToProps = dispatch => {
     tglColModal: () => dispatch(toggleCollectionModal()),
     tglColDisplay: value => dispatch(toggleCollectionDisplay(value)),
     toCollectionList: () => dispatch(returnToCollectionList()),
-    removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token))
+    removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
+    downloadCollection: (id, token) => dispatch(downloadCollection(id, token))
   }
 }
 
