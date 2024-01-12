@@ -31,6 +31,8 @@ import './index.css'
 //Required by NMRium version 0.45.0
 //Without these global styles NMRium does not render correctly
 import './nmriumGlobal.css'
+import '@blueprintjs/core/lib/css/blueprint.css'
+import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 
 import App from './App'
 
