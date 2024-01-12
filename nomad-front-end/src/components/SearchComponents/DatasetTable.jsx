@@ -1,4 +1,5 @@
 import React from 'react'
+import { useLocation } from 'react-router'
 import { Table, Space, Tooltip, Button, Modal, Popconfirm } from 'antd'
 import dayjs from 'dayjs'
 import Icon, {
@@ -16,32 +17,9 @@ import classes from './SearchExpsTable.module.css'
 
 const DatasetTable = props => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   let columns = [
-    {
-      title: 'Username',
-      align: 'center',
-      width: 100,
-      render: record =>
-        props.user.accessLevel === 'admin' ? (
-          <Button type='link' onClick={() => navigate(`/admin/users?username=${record.username}`)}>
-            {record.username}
-          </Button>
-        ) : (
-          <span>{record.username}</span>
-        )
-    },
-    {
-      title: 'Group',
-      dataIndex: 'groupName',
-      align: 'center',
-      width: 100
-    },
-    {
-      title: 'Dataset Title',
-      dataIndex: 'title',
-      align: 'center'
-    },
     {
       title: 'Tags',
       width: 200,
@@ -63,6 +41,30 @@ const DatasetTable = props => {
         )
       }
     },
+    {
+      title: 'Dataset Title',
+      dataIndex: 'title',
+      align: 'center'
+    },
+    {
+      title: 'Username',
+      align: 'center',
+      width: 100,
+      render: record =>
+        props.user.accessLevel === 'admin' ? (
+          <Button type='link' onClick={() => navigate(`/admin/users?username=${record.username}`)}>
+            {record.username}
+          </Button>
+        ) : (
+          <span>{record.username}</span>
+        )
+    },
+    {
+      title: 'Group',
+      dataIndex: 'groupName',
+      align: 'center',
+      width: 100
+    },
 
     {
       title: 'Exp Count',
@@ -74,7 +76,9 @@ const DatasetTable = props => {
       title: 'Created At',
       dataIndex: 'createdAt',
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-'),
-      sorter: (a, b) => a.createdAt - b.createdAt,
+      sorter: !location.pathname.includes('collections')
+        ? (a, b) => a.createdAt - b.createdAt
+        : null,
       align: 'center',
       width: 150
     },
@@ -82,7 +86,9 @@ const DatasetTable = props => {
       title: 'Updated At',
       dataIndex: 'updatedAt',
       render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm') : '-'),
-      sorter: (a, b) => a.updatedAt - b.updatedAt,
+      sorter: !location.pathname.includes('collections')
+        ? (a, b) => a.updatedAt - b.updatedAt
+        : null,
       sortDirections: ['descend', 'ascend'],
       align: 'center',
       width: 150

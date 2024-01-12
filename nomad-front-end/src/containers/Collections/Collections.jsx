@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Tooltip, Button } from 'antd'
+import { Tooltip, Button, Select, Row, Col } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
@@ -41,6 +41,12 @@ const Collections = props => {
 
   const { collectionId } = useParams()
   const [modalOpen, setModalOpen] = useState(false)
+  // const [tagSelect, setTagSelect] = useState([])
+  const [datasetsData, setDatasetsData] = useState([])
+
+  useEffect(() => {
+    if (data.datasets.length !== 0) setDatasetsData(data.datasets)
+  }, [data])
 
   useEffect(() => {
     if (authToken) {
@@ -59,6 +65,22 @@ const Collections = props => {
     }
   }, [])
 
+  const onTagFilterChange = tags => {
+    if (tags.length !== 0) {
+      const newDatasets = data.datasets.filter(i => {
+        const filteredTags = i.tags.filter(tag => tags.includes(tag))
+        if (filteredTags.length > 0) {
+          return true
+        } else {
+          return false
+        }
+      })
+      setDatasetsData(newDatasets)
+    } else {
+      setDatasetsData(data.datasets)
+    }
+  }
+
   let mainElement = (
     <CollectionsTable
       data={data.collections}
@@ -72,27 +94,53 @@ const Collections = props => {
   )
 
   if (metaData.id) {
+    const tagsSet = new Set()
+    data.datasets.forEach(element => {
+      element.tags.forEach(tag => tagsSet.add(tag))
+    })
+
+    const options = Array.from(tagsSet).map(i => ({ label: i, value: i }))
+
     mainElement = (
       <Fragment>
-        <div className={classes.TitleBlock}>
-          <span>Collection title:</span>
-          {metaData.title}
-          <div className={classes.EditIcon}>
-            <Tooltip title='Edit collection metadata'>
-              <Button
-                type='link'
-                onClick={() => setModalOpen(true)}
-                disabled={accessLvl !== 'admin' && username !== user.username}
-              >
-                <EditOutlined style={{ fontSize: '18px' }} />
-              </Button>
-            </Tooltip>
-          </div>
-        </div>
+        <Row>
+          <Col span={6}>
+            <div className={classes.TagSelect}>
+              <span className={classes.SpanLabel}>Tag Filter:</span>
+              <Select
+                mode='multiple'
+                allowClear
+                style={{
+                  width: '70%'
+                }}
+                placeholder='Please select'
+                onChange={value => onTagFilterChange(value)}
+                options={options}
+              />
+            </div>
+          </Col>
+          <Col span={18}>
+            <div className={classes.ColHeader}>
+              <span className={classes.SpanLabel}>Collection title:</span>
+              {metaData.title}
+              <div className={classes.EditIcon}>
+                <Tooltip title='Edit collection metadata'>
+                  <Button
+                    type='link'
+                    onClick={() => setModalOpen(true)}
+                    disabled={accessLvl !== 'admin' && username !== user.username}
+                  >
+                    <EditOutlined style={{ fontSize: '18px' }} />
+                  </Button>
+                </Tooltip>
+              </div>
+            </div>
+          </Col>
+        </Row>
 
         {props.displayType === 'table' ? (
           <DatasetTable
-            dataSource={data.datasets}
+            dataSource={datasetsData}
             loading={loading}
             user={user}
             onDeleteDataset={props.deleteDataset}
@@ -106,7 +154,7 @@ const Collections = props => {
           />
         ) : (
           <div className={classes.Cards}>
-            {props.data.datasets.map(i => {
+            {datasetsData.map(i => {
               const checked = props.checkedDatasets.find(id => id === i.key)
               return (
                 <DatasetCard
