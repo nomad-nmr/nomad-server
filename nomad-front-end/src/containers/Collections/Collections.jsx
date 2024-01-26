@@ -1,13 +1,15 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Tooltip, Button, Select, Row, Col } from 'antd'
+import { Tooltip, Button, Select, Row, Col, Form } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
 import CollectionMetaModal from '../../components/Modals/CollectionMetaModal/CollectionMetaModal.jsx'
 import DatasetTable from '../../components/SearchComponents/DatasetTable.jsx'
 import DatasetCard from '../../components/SearchComponents/DatasetCard.jsx'
+import SelectGrpUsr from '../../components/Forms/SelectGrpUsr/SelectGrpUsr.jsx'
+
 import classes from './Collections.module.css'
 import {
   fetchCollections,
@@ -22,7 +24,11 @@ import {
   updateCheckedDatasetsSearch,
   updateTagsDatasets,
   updateCollectionMeta,
-  downloadCollection
+  downloadCollection,
+  getDataAccess,
+  fetchGroupList,
+  fetchUserList,
+  resetUserList
 } from '../../store/actions'
 
 const Collections = props => {
@@ -35,20 +41,29 @@ const Collections = props => {
     openCollection,
     openAuthModal,
     accessLvl,
-    username
+    username,
+    grpName,
+    grpList,
+    usrList,
+    dataAccess,
+    fetchGrpList
   } = props
   const user = { username, accessLevel: accessLvl }
 
   const { collectionId } = useParams()
   const [modalOpen, setModalOpen] = useState(false)
-  // const [tagSelect, setTagSelect] = useState([])
   const [datasetsData, setDatasetsData] = useState([])
+  const [form] = Form.useForm()
+  const formRef = useRef({})
 
   useEffect(() => {
     if (data.datasets.length !== 0) setDatasetsData(data.datasets)
   }, [data])
 
   useEffect(() => {
+    fetchGrpList(authToken, false)
+    props.fetchDataAccess(authToken)
+
     if (authToken) {
       if (collectionId !== 'list') {
         openCollection(authToken, collectionId)
@@ -103,7 +118,7 @@ const Collections = props => {
 
     mainElement = (
       <Fragment>
-        <Row>
+        <Row style={{ marginTop: '30px' }}>
           <Col span={6}>
             <div className={classes.TagSelect}>
               <span className={classes.SpanLabel}>Tag Filter:</span>
@@ -178,7 +193,32 @@ const Collections = props => {
 
   return (
     <div>
-      <div className={classes.Container}>{mainElement}</div>
+      {dataAccess !== 'user' && grpList.length !== 0 && !metaData.id ? (
+        <Form style={{ marginTop: '30px' }} form={form} ref={formRef}>
+          <SelectGrpUsr
+            userList={usrList}
+            groupList={grpList}
+            token={authToken}
+            fetchUsrListHandler={props.fetchUsrList}
+            fetchGrpListHandler={fetchGrpList}
+            resetUserListHandler={props.resetUsrList}
+            formRef={formRef}
+            inactiveSwitch
+            dataAccessLvl={dataAccess}
+            legacySwitch={true}
+            loggedUser={username}
+          />
+        </Form>
+      ) : null}
+      <div
+        className={
+          dataAccess === 'user' || grpList.length === 0
+            ? classes.Container
+            : classes.ContainerWithForm
+        }
+      >
+        {mainElement}
+      </div>
       <CollectionMetaModal
         open={modalOpen}
         openHandler={setModalOpen}
@@ -197,9 +237,13 @@ const mapStateToProps = state => ({
   authToken: state.auth.token,
   accessLvl: state.auth.accessLevel,
   username: state.auth.username,
+  grpName: state.auth.groupName,
   displayType: state.collections.displayType,
   checkedExps: state.datasets.checkedExps,
-  checkedDatasets: state.datasets.checkedDatasets
+  checkedDatasets: state.datasets.checkedDatasets,
+  usrList: state.users.userList,
+  grpList: state.groups.groupList,
+  dataAccess: state.search.dataAccess
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -218,7 +262,12 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateTagsDatasets(datasetId, tags, token)),
   updateCollection: (collectionId, data, token) =>
     dispatch(updateCollectionMeta(collectionId, data, token)),
-  downloadCollection: (colId, token) => dispatch(downloadCollection(colId, token))
+  downloadCollection: (colId, token) => dispatch(downloadCollection(colId, token)),
+  fetchDataAccess: token => dispatch(getDataAccess(token)),
+  fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
+  fetchUsrList: (token, groupId, showInactive, search) =>
+    dispatch(fetchUserList(token, groupId, showInactive, search)),
+  resetUsrList: () => dispatch(resetUserList())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)

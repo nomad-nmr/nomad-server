@@ -1,6 +1,9 @@
 .Container {
   margin: 30px 20px 20px 20px;
 }
+.ContainerWithForm {
+  margin: 10px 20px 20px 20px;
+}
 
 .ColHeader {
   margin-bottom: 20px;
