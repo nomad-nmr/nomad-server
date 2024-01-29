@@ -12,11 +12,11 @@ export const fetchCollectionsSuccess = payload => ({
   payload
 })
 
-export const fetchCollections = token => {
+export const fetchCollections = (token, searchParams) => {
   return dispatch => {
     dispatch(fetchCollectionsStarts())
     axios
-      .get('/collections/', {
+      .get('/collections/?' + new URLSearchParams(searchParams).toString(), {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {

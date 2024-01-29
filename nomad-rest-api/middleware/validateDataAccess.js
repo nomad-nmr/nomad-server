@@ -1,9 +1,17 @@
 import Dataset from '../models/dataset.js'
 import Group from '../models/group.js'
+import Collection from '../models/collection.js'
 
 const validateDataAccess = async (req, res, next) => {
   try {
-    const dataset = await Dataset.findById(req.params.datasetId, 'group user')
+    let dataObj = {}
+
+    if (req.params.datasetId) {
+      dataObj = await Dataset.findById(req.params.datasetId, 'group user')
+    } else if (req.params.collectionId) {
+      dataObj = await Collection.findById(req.params.collectionId, 'group user')
+    }
+
     let { dataAccess } = req.user
     const group = await Group.findById(req.user.group)
 
@@ -14,20 +22,23 @@ const validateDataAccess = async (req, res, next) => {
     let unauthorised = false
     switch (dataAccess) {
       case 'user':
-        if (dataset.user.toString() !== req.user._id.toString()) {
+        if (dataObj.user.toString() !== req.user._id.toString()) {
           unauthorised = true
         }
         break
 
       case 'group':
-        if (dataset.group.toString() !== req.user.group.toString()) {
+        if (
+          dataObj.group.toString() !== req.user.group.toString() &&
+          dataObj.user.toString() !== req.user._id.toString()
+        ) {
           unauthorised = true
         }
         break
 
       case 'admin-b':
-        const { isBatch } = await Group.findById(dataset.group)
-        if (!isBatch && dataset.group.toString() !== req.user.group.toString()) {
+        const { isBatch } = await Group.findById(dataObj.group)
+        if (!isBatch && dataObj.group.toString() !== req.user.group.toString()) {
           unauthorised = true
         }
         break

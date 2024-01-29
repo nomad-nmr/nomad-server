@@ -377,6 +377,9 @@ export const getDatasetResp = datasetsInput => {
 export const deleteDataset = async (req, res) => {
   try {
     const dataset = await Dataset.findByIdAndDelete(req.params.datasetId)
+    if (!dataset) {
+      return res.sendStatus(404)
+    }
     Promise.all(
       dataset.inCollections.map(async id => {
         const collection = await Collection.findById(id)
@@ -385,9 +388,7 @@ export const deleteDataset = async (req, res) => {
         await collection.save()
       })
     )
-    if (!dataset) {
-      return res.sendStatus(404)
-    }
+
     res.status(200).json({ datasetId: dataset._id, inCollections: dataset.inCollections })
   } catch (error) {
     console.log(error)

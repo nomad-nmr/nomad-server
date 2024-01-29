@@ -25,7 +25,9 @@ const reducer = (state = initialState, { type, payload }) => {
         data: updatedData,
         meta: {
           id: payload.id,
-          title: payload.title
+          title: payload.title,
+          group: payload.group,
+          user: payload.user
         },
         loading: false,
         displayType: 'table'
@@ -85,11 +87,22 @@ const reducer = (state = initialState, { type, payload }) => {
         }
         return col
       })
+
+      let amendedData = { ...state.data, collections: amendedCol }
+      if (payload.user) {
+        const amendedDatasets = state.data.datasets.map(i => ({
+          ...i,
+          username: payload.user.username,
+          groupName: payload.group.groupName
+        }))
+        amendedData = { ...amendedData, datasets: amendedDatasets }
+      }
+
       return {
         ...state,
         loading: false,
-        meta: { ...payload },
-        data: { ...state.data, collections: amendedCol }
+        meta: { ...state.meta, ...payload },
+        data: amendedData
       }
 
     case actionTypes.DOWNLOAD_COLLECTION_SUCCESS:

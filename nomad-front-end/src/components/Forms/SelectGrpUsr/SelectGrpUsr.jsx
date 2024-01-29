@@ -19,7 +19,7 @@ const SelectGrpUsr = props => {
   const [grpInactiveChecked, setGrpInactiveChecked] = useState(false)
   const [usrInactiveChecked, setUsrInactiveChecked] = useState(false)
   const [selectedGroupId, setSelectedGroupId] = useState(undefined)
-  const [legacy, setLegacy] = useState(false)
+  const [legacy, setLegacy] = useState()
 
   useEffect(() => {
     if (groupList.length === 1) {
@@ -72,7 +72,7 @@ const SelectGrpUsr = props => {
       )}
       <Form.Item label='Group' name='groupId'>
         <Select
-          disabled={props.dataAccessLvl === 'group'}
+          disabled={props.dataAccessLvl === 'group' || props.disabled}
           style={{ width: 150 }}
           onChange={value => {
             fetchUsrListHandler(token, value, usrInactiveChecked, inactiveSwitch)
@@ -105,7 +105,7 @@ const SelectGrpUsr = props => {
         </Form.Item>
       )}
       <Form.Item label='Username' name='userId'>
-        <Select style={{ width: 250 }} disabled={legacy}>
+        <Select style={{ width: 250 }} disabled={legacy || props.disabled}>
           {usrOptions}
         </Select>
       </Form.Item>

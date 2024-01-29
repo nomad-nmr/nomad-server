@@ -1,9 +1,12 @@
-import React, { useEffect } from 'react'
-import { Modal, Form, Input, Space, Button } from 'antd'
+import React, { useEffect, useRef } from 'react'
+import { Modal, Form, Input, Space, Button, message } from 'antd'
+
+import SelectGrpUsr from '../../Forms/SelectGrpUsr/SelectGrpUsr'
 
 const CollectionMetaModal = props => {
   const { openHandler } = props
   const [form] = Form.useForm()
+  const formRef = useRef({})
 
   useEffect(() => {
     form.setFieldValue('title', props.metaData.title)
@@ -15,16 +18,33 @@ const CollectionMetaModal = props => {
       width={650}
       title='Edit Collection metadata'
       open={props.open}
-      onCancel={() => openHandler(false)}
+      onCancel={() => {
+        openHandler(false)
+        form.resetFields()
+      }}
     >
       <div style={{ marginTop: '20px' }}>
         <Form
           form={form}
+          ref={formRef}
           onFinish={values => {
-            props.updateHandler(props.metaData.id, values, props.token)
-            openHandler(false)
+            if (!values.userId && values.groupId) {
+              message.error('user undefined')
+            } else {
+              props.updateHandler(props.metaData.id, values, props.token)
+              openHandler(false)
+            }
           }}
         >
+          {props.accessLevel === 'admin' && (
+            <SelectGrpUsr
+              groupList={props.groupList}
+              userList={props.userList}
+              fetchUsrListHandler={props.onGrpChange}
+              token={props.token}
+              formRef={formRef}
+            />
+          )}
           <Form.Item
             name='title'
             label='Title'

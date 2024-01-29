@@ -74,9 +74,25 @@ export const postCollection = async (req, res) => {
 }
 
 export const getCollections = async (req, res) => {
+  const { userId, groupId, legacyData, search } = req.query
+
   try {
+    let searchParams = { user: req.user.id, group: req.user.group }
+
+    if (search === 'true') {
+      if (userId !== 'undefined' && legacyData !== 'true') {
+        searchParams = { user: userId, group: groupId !== 'undefined' ? groupId : req.user.group }
+      } else if (userId !== 'undefined' && legacyData === 'true') {
+        searchParams = { user: req.user.id, $nor: [{ group: req.user.group }] }
+      } else if (groupId !== 'undefined') {
+        searchParams = { group: groupId }
+      } else {
+        searchParams = {}
+      }
+    }
+
     let respData
-    const collections = await Collection.find({ user: req.user.id })
+    const collections = await Collection.find(searchParams)
       .sort({ updatedAt: 'desc' })
       .populate('user', 'username')
       .populate('group', 'groupName')
@@ -104,6 +120,8 @@ export const getCollections = async (req, res) => {
 export const getDatasets = async (req, res) => {
   try {
     const collection = await Collection.findById(req.params.collectionId)
+      .populate('user', 'username')
+      .populate('group', 'groupName')
     const datasets = await Promise.all(
       collection.datasets.map(datasetId => {
         const dataset = Dataset.findById(datasetId)
@@ -115,6 +133,8 @@ export const getDatasets = async (req, res) => {
     const respData = {
       title: collection.title,
       id: collection.id,
+      group: collection.group,
+      user: collection.user,
       datasetsData: getDatasetResp(datasets)
     }
     res.status(200).json(respData)
@@ -153,16 +173,46 @@ export const removeDatasets = async (req, res) => {
 }
 
 export const patchMetadata = async (req, res) => {
+  const { userId, groupId, title } = req.body
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(422).send(errors)
   }
   try {
-    const collection = await Collection.findByIdAndUpdate(req.params.collectionId, req.body)
+    const collection = await Collection.findById(req.params.collectionId)
     if (!collection) {
       return res.status(404).send()
     }
-    res.status(200).send({ id: collection._id, title: collection.title })
+    let resObj
+
+    if (userId && userId !== 'undefined') {
+      await Promise.all(
+        collection.datasets.map(async datasetId => {
+          await Dataset.findByIdAndUpdate(datasetId, { user: userId, group: groupId })
+        })
+      )
+
+      const updatedCollection = await Collection.findByIdAndUpdate(collection._id, {
+        title,
+        user: userId,
+        group: groupId
+      })
+        .populate('user', 'username')
+        .populate('group', 'groupName')
+
+      resObj = {
+        title: updatedCollection.title,
+        id: updatedCollection._id,
+        group: updatedCollection.group,
+        user: updatedCollection.user
+      }
+    } else {
+      collection.title = title
+      resObj = { id: collection._id, title: collection.title }
+      await collection.save()
+    }
+
+    res.status(200).send(resObj)
   } catch (error) {
     console.log(error)
     res.status(500).send()

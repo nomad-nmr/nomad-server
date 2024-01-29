@@ -99,6 +99,7 @@ const SearchForm = props => {
     }
   }, [expSearchParams, datasetSearchParams])
 
+  //setting up group list according to dataAccess variable
   useEffect(() => {
     switch (dataAccess) {
       case 'admin':

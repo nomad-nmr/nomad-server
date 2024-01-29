@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Tooltip, Button, Select, Row, Col, Form } from 'antd'
-import { EditOutlined } from '@ant-design/icons'
+import { Tooltip, Button, Select, Row, Col, Form, Space, Switch } from 'antd'
+import { EditOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
 import CollectionMetaModal from '../../components/Modals/CollectionMetaModal/CollectionMetaModal.jsx'
@@ -51,8 +51,12 @@ const Collections = props => {
   const user = { username, accessLevel: accessLvl }
 
   const { collectionId } = useParams()
+
   const [modalOpen, setModalOpen] = useState(false)
   const [datasetsData, setDatasetsData] = useState([])
+  const [groupList, setGroupList] = useState([])
+  const [legacy, setLegacy] = useState()
+
   const [form] = Form.useForm()
   const formRef = useRef({})
 
@@ -79,6 +83,36 @@ const Collections = props => {
       props.resetChecked()
     }
   }, [])
+
+  //helper function that sets SelectGrpUsr for the user logged in
+  const setGrpUsr = () => {
+    const user = usrList.find(usr => usr.username === username)
+    const group = grpList.find(grp => grp.name === grpName)
+    if (user && group) {
+      form.setFieldsValue({ userId: user._id, groupId: group.id })
+    }
+  }
+
+  //setting up group list according to dataAccess variable
+  useEffect(() => {
+    switch (dataAccess) {
+      case 'admin':
+        setGroupList(grpList)
+        break
+      case 'admin-b':
+        setGroupList(grpList.filter(entry => entry.isBatch || entry.name === grpName))
+        break
+      case 'group':
+        setGroupList(grpList.filter(entry => entry.name === grpName))
+        break
+      default:
+        break
+    }
+  }, [grpList, dataAccess])
+
+  useEffect(() => {
+    setGrpUsr()
+  }, [username, usrList])
 
   const onTagFilterChange = tags => {
     if (tags.length !== 0) {
@@ -134,10 +168,15 @@ const Collections = props => {
               />
             </div>
           </Col>
+
           <Col span={18}>
             <div className={classes.ColHeader}>
               <span className={classes.SpanLabel}>Collection title:</span>
               {metaData.title}
+              <span className={classes.SpanLabel}>Group:</span>
+              {metaData.group.groupName}
+              <span className={classes.SpanLabel}>User:</span>
+              {metaData.user.username}
               <div className={classes.EditIcon}>
                 <Tooltip title='Edit collection metadata'>
                   <Button
@@ -194,10 +233,22 @@ const Collections = props => {
   return (
     <div>
       {dataAccess !== 'user' && grpList.length !== 0 && !metaData.id ? (
-        <Form style={{ marginTop: '30px' }} form={form} ref={formRef}>
+        <Form
+          style={{ marginTop: '30px' }}
+          form={form}
+          ref={formRef}
+          onFinish={values =>
+            fetchCollections(authToken, {
+              userId: values.userId,
+              groupId: values.groupId,
+              legacyData: values.legacyData,
+              search: true
+            })
+          }
+        >
           <SelectGrpUsr
             userList={usrList}
-            groupList={grpList}
+            groupList={groupList}
             token={authToken}
             fetchUsrListHandler={props.fetchUsrList}
             fetchGrpListHandler={fetchGrpList}
@@ -205,9 +256,54 @@ const Collections = props => {
             formRef={formRef}
             inactiveSwitch
             dataAccessLvl={dataAccess}
-            legacySwitch={true}
+            //legacySwitch has to be setup in Collection container
+            //to keep state when collection is open
+            legacySwitch={false}
             loggedUser={username}
+            disabled={legacy}
           />
+          <Space size='large' style={{ marginLeft: '30px' }}>
+            {dataAccess === 'group' || dataAccess === 'admin-b' ? (
+              <Form.Item
+                label='Legacy'
+                name='legacyData'
+                valuePropName='checked'
+                tooltip='if ON data acquired for previous groups included in search and data acquired for current group are excluded'
+              >
+                <Switch
+                  checkedChildren='ON'
+                  unCheckedChildren='OFF'
+                  size='small'
+                  onChange={() => {
+                    setLegacy(!legacy)
+                    const user = usrList.find(usr => usr.username === props.username)
+                    formRef.current.setFieldsValue({ groupId: undefined, userId: user._id })
+                  }}
+                />
+              </Form.Item>
+            ) : null}
+
+            <Form.Item>
+              <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>
+                Search
+              </Button>
+            </Form.Item>
+            {accessLvl === 'admin' && (
+              <Form.Item>
+                <Tooltip title='Reset Form'>
+                  <Button
+                    danger
+                    shape='circle'
+                    icon={<CloseOutlined />}
+                    onClick={() => {
+                      props.resetUsrList()
+                      form.resetFields()
+                    }}
+                  />
+                </Tooltip>
+              </Form.Item>
+            )}
+          </Space>
         </Form>
       ) : null}
       <div
@@ -225,6 +321,10 @@ const Collections = props => {
         updateHandler={props.updateCollection}
         metaData={metaData}
         token={authToken}
+        accessLevel={accessLvl}
+        groupList={grpList}
+        userList={usrList}
+        onGrpChange={props.fetchUsrList}
       />
     </div>
   )
@@ -247,7 +347,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  fetchCollections: token => dispatch(fetchCollections(token)),
+  fetchCollections: (token, values) => dispatch(fetchCollections(token, values)),
   openAuthModal: () => dispatch(openAuthModal()),
   openCollection: (token, id) => dispatch(openCollection(token, id)),
   returnToList: () => dispatch(returnToCollectionList()),
