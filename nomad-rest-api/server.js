@@ -41,6 +41,9 @@ if (process.env.NODE_ENV !== 'test') {
         await adminUser.save()
       }
 
+      //Clearing expired JWTs
+      await User.updateMany({ isActive: true }, { tokens: [] })
+
       //Starting the express server
       const server = app.listen(port, host, () => {
         console.log(`Server is running on port ${port}`)

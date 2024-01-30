@@ -42,7 +42,7 @@ export async function postLogin(req, res) {
 }
 
 export async function postLogout(req, res) {
-  req.user.removeAuthTokens()
+  req.user.removeAuthTokens(req.token)
   res.send()
 }
 
