@@ -12,7 +12,8 @@ const initialState = {
   loading: false,
   resetUsername: null,
   resetFullName: null,
-  resetToken: null
+  resetToken: null,
+  timeoutIds: []
 }
 
 const reducer = (state = initialState, action) => {
@@ -63,6 +64,8 @@ const reducer = (state = initialState, action) => {
       }
 
     case actionTypes.SIGN_OUT_SUCCESS:
+      //clearing timeout functions created by checkAuthTimeout action
+      state.timeoutIds.forEach(id => clearTimeout(id))
       return {
         ...state,
         username: null,
@@ -71,7 +74,8 @@ const reducer = (state = initialState, action) => {
         groupName: null,
         accessLevel: null,
         manualAccess: false,
-        authModalVisible: false
+        authModalVisible: false,
+        timeoutIds: []
       }
 
     case actionTypes.POST_PASSWORD_RESET_SUCCESS:
@@ -112,6 +116,10 @@ const reducer = (state = initialState, action) => {
         loading: false,
         authModalVisible: false
       }
+
+    case actionTypes.SET_TIMEOUT_ID:
+      const newIds = [...state.timeoutIds, action.payload]
+      return { ...state, timeoutIds: newIds }
 
     default:
       return state

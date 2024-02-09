@@ -52,7 +52,7 @@ const App = props => {
     if (err) {
       navigate('/' + err)
     }
-  }, [onTryAutoSignIn, err, navigate])
+  }, [])
 
   // Lazy loading
   const Users = React.lazy(() => import('./containers/Users/Users'))

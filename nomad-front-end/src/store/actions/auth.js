@@ -77,15 +77,21 @@ export const signOutHandler = (token, timeOut) => {
   }
 }
 
+export const setTimeoutId = id => ({
+  type: actionTypes.SET_TIMEOUT_ID,
+  payload: id
+})
+
 // signing out user when token expires
 export const checkAuthTimeout = (expirationTime, token) => {
   return dispatch => {
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       //timeOut sent in req.body to mark that request is coming from checkAuthTimeout
       //to avoid 403 error from auth middleware if user has already signed out
       dispatch(signOutHandler(token, { timeOut: true }))
       //time out has to be shorter then token expiration otherwise server responds 403
     }, expirationTime * 1000 - 60000)
+    dispatch(setTimeoutId(timeoutId))
   }
 }
 
