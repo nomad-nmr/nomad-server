@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Space, Divider, Tooltip } from 'antd'
+import { Button, Space, Divider, Tooltip, Modal } from 'antd'
 import { useNavigate } from 'react-router-dom'
 import {
   DownloadOutlined,
@@ -21,9 +21,40 @@ const NMRiumControls = props => {
     navigate('/search-experiment')
   }
   const { dataset, token, saveHandler, accessLevel, username } = props
+  const { molecules, spectra, correlations } = props.data.data
   const saveAsDisabled = props.data.data.spectra.length === 0
   const saveDisabled =
     !dataset.id || (accessLevel !== 'admin' && username !== dataset.user.username)
+
+  const onSaveAs = () => {
+    console.log(molecules, spectra)
+    if (
+      molecules.length === 0 &&
+      spectra.length === 1 &&
+      correlations.values.length === 0 &&
+      spectra[0].integrals.values.length === 0 &&
+      spectra[0].ranges.values.length === 0 &&
+      spectra[0].peaks.values.length === 0 &&
+      spectra[0].filters.length === 0
+    ) {
+      return Modal.error({
+        width: 500,
+        title: 'Dataset does not contain enough information!',
+        content: (
+          <div>
+            <p>
+              Saving a single experiment without any information added in a form of processing or a
+              chemical structure does not make sense.
+            </p>
+            <p>
+              Please note that individual raw experiments can be reopened from experiment search.
+            </p>
+          </div>
+        )
+      })
+    }
+    props.toggleDatasetModal()
+  }
 
   return (
     <div className={classes.ExtraContainer}>
@@ -46,11 +77,7 @@ const NMRiumControls = props => {
         >
           Save
         </Button>
-        <Button
-          icon={<SaveOutlined />}
-          disabled={saveAsDisabled}
-          onClick={() => props.toggleDatasetModal()}
-        >
+        <Button icon={<SaveOutlined />} disabled={saveAsDisabled} onClick={() => onSaveAs()}>
           Save As
         </Button>
         <Tooltip title='Add dataset to collection'>
