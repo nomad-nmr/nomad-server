@@ -37,6 +37,7 @@ const Groups = props => {
   const addUsersfromCSV = (file, record) => {
     const reader = new FileReader()
     reader.onload = e => {
+      console.log(e.target.result)
       const resultArr = e.target.result.split('\n').map(row => row.substr(0, row.length - 1))
       let usernamesCount = 0
       resultArr.forEach(i => {
@@ -106,7 +107,11 @@ const Groups = props => {
           Edit
         </Button>
         <Tooltip title='Add users from csv file' placement='topLeft'>
-          <Upload accept='.csv' showUploadList={false} beforeUpload={file => addUsersfromCSV(file, record)}>
+          <Upload
+            accept='.csv'
+            showUploadList={false}
+            beforeUpload={file => addUsersfromCSV(file, record)}
+          >
             <Button size='small' type='link'>
               Add users
             </Button>
@@ -210,7 +215,8 @@ const mapDispatchToProps = dispatch => {
     updateGrp: (data, token) => dispatch(updateGroup(data, token)),
     toggleGrpForm: editing => dispatch(toggleGroupForm(editing)),
     toggleActive: (groupId, token) => dispatch(toggleActiveGroup(groupId, token)),
-    addUsrs: (users, groupId, token, showInactive) => dispatch(addUsers(users, groupId, token, showInactive))
+    addUsrs: (users, groupId, token, showInactive) =>
+      dispatch(addUsers(users, groupId, token, showInactive))
   }
 }
 

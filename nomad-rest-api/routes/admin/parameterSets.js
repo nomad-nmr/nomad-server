@@ -22,10 +22,8 @@ router.post(
     body('name', 'Parameter set name is invalid')
       .trim()
       .isString()
-      .isLength({ min: 3 })
-      .withMessage('Parameter set name minimum length is 3')
       .custom(value => {
-        return ParameterSet.findOne({ name: value.toLowerCase() }).then(paramSet => {
+        return ParameterSet.findOne({ name: value }).then(paramSet => {
           if (paramSet) {
             return Promise.reject(`Error: Parameter Set ${value} already exists`)
           }

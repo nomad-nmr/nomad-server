@@ -108,7 +108,7 @@ const convertInputData = input => {
   const output = {
     ...input,
     defaultParams: defaultParamsArr,
-    name: input.name.toLowerCase(),
+    name: input.name,
     customParams: customParamsArr
   }
   return output

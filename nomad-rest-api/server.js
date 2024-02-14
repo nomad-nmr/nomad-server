@@ -42,7 +42,9 @@ if (process.env.NODE_ENV !== 'test') {
       }
 
       //Clearing expired JWTs
-      await User.updateMany({ isActive: true }, { tokens: [] })
+      if (process.env.NODE_ENV !== 'dev') {
+        await User.updateMany({ isActive: true }, { tokens: [] })
+      }
 
       //Starting the express server
       const server = app.listen(port, host, () => {
