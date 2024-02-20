@@ -22,6 +22,7 @@ router.post(
     body('name', 'Parameter set name is invalid')
       .trim()
       .isString()
+      .isLength({ min: 1 })
       .custom(value => {
         return ParameterSet.findOne({ name: value }).then(paramSet => {
           if (paramSet) {
@@ -47,7 +48,7 @@ router.post(
 router.put(
   '/',
   [
-    body('name', 'Parameter set name is invalid').trim().isString(),
+    body('name', 'Parameter set name is invalid').trim().isString().isLength({ min: 1 }),
     body('description').trim(),
     body('customParams').custom(value => {
       if (value) {

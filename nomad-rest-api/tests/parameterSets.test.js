@@ -76,7 +76,7 @@ describe('POST /admin/param-sets', () => {
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
-    expect(body.errors[0].msg).toBe('Parameter set name minimum length is 3')
+    expect(body.errors[0].msg).toBe('Parameter set name is invalid')
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
@@ -154,7 +154,7 @@ describe('POST /admin/param-sets', () => {
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
-    expect(body).toHaveProperty('name', 'parameter-set-3')
+    expect(body).toHaveProperty('name', 'parameter-Set-3')
     expect(body._id).toBeDefined()
     expect(body.defaultParams[0]).toMatchObject({ name: '0', value: { name: 'ns', value: 8 } })
 
@@ -173,7 +173,7 @@ describe('PUT /admin/param-sets', () => {
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
-    expect(body.errors[0].msg).toBe('Parameter set name minimum length is 3')
+    expect(body.errors[0].msg).toBe('Parameter set name is invalid')
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
