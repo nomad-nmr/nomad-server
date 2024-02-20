@@ -102,18 +102,19 @@ const reducer = (state = initialState, action) => {
     case actionTypes.ADD_USERS_SUCCESS:
       const { rejected, newUsers, total } = action.data
       const content = (
-        <ul style={{ marginTop: 10 }}>
-          <li>Total number of users: {total}</li>
-          <li>Number of new users: {newUsers}</li>
-        </ul>
+        <div>
+          {rejected ? <p style={{ fontWeight: 600 }}>Username already in the group</p> : null}
+          <ul style={{ marginTop: 10 }}>
+            <li>Total number of users: {total}</li>
+            <li>Number of new users: {newUsers}</li>
+          </ul>
+        </div>
       )
       if (rejected !== 0) {
-        Modal.warning({ title: `${rejected} usernames already in the group`, content })
+        Modal.warning({ title: `${rejected} entries rejected`, content })
       } else {
-        Modal.success({ title: 'All users asuccefully added to database', content })
+        Modal.success({ title: 'All users successfully added to database', content })
       }
-
-      console.log(action.data)
 
       return { ...state, tableIsLoading: false }
 

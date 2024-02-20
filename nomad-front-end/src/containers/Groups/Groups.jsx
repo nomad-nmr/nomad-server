@@ -37,7 +37,6 @@ const Groups = props => {
   const addUsersfromCSV = (file, record) => {
     const reader = new FileReader()
     reader.onload = e => {
-      console.log(e.target.result)
       const resultArr = e.target.result.split('\n').map(row => row.substr(0, row.length - 1))
       let usernamesCount = 0
       resultArr.forEach(i => {
@@ -45,11 +44,12 @@ const Groups = props => {
           usernamesCount++
         }
       })
+
       Modal.confirm({
         title: `Add users from CSV file to group ${record.groupName}`,
         content: (
           <div style={{ marginTop: 10 }}>
-            <span>CSV file contains {usernamesCount} usernames</span>
+            <span>CSV file contains {usernamesCount} user entries</span>
             <p style={{ fontWeight: 600, marginTop: 5 }}>Do you want to proceed?</p>
           </div>
         ),

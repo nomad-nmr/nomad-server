@@ -116,7 +116,10 @@ export async function addUsers(req, res) {
     let exUsersObj = {}
 
     await Promise.all(
-      req.body.map(async username => {
+      req.body.map(async entry => {
+        const [username, emailInput] = entry.split(',')
+        const email = emailInput ? emailInput : username + '@' + process.env.EMAIL_SUFFIX
+
         if (username.length > 0) {
           const user = await User.findOne({ username })
 
@@ -125,6 +128,7 @@ export async function addUsers(req, res) {
             rejected++
             return
           }
+
           total++
 
           if (user) {
@@ -147,7 +151,7 @@ export async function addUsers(req, res) {
             const newUserObj = {
               username: username.toLowerCase(),
               password: hashedPasswd,
-              email: username + '@' + process.env.EMAIL_SUFFIX,
+              email,
               accessLevel: group.isBatch ? 'user-b' : 'user',
               group: group._id,
               isActive: group.isActive ? true : false
