@@ -8,6 +8,7 @@ import User from '../models/user.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testUserAdmin, testUserOne } from './fixtures/data/users.js'
 import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
+import nodemon from 'nodemon'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -236,19 +237,21 @@ describe('POST /admin/groups/add-users', () => {
   it('should create users in test-group-1 if array of usernames is provided', async () => {
     const { body } = await request(app)
       .post('/admin/groups/add-users/' + testGroupTwo._id)
-      .send(['add-user-1', 'admin', 'test1'])
+      .send(['add-user-1,add-user@test-mail.com', 'admin', 'test1', 'add-user-2'])
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
     expect(body).toMatchObject({
       rejected: 1,
-      newUsers: 1,
-      total: 2
+      newUsers: 2,
+      total: 3
     })
 
     //asserting change in DB
-    const addedUser = await User.find({ username: 'add-user-1' })
-    expect(addedUser).toBeDefined()
+    const addedUser1 = await User.findOne({ username: 'add-user-1' })
+    expect(addedUser1).toHaveProperty('email', 'add-user@test-mail.com')
+    const addedUser2 = await User.findOne({ username: 'add-user-2' })
+    expect(addedUser2).toHaveProperty('email', 'add-user-2@' + process.env.EMAIL_SUFFIX)
 
     const oldGroup = await Group.findById(testGroupOne._id)
     expect(oldGroup.exUsers[0].toString()).toBe(testUserOne._id.toString())
