@@ -47,11 +47,7 @@ router.post(
 router.put(
   '/',
   [
-    body('name', 'Parameter set name is invalid')
-      .trim()
-      .isString()
-      .isLength({ min: 3 })
-      .withMessage('Parameter set name minimum length is 3'),
+    body('name', 'Parameter set name is invalid').trim().isString(),
     body('description').trim(),
     body('customParams').custom(value => {
       if (value) {
