@@ -69,14 +69,24 @@ const BatchSubmit = props => {
     if (!authToken) {
       filteredRacks = racksData.filter(rack => rack.isOpen)
     } else {
-      filteredRacks = racksData.filter(rack => rack.isOpen && rack.group.groupName === props.grpName)
+      filteredRacks = racksData.filter(rack => {
+        if (!rack.group && rack.isOpen) {
+          return true
+        } else if (rack.isOpen && rack.group.groupName === props.grpName) {
+          return true
+        } else {
+          return false
+        }
+      })
     }
   }
 
-  //setting error that disables to user-b to add sample to a rack that does not belong to his group
+  // setting error that disables user-b to add sample to a rack that does not belong to his group
+  // while anybody can submit to rack open to all (groupName = undefined)
+
   let drawerError = false
-  if (accessLevel !== 'admin' && accessLevel !== 'admin-b') {
-    drawerError = activeRack ? activeRack.group.groupName !== props.grpName : true
+  if (accessLevel !== null && accessLevel !== 'admin' && accessLevel !== 'admin-b' && activeRack) {
+    drawerError = activeRack.group ? activeRack.group.groupName !== props.grpName : false
   }
 
   return (
@@ -85,7 +95,11 @@ const BatchSubmit = props => {
         {filteredRacks.length === 0 ? (
           <h1 style={{ marginTop: 30 }}>No Racks Open</h1>
         ) : (
-          <RackTabs data={filteredRacks} setActiveTabId={setActiveTabId} activeTabId={activeTabId} />
+          <RackTabs
+            data={filteredRacks}
+            setActiveTabId={setActiveTabId}
+            activeTabId={activeTabId}
+          />
         )}
       </Spin>
 

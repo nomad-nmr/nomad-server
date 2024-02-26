@@ -8,7 +8,7 @@ const rackSchema = new Schema({
   },
   group: {
     type: Schema.Types.ObjectId,
-    required: true,
+    // required: true, not required to enable open racks
     ref: 'Group'
   },
   isOpen: {
@@ -27,7 +27,9 @@ const rackSchema = new Schema({
       user: {
         id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
         username: String,
-        fullName: String
+        fullName: String,
+        groupName: String,
+        groupId: { type: Schema.Types.ObjectId, ref: 'Group' }
       },
       solvent: {
         type: String,

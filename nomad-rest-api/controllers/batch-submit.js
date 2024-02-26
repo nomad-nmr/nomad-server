@@ -5,6 +5,7 @@ import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
 import Experiment from '../models/experiment.js'
 import ParameterSet from '../models/parameterSet.js'
+import Group from '../models/group.js'
 import { getSubmitter } from '../server.js'
 import { getIO } from '../socket.js'
 
@@ -34,7 +35,7 @@ export const getRacks = async (req, res) => {
                   if (status !== 'Booked' && newStatus !== 'Error' && newStatus !== 'Running') {
                     //if experiment is not stored in history table after booking
                     //Status 'Available' get to history table from tracker
-                    // Front end code soes not know this status an thus we change it here to 'Booked'
+                    // Front end code does not know this status an thus we change it here to 'Booked'
                     if (status === 'Available') {
                       newStatus = 'Booked'
                     } else {
@@ -64,7 +65,11 @@ export const postRack = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(422).send(errors)
     }
-    const newRack = new Rack({ ...req.body, title: req.body.title.toUpperCase() })
+    const newRackObj = { ...req.body, title: req.body.title.toUpperCase() }
+    if (req.body.group === '#all#') {
+      delete newRackObj.group
+    }
+    const newRack = new Rack(newRackObj)
     await newRack.save()
     res.status(200).json(newRack)
   } catch (error) {
@@ -113,20 +118,29 @@ export const addSample = async (req, res) => {
     samples.sort((a, b) => b.slot - a.slot)
     const newSlotStart = samples[0] ? samples[0].slot + 1 : 1
     const newSamples = []
-    Object.values(req.body).forEach((sample, index) => {
-      const slot = newSlotStart + index
-      if (slot > rack.slotsNumber) {
-        throw new Error('Rack is full!')
-      }
-      const newSample = {
-        ...sample,
-        slot,
-        user: { id: req.user._id, username: req.user.username, fullName: req.user.fullName },
-        addedAt: new Date()
-      }
-      rack.samples.push(newSample)
-      newSamples.push(newSample)
-    })
+    await Promise.all(
+      Object.values(req.body).map(async (sample, index) => {
+        const slot = newSlotStart + index
+        if (slot > rack.slotsNumber) {
+          throw new Error('Rack is full!')
+        }
+        const group = await Group.findById(req.user.group)
+        const newSample = {
+          ...sample,
+          slot,
+          user: {
+            id: req.user._id,
+            username: req.user.username,
+            fullName: req.user.fullName,
+            groupName: group.groupName,
+            groupId: group._id
+          },
+          addedAt: new Date()
+        }
+        rack.samples.push(newSample)
+        newSamples.push(newSample)
+      })
+    )
     await rack.save()
     res.send({ rackId, data: newSamples })
   } catch (error) {
@@ -251,7 +265,7 @@ export const bookSamples = async (req, res) => {
             //fitering samples and restructuring data object that we need to send to the client submitter
             const sampleObj = {
               userId: sample.user.id,
-              group: rack.group.groupName,
+              group: sample.user.groupName,
               holder: sample.holder,
               sampleId: sample.dataSetName,
               solvent: sample.solvent,
@@ -278,8 +292,8 @@ export const bookSamples = async (req, res) => {
                     id: sample.user.id
                   },
                   group: {
-                    name: rack.group.groupName,
-                    id: rack.group._id
+                    name: sample.user.groupName,
+                    id: sample.user.groupId
                   },
                   datasetName: sampleObj.sampleId,
                   holder: sampleObj.holder,

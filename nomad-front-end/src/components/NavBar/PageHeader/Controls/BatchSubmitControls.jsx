@@ -51,7 +51,12 @@ const BatchSubmitControls = props => {
     if (!authToken) {
       props.openAuthModal()
     }
-    if (activeRack.group.groupName !== grpName) {
+    if (
+      accessLevel === 'admin' &&
+      accessLevel === 'admin-b' &&
+      activeRack.group &&
+      activeRack.group.groupName !== grpName
+    ) {
       return Modal.error({
         title: 'Rack belongs to a different group',
         content: 'Submitting to a rack that does not belong to your own group is forbidden'

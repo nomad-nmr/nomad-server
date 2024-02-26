@@ -22,6 +22,12 @@ const AddRackModal = props => {
       </Option>
     ))
 
+  grpOptions.push(
+    <Option value={'#all#'} key={'#all#'}>
+      -- open for all --
+    </Option>
+  )
+
   const closeModal = () => {
     form.resetFields()
     props.toggleHandler()
@@ -33,8 +39,14 @@ const AddRackModal = props => {
   }
 
   const setRackTitle = grpId => {
-    const group = props.groupList.find(grp => grp.id === grpId)
-    const title = group.name.toUpperCase() + ' - ' + moment().format('DD/MM/YYYY')
+    let title
+    if (grpId == '#all#') {
+      title = moment().format('DD/MM/YYYY - HH:MM')
+    } else {
+      const group = props.groupList.find(grp => grp.id === grpId)
+      title = group.name.toUpperCase() + ' - ' + moment().format('DD/MM/YYYY')
+    }
+
     form.setFieldsValue({ title })
   }
 

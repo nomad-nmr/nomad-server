@@ -120,6 +120,12 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
       align: 'center'
     },
     {
+      title: 'Group',
+      dataIndex: ['user', 'groupName'],
+      align: 'center'
+    },
+
+    {
       title: 'Solvent',
       dataIndex: 'solvent',
       align: 'center'

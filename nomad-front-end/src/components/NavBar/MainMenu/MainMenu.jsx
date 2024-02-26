@@ -37,10 +37,8 @@ const MainMenu = props => {
   }
 
   if (
-    (import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
-      (accessLevel === 'admin' || accessLevel === 'admin-b' || accessLevel === 'user-b') &&
-      location.pathname === '/dashboard') ||
-    location.pathname.split('/')[1] === 'admin'
+    import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
+    (location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin')
   ) {
     items.push({
       key: '/batch-submit',
