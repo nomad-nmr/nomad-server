@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Modal, Form, Input, Select, Button, Space, InputNumber } from 'antd'
 import { TableOutlined } from '@ant-design/icons'
 import moment from 'moment'
@@ -14,6 +14,8 @@ const AddRackModal = props => {
   const [form] = Form.useForm()
   const { Option } = Select
 
+  const [isForAll, setIsForAll] = useState(false)
+
   const grpOptions = props.groupList
     .filter(grp => grp.isBatch)
     .map(grp => (
@@ -28,25 +30,39 @@ const AddRackModal = props => {
     </Option>
   )
 
+  const instrOptions = props.instruments.map(instr => (
+    <Option key={instr.id} value={instr.id}>
+      {instr.name}
+    </Option>
+  ))
+
   const closeModal = () => {
     form.resetFields()
     props.toggleHandler()
+    setIsForAll(false)
   }
 
   const submitForm = values => {
     props.onSubmit(values, props.token)
     form.resetFields()
+    setIsForAll(false)
   }
 
-  const setRackTitle = grpId => {
-    let title
-    if (grpId == '#all#') {
-      title = moment().format('DD/MM/YYYY - HH:MM')
+  const onGroupSelect = grpId => {
+    if (grpId === '#all#') {
+      // title = moment().format('DD/MM/YYYY - HH:MM')
+      setIsForAll(true)
     } else {
       const group = props.groupList.find(grp => grp.id === grpId)
-      title = group.name.toUpperCase() + ' - ' + moment().format('DD/MM/YYYY')
+      const title = group.name.toUpperCase() + ' - ' + moment().format('DD/MM/YYYY')
+      setIsForAll(false)
+      form.setFieldsValue({ title })
     }
+  }
 
+  const onInstrumentSelect = instrId => {
+    const instrument = props.instruments.find(instr => instr.id === instrId)
+    const title = instrument.name.toUpperCase() + ' - ' + moment().format('DD/MM/YYYY')
     form.setFieldsValue({ title })
   }
 
@@ -70,10 +86,17 @@ const AddRackModal = props => {
         onFinish={values => submitForm(values)}
       >
         <Form.Item name='group' label='Group' rules={[{ required: true }]}>
-          <Select style={{ width: '50%' }} onSelect={value => setRackTitle(value)}>
+          <Select style={{ width: '50%' }} onSelect={value => onGroupSelect(value)}>
             {grpOptions}
           </Select>
         </Form.Item>
+        {isForAll && (
+          <Form.Item name='instrument' label='Instrument' rules={[{ required: true }]}>
+            <Select style={{ width: '50%' }} onSelect={value => onInstrumentSelect(value)}>
+              {instrOptions}
+            </Select>
+          </Form.Item>
+        )}
         <Form.Item
           name='title'
           label='Rack Title'
@@ -84,6 +107,7 @@ const AddRackModal = props => {
         <Form.Item name='slotsNumber' label='Number of Slots' rules={[{ required: true }]}>
           <InputNumber min={1} />
         </Form.Item>
+
         <Form.Item style={{ textAlign: 'center' }} {...tailLayout}>
           <Space size='large'>
             <Button type='primary' htmlType='submit'>

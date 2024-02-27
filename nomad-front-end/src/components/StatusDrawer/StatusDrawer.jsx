@@ -85,7 +85,7 @@ const StatusDrawer = props => {
         height='auto'
         open={visible}
         onClose={props.closeClicked}
-        headerStyle={headerClass}
+        styles={{ header: headerClass }}
       >
         <DrawerTable id={id} data={tableData} loading={dataLoading} drawerVisible={visible} />
         <div style={{ textAlign: 'center', marginTop: 20 }}>{buttons}</div>

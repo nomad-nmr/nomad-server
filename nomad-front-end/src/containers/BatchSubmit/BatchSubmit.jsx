@@ -32,20 +32,29 @@ const BatchSubmit = props => {
     racksData,
     setActiveTabId,
     activeTabId,
-    fetchParamSets
+    fetchParamSets,
+    addSampleVis
   } = props
 
   const user = { username, accessLevel, authToken }
+  const activeRack = racksData.find(rack => rack._id === props.activeTabId)
 
   useEffect(() => {
     if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
       fetchGrpList(authToken)
       fetchInstrList(authToken)
     }
-    if (authToken) {
-      fetchParamSets(authToken, { instrumentId: null, searchValue: '', list: true })
+  }, [])
+
+  useEffect(() => {
+    if (authToken && activeRack) {
+      fetchParamSets(authToken, {
+        instrumentId: activeRack.instrument ? activeRack.instrument : null,
+        searchValue: '',
+        list: true
+      })
     }
-  }, [fetchGrpList, fetchInstrList, authToken, accessLevel, fetchParamSets])
+  }, [addSampleVis])
 
   //Racks data are getting fetch if the tab changes in order to get updated status
   useEffect(() => {
@@ -60,33 +69,36 @@ const BatchSubmit = props => {
     }
   }, [racksData, activeTabId, setActiveTabId])
 
-  const activeRack = racksData.find(rack => rack._id === props.activeTabId)
-
   let filteredRacks = []
   if (accessLevel === 'admin' || accessLevel === 'admin-b') {
     filteredRacks = [...racksData]
+  } else if (accessLevel === 'user-b') {
+    filteredRacks = racksData.filter(rack => {
+      if (!rack.group) {
+        return false
+      } else if (rack.isOpen && rack.group.groupName === props.grpName) {
+        return true
+      } else {
+        return false
+      }
+    })
   } else {
     if (!authToken) {
       filteredRacks = racksData.filter(rack => rack.isOpen)
     } else {
-      filteredRacks = racksData.filter(rack => {
-        if (!rack.group && rack.isOpen) {
-          return true
-        } else if (rack.isOpen && rack.group.groupName === props.grpName) {
-          return true
-        } else {
-          return false
-        }
-      })
+      filteredRacks = racksData.filter(rack => !rack.group && rack.isOpen)
     }
   }
 
   // setting error that disables user-b to add sample to a rack that does not belong to his group
-  // while anybody can submit to rack open to all (groupName = undefined)
 
   let drawerError = false
   if (accessLevel !== null && accessLevel !== 'admin' && accessLevel !== 'admin-b' && activeRack) {
-    drawerError = activeRack.group ? activeRack.group.groupName !== props.grpName : false
+    if (activeRack.group) {
+      drawerError = activeRack.group.groupName !== props.grpName
+    } else {
+      drawerError = accessLevel === 'user-b'
+    }
   }
 
   return (
@@ -109,6 +121,7 @@ const BatchSubmit = props => {
         groupList={props.grpList}
         onSubmit={props.addRackHandler}
         token={authToken}
+        instruments={props.instrList}
       />
       <BookSamplesModal
         visible={props.bookSamplesVisible}
@@ -119,7 +132,7 @@ const BatchSubmit = props => {
         submitBookingData={props.bookSamples}
       />
       <AddSampleDrawer
-        visible={username && props.addSampleVis}
+        visible={username && addSampleVis}
         toggleHandler={props.tglAddSample}
         rackTitle={activeRack && activeRack.title}
         error={drawerError}

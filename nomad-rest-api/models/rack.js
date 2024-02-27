@@ -11,6 +11,10 @@ const rackSchema = new Schema({
     // required: true, not required to enable open racks
     ref: 'Group'
   },
+  instrument: {
+    type: Schema.Types.ObjectId,
+    ref: 'Instrument'
+  },
   isOpen: {
     type: Boolean,
     required: true,

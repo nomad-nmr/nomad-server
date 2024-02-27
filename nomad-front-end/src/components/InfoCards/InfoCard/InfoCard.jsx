@@ -18,12 +18,14 @@ const InfoCard = props => {
     <Card
       className={classes.InfoCard}
       hoverable
-      headStyle={{ backgroundColor: cardColor }}
-      bodyStyle={{
-        borderBottom: `2px solid ${cardColor}`,
-        borderRadius: '4px',
-        backgroundColor: cardBackgroundColor,
-        padding: '12px 0px 0px 20px'
+      styles={{
+        header: { backgroundColor: cardColor },
+        body: {
+          borderBottom: `2px solid ${cardColor}`,
+          borderRadius: '4px',
+          backgroundColor: cardBackgroundColor,
+          padding: '12px 0px 0px 20px'
+        }
       }}
       title={
         <Row style={{ padding: '15px 0' }}>
