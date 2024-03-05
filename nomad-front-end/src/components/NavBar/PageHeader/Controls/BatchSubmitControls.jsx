@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button, message, Modal, Tooltip } from 'antd'
+import moment from 'moment'
 
 import classes from '../PageHeader.module.css'
 
@@ -94,10 +95,30 @@ const BatchSubmitControls = props => {
       return message.error('You can only submit samples with "Booked" status')
     }
 
-    props.submitSamplesHandler(
-      { rackId: props.activeRackId, slots: props.selectedSlots },
-      authToken
+    let totalExpT = 0
+    const selectedSamples = activeRack.samples.filter(sample =>
+      props.selectedSlots.includes(sample.slot)
     )
+    selectedSamples.forEach(sample => {
+      console.log(sample)
+      totalExpT += moment.duration(sample.expTime, 'HH,mm,ss').asSeconds()
+    })
+    console.log(totalExpT)
+
+    Modal.confirm({
+      title: 'Batch Submit',
+      content: `You are submitting ${selectedSamples.length} sample${
+        selectedSamples.length > 1 ? 's' : ''
+      } with estimated total experimental time of ${moment
+        .duration(totalExpT, 'second')
+        .format('HH:mm:ss', { trim: false })} excluding overhead time`,
+      onOk() {
+        props.submitSamplesHandler(
+          { rackId: props.activeRackId, slots: props.selectedSlots },
+          authToken
+        )
+      }
+    })
   }
 
   const cancelHandler = () => {

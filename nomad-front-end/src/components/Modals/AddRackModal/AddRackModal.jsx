@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Modal, Form, Input, Select, Button, Space, InputNumber } from 'antd'
+import { Modal, Form, Input, Select, Button, Space, InputNumber, Switch } from 'antd'
 import { TableOutlined } from '@ant-design/icons'
 import moment from 'moment'
 
@@ -106,6 +106,9 @@ const AddRackModal = props => {
         </Form.Item>
         <Form.Item name='slotsNumber' label='Number of Slots' rules={[{ required: true }]}>
           <InputNumber min={1} />
+        </Form.Item>
+        <Form.Item name='editParams' label='Edit Parameters'>
+          <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
         </Form.Item>
 
         <Form.Item style={{ textAlign: 'center' }} {...tailLayout}>

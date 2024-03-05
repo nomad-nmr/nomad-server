@@ -31,6 +31,7 @@ const AddSampleDrawer = props => {
           paramSets={props.paramSets}
           rackId={props.activeRackId}
           onAddSample={props.onAddSample}
+          editParams={props.editParams}
         />
       )}
     </Drawer>

@@ -200,7 +200,7 @@ export const bookSamples = async (req, res) => {
     const expErrors = []
     await Promise.all(
       Array.from(expListSet).map(async exp => {
-        const paramSet = await ParameterSet.findOne({ name: exp })
+        const paramSet = await ParameterSet.findOne({ name: exp.paramSet })
         if (!paramSet.availableOn.includes(instrId)) {
           expErrors.push(exp)
         }
@@ -272,8 +272,9 @@ export const bookSamples = async (req, res) => {
               title: sample.title + ' [' + sample.tubeId + ']',
               experiments: sample.exps.map((exp, i) => ({
                 expNo: 10 + i,
-                paramSet: exp,
-                expTitle: exp
+                paramSet: exp.paramSet,
+                params: exp.params,
+                expTitle: `${exp.paramSet} [${exp.params ? exp.params : ''}]`
               }))
             }
             samplesToBook.push(sampleObj)

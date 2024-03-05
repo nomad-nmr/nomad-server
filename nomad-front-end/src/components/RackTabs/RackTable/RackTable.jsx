@@ -147,6 +147,11 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
       render: value => value.length
     },
     {
+      title: 'ExpT',
+      dataIndex: 'expTime',
+      align: 'center'
+    },
+    {
       title: 'Added at',
       dataIndex: 'addedAt',
       align: 'center',
@@ -185,12 +190,12 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
     const expElement = record.exps.map((exp, index) => (
       <div key={index}>
         {index !== 0 && <Divider type='vertical' />}
-        {exp}
+        {exp.paramSet} [{exp.params}]
       </div>
     ))
     return (
       <Space>
-        <span style={{ fontWeight: 600 }}>Experiments [Parameter Sets] : </span>
+        <span style={{ fontWeight: 600 }}>Parameter Set [Parameters] : </span>
         {expElement}
         <span style={{ fontWeight: 600, marginLeft: 20 }}>Dataset Name: </span>
         {record.dataSetName ? record.dataSetName : 'N/A'}

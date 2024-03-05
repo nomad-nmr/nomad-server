@@ -47,11 +47,11 @@ const BatchSubmit = props => {
   }, [])
 
   useEffect(() => {
-    if (authToken && activeRack) {
+    if (authToken && activeRack && addSampleVis) {
       fetchParamSets(authToken, {
         instrumentId: activeRack.instrument ? activeRack.instrument : null,
         searchValue: '',
-        list: true
+        list: false
       })
     }
   }, [addSampleVis])
@@ -141,6 +141,7 @@ const BatchSubmit = props => {
         paramSets={props.paramSetsList}
         activeRackId={activeTabId}
         onAddSample={props.addSampleHandler}
+        editParams={activeRack && activeRack.editParams}
       />
     </div>
   )

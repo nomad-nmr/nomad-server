@@ -20,6 +20,10 @@ const rackSchema = new Schema({
     required: true,
     default: true
   },
+  editParams: {
+    type: Boolean,
+    default: false
+  },
   slotsNumber: {
     type: Number,
     required: true,
@@ -50,7 +54,12 @@ const rackSchema = new Schema({
         default: '---'
       },
 
-      exps: Array,
+      exps: [
+        {
+          paramSet: { type: String, required: true },
+          params: String
+        }
+      ],
 
       addedAt: Date,
 
@@ -60,7 +69,8 @@ const rackSchema = new Schema({
       },
       holder: Number,
       status: String,
-      dataSetName: String
+      dataSetName: String,
+      expTime: String
     }
   ]
 })
