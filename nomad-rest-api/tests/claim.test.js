@@ -76,7 +76,7 @@ describe('GET /folders/:instrumentId', () => {
       .get('/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
-    expect(body).toMatchObject({ folders: [], instrumentId: testInstrTwo._id })
+    expect(body).toMatchObject({ folders: [], instrumentId: testInstrOne._id.toString() })
     expect(getIO).toBeCalled()
   })
 })
@@ -158,12 +158,18 @@ describe('GET /', () => {
     expect(body.total).toBe(1)
     expect(body.claims.length).toBe(1)
     expect(body.claims[0].user).toMatchObject({
-      _id: testUserOne._id,
+      _id: testUserOne._id.toString(),
       username: 'test1',
       fullName: 'Test User One'
     })
-    expect(body.claims[0].group).toMatchObject({ _id: testGroupOne._id, groupName: 'test-group-1' })
-    expect(body.claims[0].instrument).toMatchObject({ _id: testInstrOne._id, name: 'instrument-1' })
+    expect(body.claims[0].group).toMatchObject({
+      _id: testGroupOne._id.toString(),
+      groupName: 'test-group-1'
+    })
+    expect(body.claims[0].instrument).toMatchObject({
+      _id: testInstrOne._id.toString(),
+      name: 'instrument-1'
+    })
   })
 
   it('should return object with 1 test claims if showApproved is true and dateRange is to 3 days', async () => {
@@ -189,11 +195,11 @@ describe('PATCH /', () => {
   it('should update expTime for testClaimTwo', async () => {
     const { body } = await request(app)
       .patch('/claims/')
-      .send({ claimId: testClaimTwo._id, expTime: 8 })
+      .send({ claimId: testClaimTwo._id.toString(), expTime: 8 })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body).toMatchObject({ key: testClaimTwo._id, expTime: '8' })
+    expect(body).toMatchObject({ key: testClaimTwo._id.toHexString(), expTime: '8' })
 
     //asserting change in DB
     const claim = await Claim.findById(body.key)

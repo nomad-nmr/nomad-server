@@ -45,7 +45,7 @@ describe('GET /admin/groups/', () => {
       .expect(200)
     expect(body[0]).toMatchObject({
       name: testGroupTwo.groupName,
-      id: testGroupTwo._id,
+      id: testGroupTwo._id.toString(),
       isActive: testGroupTwo.isActive,
       isBatch: true
     })

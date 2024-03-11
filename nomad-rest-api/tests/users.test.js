@@ -62,7 +62,7 @@ describe('GET /admin/users/', () => {
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body[0]).toMatchObject({
-      _id: testUserTwo._id,
+      _id: testUserTwo._id.toString(),
       username: testUserTwo.username,
       fullName: testUserTwo.fullName
     })
@@ -76,7 +76,7 @@ describe('GET /admin/users/', () => {
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body[0]).toMatchObject({
-      _id: testUserOne._id,
+      _id: testUserOne._id.toString(),
       username: testUserOne.username,
       fullName: testUserOne.fullName
     })
@@ -90,7 +90,7 @@ describe('GET /admin/users/', () => {
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body[0]).toMatchObject({
-      _id: testUserOne._id,
+      _id: testUserOne._id.toString(),
       username: testUserOne.username,
       fullName: testUserOne.fullName
     })

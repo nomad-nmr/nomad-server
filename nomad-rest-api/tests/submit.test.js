@@ -335,7 +335,7 @@ describe('GET /allowance', () => {
 
     expect(body).toMatchObject([
       {
-        instrId: testInstrThree._id,
+        instrId: testInstrThree._id.toString(),
         dayAllowance: 14.283333333333333,
         nightAllowance: 195,
         nightStart: '19:00',

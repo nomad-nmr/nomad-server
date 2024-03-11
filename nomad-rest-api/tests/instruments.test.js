@@ -38,7 +38,7 @@ describe('GET /admin/instruments/', () => {
       .expect(200)
     expect(body.length).toBe(2)
     expect(body[0]).toMatchObject({
-      id: testInstrOne._id,
+      id: testInstrOne._id.toString(),
       name: 'instrument-1',
       available: true
     })
@@ -328,7 +328,7 @@ describe('PATCH /toggle-active/', () => {
 
     expect(body).toMatchObject({
       message: 'Instrument active status updated',
-      _id: testInstrOne._id
+      _id: testInstrOne._id.toString()
     })
 
     //asserting change in DB

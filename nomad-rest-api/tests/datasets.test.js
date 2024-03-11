@@ -95,11 +95,14 @@ describe('POST /data/dataset', () => {
       .expect(200)
 
     expect(body.user).toMatchObject({
-      _id: testUserAdmin._id,
+      _id: testUserAdmin._id.toString(),
       username: testUserAdmin.username,
       fullName: testUserAdmin.fullName
     })
-    expect(body.group).toMatchObject({ _id: testGroupTwo._id, groupName: testGroupTwo.groupName })
+    expect(body.group).toMatchObject({
+      _id: testGroupTwo._id.toString(),
+      groupName: testGroupTwo.groupName
+    })
     expect(body.title).toMatch('Dataset 1')
 
     //asserting change in DB

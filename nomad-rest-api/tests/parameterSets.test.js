@@ -54,7 +54,7 @@ describe('GET /admin/param-sets', () => {
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(1)
-    expect(body[0]).toMatchObject({ name: testParamSet2.name, id: testParamSet2._id })
+    expect(body[0]).toMatchObject({ name: testParamSet2.name, id: testParamSet2._id.toString() })
   })
 
   it('should return array with only one parameter set if "2" is provided as search value', async () => {
