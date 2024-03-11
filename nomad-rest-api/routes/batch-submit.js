@@ -51,10 +51,10 @@ router.post('/sample/:rackId', auth, addSample)
 
 router.delete('/sample/:rackId/:slot', auth, deleteSample)
 
-router.post('/book', auth, bookSamples)
+router.post('/book', auth, authAdmin, bookSamples)
 
-router.post('/submit', auth, submitSamples)
+router.post('/submit', auth, authAdmin, submitSamples)
 
-router.post('/cancel', auth, cancelBookedSamples)
+router.post('/cancel', auth, authAdmin, cancelBookedSamples)
 
 export default router

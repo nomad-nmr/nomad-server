@@ -47,7 +47,7 @@ describe('GET /admin/groups/', () => {
       name: testGroupTwo.groupName,
       id: testGroupTwo._id,
       isActive: testGroupTwo.isActive,
-      isBatch: false
+      isBatch: true
     })
   })
 })

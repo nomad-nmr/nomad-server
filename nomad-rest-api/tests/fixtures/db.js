@@ -8,14 +8,22 @@ import ParameterSet from '../../models/parameterSet.js'
 import Claim from '../../models/claim.js'
 import Experiment from '../../models/experiment.js'
 import Dataset from '../../models/dataset.js'
+import Rack from '../../models/rack.js'
 
 import { testUserOne, testUserTwo, testUserAdmin, testUserThree } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
 import { testInstrOne, testInstrTwo, testInstrThree } from './data/instruments'
 import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
 import { testClaimOne, testClaimTwo } from './data/claims.js'
-import { testExpOne, testExpTwo, testExpThree, testExpFour } from './data/experiments.js'
+import {
+  testExpOne,
+  testExpTwo,
+  testExpThree,
+  testExpFour,
+  testExpFive
+} from './data/experiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
+import { testRackOne, testRackTwo } from './data/racks.js'
 
 let mongo = null
 
@@ -43,6 +51,7 @@ export const setupDB = async () => {
   await Claim.deleteMany()
   await Experiment.deleteMany()
   await Dataset.deleteMany()
+  await Rack.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
@@ -69,8 +78,12 @@ export const setupDB = async () => {
   await new Experiment(testExpTwo).save()
   await new Experiment(testExpThree).save()
   await new Experiment(testExpFour).save()
+  await new Experiment(testExpFive).save()
 
   await new Dataset(testDatasetOne).save()
   await new Dataset(testDatasetTwo).save()
   await new Dataset(testDatasetThree).save()
+
+  await new Rack(testRackOne).save()
+  await new Rack(testRackTwo).save()
 }

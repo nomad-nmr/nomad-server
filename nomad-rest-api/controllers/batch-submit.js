@@ -172,7 +172,7 @@ export const deleteSample = async (req, res) => {
 
 export const bookSamples = async (req, res) => {
   const submitter = getSubmitter()
-  const { rackId, instrId, slots, closeQueue, expList } = req.body
+  const { rackId, instrId, slots, closeQueue } = req.body
 
   try {
     const instrument = await Instrument.findById(instrId)

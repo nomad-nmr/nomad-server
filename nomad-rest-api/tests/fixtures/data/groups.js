@@ -14,5 +14,6 @@ export const testGroupTwo = {
   groupName: 'test-admins',
   isActive: true,
   description: 'Admins test group',
+  isBatch: true,
   exUsers: []
 }

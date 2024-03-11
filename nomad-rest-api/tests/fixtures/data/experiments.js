@@ -105,3 +105,28 @@ export const testExpFour = {
   dataPath: './test/path',
   solvent: 'C6D6'
 }
+
+export const testExpFive = {
+  _id: new mongoose.Types.ObjectId(),
+  expId: '2106240012-10-2-test2-10',
+  instrument: {
+    name: testInstrTwo.name,
+    id: testInstrTwo._id
+  },
+  user: {
+    username: testUserThree.username,
+    id: testUserThree._id
+  },
+  group: {
+    name: testGroupOne.groupName,
+    id: testGroupOne._id
+  },
+  datasetName: '2106240012-10-2-test2',
+  status: 'Available',
+  title: 'Test Exp 5',
+  parameterSet: testParamSet1.name,
+  expNo: '10',
+  holder: '10',
+  dataPath: './test/path',
+  solvent: 'C6D6'
+}
