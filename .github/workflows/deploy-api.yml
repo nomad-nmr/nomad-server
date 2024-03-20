@@ -1,0 +1,14 @@
+name: Deploy API
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: nomad-rest-api/
+      - name: Install dependencies
+        run: npm ci
+      - name: Test
+        run: npm test
