@@ -6,8 +6,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: nomad-rest-api
       - name: Install dependencies
         working-directory: nomad-rest-api
         run: npm ci
