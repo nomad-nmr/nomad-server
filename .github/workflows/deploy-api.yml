@@ -10,4 +10,5 @@ jobs:
         working-directory: nomad-rest-api
         run: npm ci
       - name: Test
+        working-directory: nomad-rest-api
         run: npm test
