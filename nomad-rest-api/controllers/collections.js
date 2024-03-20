@@ -49,6 +49,12 @@ export const postCollection = async (req, res) => {
       respData.newTitle = newCollection.title
     } else {
       const collection = await Collection.findById(req.body.collection)
+      if (
+        req.user.accessLevel !== 'admin' &&
+        req.user.id.toString() !== collection.user.toString()
+      ) {
+        return res.status(403).send()
+      }
       const newDatasets = [...collection.datasets]
       await Promise.all(
         req.body.datasets.map(async datasetId => {

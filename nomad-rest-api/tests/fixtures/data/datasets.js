@@ -36,6 +36,7 @@ export const testDatasetOne = {
     }
   }
 }
+
 export const testDatasetTwo = {
   _id: new mongoose.Types.ObjectId(),
   title: 'Test dataset 2',
@@ -44,6 +45,7 @@ export const testDatasetTwo = {
   tags: [],
   createdAt: moment().subtract(2, 'days'),
   smiles: ['C1(=CC(=CC=C1OC)C)'],
+  inCollections: [],
   nmriumData: {
     data: {
       spectra: [

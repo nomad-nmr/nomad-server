@@ -9,6 +9,7 @@ import Claim from '../../models/claim.js'
 import Experiment from '../../models/experiment.js'
 import Dataset from '../../models/dataset.js'
 import Rack from '../../models/rack.js'
+import Collection from '../../models/collection.js'
 
 import { testUserOne, testUserTwo, testUserAdmin, testUserThree } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
@@ -24,6 +25,7 @@ import {
 } from './data/experiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
 import { testRackOne, testRackTwo } from './data/racks.js'
+import { testCollectionOne } from './data/collections.js'
 
 let mongo = null
 
@@ -52,6 +54,7 @@ export const setupDB = async () => {
   await Experiment.deleteMany()
   await Dataset.deleteMany()
   await Rack.deleteMany()
+  await Collection.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
@@ -86,4 +89,6 @@ export const setupDB = async () => {
 
   await new Rack(testRackOne).save()
   await new Rack(testRackTwo).save()
+
+  await new Collection(testCollectionOne).save()
 }

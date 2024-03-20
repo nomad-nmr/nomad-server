@@ -23,7 +23,7 @@ router.get('/', auth, getCollections)
 
 router.get('/datasets/:collectionId', auth, validateDataAccess, getDatasets)
 
-router.delete('/:collectionId', auth, validateDataAccess, deleteCollection)
+router.delete('/:collectionId', auth, validateDataWriteAccess, deleteCollection)
 
 router.patch('/datasets/:collectionId', auth, validateDataWriteAccess, removeDatasets)
 
