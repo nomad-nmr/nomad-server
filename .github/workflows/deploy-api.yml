@@ -9,7 +9,7 @@ jobs:
         with:
           path: nomad-rest-api
       - name: Install dependencies
-        run: npm ci
         working-directory: nomad-rest-api
+        run: npm ci
       - name: Test
         run: npm test
