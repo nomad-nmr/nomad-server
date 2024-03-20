@@ -10,5 +10,6 @@ jobs:
           path: nomad-rest-api/
       - name: Install dependencies
         run: npm ci
+        working-directory: nomad-rest-api
       - name: Test
         run: npm test
