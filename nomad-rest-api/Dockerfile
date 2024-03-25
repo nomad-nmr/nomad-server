@@ -1,4 +1,4 @@
-FROM node:hydrogen-slim
+FROM node:18-bookworm-slim
 
 WORKDIR /app
 
