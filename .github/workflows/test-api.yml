@@ -11,7 +11,7 @@ jobs:
         working-directory: nomad-rest-api
         run: npm ci
       - name: Checking ENV
-        run: echo "JWT_SECRET ${{env.JWT_SECRET}}"
+        run: echo "JWT_SECRET ${{env}}"
       # - name: Test
       #   working-directory: nomad-rest-api
       #   run: npm run test-action
