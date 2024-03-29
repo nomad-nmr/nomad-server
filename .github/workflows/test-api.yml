@@ -1,5 +1,9 @@
 name: Test API
-on: push
+on:
+  push:
+  pull_request:
+    types:
+      - opened
 jobs:
   test:
     env:
