@@ -2,8 +2,10 @@ name: Test API
 on: push
 jobs:
   test:
+    env:
+      JWT_SECRET: 'secret'
     runs-on: ubuntu-latest
-    environment: testing
+    # environment: testing
     steps:
       - name: Checkout
         uses: actions/checkout@v4
