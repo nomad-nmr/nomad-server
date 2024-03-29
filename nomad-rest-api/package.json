@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test-once": "env-cmd -f ../env/backend-test.env vitest --run",
+    "test-action": "vitest --run",
     "test": "env-cmd -f ../env/backend-test.env vitest --reporter verbose",
     "coverage": "env-cmd -f ../env/backend-test.env vitest run --coverage",
     "start": "env-cmd -f ../env/api-no-docker.env node server.js",

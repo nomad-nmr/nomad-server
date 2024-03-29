@@ -2,6 +2,7 @@ name: Deploy API
 on: push
 jobs:
   test:
+    environment: testing
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -11,5 +12,4 @@ jobs:
         run: npm ci
       - name: Test
         working-directory: nomad-rest-api
-        run: echo "Testing...."
-        # npm test
+        run: npm run test-action
