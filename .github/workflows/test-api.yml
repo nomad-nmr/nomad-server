@@ -1,9 +1,9 @@
-name: Deploy API
+name: Test API
 on: push
 jobs:
   test:
-    environment: testing
     runs-on: ubuntu-latest
+    environment: testing
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -11,7 +11,7 @@ jobs:
         working-directory: nomad-rest-api
         run: npm ci
       - name: Checking ENV
-        run: echo "JWT_SECRET ${{env}}"
+        run: echo "JWT_SECRET ${{env.JWT_SECRET}}"
       # - name: Test
       #   working-directory: nomad-rest-api
       #   run: npm run test-action
