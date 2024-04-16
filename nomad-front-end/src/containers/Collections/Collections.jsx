@@ -2,10 +2,11 @@ import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { Tooltip, Button, Select, Row, Col, Form, Space, Switch } from 'antd'
-import { EditOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons'
+import { EditOutlined, SearchOutlined, CloseOutlined, ShareAltOutlined } from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
 import CollectionMetaModal from '../../components/Modals/CollectionMetaModal/CollectionMetaModal.jsx'
+import CollectionSharingModal from '../../components/Modals/CollectionSharingModal/CollectionSharingModal.jsx'
 import DatasetTable from '../../components/SearchComponents/DatasetTable.jsx'
 import DatasetCard from '../../components/SearchComponents/DatasetCard.jsx'
 import SelectGrpUsr from '../../components/Forms/SelectGrpUsr/SelectGrpUsr.jsx'
@@ -52,7 +53,8 @@ const Collections = props => {
 
   const { collectionId } = useParams()
 
-  const [modalOpen, setModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [sharingModalOpen, setSharingModalOpen] = useState(false)
   const [datasetsData, setDatasetsData] = useState([])
   const [groupList, setGroupList] = useState([])
   const [legacy, setLegacy] = useState()
@@ -181,10 +183,19 @@ const Collections = props => {
                 <Tooltip title='Edit collection metadata'>
                   <Button
                     type='link'
-                    onClick={() => setModalOpen(true)}
-                    disabled={accessLvl !== 'admin' && username !== user.username}
+                    onClick={() => setEditModalOpen(true)}
+                    disabled={dataAccess !== 'admin' && username !== user.username}
                   >
                     <EditOutlined style={{ fontSize: '18px' }} />
+                  </Button>
+                </Tooltip>
+                <Tooltip title='Set collection sharing'>
+                  <Button
+                    type='link'
+                    onClick={() => setSharingModalOpen(true)}
+                    disabled={dataAccess !== 'admin'}
+                  >
+                    <ShareAltOutlined style={{ fontSize: '18px' }} />
                   </Button>
                 </Tooltip>
               </div>
@@ -316,12 +327,20 @@ const Collections = props => {
         {mainElement}
       </div>
       <CollectionMetaModal
-        open={modalOpen}
-        openHandler={setModalOpen}
+        open={editModalOpen}
+        openHandler={setEditModalOpen}
         updateHandler={props.updateCollection}
         metaData={metaData}
         token={authToken}
-        accessLevel={accessLvl}
+        accessLevel={dataAccess}
+        groupList={grpList}
+        userList={usrList}
+        onGrpChange={props.fetchUsrList}
+      />
+      <CollectionSharingModal
+        open={sharingModalOpen}
+        token={authToken}
+        openHandler={setSharingModalOpen}
         groupList={grpList}
         userList={usrList}
         onGrpChange={props.fetchUsrList}

@@ -16,7 +16,7 @@ const CollectionMetaModal = props => {
     <Modal
       footer={null}
       width={650}
-      title='Edit Collection metadata'
+      title='Edit collection metadata'
       open={props.open}
       onCancel={() => {
         openHandler(false)
