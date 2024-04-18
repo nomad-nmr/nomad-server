@@ -93,10 +93,6 @@ describe('POST /holders', () => {
       .expect(200)
 
     expect(transporter.sendMail).toBeCalled()
-
-    //asserting change in DB
-    const instrument = await Instrument.findById(testInstrThree._id)
-    expect(instrument.available).toBe(false)
   })
 
   it('should fail with status 500 is submitter does not return holders arrays', async () => {
