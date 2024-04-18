@@ -1,8 +1,14 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 import { useParams } from 'react-router-dom'
-import { Tooltip, Button, Select, Row, Col, Form, Space, Switch } from 'antd'
-import { EditOutlined, SearchOutlined, CloseOutlined, ShareAltOutlined } from '@ant-design/icons'
+import { Tooltip, Button, Select, Row, Col, Form, Space, Switch, Radio } from 'antd'
+import {
+  EditOutlined,
+  SearchOutlined,
+  CloseOutlined,
+  ShareAltOutlined,
+  SettingOutlined
+} from '@ant-design/icons'
 
 import CollectionsTable from '../../components/CollectionsTable/CollectionsTable.jsx'
 import CollectionMetaModal from '../../components/Modals/CollectionMetaModal/CollectionMetaModal.jsx'
@@ -10,6 +16,7 @@ import CollectionSharingModal from '../../components/Modals/CollectionSharingMod
 import DatasetTable from '../../components/SearchComponents/DatasetTable.jsx'
 import DatasetCard from '../../components/SearchComponents/DatasetCard.jsx'
 import SelectGrpUsr from '../../components/Forms/SelectGrpUsr/SelectGrpUsr.jsx'
+import CopyLinkToClipboard from '../../components/CopyLinkToClipboard/CopyLinkToClipboard.jsx'
 
 import classes from './Collections.module.css'
 import {
@@ -29,7 +36,8 @@ import {
   getDataAccess,
   fetchGroupList,
   fetchUserList,
-  resetUserList
+  resetUserList,
+  updateCollectionShare
 } from '../../store/actions'
 
 const Collections = props => {
@@ -58,6 +66,7 @@ const Collections = props => {
   const [datasetsData, setDatasetsData] = useState([])
   const [groupList, setGroupList] = useState([])
   const [legacy, setLegacy] = useState()
+  const [radioButtonsState, setRadioButtonsState] = useState('search')
 
   const [form] = Form.useForm()
   const formRef = useRef({})
@@ -189,13 +198,20 @@ const Collections = props => {
                     <EditOutlined style={{ fontSize: '18px' }} />
                   </Button>
                 </Tooltip>
+                <CopyLinkToClipboard id={metaData.id} path='collections'>
+                  <Tooltip title='Copy Collection Link'>
+                    <Button type='link'>
+                      <ShareAltOutlined style={{ fontSize: '18px' }} />
+                    </Button>
+                  </Tooltip>
+                </CopyLinkToClipboard>
                 <Tooltip title='Set collection sharing'>
                   <Button
                     type='link'
                     onClick={() => setSharingModalOpen(true)}
                     disabled={dataAccess !== 'admin'}
                   >
-                    <ShareAltOutlined style={{ fontSize: '18px' }} />
+                    <SettingOutlined style={{ fontSize: '18px' }} />
                   </Button>
                 </Tooltip>
               </div>
@@ -241,81 +257,108 @@ const Collections = props => {
     )
   }
 
+  const radioOptions = [
+    { label: 'Search', value: 'search' },
+    { label: 'Shared With Me', value: 'shared' }
+  ]
+
   return (
     <div>
       {dataAccess !== 'user' && grpList.length !== 0 && !metaData.id ? (
-        <Form
-          style={{ marginTop: '30px' }}
-          form={form}
-          ref={formRef}
-          onFinish={values =>
-            fetchCollections(authToken, {
-              userId: values.userId,
-              groupId: values.groupId,
-              legacyData: values.legacyData,
-              search: true
-            })
-          }
-        >
-          <SelectGrpUsr
-            userList={usrList}
-            groupList={groupList}
-            token={authToken}
-            fetchUsrListHandler={props.fetchUsrList}
-            fetchGrpListHandler={fetchGrpList}
-            resetUserListHandler={props.resetUsrList}
-            formRef={formRef}
-            inactiveSwitch
-            dataAccessLvl={dataAccess}
-            //legacySwitch has to be setup in Collection container
-            //to keep state when collection is open
-            legacySwitch={false}
-            loggedUser={username}
-            disabled={legacy}
+        <Space size='large'>
+          <Radio.Group
+            style={{ marginTop: 5 }}
+            options={radioOptions}
+            optionType='button'
+            buttonStyle='solid'
+            value={radioButtonsState}
+            onChange={({ target: { value } }) => {
+              setRadioButtonsState(value)
+              if (value === 'shared') {
+                fetchCollections(authToken, { search: 'shared' })
+              } else {
+                fetchCollections(authToken)
+              }
+            }}
           />
-          <Space size='large' style={{ marginLeft: '30px' }}>
-            {dataAccess === 'group' || dataAccess === 'admin-b' ? (
-              <Form.Item
-                label='Legacy'
-                name='legacyData'
-                valuePropName='checked'
-                tooltip='if ON data acquired for previous groups included in search and data acquired for current group are excluded'
-              >
-                <Switch
-                  checkedChildren='ON'
-                  unCheckedChildren='OFF'
-                  size='small'
-                  onChange={() => {
-                    setLegacy(!legacy)
-                    const user = usrList.find(usr => usr.username === props.username)
-                    formRef.current.setFieldsValue({ groupId: undefined, userId: user._id })
-                  }}
-                />
-              </Form.Item>
-            ) : null}
-
-            <Form.Item>
-              <Button type='primary' htmlType='submit' icon={<SearchOutlined />}>
-                Search
-              </Button>
-            </Form.Item>
-            {accessLvl === 'admin' && (
-              <Form.Item>
-                <Tooltip title='Reset Form'>
-                  <Button
-                    danger
-                    shape='circle'
-                    icon={<CloseOutlined />}
-                    onClick={() => {
-                      props.resetUsrList()
-                      form.resetFields()
+          <Form
+            style={{ marginTop: '30px' }}
+            form={form}
+            ref={formRef}
+            onFinish={values =>
+              fetchCollections(authToken, {
+                userId: values.userId,
+                groupId: values.groupId,
+                legacyData: values.legacyData,
+                search: true
+              })
+            }
+          >
+            <SelectGrpUsr
+              userList={usrList}
+              groupList={groupList}
+              token={authToken}
+              fetchUsrListHandler={props.fetchUsrList}
+              fetchGrpListHandler={fetchGrpList}
+              resetUserListHandler={props.resetUsrList}
+              formRef={formRef}
+              inactiveSwitch
+              dataAccessLvl={dataAccess}
+              //legacySwitch has to be setup in Collection container
+              //to keep state when collection is open
+              legacySwitch={false}
+              loggedUser={username}
+              disabled={radioButtonsState === 'shared'}
+            />
+            <Space size='large' style={{ marginLeft: '30px' }}>
+              {dataAccess === 'group' || dataAccess === 'admin-b' ? (
+                <Form.Item
+                  label='Legacy'
+                  name='legacyData'
+                  valuePropName='checked'
+                  tooltip='if ON data acquired for previous groups included in search and data acquired for current group are excluded'
+                >
+                  <Switch
+                    checkedChildren='ON'
+                    unCheckedChildren='OFF'
+                    size='small'
+                    onChange={() => {
+                      setLegacy(!legacy)
+                      const user = usrList.find(usr => usr.username === props.username)
+                      formRef.current.setFieldsValue({ groupId: undefined, userId: user._id })
                     }}
                   />
-                </Tooltip>
+                </Form.Item>
+              ) : null}
+
+              <Form.Item>
+                <Button
+                  disabled={radioButtonsState === 'shared'}
+                  type='primary'
+                  htmlType='submit'
+                  icon={<SearchOutlined />}
+                >
+                  Search
+                </Button>
               </Form.Item>
-            )}
-          </Space>
-        </Form>
+              {accessLvl === 'admin' && (
+                <Form.Item>
+                  <Tooltip title='Reset Form'>
+                    <Button
+                      danger
+                      shape='circle'
+                      icon={<CloseOutlined />}
+                      onClick={() => {
+                        props.resetUsrList()
+                        form.resetFields()
+                      }}
+                    />
+                  </Tooltip>
+                </Form.Item>
+              )}
+            </Space>
+          </Form>
+        </Space>
       ) : null}
       <div
         className={
@@ -329,7 +372,7 @@ const Collections = props => {
       <CollectionMetaModal
         open={editModalOpen}
         openHandler={setEditModalOpen}
-        updateHandler={props.updateCollection}
+        updateHandler={props.updateCollectionMeta}
         metaData={metaData}
         token={authToken}
         accessLevel={dataAccess}
@@ -344,6 +387,9 @@ const Collections = props => {
         groupList={grpList}
         userList={usrList}
         onGrpChange={props.fetchUsrList}
+        updateHandler={props.updateCollectionShare}
+        collectionId={metaData.id}
+        sharedWithState={props.sharedWith}
       />
     </div>
   )
@@ -353,6 +399,7 @@ const mapStateToProps = state => ({
   data: state.collections.data,
   metaData: state.collections.meta,
   loading: state.collections.loading,
+  sharedWith: state.collections.sharedWith,
   authToken: state.auth.token,
   accessLvl: state.auth.accessLevel,
   username: state.auth.username,
@@ -379,8 +426,10 @@ const mapDispatchToProps = dispatch => ({
   updateCheckedDatasets: payload => dispatch(updateCheckedDatasetsSearch(payload)),
   updateDatasetTags: (datasetId, tags, token) =>
     dispatch(updateTagsDatasets(datasetId, tags, token)),
-  updateCollection: (collectionId, data, token) =>
+  updateCollectionMeta: (collectionId, data, token) =>
     dispatch(updateCollectionMeta(collectionId, data, token)),
+  updateCollectionShare: (collectionId, data, token) =>
+    dispatch(updateCollectionShare(collectionId, data, token)),
   downloadCollection: (colId, token) => dispatch(downloadCollection(colId, token)),
   fetchDataAccess: token => dispatch(getDataAccess(token)),
   fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),

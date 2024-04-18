@@ -6,6 +6,7 @@ const initialState = {
   data: { collections: [], datasets: [] },
   loading: false,
   meta: { id: undefined, title: undefined },
+  sharedWith: undefined,
   displayType: undefined
 }
 
@@ -29,6 +30,7 @@ const reducer = (state = initialState, { type, payload }) => {
           group: payload.group,
           user: payload.user
         },
+        sharedWith: payload.sharedWith,
         loading: false,
         displayType: 'table'
       }
@@ -37,7 +39,12 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, displayType: payload }
 
     case actionTypes.RETURN_TO_COLLECTION_LIST:
-      return { ...state, displayType: undefined, meta: { id: undefined, title: undefined } }
+      return {
+        ...state,
+        displayType: undefined,
+        meta: { id: undefined, title: undefined },
+        sharedWith: undefined
+      }
 
     case actionTypes.DELETE_DATASET_SUCCESS:
       const newCollections = state.data.collections.map(coll => {
@@ -111,6 +118,10 @@ const reducer = (state = initialState, { type, payload }) => {
         content: `E-mail with the download link for collection "${payload.title}" will be sent to email address ${payload.email}`
       })
       return { ...state, loading: false }
+
+    case actionTypes.UPDATE_COLLECTION_SHARE_SUCCESS:
+      console.log(payload)
+      return { ...state, loading: false, sharedWith: payload }
 
     default:
       return state

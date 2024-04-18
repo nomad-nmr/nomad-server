@@ -194,5 +194,6 @@ export {
   deleteCollection,
   removeDatasets,
   updateCollectionMeta,
+  updateCollectionShare,
   downloadCollection
 } from './collections'

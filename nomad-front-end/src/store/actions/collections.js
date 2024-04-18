@@ -126,6 +126,27 @@ export const updateCollectionMeta = (collectionId, data, token) => {
   }
 }
 
+export const updateCollectionShareSuccess = payload => ({
+  type: actionTypes.UPDATE_COLLECTION_SHARE_SUCCESS,
+  payload
+})
+
+export const updateCollectionShare = (collectionId, data, token) => {
+  return dispatch => {
+    dispatch(fetchCollectionsStarts())
+    axios
+      .patch('/collections/share/' + collectionId, data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(updateCollectionShareSuccess(res.data))
+      })
+      .catch(error => {
+        dispatch(errorHandler(error))
+      })
+  }
+}
+
 export const downloadCollectionSuccess = payload => ({
   type: actionTypes.DOWNLOAD_COLLECTION_SUCCESS,
   payload

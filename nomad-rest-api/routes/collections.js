@@ -12,6 +12,7 @@ import {
   deleteCollection,
   removeDatasets,
   patchMetadata,
+  patchShare,
   getZip
 } from '../controllers/collections.js'
 
@@ -34,6 +35,8 @@ router.patch(
   validateDataWriteAccess,
   patchMetadata
 )
+
+router.patch('/share/:collectionId', auth, validateDataWriteAccess, patchShare)
 
 router.get('/zip/:collectionId', auth, validateDataAccess, getZip)
 

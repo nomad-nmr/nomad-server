@@ -7,9 +7,9 @@ const validateDataAccess = async (req, res, next) => {
     let dataObj = {}
 
     if (req.params.datasetId) {
-      dataObj = await Dataset.findById(req.params.datasetId, 'group user')
+      dataObj = await Dataset.findById(req.params.datasetId, 'group user inCollections')
     } else if (req.params.collectionId) {
-      dataObj = await Collection.findById(req.params.collectionId, 'group user')
+      dataObj = await Collection.findById(req.params.collectionId, 'group user sharedWith')
     }
 
     let { dataAccess } = req.user
@@ -45,7 +45,28 @@ const validateDataAccess = async (req, res, next) => {
     }
 
     if (unauthorised) {
-      return res.status(401).send({ message: 'You are not authorised to access this resource' })
+      // checking whether the collection is shared or dataset is in shared collection
+      let shared = undefined
+
+      if (dataObj.inCollections) {
+        let sharedWithArray = []
+        await Promise.all(
+          dataObj.inCollections.map(async collectionId => {
+            const collection = await Collection.findById(collectionId, 'sharedWith')
+            sharedWithArray = [...sharedWithArray, ...collection.sharedWith]
+          })
+        )
+        shared = sharedWithArray.find(
+          i => i.id === req.user.id.toString() || i.id === req.user.group.toString()
+        )
+      } else if (dataObj.sharedWith) {
+        shared = dataObj.sharedWith.find(
+          i => i.id === req.user.id.toString() || i.id === req.user.group.toString()
+        )
+      }
+      if (!shared) {
+        return res.status(401).send({ message: 'You are not authorised to access this resource' })
+      }
     }
 
     next()

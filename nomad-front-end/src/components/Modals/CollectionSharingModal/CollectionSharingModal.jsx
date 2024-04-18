@@ -1,15 +1,23 @@
-import React, { useRef, useState } from 'react'
-import { Modal, Form, Space, Button, message, Tag, Divider } from 'antd'
+import React, { useRef, useState, useEffect } from 'react'
+import { Modal, Form, Space, Button, message, Tag, Divider, Tooltip } from 'antd'
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons'
 
 import SelectGrpUsr from '../../Forms/SelectGrpUsr/SelectGrpUsr'
 
 const CollectionSharingModal = props => {
+  const { sharedWithState } = props
+
   const [form] = Form.useForm()
   const formRef = useRef({})
 
   const [shareList, setShareList] = useState([])
   const [listChanged, setListChanged] = useState(false)
+
+  useEffect(() => {
+    if (sharedWithState) {
+      setShareList(sharedWithState)
+    }
+  }, sharedWithState)
 
   const tagStyle = { fontSize: '0.9rem', marginTop: 10 }
 
@@ -48,13 +56,17 @@ const CollectionSharingModal = props => {
       setListChanged(true)
     } else {
       const user = props.userList.find(usr => usr._id === formData.userId)
+      console.log(user)
       if (isDuplicate(user)) {
         return message.error(`User ${user.username} already in the list`)
       }
       if (isDuplicate({ id: formData.groupId })) {
         return message.error(`User ${user.username} in a group that is already in the list`)
       }
-      const newShareList = [...shareList, { name: user.username, type: 'user', id: user._id }]
+      const newShareList = [
+        ...shareList,
+        { name: user.username, fullName: user.fullName, type: 'user', id: user._id }
+      ]
       setShareList(newShareList)
       setListChanged(true)
     }
@@ -80,16 +92,16 @@ const CollectionSharingModal = props => {
           removeEntry(entry.id)
         }}
       >
-        {entry.name}
+        <Tooltip title={entry.type === 'user' && entry.fullName}>{entry.name}</Tooltip>
       </Tag>
     )
   })
 
   const closeModal = () => {
     form.resetFields()
-    setShareList([])
     props.openHandler(false)
     setListChanged(false)
+    setShareList(sharedWithState)
   }
 
   return (
@@ -100,7 +112,7 @@ const CollectionSharingModal = props => {
       maskClosable={false}
       onCancel={() => closeModal()}
       onOk={() => {
-        console.log(shareList)
+        props.updateHandler(props.collectionId, shareList, props.token)
         closeModal()
       }}
       okButtonProps={{ disabled: !listChanged }}

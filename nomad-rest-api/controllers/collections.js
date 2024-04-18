@@ -95,6 +95,10 @@ export const getCollections = async (req, res) => {
       } else {
         searchParams = {}
       }
+    } else if (search === 'shared') {
+      searchParams = {
+        $or: [{ 'sharedWith.id': req.user.id }, { 'sharedWith.id': req.user.group.toString() }]
+      }
     }
 
     let respData
@@ -141,6 +145,7 @@ export const getDatasets = async (req, res) => {
       id: collection.id,
       group: collection.group,
       user: collection.user,
+      sharedWith: collection.sharedWith,
       datasetsData: getDatasetResp(datasets)
     }
     res.status(200).json(respData)
@@ -219,6 +224,18 @@ export const patchMetadata = async (req, res) => {
     }
 
     res.status(200).send(resObj)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send()
+  }
+}
+
+export const patchShare = async (req, res) => {
+  try {
+    const collection = await Collection.findByIdAndUpdate(req.params.collectionId, {
+      sharedWith: req.body
+    })
+    res.status(200).send(collection.sharedWith)
   } catch (error) {
     console.log(error)
     res.status(500).send()

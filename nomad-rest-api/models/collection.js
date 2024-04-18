@@ -16,7 +16,12 @@ const collectionSchema = new Schema(
       required: true,
       ref: 'Group'
     },
-    datasets: [{ type: Schema.Types.ObjectId, ref: 'Dataset' }]
+    datasets: [{ type: Schema.Types.ObjectId, ref: 'Dataset' }],
+    sharedWith: {
+      type: Array,
+      required: true,
+      default: []
+    }
   },
   { timestamps: true }
 )
