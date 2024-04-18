@@ -129,11 +129,11 @@ describe('GET /datasets/:collectionId', () => {
       .expect(403)
   })
 
-  it('should fail with error 401 if request is authorized by user without read access to collection', async () => {
+  it('should return data for test collection one if request is authorised by user with shared access', async () => {
     await request(app)
       .get('/collections/datasets/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
-      .expect(401)
+      .expect(200)
   })
 
   it('should return data object for test collection one', async () => {
@@ -230,6 +230,7 @@ describe('PATCH /metadata/:collectionId', () => {
       .send({ title: '' })
       .expect(422)
   })
+
   it('should change title of testCollectionOne', async () => {
     const { body } = await request(app)
       .patch('/collections/metadata/' + testCollectionOne._id.toString())
@@ -247,5 +248,42 @@ describe('PATCH /metadata/:collectionId', () => {
     expect(collection.title).toBe('New Title')
     expect(collection.user.toString()).toBe(testUserThree._id.toString())
     expect(collection.group.toString()).toBe(testGroupTwo._id.toString())
+  })
+})
+
+describe('PATCH /share/:collectionId', () => {
+  it('should fail with error 403 if request is not authorized', async () => {
+    await request(app)
+      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .expect(403)
+  })
+
+  it('should fail with error 401 if request is authorised by user without write access', async () => {
+    await request(app)
+      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
+      .expect(401)
+  })
+
+  it('should should update sharedWith array for test collection one', async () => {
+    const { body } = await request(app)
+      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .send([{ name: testUserThree.username, type: 'user', id: testUserThree._id }])
+      .expect(200)
+
+    expect(body[0]).toMatchObject({
+      name: testUserThree.username,
+      type: 'user',
+      id: testUserThree._id.toString()
+    })
+
+    //asserting change in database
+    const collection = await Collection.findById(testCollectionOne._id)
+    expect(collection.sharedWith[0]).toMatchObject({
+      name: testUserThree.username,
+      type: 'user',
+      id: testUserThree._id.toString()
+    })
   })
 })

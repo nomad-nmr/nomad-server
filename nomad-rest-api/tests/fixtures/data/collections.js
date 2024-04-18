@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
 import { testUserOne } from './users'
-import { testGroupOne } from './groups'
+import { testGroupOne, testGroupTwo } from './groups'
 import { testDatasetTwo } from './datasets'
 
 export const testCollectionOne = {
@@ -9,5 +9,6 @@ export const testCollectionOne = {
   title: 'Old Collection',
   user: testUserOne._id,
   group: testGroupOne._id,
-  datasets: [testDatasetTwo._id]
+  datasets: [testDatasetTwo._id],
+  sharedWith: [{ name: testGroupTwo.groupName, type: 'group', id: testGroupTwo._id.toString() }]
 }
