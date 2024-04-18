@@ -144,7 +144,7 @@ export const postBookHolders = async (req, res) => {
 
     //If there are no available holders then queue gets shut down and e-mail to admins is sent.
     if (availableHolders.length === 0) {
-      const instrument = await Instrument.findByIdAndUpdate(instrumentId, { available: false })
+      const instrument = await Instrument.findByIdAndUpdate(instrumentId)
       const admins = await User.find({ accessLevel: 'admin', isActive: true }, 'email')
       const recipients = admins.map(i => i.email)
       if (!alertSent) {
