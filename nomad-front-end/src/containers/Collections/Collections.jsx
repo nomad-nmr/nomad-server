@@ -264,7 +264,7 @@ const Collections = props => {
 
   return (
     <div>
-      {dataAccess !== 'user' && grpList.length !== 0 && !metaData.id ? (
+      {grpList.length !== 0 && !metaData.id ? (
         <Space size='large'>
           <Radio.Group
             style={{ marginTop: 5 }}
@@ -308,7 +308,7 @@ const Collections = props => {
               //to keep state when collection is open
               legacySwitch={false}
               loggedUser={username}
-              disabled={radioButtonsState === 'shared'}
+              disabled={radioButtonsState === 'shared' || dataAccess === 'user'}
             />
             <Space size='large' style={{ marginLeft: '30px' }}>
               {dataAccess === 'group' || dataAccess === 'admin-b' ? (
@@ -333,7 +333,7 @@ const Collections = props => {
 
               <Form.Item>
                 <Button
-                  disabled={radioButtonsState === 'shared'}
+                  disabled={radioButtonsState === 'shared' || dataAccess === 'user'}
                   type='primary'
                   htmlType='submit'
                   icon={<SearchOutlined />}
