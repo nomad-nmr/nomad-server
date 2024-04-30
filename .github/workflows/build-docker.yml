@@ -22,5 +22,5 @@ jobs:
 
       - name: Echo metadata
         run: |
-          echo "${{steps.meta.outputs.tags}}"
-          echo "${{steps.meta.outputs.labels}}"
+          echo "Tags ${{steps.meta.outputs.tags}}"
+          echo "Labels ${{steps.meta.outputs.labels}}"
