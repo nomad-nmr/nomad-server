@@ -13,3 +13,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: nomadnmr/server
+
+      - name: Echo metadata
+        run: |
+          echo "${{steps.meta.outputs.tags}}"
+          echo "${{steps.meta.outputs.labels}}"
