@@ -23,7 +23,6 @@ jobs:
         with:
           images: nomadnmr/server
           tags: |
-            type=ref,pattern={{raw}}
             type=ref,patter={{date 'YYYYMMDD'}}
 
       - name: Build and push
