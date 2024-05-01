@@ -10,11 +10,15 @@ on:
         options:
           - dev-latest
           - production
-  push:
-    tags: [dev-latest, production]
+  # push:
+  #   tags: [dev-latest, production]
 jobs:
+  test_api:
+    name: Run automatic test for API
+    uses: ./.github/workflows/test-api.yml
   push_to_hub:
     name: Push Docker image to Docker Hub
+    needs: test_api
     strategy:
       matrix:
         include:

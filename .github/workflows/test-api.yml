@@ -1,12 +1,12 @@
 name: Test API
 on:
-  workflow_dispatch
-  # push:
-  #   branches:
-  #     - 'main'
-  # pull_request:
-  #   types:
-  #     - opened
+  workflow_call:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    types:
+      - opened
 jobs:
   test:
     env:
