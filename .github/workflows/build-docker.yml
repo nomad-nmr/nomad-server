@@ -1,11 +1,35 @@
 name: Publish Docker Image
 on:
+  release:
+    types: [published]
   workflow_dispatch:
-  push:
-    tags: [dev-latest, production]
+    inputs:
+      tag:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - dev-latest
+          - production
+  # push:
+  #   tags: [dev-latest, production]
 jobs:
+  test_api:
+    name: Run automatic test for API
+    uses: ./.github/workflows/test-api.yml
   push_to_hub:
-    name: Push Docker image to Docker Hub
+    name: Build and push Docker images
+    needs: test_api
+    strategy:
+      matrix:
+        include:
+          - image: nomadnmr/server
+            dockerfile: ./Dockerfile.serv
+          - image: nomadnmr/server-tls
+            dockerfile: ./Dockerfile.serv-tls
+          - image: nomadnmr/api
+            dockerfile: ./Dockerfile.api
     runs-on: ubuntu-latest
     steps:
       - name: Get code
@@ -21,16 +45,17 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: nomadnmr/server
+          images: ${{matrix.image}}
           tags: |
             type=ref,event=tag
             type=sha
+            type=raw,value=${{inputs.tag}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.serv
+          file: ${{matrix.dockerfile}}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
