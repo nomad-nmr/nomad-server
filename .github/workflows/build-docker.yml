@@ -23,8 +23,8 @@ jobs:
         with:
           images: nomadnmr/server
           tags: |
-            type=ref, event=tag
-            type=schedule, pattern={{date 'YYYYMMDD'}}
+            type=ref,pattern={{raw}}
+            type=ref,patter={{date 'YYYYMMDD'}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
