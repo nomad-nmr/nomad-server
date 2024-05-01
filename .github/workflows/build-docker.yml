@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - 'dev-latest'
+      - dev-latest
 jobs:
   push_to_hub:
     name: Push Docker image to Docker Hub
