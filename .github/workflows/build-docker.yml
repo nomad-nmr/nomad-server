@@ -1,5 +1,7 @@
 name: Publish Docker Image
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -17,7 +19,7 @@ jobs:
     name: Run automatic test for API
     uses: ./.github/workflows/test-api.yml
   push_to_hub:
-    name: Push Docker image to Docker Hub
+    name: Build and push Docker images
     needs: test_api
     strategy:
       matrix:
