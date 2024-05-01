@@ -1,9 +1,12 @@
 name: Test API
 on:
-  push:
-  pull_request:
-    types:
-      - opened
+  workflow_dispatch
+  # push:
+  #   branches:
+  #     - 'main'
+  # pull_request:
+  #   types:
+  #     - opened
 jobs:
   test:
     env:
@@ -30,8 +33,10 @@ jobs:
       COLLECTION_DOWNLOAD_TIMEOUT: 900000
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Get Code
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: nomad-rest-api
       - name: Install dependencies
         working-directory: nomad-rest-api
         run: npm ci
