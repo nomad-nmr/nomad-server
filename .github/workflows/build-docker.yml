@@ -15,6 +15,15 @@ on:
 jobs:
   push_to_hub:
     name: Push Docker image to Docker Hub
+    strategy:
+      matrix:
+        include:
+          - image: nomadnmr/server
+            dockerfile: ./Dockerfile.serv
+          - image: nomadnmr/server-tls
+            dockerfile: ./Dockerfile.serv-tls
+          - image: nomadnmr/api
+            dockerfile: ./Dockerfile.api
     runs-on: ubuntu-latest
     steps:
       - name: Get code
@@ -30,7 +39,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: nomadnmr/server
+          images: ${{matrix.image}}
           tags: |
             type=ref,event=tag
             type=sha
@@ -40,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.serv
+          file: ${{matrix.dockerfile}}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
