@@ -1,5 +1,9 @@
 name: Publish Docker Image
-on: push
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'dev-latest'
 jobs:
   push_to_hub:
     name: Push Docker image to Docker Hub
@@ -24,3 +28,11 @@ jobs:
         run: |
           echo "Tags ${{steps.meta.outputs.tags}}"
           echo "Labels ${{steps.meta.outputs.labels}}"
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.serv
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
