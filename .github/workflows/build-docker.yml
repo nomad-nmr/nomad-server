@@ -1,6 +1,15 @@
 name: Publish Docker Image
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Docker image tag'
+        required: true
+        default: 'latest'
+        type: choice
+        options:
+          - dev-latest
+          - production
   push:
     tags: [dev-latest, production]
 jobs:
@@ -25,6 +34,7 @@ jobs:
           tags: |
             type=ref,event=tag
             type=sha
+            type=raw,value=${{inputs.tag}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
