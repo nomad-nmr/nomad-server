@@ -22,11 +22,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: nomadnmr/server
-
-      - name: Echo metadata
-        run: |
-          echo "Tags ${{steps.meta.outputs.tags}}"
-          echo "Labels ${{steps.meta.outputs.labels}}"
+          tags: |
+            type=ref, event=tag
+            type=schedule, pattern={{date 'YYYYMMDD'}}
 
       - name: Build and push
         uses: docker/build-push-action@v5
