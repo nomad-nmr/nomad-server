@@ -48,7 +48,6 @@ jobs:
           images: ${{matrix.image}}
           tags: |
             type=ref,event=tag
-            type=sha
             type=raw,value=${{inputs.tag}}
 
       - name: Build and push
