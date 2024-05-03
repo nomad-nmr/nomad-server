@@ -11,6 +11,7 @@ import {
   fetchGroupList,
   fetchInstrumentsCosting,
   resetCostsTable,
+  setAccountsType,
   toggleCostingDrawer,
   updateInstrumentsCosting
 } from '../../store/actions'
@@ -18,7 +19,8 @@ import {
 import classes from './Accounts.module.css'
 
 const Accounts = props => {
-  const { fetchGrpList, authToken, grpList, tableData, resetTable, fetchCosting } = props
+  const { fetchGrpList, authToken, grpList, tableData, resetTable, fetchCosting, accountsType } =
+    props
 
   useEffect(() => {
     fetchGrpList(authToken, false)
@@ -35,6 +37,14 @@ const Accounts = props => {
     }
     props.fetchCostsData(authToken, values)
   }
+
+  const tableElement =
+    accountsType === 'Grants' ? (
+      <div>GRANTS TABLE</div>
+    ) : (
+      <AccountsTable data={tableData} header={props.tblHeader} />
+    )
+
   return (
     <div>
       <div className={classes.Form}>
@@ -43,13 +53,11 @@ const Accounts = props => {
           submitHandler={onFormSubmit}
           loading={props.loading}
           resetHandler={resetTable}
+          typeHandler={props.setAccountsType}
+          type={accountsType}
         />
       </div>
-      {tableData.length > 0 ? (
-        <AccountsTable data={tableData} header={props.tblHeader} />
-      ) : (
-        <Empty />
-      )}
+      {tableData.length > 0 ? tableElement : <Empty />}
       <Drawer
         title='Set Costing for Instruments'
         placement='top'
@@ -79,7 +87,8 @@ const mapStateToProps = state => ({
   tableData: state.accounts.costsTableData,
   drwVisible: state.accounts.drawerVisible,
   tblHeader: state.accounts.tableHeader,
-  instrumentsCosting: state.accounts.costingData
+  instrumentsCosting: state.accounts.costingData,
+  accountsType: state.accounts.type
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -88,7 +97,8 @@ const mapDispatchToProps = dispatch => ({
   fetchCosting: token => dispatch(fetchInstrumentsCosting(token)),
   updateCosting: (token, data) => dispatch(updateInstrumentsCosting(token, data)),
   resetTable: () => dispatch(resetCostsTable()),
-  tglDrawer: () => dispatch(toggleCostingDrawer())
+  tglDrawer: () => dispatch(toggleCostingDrawer()),
+  setAccountsType: type => dispatch(setAccountsType(type))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

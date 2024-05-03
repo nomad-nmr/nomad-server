@@ -130,7 +130,8 @@ export {
   resetCostsTable,
   toggleCostingDrawer,
   fetchInstrumentsCosting,
-  updateInstrumentsCosting
+  updateInstrumentsCosting,
+  setAccountsType
 } from './accounts'
 
 export {

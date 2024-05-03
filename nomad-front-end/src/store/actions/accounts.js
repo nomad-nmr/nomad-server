@@ -79,3 +79,8 @@ export const updateInstrumentsCosting = (token, data) => {
       })
   }
 }
+
+export const setAccountsType = payload => ({
+  type: actionTypes.SET_ACCOUNTS_TYPE,
+  payload
+})

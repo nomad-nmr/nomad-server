@@ -6,7 +6,8 @@ const initialState = {
   costsTableData: [],
   drawerVisible: false,
   tableHeader: '',
-  costingData: []
+  costingData: [],
+  type: 'Grants'
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -32,6 +33,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.UPDATE_INSTRUMENTS_COSTING_SUCCESS:
       message.success('Costing for instruments was updated')
       return { ...state }
+
+    case actionTypes.SET_ACCOUNTS_TYPE:
+      return { ...state, type: payload }
 
     default:
       return state

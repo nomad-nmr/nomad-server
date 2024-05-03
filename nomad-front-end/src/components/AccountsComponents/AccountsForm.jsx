@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, DatePicker, Button, Select, Tooltip } from 'antd'
+import { Form, DatePicker, Button, Select, Tooltip, Radio } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 
 const { Option } = Select
@@ -8,16 +8,30 @@ const { RangePicker } = DatePicker
 const AccountsForm = props => {
   const [form] = Form.useForm()
 
+  const { type } = props
+
   const grpOptions = props.groupList.map(grp => (
     <Option value={grp.id} key={grp.id}>
       {grp.name}
     </Option>
   ))
 
+  const radioOptions = ['Grants', 'Groups', 'Users']
+
   return (
     <Form form={form} layout='inline' onFinish={values => props.submitHandler(values)}>
+      <Radio.Group
+        options={radioOptions}
+        optionType='button'
+        buttonStyle='solid'
+        value={type}
+        onChange={({ target: { value } }) => props.typeHandler(value)}
+        style={{ marginRight: '50px' }}
+      />
       <Form.Item label='Group' name='groupId'>
-        <Select style={{ width: 150 }}>{grpOptions}</Select>
+        <Select style={{ width: 150 }} disabled={type !== 'Users'}>
+          {grpOptions}
+        </Select>
       </Form.Item>
       <Form.Item label='Date Range' name='dateRange'>
         <RangePicker allowClear={true} />
