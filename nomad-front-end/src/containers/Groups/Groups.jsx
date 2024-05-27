@@ -37,7 +37,7 @@ const Groups = props => {
   const addUsersfromCSV = (file, record) => {
     const reader = new FileReader()
     reader.onload = e => {
-      const resultArr = e.target.result.split('\n').map(row => row.replace(',', ''))
+      const resultArr = e.target.result.split('\n').map(row => row[row.length -1 ] === ',' ? row.substring(0, row.length -1 ) : row)
       let usernamesCount = 0
       resultArr.forEach(i => {
         if (i.length > 0) {
