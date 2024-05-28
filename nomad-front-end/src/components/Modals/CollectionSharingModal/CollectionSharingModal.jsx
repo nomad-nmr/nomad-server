@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Modal, Form, Space, Button, message, Tag, Divider, Tooltip } from 'antd'
+import { Modal, Form, Space, Button, message, Tag, Divider } from 'antd'
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons'
 
 import SelectGrpUsr from '../../Forms/SelectGrpUsr/SelectGrpUsr'
+import UsrGrpTags from '../../UsrGrpTags/UsrGrpTags'
 
 const CollectionSharingModal = props => {
   const { sharedWithState } = props
@@ -18,8 +19,6 @@ const CollectionSharingModal = props => {
       setShareList(sharedWithState)
     }
   }, sharedWithState)
-
-  const tagStyle = { fontSize: '0.9rem', marginTop: 10 }
 
   const infoModal = () =>
     Modal.info({
@@ -56,7 +55,6 @@ const CollectionSharingModal = props => {
       setListChanged(true)
     } else {
       const user = props.userList.find(usr => usr._id === formData.userId)
-      console.log(user)
       if (isDuplicate(user)) {
         return message.error(`User ${user.username} already in the list`)
       }
@@ -72,30 +70,11 @@ const CollectionSharingModal = props => {
     }
   }
 
-  const shareListElement = shareList.map((entry, index) => {
-    const color = entry.type === 'group' ? 'cyan' : 'green'
-
-    const removeEntry = id => {
-      const updatedList = shareList.filter(entry => entry.id !== id)
-      setShareList(updatedList)
-      setListChanged(true)
-    }
-
-    return (
-      <Tag
-        key={index}
-        closable
-        style={tagStyle}
-        color={color}
-        onClose={e => {
-          e.preventDefault()
-          removeEntry(entry.id)
-        }}
-      >
-        <Tooltip title={entry.type === 'user' && entry.fullName}>{entry.name}</Tooltip>
-      </Tag>
-    )
-  })
+  const removeTag = id => {
+    const updatedList = shareList.filter(entry => entry.id !== id)
+    setShareList(updatedList)
+    setListChanged(true)
+  }
 
   const closeModal = () => {
     form.resetFields()
@@ -146,16 +125,7 @@ const CollectionSharingModal = props => {
         </Form>
       </div>
 
-      <div style={{ marginBottom: 20 }}>
-        <Tag color='cyan' style={tagStyle}>
-          Group
-        </Tag>
-        <Tag color='green' style={tagStyle}>
-          User
-        </Tag>
-        <Divider type='vertical' />
-        {shareListElement}
-      </div>
+      <UsrGrpTags state={shareList} removeEntry={removeTag} />
     </Modal>
   )
 }

@@ -1,5 +1,9 @@
-.Form {
+.AccountsForm {
   display: flex;
   justify-content: space-around;
+  margin: 40px 50px 40px 50px;
+}
+
+.GrantsForm {
   margin: 40px 50px 40px 50px;
 }

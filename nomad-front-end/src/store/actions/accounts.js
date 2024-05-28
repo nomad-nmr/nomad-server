@@ -84,3 +84,7 @@ export const setAccountsType = payload => ({
   type: actionTypes.SET_ACCOUNTS_TYPE,
   payload
 })
+
+export const toggleGrantForm = () => ({
+  type: actionTypes.TOGGLE_GRANT_FORM
+})

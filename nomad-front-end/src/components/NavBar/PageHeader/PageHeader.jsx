@@ -47,7 +47,8 @@ import {
   toggleCollectionDisplay,
   returnToCollectionList,
   removeDatasets,
-  downloadCollection
+  downloadCollection,
+  toggleGrantForm
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -257,7 +258,14 @@ const PageHeaderEl = props => {
     case location.pathname === '/admin/accounts':
       headerTitle = 'Accounting'
       avatarSrc = accountingIcon
-      extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
+      extra = (
+        <AccountingControls
+          toggleCostDrawer={props.tglCostingDrawer}
+          toggleGrantForm={props.tglGrantForm}
+          type={props.accountsType}
+          formVisible={props.grantFormVisible}
+        />
+      )
 
       break
 
@@ -385,7 +393,9 @@ const mapStateToProps = state => {
     checkedExpsInDatasets: state.datasets.checkedExps,
     checkedDatasetsSearch: state.datasets.checkedDatasets,
     collectionDisplayType: state.collections.displayType,
-    collectionId: state.collections.meta.id
+    collectionId: state.collections.meta.id,
+    accountsType: state.accounts.type,
+    grantFormVisible: state.accounts.grantFormVisible
   }
 }
 
@@ -416,6 +426,7 @@ const mapDispatchToProps = dispatch => {
     tglSearchForm: payload => dispatch(toggleSearchForm(payload)),
     getRepair: (instrId, token) => dispatch(fetchRepair(instrId, token)),
     tglCostingDrawer: () => dispatch(toggleCostingDrawer()),
+    tglGrantForm: () => dispatch(toggleGrantForm()),
     fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
     fetchNMRium: (expsArr, authToken, dataType) =>
       dispatch(fetchNMRiumData(expsArr, authToken, dataType)),

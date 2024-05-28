@@ -1,0 +1,12 @@
+.Icon {
+  font-size: 1.1rem;
+  color: #1890ff;
+  margin-right: 15px;
+}
+
+.Buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 30px;
+}

@@ -129,6 +129,7 @@ export {
   fetchCosts,
   resetCostsTable,
   toggleCostingDrawer,
+  toggleGrantForm,
   fetchInstrumentsCosting,
   updateInstrumentsCosting,
   setAccountsType

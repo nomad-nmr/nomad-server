@@ -4,7 +4,8 @@ import { message } from 'antd'
 const initialState = {
   loading: false,
   costsTableData: [],
-  drawerVisible: false,
+  costDrawerVisible: false,
+  grantFormVisible: false,
   tableHeader: '',
   costingData: [],
   type: 'Grants'
@@ -22,7 +23,10 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, costsTableData: [] }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
-      return { ...state, drawerVisible: !state.drawerVisible }
+      return { ...state, costDrawerVisible: !state.costDrawerVisible }
+
+    case actionTypes.TOGGLE_GRANT_FORM:
+      return { ...state, grantFormVisible: !state.grantFormVisible }
 
     case actionTypes.SET_TABLE_HEADER:
       return { ...state, tableHeader: payload }
@@ -35,7 +39,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state }
 
     case actionTypes.SET_ACCOUNTS_TYPE:
-      return { ...state, type: payload }
+      return { ...state, type: payload, costsTableData: [] }
 
     default:
       return state

@@ -131,7 +131,9 @@ const CostingTable = props => {
 
   return (
     <div style={{ width: props.costingData.length * 120 + 100, margin: 'auto' }}>
-      <h3 style={{ textAlign: 'center' }}>Cost per hour of machine time</h3>
+      <div style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.2em' }}>
+        Cost per hour of machine time
+      </div>
       <Form form={form} component={false}>
         <Table
           components={{

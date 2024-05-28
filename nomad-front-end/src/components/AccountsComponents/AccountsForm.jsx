@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Form, DatePicker, Button, Select, Tooltip, Radio } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 
@@ -7,8 +7,9 @@ const { RangePicker } = DatePicker
 
 const AccountsForm = props => {
   const [form] = Form.useForm()
-
   const { type } = props
+
+  useEffect(() => form.resetFields(), [type])
 
   const grpOptions = props.groupList.map(grp => (
     <Option value={grp.id} key={grp.id}>

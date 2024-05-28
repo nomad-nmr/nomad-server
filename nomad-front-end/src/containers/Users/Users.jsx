@@ -190,7 +190,9 @@ const Users = props => {
           <MailOutlined
             style={{ color: '#1890ff' }}
             onClick={() =>
-              navigate(`/admin/message?userId=${record._id}&username=${record.username}`)
+              navigate(
+                `/admin/message?userId=${record._id}&username=${record.username}&fullName=${record.fullName}`
+              )
             }
           />
           <Button
