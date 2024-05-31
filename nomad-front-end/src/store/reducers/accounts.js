@@ -8,7 +8,8 @@ const initialState = {
   grantFormVisible: false,
   tableHeader: '',
   costingData: [],
-  type: 'Grants'
+  type: 'Grants',
+  grantsData: []
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -41,6 +42,8 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SET_ACCOUNTS_TYPE:
       return { ...state, type: payload, costsTableData: [] }
 
+    case actionTypes.GET_GRANTS_SUCCESS:
+      return { ...state, grantsData: payload }
     default:
       return state
   }

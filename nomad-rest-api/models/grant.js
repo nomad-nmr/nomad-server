@@ -27,3 +27,5 @@ const grantSchema = new Schema({
     }
   ]
 })
+
+export default model('Grant', grantSchema)

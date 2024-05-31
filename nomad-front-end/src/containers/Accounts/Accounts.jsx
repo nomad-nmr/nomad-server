@@ -6,6 +6,7 @@ import AccountsForm from '../../components/AccountsComponents/AccountsForm'
 import GrantForm from '../../components/AccountsComponents/GrantForm'
 import AccountsTable from '../../components/AccountsComponents/AccountsTable'
 import CostingTable from '../../components/AccountsComponents/CostingTable'
+import GrantsTable from '../../components/AccountsComponents/GrantsTable'
 
 import {
   fetchCosts,
@@ -16,7 +17,9 @@ import {
   setAccountsType,
   toggleCostingDrawer,
   toggleGrantForm,
-  updateInstrumentsCosting
+  updateInstrumentsCosting,
+  postGrant,
+  fetchGrants
 } from '../../store/actions'
 
 import classes from './Accounts.module.css'
@@ -29,10 +32,13 @@ const Accounts = props => {
   useEffect(() => {
     fetchGrpList(authToken, false)
     fetchCosting(authToken)
+    if (accountsType === 'Grants') {
+      props.fetchGrants(authToken)
+    }
     return () => {
       resetTable()
     }
-  }, [authToken, fetchGrpList, resetTable, fetchCosting])
+  }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
 
   const onFormSubmit = values => {
     const { dateRange } = values
@@ -44,7 +50,7 @@ const Accounts = props => {
 
   const tableElement =
     accountsType === 'Grants' ? (
-      <div>GRANTS TABLE</div>
+      <GrantsTable data={props.grantsData} />
     ) : tableData.length > 0 ? (
       <AccountsTable data={tableData} header={props.tblHeader} />
     ) : (
@@ -59,6 +65,7 @@ const Accounts = props => {
         fetchUserList={props.fetchUsrList}
         userList={props.usrList}
         authToken={props.authToken}
+        submitHandler={props.submitGrant}
       />
     </div>
   )
@@ -82,8 +89,8 @@ const Accounts = props => {
       <Modal
         title='Add/Edit Grant'
         width={950}
+        closable={false}
         placement='right'
-        closable
         open={props.grantFormVisible}
         onCancel={props.tglGrantForm}
         footer={null}
@@ -123,7 +130,8 @@ const mapStateToProps = state => ({
   grantFormVisible: state.accounts.grantFormVisible,
   tblHeader: state.accounts.tableHeader,
   instrumentsCosting: state.accounts.costingData,
-  accountsType: state.accounts.type
+  accountsType: state.accounts.type,
+  grantsData: state.accounts.grantsData
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -136,7 +144,9 @@ const mapDispatchToProps = dispatch => ({
   resetTable: () => dispatch(resetCostsTable()),
   tglCostDrawer: () => dispatch(toggleCostingDrawer()),
   tglGrantForm: () => dispatch(toggleGrantForm()),
-  setAccountsType: type => dispatch(setAccountsType(type))
+  setAccountsType: type => dispatch(setAccountsType(type)),
+  submitGrant: (token, data) => dispatch(postGrant(token, data)),
+  fetchGrants: token => dispatch(fetchGrants(token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Form, Button, Input, Space, Modal, message } from 'antd'
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons'
 
@@ -8,6 +8,7 @@ import UsrGrpTags from '../UsrGrpTags/UsrGrpTags'
 import classes from './GrantForm.module.css'
 
 const GrantForm = props => {
+  const { onClose, authToken } = props
   const [form] = Form.useForm()
   const formRef = useRef({})
 
@@ -63,10 +64,36 @@ const GrantForm = props => {
     setUsrGrpTags(updatedList)
   }
 
+  const clearForm = () => {
+    onClose()
+    form.resetFields()
+    setUsrGrpTags([])
+  }
+
+  const submitHandler = values => {
+    delete values.groupId
+    delete values.userId
+    const reqObject = {
+      ...values,
+      include: usrGrpTags.map(i => ({ isGroup: i.type === 'group', id: i.id, name: i.name }))
+    }
+    props.submitHandler(authToken, reqObject)
+    clearForm()
+  }
+
   return (
     <div>
-      <Form form={form} ref={formRef}>
-        <Form.Item label='Grant Code' name='grantCode'>
+      <Form form={form} ref={formRef} onFinish={submitHandler}>
+        <Form.Item
+          label='Grant Code'
+          name='grantCode'
+          rules={[
+            {
+              required: true,
+              message: 'Please input grant code!'
+            }
+          ]}
+        >
           <Input style={{ width: 200 }} />
         </Form.Item>
         <Form.Item label='Description' name='description'>
@@ -76,11 +103,17 @@ const GrantForm = props => {
           groupList={props.groupList}
           userList={props.userList}
           fetchUsrListHandler={props.fetchUserList}
-          token={props.authToken}
+          token={authToken}
           formRef={formRef}
         />
         <Space size='large' style={{ marginBottom: 25, marginLeft: 25 }}>
-          <Button type='primary' style={{ marginLeft: '20px' }} onClick={() => addUsrGrp()}>
+          <Button
+            type='primary'
+            style={{ marginLeft: '20px' }}
+            onClick={() => {
+              addUsrGrp()
+            }}
+          >
             Add
           </Button>
           <Button
@@ -98,15 +131,10 @@ const GrantForm = props => {
         </div>
         <Form.Item className={classes.Buttons}>
           <Space size='large'>
-            <Button type='primary'>Submit</Button>
-            <Button
-              onClick={() => {
-                props.onClose()
-                form.resetFields()
-              }}
-            >
-              Reset & Close
+            <Button type='primary' htmlType='submit'>
+              Submit
             </Button>
+            <Button onClick={() => clearForm()}>Reset & Close</Button>
           </Space>
         </Form.Item>
       </Form>

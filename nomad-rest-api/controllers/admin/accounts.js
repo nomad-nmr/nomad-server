@@ -5,6 +5,8 @@ import Claim from '../../models/claim.js'
 import Group from '../../models/group.js'
 import User from '../../models/user.js'
 import Instrument from '../../models/instrument.js'
+import Grant from '../../models/grant.js'
+import grant from '../../models/grant.js'
 
 export async function getCosts(req, res) {
   const { groupId, dateRange } = req.query
@@ -216,6 +218,30 @@ export async function putInstrumentsCosting(req, res) {
       })
     )
     res.send()
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function postGrant(req, res) {
+  try {
+    const grant = new Grant(req.body)
+    await grant.save()
+
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getGrants(req, res) {
+  try {
+    const grants = await Grant.find({})
+    const resData = grants.map(grant => ({ ...grant._doc, key: grant._doc._id }))
+    console.log(resData)
+    res.status(200).json(resData)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

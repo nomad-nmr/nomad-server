@@ -132,7 +132,9 @@ export {
   toggleGrantForm,
   fetchInstrumentsCosting,
   updateInstrumentsCosting,
-  setAccountsType
+  setAccountsType,
+  postGrant,
+  fetchGrants
 } from './accounts'
 
 export {

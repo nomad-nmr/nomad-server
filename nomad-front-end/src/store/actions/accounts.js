@@ -88,3 +88,43 @@ export const setAccountsType = payload => ({
 export const toggleGrantForm = () => ({
   type: actionTypes.TOGGLE_GRANT_FORM
 })
+
+export const postGrantSuccess = payload => ({
+  type: actionTypes.POST_GRANT_SUCCESS,
+  payload
+})
+
+export const postGrant = (token, data) => {
+  return dispatch => {
+    axios
+      .post('admin/accounts/grants/', data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(postGrantSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const getGrantsSuccess = payload => ({
+  type: actionTypes.GET_GRANTS_SUCCESS,
+  payload
+})
+
+export const fetchGrants = token => {
+  return dispatch => {
+    axios
+      .get('admin/accounts/grants/', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(getGrantsSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
