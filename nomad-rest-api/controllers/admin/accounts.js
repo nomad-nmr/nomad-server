@@ -227,9 +227,8 @@ export async function putInstrumentsCosting(req, res) {
 export async function postGrant(req, res) {
   try {
     const grant = new Grant(req.body)
-    await grant.save()
-
-    res.sendStatus(200)
+    const grantObj = await grant.save()
+    res.status(200).json({ ...grantObj._doc, key: grantObj._id })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
