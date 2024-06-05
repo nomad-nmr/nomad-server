@@ -114,9 +114,9 @@ export async function addUsers(req, res) {
     let rejected = 0
 
     let exUsersObj = {}
-
+    const selectedAccessLevel = req.body.accesslevel
     await Promise.all(
-      req.body.map(async entry => {
+      req.body.users.map(async entry => {
         const [username, emailInput] = entry.split(',')
         const email = emailInput ? emailInput : username + '@' + process.env.EMAIL_SUFFIX
 
@@ -130,12 +130,13 @@ export async function addUsers(req, res) {
           }
 
           total++
+          const accessLevel = !selectedAccessLevel ? (group.isBatch  ? 'user-b' : 'user') : selectedAccessLevel;
 
           if (user) {
             const oldGroupId = user.group
 
             user.group = group._id
-            user.accessLevel = group.isBatch ? 'user-b' : 'user'
+            user.accessLevel = accessLevel,
             user.isActive = group.isActive ? true : false
             await user.save()
 
@@ -152,7 +153,7 @@ export async function addUsers(req, res) {
               username: username.toLowerCase(),
               password: hashedPasswd,
               email,
-              accessLevel: group.isBatch ? 'user-b' : 'user',
+              accessLevel,
               group: group._id,
               isActive: group.isActive ? true : false
             }
