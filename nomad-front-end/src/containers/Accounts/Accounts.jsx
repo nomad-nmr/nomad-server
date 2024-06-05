@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment } from 'react'
+import React, { useEffect, useRef, useState, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Empty, Drawer, Modal } from 'antd'
 
@@ -19,7 +19,9 @@ import {
   toggleGrantForm,
   updateInstrumentsCosting,
   postGrant,
-  fetchGrants
+  fetchGrants,
+  deleteGrant,
+  updateGrant
 } from '../../store/actions'
 
 import classes from './Accounts.module.css'
@@ -28,6 +30,10 @@ import './GrantFormAnime.css'
 const Accounts = props => {
   const { fetchGrpList, authToken, grpList, tableData, resetTable, fetchCosting, accountsType } =
     props
+
+  const [usrGrpTags, setUsrGrpTags] = useState([])
+
+  const formRef = useRef({})
 
   useEffect(() => {
     fetchGrpList(authToken, false)
@@ -50,7 +56,14 @@ const Accounts = props => {
 
   const tableElement =
     accountsType === 'Grants' ? (
-      <GrantsTable data={props.grantsData} />
+      <GrantsTable
+        data={props.grantsData}
+        deleteHandler={props.delGrant}
+        token={authToken}
+        formHandler={props.tglGrantForm}
+        formRef={formRef}
+        setTagsState={setUsrGrpTags}
+      />
     ) : tableData.length > 0 ? (
       <AccountsTable data={tableData} header={props.tblHeader} />
     ) : (
@@ -65,7 +78,12 @@ const Accounts = props => {
         fetchUserList={props.fetchUsrList}
         userList={props.usrList}
         authToken={props.authToken}
-        submitHandler={props.submitGrant}
+        onAdd={props.addGrant}
+        formRef={formRef}
+        tagsState={usrGrpTags}
+        setTagsState={setUsrGrpTags}
+        onUpdate={props.updateGrant}
+        tableData={props.grantsData}
       />
     </div>
   )
@@ -145,8 +163,10 @@ const mapDispatchToProps = dispatch => ({
   tglCostDrawer: () => dispatch(toggleCostingDrawer()),
   tglGrantForm: () => dispatch(toggleGrantForm()),
   setAccountsType: type => dispatch(setAccountsType(type)),
-  submitGrant: (token, data) => dispatch(postGrant(token, data)),
-  fetchGrants: token => dispatch(fetchGrants(token))
+  addGrant: (token, data) => dispatch(postGrant(token, data)),
+  fetchGrants: token => dispatch(fetchGrants(token)),
+  delGrant: (token, id) => dispatch(deleteGrant(token, id)),
+  updateGrant: (token, data) => dispatch(updateGrant(token, data))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

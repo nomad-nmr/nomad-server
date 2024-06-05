@@ -8,11 +8,8 @@ import UsrGrpTags from '../UsrGrpTags/UsrGrpTags'
 import classes from './GrantForm.module.css'
 
 const GrantForm = props => {
-  const { onClose, authToken } = props
+  const { onClose, authToken, formRef, tagsState, setTagsState } = props
   const [form] = Form.useForm()
-  const formRef = useRef({})
-
-  const [usrGrpTags, setUsrGrpTags] = useState([])
 
   const infoModal = () =>
     Modal.info({
@@ -32,7 +29,7 @@ const GrantForm = props => {
       if (entry._id) {
         entry.id = entry._id
       }
-      return usrGrpTags.find(i => i.id === entry.id)
+      return tagsState.find(i => i.id === entry.id)
     }
     if (!groupId) {
       return message.warning('Select group or user')
@@ -41,8 +38,8 @@ const GrantForm = props => {
       if (isDuplicate(group)) {
         return message.error(`Group ${group.name} already in the list`)
       }
-      const newUsrGrpTags = [...usrGrpTags, { name: group.name, type: 'group', id: group.id }]
-      setUsrGrpTags(newUsrGrpTags)
+      const newUsrGrpTags = [...tagsState, { name: group.name, type: 'group', id: group.id }]
+      setTagsState(newUsrGrpTags)
     } else {
       const user = props.userList.find(usr => usr._id === userId)
       if (isDuplicate(user)) {
@@ -52,38 +49,56 @@ const GrantForm = props => {
         return message.error(`User ${user.username} in a group that is already in the list`)
       }
       const newUsrGrpTags = [
-        ...usrGrpTags,
+        ...tagsState,
         { name: user.username, fullName: user.fullName, type: 'user', id: user._id }
       ]
-      setUsrGrpTags(newUsrGrpTags)
+      setTagsState(newUsrGrpTags)
     }
   }
 
   const removeTag = id => {
-    const updatedList = usrGrpTags.filter(entry => entry.id !== id)
-    setUsrGrpTags(updatedList)
+    const updatedList = tagsState.filter(entry => entry.id !== id)
+    setTagsState(updatedList)
   }
 
   const clearForm = () => {
     onClose()
     form.resetFields()
-    setUsrGrpTags([])
+    setTagsState([])
   }
 
   const submitHandler = values => {
     delete values.groupId
     delete values.userId
+
+    const usrGrpIdArray = []
+    props.tableData.forEach(entry => {
+      if (entry._id !== values._id) {
+        entry.include.forEach(element => {
+          usrGrpIdArray.push(element.id)
+        })
+      }
+    })
+
+    console.log(usrGrpIdArray)
     const reqObject = {
       ...values,
-      include: usrGrpTags.map(i => ({ isGroup: i.type === 'group', id: i.id, name: i.name }))
+      include: props.tagsState.map(i => ({ isGroup: i.type === 'group', id: i.id, name: i.name }))
     }
-    props.submitHandler(authToken, reqObject)
+    if (values._id) {
+      props.onUpdate(authToken, reqObject)
+    } else {
+      props.onAdd(authToken, reqObject)
+    }
     clearForm()
   }
 
   return (
     <div>
       <Form form={form} ref={formRef} onFinish={submitHandler}>
+        <Form.Item name='_id' hidden>
+          <Input />
+        </Form.Item>
         <Form.Item
           label='Grant Code'
           name='grantCode'
@@ -94,7 +109,7 @@ const GrantForm = props => {
             }
           ]}
         >
-          <Input style={{ width: 200 }} />
+          <Input style={{ width: 200 }} disabled={form.getFieldValue('_id')} />
         </Form.Item>
         <Form.Item label='Description' name='description'>
           <Input style={{ width: 470 }} />
@@ -127,7 +142,7 @@ const GrantForm = props => {
           <QuestionCircleOutlined onClick={infoModal} className={classes.Icon} />
         </Space>
         <div>
-          <UsrGrpTags state={usrGrpTags} removeEntry={removeTag} />
+          <UsrGrpTags state={tagsState} removeEntry={removeTag} />
         </div>
         <Form.Item className={classes.Buttons}>
           <Space size='large'>

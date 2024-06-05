@@ -3,7 +3,8 @@ import { Schema, model } from 'mongoose'
 const grantSchema = new Schema({
   grantCode: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   description: String,
   include: [

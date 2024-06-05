@@ -128,3 +128,43 @@ export const fetchGrants = token => {
       })
   }
 }
+
+export const deleteGrantSuccess = payload => ({
+  type: actionTypes.DELETE_GRANT_SUCCESS,
+  payload
+})
+
+export const deleteGrant = (token, grantId) => {
+  return dispatch => {
+    axios
+      .delete('admin/accounts/grants/' + grantId, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(deleteGrantSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const updateGrantSuccess = payload => ({
+  type: actionTypes.UPDATE_GRANT_SUCCESS,
+  payload
+})
+
+export const updateGrant = (token, data) => {
+  return dispatch => {
+    axios
+      .put('admin/accounts/grants/', data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(updateGrantSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

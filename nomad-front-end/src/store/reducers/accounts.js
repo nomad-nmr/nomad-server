@@ -43,11 +43,20 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, type: payload, costsTableData: [] }
 
     case actionTypes.POST_GRANT_SUCCESS:
-      console.log(payload)
       return { ...state, grantsData: [...state.grantsData, payload] }
 
     case actionTypes.GET_GRANTS_SUCCESS:
       return { ...state, grantsData: payload }
+
+    case actionTypes.DELETE_GRANT_SUCCESS:
+      const newGrants = state.grantsData.filter(i => i._id !== payload.grantId)
+      return { ...state, grantsData: newGrants }
+
+    case actionTypes.UPDATE_GRANT_SUCCESS:
+      const index = state.grantsData.findIndex(grant => grant._id === payload._id)
+      const updatedGrants = [...state.grantsData]
+      updatedGrants[index] = payload
+      return { ...state, grantsData: updatedGrants }
     default:
       return state
   }

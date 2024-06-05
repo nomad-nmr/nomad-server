@@ -134,7 +134,9 @@ export {
   updateInstrumentsCosting,
   setAccountsType,
   postGrant,
-  fetchGrants
+  fetchGrants,
+  deleteGrant,
+  updateGrant
 } from './accounts'
 
 export {
