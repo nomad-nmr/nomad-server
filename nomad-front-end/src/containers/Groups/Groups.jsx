@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
-import { Table, Tag, Space, Button, Popconfirm, Tooltip, Upload, Modal } from 'antd'
+import { Table, Tag, Space, Button, Popconfirm, Tooltip, Upload, Modal, Select } from 'antd'
 import Animate from 'rc-animate'
 
 import { ExclamationCircleOutlined, CheckCircleOutlined } from '@ant-design/icons'
@@ -25,7 +25,15 @@ const { CheckableTag } = Tag
 
 const Groups = props => {
   const { fetchGrps, authToken, showInactive, getParamSetsList } = props
+  const defaultAccessLevel = 'b-user';
+  const [selectedAccessLevel, setselectedAccessLevel] = useState(defaultAccessLevel)
+  const accessLevelOptions = [
+    {value: 'b-user', label: 'b-user'},
+    {value: 'user', label: 'user'},
+    {value: 'admin-b', label: 'admin-b'},
+    {value: 'admin', label: 'admin'}
 
+  ]
   const formRef = useRef({})
 
   useEffect(() => {
@@ -50,11 +58,14 @@ const Groups = props => {
         content: (
           <div style={{ marginTop: 10 }}>
             <span>CSV file contains {usernamesCount} user entries</span>
-            <p style={{ fontWeight: 600, marginTop: 5 }}>Do you want to proceed?</p>
+            <br />
+            <p style={{ fontWeight: 600, marginTop: 20 }}>Select Access Level For Users:</p>
+            <Select title='Select Access Level' defaultValue={defaultAccessLevel}  onChange={(v)=>(setselectedAccessLevel(v))} options={accessLevelOptions} />
+            <p style={{ fontWeight: 600, marginTop: 20 }}>Do you want to proceed?</p>
           </div>
         ),
         onOk() {
-          props.addUsrs(resultArr, record._id, authToken, showInactive)
+          props.addUsrs(resultArr, record._id, authToken, showInactive, selectedAccessLevel)
         }
       })
     }
@@ -215,8 +226,8 @@ const mapDispatchToProps = dispatch => {
     updateGrp: (data, token) => dispatch(updateGroup(data, token)),
     toggleGrpForm: editing => dispatch(toggleGroupForm(editing)),
     toggleActive: (groupId, token) => dispatch(toggleActiveGroup(groupId, token)),
-    addUsrs: (users, groupId, token, showInactive) =>
-      dispatch(addUsers(users, groupId, token, showInactive))
+    addUsrs: (users, groupId, token, showInactive, accesslevel) =>
+      dispatch(addUsers(users, groupId, token, showInactive, accesslevel))
   }
 }
 

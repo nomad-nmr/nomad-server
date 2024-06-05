@@ -142,11 +142,11 @@ export const addUsersSuccess = data => ({
   data
 })
 
-export const addUsers = (users, groupId, token, showInactive) => {
+export const addUsers = (users, groupId, token, showInactive, accesslevel) => {
   return dispatch => {
     dispatch(fetchGroupsStart())
     axios
-      .post('admin/groups/add-users/' + groupId, users, {
+      .post('admin/groups/add-users/' + groupId, {users, accesslevel}, {
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => dispatch(addUsersSuccess(res.data)))
