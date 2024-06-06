@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.0.0",
+    "@ant-design/icons": "^5.3.7",
     "@ant-design/pro-card": "^2.3.0",
     "@ant-design/pro-layout": "^7.4.0",
     "antd": "^5.4.7",
