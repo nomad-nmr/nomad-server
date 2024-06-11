@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { getUsers, postUser, updateUser, toggleActive } from '../../controllers/admin/users.js'
+import { getUsers, postUser, updateUser, toggleActive, deleteUsers } from '../../controllers/admin/users.js'
 import auth from '../../middleware/auth.js'
 import authAdmin from '../../middleware/auth-admin.js'
 import User from '../../models/user.js'
@@ -9,6 +9,18 @@ import User from '../../models/user.js'
 const router = Router()
 
 router.get('/', auth, getUsers)
+
+//delete users route
+router.post(
+  '/delete-users',
+  [
+    body('users')
+    .custom(value=> Array.isArray(value) && value.length >= 1)
+  ],
+  auth,
+  authAdmin,
+  deleteUsers
+)
 
 router.post(
   '/',
