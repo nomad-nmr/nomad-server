@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Button, Table, Drawer, Tag, Space, Pagination, Tooltip } from 'antd'
+import { Button, Table, Drawer, Flex, Modal, Tag, Space, Pagination, Tooltip } from 'antd'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
+const {confirm} = Modal
 
 import UserForm from '../../components/Forms/UserForm/UserForm'
 import {
@@ -39,7 +40,10 @@ const Users = props => {
   const [pageSize, setPageSize] = useState(15)
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({})
-  const [sorter, setSorter] = useState({})
+  const [sorter, setSorter] = useState({});
+  const [selectedRows, setSelectedRows] = useState([])
+  const [actionDisabled, setActionDisabled] = useState(true)
+  const [submitConfirmed, setsubmitConfirmed] = useState(false)
 
   //Hook to fetch users according using search params stored in the state
   useEffect(() => {
@@ -59,6 +63,21 @@ const Users = props => {
   useEffect(() => {
     fetchGrpList(authToken, showInactive)
   }, [fetchGrpList, authToken, showInactive])
+
+  //FOR SELECTION & ACTION
+  useEffect(()=>{
+    console.log(selectedRows)
+    //now enable the button once state has been changed, and atleast one row has been selected
+    if(selectedRows.length > 0 && actionDisabled){
+      setActionDisabled(false)
+    }
+    //proceed with the API request if confirmed
+    if(submitConfirmed){
+      alert('api')
+    }
+
+  }, [selectedRows, submitConfirmed])
+
 
   //Hook to set group filters in the local state.
   useEffect(() => {
@@ -207,10 +226,45 @@ const Users = props => {
       )
     }
   ]
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      //only get the IDs, no need to put the whole object in the state
+      let ids = selectedRows.map(row => (row._id))
+      setSelectedRows(ids)
+      setActionDisabled(true)
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.name === 'Disabled User',
+      // Column configuration not to be checked
+      name: record.name,
+    }),
+  };
+  const confirmDeletion = () => {
+    confirm({
+      content:  `are you sure you want to delete ${selectedRows.length} users ?`,
+      onOk() {
+        console.log('OK');
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+      okText: 'Delete',
+      okButtonProps: {danger: true}
+    });
+  }
 
   return (
     <div style={{ margin: '30px 20px 20px 20px' }}>
+    <div style={{float: 'left', padding: 4, borderRadius: 5, display: 'flex', gridAutoFlow: 'column', alignItems: 'center', justifyItems: 'center', gap: 10, padding: '10px 10px', width: '100%', margin: '5px 0', background: '#fafafa'}}>
+      <h1 style={{fontWeight: 900}}>Action</h1>
+      <br />
+      <Button onClick={confirmDeletion} danger disabled={actionDisabled}>Delete</Button>
+    </div>
       <Table
+        rowSelection={{
+          type: 'checkbox',
+          ...rowSelection,
+        }}
         size='small'
         dataSource={props.tabData}
         columns={columns}
