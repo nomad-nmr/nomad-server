@@ -77,7 +77,8 @@ const Users = props => {
     if(submitConfirmed){
       deleteUsers(selectedRows, authToken, showInactive)
       setsubmitConfirmed(false);
-      setSelectedRows([])
+      setSelectedRows([]);
+      setActionDisabled(true)
     }
 
   }, [selectedRows, submitConfirmed])
