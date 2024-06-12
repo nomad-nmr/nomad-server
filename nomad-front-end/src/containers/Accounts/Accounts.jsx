@@ -6,7 +6,8 @@ import AccountsForm from '../../components/AccountsComponents/AccountsForm'
 import GrantForm from '../../components/AccountsComponents/GrantForm'
 import AccountsTable from '../../components/AccountsComponents/AccountsTable'
 import CostingTable from '../../components/AccountsComponents/CostingTable'
-import GrantsTable from '../../components/AccountsComponents/GrantsTable'
+import SetGrantsTable from '../../components/AccountsComponents/SetGrantsTable'
+import GrantsCostsTable from '../../components/AccountsComponents/GrantsCostsTable'
 
 import {
   fetchCosts,
@@ -16,16 +17,16 @@ import {
   resetCostsTable,
   setAccountsType,
   toggleCostingDrawer,
-  toggleGrantForm,
   updateInstrumentsCosting,
   postGrant,
   fetchGrants,
   deleteGrant,
-  updateGrant
+  updateGrant,
+  fetchGrantsCosts,
+  toggleAddGrantModal
 } from '../../store/actions'
 
 import classes from './Accounts.module.css'
-import './GrantFormAnime.css'
 
 const Accounts = props => {
   const { fetchGrpList, authToken, grpList, tableData, resetTable, fetchCosting, accountsType } =
@@ -46,24 +47,9 @@ const Accounts = props => {
     }
   }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
 
-  const onFormSubmit = values => {
-    const { dateRange } = values
-    if (dateRange) {
-      values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
-    }
-    props.fetchCostsData(authToken, values)
-  }
-
   const tableElement =
     accountsType === 'Grants' ? (
-      <GrantsTable
-        data={props.grantsData}
-        deleteHandler={props.delGrant}
-        token={authToken}
-        formHandler={props.tglGrantForm}
-        formRef={formRef}
-        setTagsState={setUsrGrpTags}
-      />
+      <GrantsCostsTable />
     ) : tableData.length > 0 ? (
       <AccountsTable data={tableData} header={props.tblHeader} />
     ) : (
@@ -92,30 +78,48 @@ const Accounts = props => {
     <div className={classes.AccountsForm}>
       <AccountsForm
         groupList={grpList}
-        submitHandler={onFormSubmit}
         loading={props.loading}
         resetHandler={resetTable}
         typeHandler={props.setAccountsType}
         type={accountsType}
+        getCosts={props.fetchCostsData}
+        getGrantsCosts={props.fetchGrantsCosts}
+        token={authToken}
       />
     </div>
   )
 
   return (
     <Fragment>
-      {accountsFormElement}
-      <Modal
-        title='Add/Edit Grant'
-        width={950}
-        closable={false}
-        placement='right'
-        open={props.grantFormVisible}
-        onCancel={props.tglGrantForm}
-        footer={null}
-      >
-        {grantFormElement}
-      </Modal>
-      {tableElement}
+      {props.setGrantsVisible ? (
+        <Fragment>
+          <SetGrantsTable
+            data={props.grantsData}
+            deleteHandler={props.delGrant}
+            token={authToken}
+            formHandler={props.tglGrantForm}
+            formRef={formRef}
+            setTagsState={setUsrGrpTags}
+          />
+          <Modal
+            title='Add/Edit Grant'
+            width={950}
+            closable={false}
+            placement='right'
+            open={props.grantFormVisible}
+            onCancel={props.tglGrantForm}
+            footer={null}
+          >
+            {grantFormElement}
+          </Modal>
+        </Fragment>
+      ) : (
+        <div>
+          {accountsFormElement}
+          {tableElement}
+        </div>
+      )}
+
       <Drawer
         title='Set Costing for Instruments'
         placement='top'
@@ -149,7 +153,9 @@ const mapStateToProps = state => ({
   tblHeader: state.accounts.tableHeader,
   instrumentsCosting: state.accounts.costingData,
   accountsType: state.accounts.type,
-  grantsData: state.accounts.grantsData
+  grantsData: state.accounts.grantsData,
+  setGrantsVisible: state.accounts.showSetGrants,
+  grantFormVisible: state.accounts.showAddGrant
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -161,12 +167,13 @@ const mapDispatchToProps = dispatch => ({
   updateCosting: (token, data) => dispatch(updateInstrumentsCosting(token, data)),
   resetTable: () => dispatch(resetCostsTable()),
   tglCostDrawer: () => dispatch(toggleCostingDrawer()),
-  tglGrantForm: () => dispatch(toggleGrantForm()),
   setAccountsType: type => dispatch(setAccountsType(type)),
   addGrant: (token, data) => dispatch(postGrant(token, data)),
   fetchGrants: token => dispatch(fetchGrants(token)),
   delGrant: (token, id) => dispatch(deleteGrant(token, id)),
-  updateGrant: (token, data) => dispatch(updateGrant(token, data))
+  updateGrant: (token, data) => dispatch(updateGrant(token, data)),
+  fetchGrantsCosts: (token, data) => dispatch(fetchGrantsCosts(token, data)),
+  tglGrantForm: () => dispatch(toggleAddGrantModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

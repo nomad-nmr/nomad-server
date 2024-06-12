@@ -11,6 +11,7 @@ import Dataset from '../models/dataset.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
+import Grant from '../models/grant.js'
 import { getIO } from '../socket.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
 
@@ -56,7 +57,26 @@ export const postData = async (req, res) => {
           })
       }
     }
-    experiment.save()
+
+    //Calculation of costs for grants
+
+    let grant = await Grant.findOne({
+      include: {
+        $elemMatch: { id: experiment.user.id }
+      }
+    })
+
+    if (!grant) {
+      grant = await Grant.findOne({
+        include: {
+          $elemMatch: { id: experiment.group.id }
+        }
+      })
+    }
+
+    console.log(experiment.expId, grant.grantCode && grant.grantCode)
+
+    await experiment.save()
 
     res.send()
   } catch (error) {

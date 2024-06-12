@@ -7,28 +7,17 @@ import Group from '../../models/group.js'
 import User from '../../models/user.js'
 import Instrument from '../../models/instrument.js'
 import Grant from '../../models/grant.js'
+import {
+  checkDuplicate,
+  getSearchParams,
+  getSearchParamsClaims
+} from '../../utils/accountsUtils.js'
 
 export async function getCosts(req, res) {
   const { groupId, dateRange } = req.query
   try {
-    const searchParams = { $and: [{ status: 'Archived' }] }
-    const searchParamsClaims = { $and: [{ status: 'Approved' }] }
-
-    if (dateRange && dateRange !== 'undefined' && dateRange !== 'null') {
-      const datesArr = dateRange.split(',')
-      searchParams.$and.push({
-        updatedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-      searchParamsClaims.$and.push({
-        createdAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-    }
+    const searchParams = getSearchParams(dateRange)
+    const searchParamsClaims = getSearchParamsClaims(dateRange)
 
     const resData = []
     const instrumentList = await Instrument.find({ isActive: true }, 'name cost')
@@ -299,23 +288,43 @@ export async function putGrant(req, res) {
   }
 }
 
-//helper function that checks if user or group has been already added on the grant
-const checkDuplicate = (includeArray, grants, grantId) => {
-  const usrGrpIdArray = []
-  grants.forEach(entry => {
-    if (entry._id.toString() !== grantId.toString()) {
-      entry.include.forEach(element => {
-        usrGrpIdArray.push(element.id)
-      })
-    }
-  })
+export async function getGrantsCosts(req, res) {
+  try {
+    console.log(req.query)
+    // const { dateRange } = req.query
+    // const searchParams = getSearchParams(dateRange)
+    // const searchParamsClaims = getSearchParamsClaims(dateRange)
 
-  for (let i of includeArray) {
-    const found = usrGrpIdArray.find(id => id.toString() === i.id.toString())
-    if (found) {
-      return true
-    }
+    // const resData = []
+    // const instrumentList = await Instrument.find({ isActive: true }, 'name cost')
+    // const grants = await Grant.find({})
+
+    // await Promise.all(
+    //   grants.map(async grant => {
+    //     const newResEntry = { grantCode: grant.grantCode, cost: 0 }
+    //     await Promise.all(
+    //       grant.include.map(async entry => {
+    //         if (entry.isGroup) {
+    //           console.log('group')
+    //         } else {
+    //           const entrySearchParams = {}
+    //           const entrySearchParamsClaims = {}
+    //           entrySearchParams.$and = [...searchParams.$and, { 'user.id': entry.id }]
+    //           entrySearchParamsClaims.$and = [...searchParamsClaims.$and, { user: entry.id }]
+
+    //           const expArray = await Experiment.find(entrySearchParams, 'instrument totalExpTime')
+    //           const claimsArray = await Claim.find(entrySearchParamsClaims, 'instrument expTime')
+
+    //           console.log(expArray, claimsArray)
+    //         }
+    //       })
+    //     )
+    //   })
+    // )
+
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
-
-  return false
 }

@@ -1,16 +1,21 @@
 import React from 'react'
-import { Button, Space } from 'antd'
+import { Button, Space, Divider } from 'antd'
 
 import classes from '../PageHeader.module.css'
 
 const AccountingControls = props => {
+  const { setGrantsVisible } = props
   return (
     <Space className={classes.ExtraContainer}>
       <Button className={classes.Button} type='primary' onClick={() => props.toggleCostDrawer()}>
-        Costing for Instruments
+        Set Instruments Costing
       </Button>
-      {props.type === 'Grants' && (
-        <Button type='primary' onClick={() => props.toggleGrantForm()} disabled={props.formVisible}>
+      <Divider type='vertical' />
+      <Button type={!setGrantsVisible && 'primary'} onClick={() => props.toggleSetGrants()}>
+        {setGrantsVisible ? 'Close & Return' : 'Set Grants'}
+      </Button>
+      {setGrantsVisible && (
+        <Button type='primary' onClick={() => props.toggleAddGrant()}>
           Add Grant
         </Button>
       )}

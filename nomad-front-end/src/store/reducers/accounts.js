@@ -5,11 +5,12 @@ const initialState = {
   loading: false,
   costsTableData: [],
   costDrawerVisible: false,
-  grantFormVisible: false,
   tableHeader: '',
   costingData: [],
   type: 'Grants',
-  grantsData: []
+  grantsData: [],
+  showSetGrants: false,
+  showAddGrant: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -26,8 +27,11 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.TOGGLE_COSTING_DRAWER:
       return { ...state, costDrawerVisible: !state.costDrawerVisible }
 
-    case actionTypes.TOGGLE_GRANT_FORM:
-      return { ...state, grantFormVisible: !state.grantFormVisible }
+    case actionTypes.TOGGLE_SET_GRANTS_TABLE:
+      return { ...state, showSetGrants: !state.showSetGrants }
+
+    case actionTypes.TOGGLE_ADD_GRANT_MODAL:
+      return { ...state, showAddGrant: !state.showAddGrant }
 
     case actionTypes.SET_TABLE_HEADER:
       return { ...state, tableHeader: payload }
@@ -57,6 +61,7 @@ const reducer = (state = initialState, { type, payload }) => {
       const updatedGrants = [...state.grantsData]
       updatedGrants[index] = payload
       return { ...state, grantsData: updatedGrants }
+
     default:
       return state
   }

@@ -11,7 +11,8 @@ import {
   postGrant,
   getGrants,
   deleteGrant,
-  putGrant
+  putGrant,
+  getGrantsCosts
 } from '../../controllers/admin/accounts.js'
 
 const router = Router()
@@ -46,5 +47,7 @@ router.get('/grants', auth, authAdmin, getGrants)
 router.delete('/grants/:grantId', auth, authAdmin, deleteGrant)
 
 router.put('/grants', auth, authAdmin, putGrant)
+
+router.get('/grants-costs', auth, authAdmin, getGrantsCosts)
 
 export default router

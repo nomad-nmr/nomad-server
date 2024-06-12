@@ -48,7 +48,8 @@ import {
   returnToCollectionList,
   removeDatasets,
   downloadCollection,
-  toggleGrantForm
+  toggleSetGrantsTable,
+  toggleAddGrantModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -261,9 +262,9 @@ const PageHeaderEl = props => {
       extra = (
         <AccountingControls
           toggleCostDrawer={props.tglCostingDrawer}
-          toggleGrantForm={props.tglGrantForm}
-          type={props.accountsType}
-          formVisible={props.grantFormVisible}
+          toggleSetGrants={props.tglSetGrants}
+          toggleAddGrant={props.tglAddGrant}
+          setGrantsVisible={props.setGrantsVisible}
         />
       )
 
@@ -394,7 +395,7 @@ const mapStateToProps = state => {
     checkedDatasetsSearch: state.datasets.checkedDatasets,
     collectionDisplayType: state.collections.displayType,
     collectionId: state.collections.meta.id,
-    accountsType: state.accounts.type,
+    setGrantsVisible: state.accounts.showSetGrants,
     grantFormVisible: state.accounts.grantFormVisible
   }
 }
@@ -426,7 +427,6 @@ const mapDispatchToProps = dispatch => {
     tglSearchForm: payload => dispatch(toggleSearchForm(payload)),
     getRepair: (instrId, token) => dispatch(fetchRepair(instrId, token)),
     tglCostingDrawer: () => dispatch(toggleCostingDrawer()),
-    tglGrantForm: () => dispatch(toggleGrantForm()),
     fetchOverhead: (instrId, token) => dispatch(fetchOverheadTime(instrId, token)),
     fetchNMRium: (expsArr, authToken, dataType) =>
       dispatch(fetchNMRiumData(expsArr, authToken, dataType)),
@@ -447,7 +447,9 @@ const mapDispatchToProps = dispatch => {
     tglColDisplay: value => dispatch(toggleCollectionDisplay(value)),
     toCollectionList: () => dispatch(returnToCollectionList()),
     removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
-    downloadCollection: (id, token) => dispatch(downloadCollection(id, token))
+    downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
+    tglSetGrants: () => dispatch(toggleSetGrantsTable()),
+    tglAddGrant: () => dispatch(toggleAddGrantModal())
   }
 }
 

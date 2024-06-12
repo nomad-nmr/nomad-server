@@ -16,16 +16,6 @@ const grantSchema = new Schema({
         required: true
       }
     }
-  ],
-  exclude: [
-    {
-      username: String,
-      id: {
-        type: Schema.Types.ObjectId,
-        required: true,
-        ref: 'User'
-      }
-    }
   ]
 })
 

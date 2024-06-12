@@ -2,7 +2,7 @@ import React from 'react'
 import { Table, Tag, Space, Button, Popconfirm } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 
-const GrantsTable = props => {
+const SetGrantsTable = props => {
   const { token } = props
   const columns = [
     {
@@ -67,19 +67,14 @@ const GrantsTable = props => {
           </Popconfirm>
         </Space>
       )
-    },
-    {
-      title: 'Cost',
-      dataIndex: 'cost',
-      align: 'center'
     }
   ]
 
   return (
-    <div style={{ margin: '0 30px' }}>
+    <div style={{ margin: '30px' }}>
       <Table columns={columns} dataSource={props.data} pagination={false} size='small' />
     </div>
   )
 }
 
-export default GrantsTable
+export default SetGrantsTable

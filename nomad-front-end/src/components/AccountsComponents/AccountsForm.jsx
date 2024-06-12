@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Form, DatePicker, Button, Select, Tooltip, Radio } from 'antd'
+import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 
 const { Option } = Select
@@ -7,7 +7,7 @@ const { RangePicker } = DatePicker
 
 const AccountsForm = props => {
   const [form] = Form.useForm()
-  const { type } = props
+  const { type, token } = props
 
   useEffect(() => form.resetFields(), [type])
 
@@ -19,8 +19,29 @@ const AccountsForm = props => {
 
   const radioOptions = ['Grants', 'Groups', 'Users']
 
+  const submitHandler = values => {
+    const { dateRange } = values
+
+    if (type === 'Users' && values && !values.groupId) {
+      return Modal.error({
+        title: 'No group defined',
+        content: 'Please select the group for which you want to perform the calculation.'
+      })
+    }
+
+    if (dateRange) {
+      values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
+    }
+
+    if (type !== 'Grants') {
+      props.getCosts(token, values)
+    } else {
+      props.getGrantsCosts(token, { dateRange: values.dateRange })
+    }
+  }
+
   return (
-    <Form form={form} layout='inline' onFinish={values => props.submitHandler(values)}>
+    <Form form={form} layout='inline' onFinish={values => submitHandler(values)}>
       <Radio.Group
         options={radioOptions}
         optionType='button'

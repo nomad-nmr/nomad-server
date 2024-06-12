@@ -85,10 +85,6 @@ export const setAccountsType = payload => ({
   payload
 })
 
-export const toggleGrantForm = () => ({
-  type: actionTypes.TOGGLE_GRANT_FORM
-})
-
 export const postGrantSuccess = payload => ({
   type: actionTypes.POST_GRANT_SUCCESS,
   payload
@@ -168,3 +164,33 @@ export const updateGrant = (token, data) => {
       })
   }
 }
+
+export const fetchGrantsCostsSuccess = payload => ({
+  type: actionTypes.FETCH_GRANTS_COSTS_SUCCESS,
+  payload
+})
+
+export const fetchGrantsCosts = (token, data) => {
+  return dispatch => {
+    axios
+      .get('/admin/accounts/grants-costs/?' + new URLSearchParams(data).toString(), {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(fetchGrantsCostsSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const toggleSetGrantsTable = () => {
+  return {
+    type: actionTypes.TOGGLE_SET_GRANTS_TABLE
+  }
+}
+
+export const toggleAddGrantModal = () => ({
+  type: actionTypes.TOGGLE_ADD_GRANT_MODAL
+})
