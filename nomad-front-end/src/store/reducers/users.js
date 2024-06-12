@@ -13,7 +13,8 @@ const initialState = {
   tableIsLoading: false,
   showForm: false,
   editing: false,
-  lastLoginOrder: undefined
+  lastLoginOrder: undefined,
+  deleteInProgress: false
 }
 
 const reducer = (state = initialState, action) => {
@@ -23,6 +24,19 @@ const reducer = (state = initialState, action) => {
         ...state,
         tableIsLoading: true
       }
+
+    case actionTypes.DELETE_USERS_START:
+      return{
+        ...state,
+        deleteInProgress: true
+      }  
+
+    case actionTypes.DELETE_SUMMARY:
+      console.log(action.data)
+      return{
+        ...state,
+        delete_summary: {...action.data}
+      }  
 
     case actionTypes.FETCH_USERS_TABLE_SUCCESS:
       const users = action.data.users.map(usr => {

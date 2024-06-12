@@ -51,6 +51,18 @@ export const addUserFailed = () => {
   }
 }
 
+export const deletionStart=() => {
+return{
+  type: actionTypes.DELETE_USERS_START
+}
+}
+
+export const usersDeleteHandler = (users, token) => {
+  return dispatch => {
+    dispatch(deletionStart())
+  }
+}
+
 export const addUser = (formData, token) => {
   return dispatch => {
     dispatch(fetchUsersStart())

@@ -48,6 +48,7 @@ export {
   addUser,
   updateUser,
   toggleActive,
+  usersDeleteHandler,
   toggleShowInactive,
   searchUser,
   resetUserList,

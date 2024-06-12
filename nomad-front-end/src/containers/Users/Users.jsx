@@ -13,7 +13,8 @@ import {
   toggleUserForm,
   toggleActive,
   fetchGroupList,
-  resetUserSearch
+  resetUserSearch,
+  usersDeleteHandler
 } from '../../store/actions/index'
 import { renderDataAccess } from '../../utils/tableUtils'
 
@@ -28,8 +29,10 @@ const Users = props => {
     authToken,
     showInactive,
     grpList,
+    deleting,
     searchUserValue,
-    resetUsrSearch
+    resetUsrSearch,
+    deleteUsers
   } = props
 
   const formRef = useRef({})
@@ -74,6 +77,7 @@ const Users = props => {
     //proceed with the API request if confirmed
     if(submitConfirmed){
       alert('api')
+      deleteUsers(selectedRows, authToken)
     }
 
   }, [selectedRows, submitConfirmed])
@@ -243,10 +247,9 @@ const Users = props => {
     confirm({
       content:  `are you sure you want to delete ${selectedRows.length} users ?`,
       onOk() {
-        console.log('OK');
+        setsubmitConfirmed(true)
       },
       onCancel() {
-        console.log('Cancel');
       },
       okText: 'Delete',
       okButtonProps: {danger: true}
@@ -258,7 +261,7 @@ const Users = props => {
     <div style={{float: 'left', padding: 4, borderRadius: 5, display: 'flex', gridAutoFlow: 'column', alignItems: 'center', justifyItems: 'center', gap: 10, padding: '10px 10px', width: '100%', margin: '5px 0', background: '#fafafa'}}>
       <h1 style={{fontWeight: 900}}>Action</h1>
       <br />
-      <Button onClick={confirmDeletion} danger disabled={actionDisabled}>Delete</Button>
+      <Button loading={deleting} onClick={confirmDeletion} danger disabled={actionDisabled || deleting}>Delete</Button>
     </div>
       <Table
         rowSelection={{
@@ -316,6 +319,8 @@ const mapStateToProps = state => {
     tabData: state.users.usersTableData,
     totalUsers: state.users.total,
     tabLoading: state.users.tableIsLoading,
+    deleting: state.users.deleteInProgress,
+    deleteSummary: state.users.deleteSummary,
     authToken: state.auth.token,
     usrDrawerVisible: state.users.showForm,
     formEditing: state.users.editing,
@@ -336,7 +341,8 @@ const mapDispatchToProps = dispatch => {
     updateUsrHandler: (formData, token) => dispatch(updateUser(formData, token)),
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
     fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
-    resetUsrSearch: () => dispatch(resetUserSearch())
+    resetUsrSearch: () => dispatch(resetUserSearch()),
+    deleteUsers: (users, token)=>(dispatch(usersDeleteHandler(users, token)))
   }
 }
 
