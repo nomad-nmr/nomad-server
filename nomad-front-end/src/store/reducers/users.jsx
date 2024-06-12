@@ -1,7 +1,6 @@
 import { addKey, updateTableSwitch } from '../../utils/tableUtils'
 import * as actionTypes from '../actions/actionTypes'
-import { message } from 'antd'
-
+import { message, Modal } from 'antd'
 const initialState = {
   usersTableData: [],
   userList: [],
@@ -14,7 +13,8 @@ const initialState = {
   showForm: false,
   editing: false,
   lastLoginOrder: undefined,
-  deleteInProgress: false
+  deleteInProgress: false,
+  deleteSummary: {}
 }
 
 const reducer = (state = initialState, action) => {
@@ -31,12 +31,20 @@ const reducer = (state = initialState, action) => {
         deleteInProgress: true
       }  
 
-    case actionTypes.DELETE_SUMMARY:
+    case actionTypes.DELETE_USERS_COMPLETED:
       console.log(action.data)
+      const {response, success} = action.data
+      const {notFound, deleted, inactivated} = response
+      success ? Modal.info({title: 'Users Deleted', content: (
+        <>
+        </>
+      )}) : Modal.error({title: 'Action Failed', content: 'failed to delete the users ' + action.data});
       return{
         ...state,
-        delete_summary: {...action.data}
+        deleteInProgress: false
       }  
+
+
 
     case actionTypes.FETCH_USERS_TABLE_SUCCESS:
       const users = action.data.users.map(usr => {

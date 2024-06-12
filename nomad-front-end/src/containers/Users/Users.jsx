@@ -32,7 +32,7 @@ const Users = props => {
     deleting,
     searchUserValue,
     resetUsrSearch,
-    deleteUsers
+    deleteUsers,
   } = props
 
   const formRef = useRef({})
@@ -69,15 +69,14 @@ const Users = props => {
 
   //FOR SELECTION & ACTION
   useEffect(()=>{
-    console.log(selectedRows)
     //now enable the button once state has been changed, and atleast one row has been selected
     if(selectedRows.length > 0 && actionDisabled){
       setActionDisabled(false)
     }
     //proceed with the API request if confirmed
     if(submitConfirmed){
-      alert('api')
-      deleteUsers(selectedRows, authToken)
+      deleteUsers(selectedRows, authToken, showInactive)
+      setsubmitConfirmed(false);
     }
 
   }, [selectedRows, submitConfirmed])
@@ -320,7 +319,6 @@ const mapStateToProps = state => {
     totalUsers: state.users.total,
     tabLoading: state.users.tableIsLoading,
     deleting: state.users.deleteInProgress,
-    deleteSummary: state.users.deleteSummary,
     authToken: state.auth.token,
     usrDrawerVisible: state.users.showForm,
     formEditing: state.users.editing,
@@ -342,7 +340,7 @@ const mapDispatchToProps = dispatch => {
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
     fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
     resetUsrSearch: () => dispatch(resetUserSearch()),
-    deleteUsers: (users, token)=>(dispatch(usersDeleteHandler(users, token)))
+    deleteUsers: (users, token, showInactive)=>(dispatch(usersDeleteHandler(users, token, showInactive)))
   }
 }
 

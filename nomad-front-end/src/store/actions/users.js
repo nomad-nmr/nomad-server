@@ -51,15 +51,25 @@ export const addUserFailed = () => {
   }
 }
 
-export const deletionStart=() => {
-return{
-  type: actionTypes.DELETE_USERS_START
-}
+export const usersDeletionStart=() => {
+  return{
+    type: actionTypes.DELETE_USERS_START
+  }
 }
 
-export const usersDeleteHandler = (users, token) => {
+export const usersDeletionCompletion = (response, success) => {
+  return{
+    type: actionTypes.DELETE_USERS_COMPLETED,
+    data: {response, success}
+  }
+}
+
+export const usersDeleteHandler = (users, token, showInactive) => {
+  const data = {notFound: 0, deleted: 0, inactivated: 0}
   return dispatch => {
-    dispatch(deletionStart())
+    dispatch(usersDeletionStart());
+    dispatch(usersDeletionCompletion(data, false));
+    dispatch(fetchUsers(token, {showInactive}))
   }
 }
 
