@@ -77,6 +77,7 @@ const Users = props => {
     if(submitConfirmed){
       deleteUsers(selectedRows, authToken, showInactive)
       setsubmitConfirmed(false);
+      setSelectedRows([])
     }
 
   }, [selectedRows, submitConfirmed])
@@ -230,10 +231,9 @@ const Users = props => {
     }
   ]
   const rowSelection = {
+    selectedRowKeys: selectedRows,
     onChange: (selectedRowKeys, selectedRows) => {
-      //only get the IDs, no need to put the whole object in the state
-      let ids = selectedRows.map(row => (row._id))
-      setSelectedRows(ids)
+      setSelectedRows(selectedRowKeys)
       setActionDisabled(true)
     },
     getCheckboxProps: (record) => ({
@@ -267,6 +267,7 @@ const Users = props => {
           type: 'checkbox',
           ...rowSelection,
         }}
+        rowKey={(record)=>(record._id)}
         size='small'
         dataSource={props.tabData}
         columns={columns}

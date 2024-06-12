@@ -34,9 +34,16 @@ const reducer = (state = initialState, action) => {
     case actionTypes.DELETE_USERS_COMPLETED:
       console.log(action.data)
       const {response, success} = action.data
-      const {notFound, deleted, inactivated} = response
+      console.log(response)
+      const {notFoundUsers, deletedUsers, inactivatedUsers} = response
       success ? Modal.info({title: 'Users Deleted', content: (
         <>
+        <p>users deleted: <strong>{deletedUsers}</strong></p>
+        <p>users inactivated: <strong>{inactivatedUsers}</strong></p>
+       {
+        notFoundUsers > 0 ? 
+        ( <p><strong>{notFoundUsers}</strong> of the users in your selection were not found</p>) : ('')
+       }
         </>
       )}) : Modal.error({title: 'Action Failed', content: 'failed to delete the users ' + action.data});
       return{

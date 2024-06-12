@@ -68,8 +68,16 @@ export const usersDeleteHandler = (users, token, showInactive) => {
   const data = {notFound: 0, deleted: 0, inactivated: 0}
   return dispatch => {
     dispatch(usersDeletionStart());
-    dispatch(usersDeletionCompletion(data, false));
+    axios
+    .post('/admin/users/delete-users', {users}, { headers: { Authorization: 'Bearer ' + token } })
+    .then(res=>{
+      let success = res.status == '200'
+    dispatch(usersDeletionCompletion(res.data, success));
     dispatch(fetchUsers(token, {showInactive}))
+    })
+    .catch(err=>{
+      dispatch(usersDeletionCompletion('an error occured', false));
+    })
   }
 }
 
