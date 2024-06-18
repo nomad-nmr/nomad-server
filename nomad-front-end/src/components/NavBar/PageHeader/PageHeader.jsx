@@ -47,7 +47,8 @@ import {
   toggleCollectionDisplay,
   returnToCollectionList,
   removeDatasets,
-  downloadCollection
+  downloadCollection,
+  usersDeleteHandler
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -126,6 +127,9 @@ const PageHeaderEl = props => {
           showInactive={props.showInactiveUsr}
           switchShowInactive={props.switchShowInactiveUsr}
           query={usernameQuery}
+          checked={props.checkedUsers}
+          deleteHandler={props.deleteUsers}
+          token={props.authToken}
         />
       )
       break
@@ -385,7 +389,8 @@ const mapStateToProps = state => {
     checkedExpsInDatasets: state.datasets.checkedExps,
     checkedDatasetsSearch: state.datasets.checkedDatasets,
     collectionDisplayType: state.collections.displayType,
-    collectionId: state.collections.meta.id
+    collectionId: state.collections.meta.id,
+    checkedUsers: state.users.checked
   }
 }
 
@@ -436,7 +441,8 @@ const mapDispatchToProps = dispatch => {
     tglColDisplay: value => dispatch(toggleCollectionDisplay(value)),
     toCollectionList: () => dispatch(returnToCollectionList()),
     removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
-    downloadCollection: (id, token) => dispatch(downloadCollection(id, token))
+    downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
+    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token))
   }
 }
 

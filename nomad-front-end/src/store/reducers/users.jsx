@@ -14,7 +14,8 @@ const initialState = {
   editing: false,
   lastLoginOrder: undefined,
   deleteInProgress: false,
-  deleteSummary: {}
+  deleteSummary: {},
+  checked: []
 }
 
 const reducer = (state = initialState, action) => {
@@ -26,32 +27,48 @@ const reducer = (state = initialState, action) => {
       }
 
     case actionTypes.DELETE_USERS_START:
-      return{
+      return {
         ...state,
         deleteInProgress: true
-      }  
+      }
+
+    case actionTypes.UPDATE_CHECKED_USERS:
+      return { ...state, checked: action.payload }
 
     case actionTypes.DELETE_USERS_COMPLETED:
       console.log(action.data)
-      const {response, success} = action.data
+      const { response, success } = action.data
       console.log(response)
-      const {notFoundUsers, deletedUsers, inactivatedUsers} = response
-      success ? Modal.info({title: 'Users Deleted', content: (
-        <>
-        <p>users deleted: <strong>{deletedUsers}</strong></p>
-        <p>users inactivated: <strong>{inactivatedUsers}</strong></p>
-       {
-        notFoundUsers > 0 ? 
-        ( <p><strong>{notFoundUsers}</strong> of the users in your selection were not found</p>) : ('')
-       }
-        </>
-      )}) : Modal.error({title: 'Action Failed', content: 'failed to delete the users ' + action.data});
-      return{
+      const { notFoundUsers, deletedUsers, inactivatedUsers } = response
+      success
+        ? Modal.info({
+            title: 'Users Deleted',
+            content: (
+              <>
+                <p>
+                  users deleted: <strong>{deletedUsers}</strong>
+                </p>
+                <p>
+                  users inactivated: <strong>{inactivatedUsers}</strong>
+                </p>
+                {notFoundUsers > 0 ? (
+                  <p>
+                    <strong>{notFoundUsers}</strong> of the users in your selection were not found
+                  </p>
+                ) : (
+                  ''
+                )}
+              </>
+            )
+          })
+        : Modal.error({
+            title: 'Action Failed',
+            content: 'failed to delete the users ' + action.data
+          })
+      return {
         ...state,
         deleteInProgress: false
-      }  
-
-
+      }
 
     case actionTypes.FETCH_USERS_TABLE_SUCCESS:
       const users = action.data.users.map(usr => {

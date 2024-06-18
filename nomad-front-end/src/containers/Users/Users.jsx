@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Button, Table, Drawer, Flex, Modal, Tag, Space, Pagination, Tooltip } from 'antd'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
-const {confirm} = Modal
+const { confirm } = Modal
 
 import UserForm from '../../components/Forms/UserForm/UserForm'
 import {
@@ -14,7 +14,8 @@ import {
   toggleActive,
   fetchGroupList,
   resetUserSearch,
-  usersDeleteHandler
+  usersDeleteHandler,
+  updatedCheckedUsers
 } from '../../store/actions/index'
 import { renderDataAccess } from '../../utils/tableUtils'
 
@@ -33,6 +34,8 @@ const Users = props => {
     searchUserValue,
     resetUsrSearch,
     deleteUsers,
+    selectedRows,
+    setSelectedRows
   } = props
 
   const formRef = useRef({})
@@ -43,10 +46,7 @@ const Users = props => {
   const [pageSize, setPageSize] = useState(15)
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({})
-  const [sorter, setSorter] = useState({});
-  const [selectedRows, setSelectedRows] = useState([])
-  const [actionDisabled, setActionDisabled] = useState(true)
-  const [submitConfirmed, setsubmitConfirmed] = useState(false)
+  const [sorter, setSorter] = useState({})
 
   //Hook to fetch users according using search params stored in the state
   useEffect(() => {
@@ -66,23 +66,6 @@ const Users = props => {
   useEffect(() => {
     fetchGrpList(authToken, showInactive)
   }, [fetchGrpList, authToken, showInactive])
-
-  //FOR SELECTION & ACTION
-  useEffect(()=>{
-    //now enable the button once state has been changed, and atleast one row has been selected
-    if(selectedRows.length > 0 && actionDisabled){
-      setActionDisabled(false)
-    }
-    //proceed with the API request if confirmed
-    if(submitConfirmed){
-      deleteUsers(selectedRows, authToken, showInactive)
-      setsubmitConfirmed(false);
-      setSelectedRows([]);
-      setActionDisabled(true)
-    }
-
-  }, [selectedRows, submitConfirmed])
-
 
   //Hook to set group filters in the local state.
   useEffect(() => {
@@ -236,39 +219,22 @@ const Users = props => {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedRows(selectedRowKeys)
       setActionDisabled(true)
-    },
-    getCheckboxProps: (record) => ({
-      disabled: record.name === 'Disabled User',
-      // Column configuration not to be checked
-      name: record.name,
-    }),
-  };
-  const confirmDeletion = () => {
-    confirm({
-      content:  `are you sure you want to delete ${selectedRows.length} users ?`,
-      onOk() {
-        setsubmitConfirmed(true)
-      },
-      onCancel() {
-      },
-      okText: 'Delete',
-      okButtonProps: {danger: true}
-    });
+    }
+    // getCheckboxProps: record => ({
+    //   disabled: record.name === 'Disabled User',
+    //   // Column configuration not to be checked
+    //   name: record.name
+    // })
   }
 
   return (
     <div style={{ margin: '30px 20px 20px 20px' }}>
-    <div style={{float: 'left', padding: 4, borderRadius: 5, display: 'flex', gridAutoFlow: 'column', alignItems: 'center', justifyItems: 'center', gap: 10, padding: '10px 10px', width: '100%', margin: '5px 0', background: '#fafafa'}}>
-      <h1 style={{fontWeight: 900}}>Action</h1>
-      <br />
-      <Button loading={deleting} onClick={confirmDeletion} danger disabled={actionDisabled || deleting}>Delete</Button>
-    </div>
       <Table
         rowSelection={{
           type: 'checkbox',
-          ...rowSelection,
+          ...rowSelection
         }}
-        rowKey={(record)=>(record._id)}
+        rowKey={record => record._id}
         size='small'
         dataSource={props.tabData}
         columns={columns}
@@ -325,6 +291,7 @@ const mapStateToProps = state => {
     usrDrawerVisible: state.users.showForm,
     formEditing: state.users.editing,
     showInactive: state.users.showInactive,
+    selectedRows: state.users.checked,
 
     //list of group names for select component
     grpList: state.groups.groupList,
@@ -342,7 +309,9 @@ const mapDispatchToProps = dispatch => {
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
     fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
     resetUsrSearch: () => dispatch(resetUserSearch()),
-    deleteUsers: (users, token, showInactive)=>(dispatch(usersDeleteHandler(users, token, showInactive)))
+    deleteUsers: (users, token, showInactive) =>
+      dispatch(usersDeleteHandler(users, token, showInactive)),
+    setSelectedRows: rows => dispatch(updatedCheckedUsers(rows))
   }
 }
 
