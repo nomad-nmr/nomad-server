@@ -5,6 +5,7 @@ import moment from 'moment'
 
 import User from '../../models/user.js'
 import Group from '../../models/group.js'
+import experiment from '../../models/experiment.js'
 
 export async function getUsers(req, res) {
   //setting search parameters according to showInactive settings
@@ -147,6 +148,50 @@ export async function postUser(req, res) {
   } catch (error) {
     console.log(error)
     res.status(500).json(error)
+  }
+}
+
+export async function deleteUsers(req, res) {
+  //look for errors
+  const errors = validationResult(req)
+  try{
+    if (!errors.isEmpty()) {
+      return res.status(422).send(errors)
+    }
+    //now begins the specific logic
+    const allUsers = req.body.users;
+    let deletedUsers = 0
+    let inactivatedUsers = 0
+    let notFoundUsers = 0
+    await Promise.all(allUsers.map(async userid => {
+      let user = await User.findById(userid)
+      console.log(user)
+      if(!user){
+        notFoundUsers++
+      }else {
+        //check experiments
+        let experiments = await experiment.find({
+          'user.id' : userid
+        });
+        if(experiments.length > 0){
+          //he has some experinemts
+          inactivatedUsers++
+          user.isActive = false
+          await user.save()
+        }else {
+          deletedUsers++
+          let deletedCount = await user.deleteOne({
+            _id : userid
+          })
+        }
+      }
+    }))
+    //now send the response
+    res.status(200).send({deletedUsers, inactivatedUsers, notFoundUsers})
+
+  }catch(error){
+    console.log('errors encountered while deleting users: ', error);
+    res.status(500).send({ error: 'API error' })
   }
 }
 

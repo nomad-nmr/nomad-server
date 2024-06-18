@@ -1,7 +1,6 @@
 import { addKey, updateTableSwitch } from '../../utils/tableUtils'
 import * as actionTypes from '../actions/actionTypes'
-import { message } from 'antd'
-
+import { message, Modal } from 'antd'
 const initialState = {
   usersTableData: [],
   userList: [],
@@ -13,7 +12,9 @@ const initialState = {
   tableIsLoading: false,
   showForm: false,
   editing: false,
-  lastLoginOrder: undefined
+  lastLoginOrder: undefined,
+  deleteInProgress: false,
+  deleteSummary: {}
 }
 
 const reducer = (state = initialState, action) => {
@@ -23,6 +24,34 @@ const reducer = (state = initialState, action) => {
         ...state,
         tableIsLoading: true
       }
+
+    case actionTypes.DELETE_USERS_START:
+      return{
+        ...state,
+        deleteInProgress: true
+      }  
+
+    case actionTypes.DELETE_USERS_COMPLETED:
+      console.log(action.data)
+      const {response, success} = action.data
+      console.log(response)
+      const {notFoundUsers, deletedUsers, inactivatedUsers} = response
+      success ? Modal.info({title: 'Users Deleted', content: (
+        <>
+        <p>users deleted: <strong>{deletedUsers}</strong></p>
+        <p>users inactivated: <strong>{inactivatedUsers}</strong></p>
+       {
+        notFoundUsers > 0 ? 
+        ( <p><strong>{notFoundUsers}</strong> of the users in your selection were not found</p>) : ('')
+       }
+        </>
+      )}) : Modal.error({title: 'Action Failed', content: 'failed to delete the users ' + action.data});
+      return{
+        ...state,
+        deleteInProgress: false
+      }  
+
+
 
     case actionTypes.FETCH_USERS_TABLE_SUCCESS:
       const users = action.data.users.map(usr => {
