@@ -172,6 +172,7 @@ export const fetchGrantsCostsSuccess = payload => ({
 
 export const fetchGrantsCosts = (token, data) => {
   return dispatch => {
+    dispatch(fetchCostsStart())
     axios
       .get('/admin/accounts/grants-costs/?' + new URLSearchParams(data).toString(), {
         headers: { Authorization: 'Bearer ' + token }

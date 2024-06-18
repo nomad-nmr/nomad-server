@@ -48,12 +48,12 @@ const Accounts = props => {
   }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
 
   const tableElement =
-    accountsType === 'Grants' ? (
-      <GrantsCostsTable />
-    ) : tableData.length > 0 ? (
-      <AccountsTable data={tableData} header={props.tblHeader} />
-    ) : (
+    tableData.length === 0 ? (
       <Empty />
+    ) : accountsType === 'Grants' ? (
+      <GrantsCostsTable data={tableData} />
+    ) : (
+      <AccountsTable data={tableData} header={props.tblHeader} />
     )
 
   const grantFormElement = (

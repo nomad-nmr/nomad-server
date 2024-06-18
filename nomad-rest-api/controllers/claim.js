@@ -4,9 +4,11 @@ import { getIO } from '../socket.js'
 import { getSubmitter } from '../server.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
+import Instrument from '../models/instrument.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Claim from '../models/claim.js'
 import sendUploadCmd from './tracker/sendUploadCmd.js'
+import { getGrantId } from '../utils/accountsUtils.js'
 
 export const getFolders = async (req, res) => {
   const { instrumentId } = req.params
@@ -140,7 +142,17 @@ export const approveClaims = async (req, res) => {
     const respArray = []
     await Promise.all(
       req.body.map(async id => {
-        const claim = await Claim.findByIdAndUpdate(id, { status: 'Approved' })
+        const claim = await Claim.findById(id)
+        const instrument = await Instrument.findById(claim.instrument, 'cost')
+        const grantId = await getGrantId(claim.user, claim.group)
+
+        claim.status = 'Approved'
+        claim.grantCosting = {
+          grantId,
+          cost: +claim.expTime * instrument.cost
+        }
+
+        await claim.save()
         respArray.push(claim._id)
       })
     )

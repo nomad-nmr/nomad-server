@@ -1,3 +1,4 @@
+import { VerticalRightOutlined } from '@ant-design/icons'
 import * as actionTypes from '../actions/actionTypes'
 import { message } from 'antd'
 
@@ -61,6 +62,10 @@ const reducer = (state = initialState, { type, payload }) => {
       const updatedGrants = [...state.grantsData]
       updatedGrants[index] = payload
       return { ...state, grantsData: updatedGrants }
+
+    case actionTypes.FETCH_GRANTS_COSTS_SUCCESS:
+      console.log(payload)
+      return { ...state, costsTableData: payload, loading: false }
 
     default:
       return state

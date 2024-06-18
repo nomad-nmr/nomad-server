@@ -1,5 +1,7 @@
 import moment from 'moment'
 
+import Grant from '../models/grant.js'
+
 //helper function that checks if user or group has been already added on the grant
 const checkDuplicate = (includeArray, grants, grantId) => {
   const usrGrpIdArray = []
@@ -49,4 +51,26 @@ const getSearchParamsClaims = dateRange => {
   return searchParamsClaims
 }
 
-export { checkDuplicate, getSearchParams, getSearchParamsClaims }
+const getGrantId = async (userId, groupId) => {
+  let grant = await Grant.findOne({
+    include: {
+      $elemMatch: { id: userId }
+    }
+  })
+
+  if (!grant) {
+    grant = await Grant.findOne({
+      include: {
+        $elemMatch: { id: groupId }
+      }
+    })
+  }
+
+  if (grant) {
+    return Promise.resolve(grant._id)
+  } else {
+    return Promise.reject('Grant ID not found')
+  }
+}
+
+export { checkDuplicate, getSearchParams, getSearchParamsClaims, getGrantId }

@@ -11,14 +11,16 @@ import Dataset from '../models/dataset.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
-import Grant from '../models/grant.js'
 import { getIO } from '../socket.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import { getGrantId } from '../utils/accountsUtils.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
   try {
     const experiment = await Experiment.findOne({ expId: datasetName + '-' + expNo })
+    const instrument = await Instrument.findById(experiment.instrument.id)
+
     if (!experiment) {
       throw new Error('Experiment not found in Database')
     }
@@ -43,7 +45,6 @@ export const postData = async (req, res) => {
       moment.duration(totalExpTime).asSeconds() - moment.duration(experiment.expTime).asSeconds()
 
     if (expTimeDiff > 600 || !experiment.runningAt) {
-      const instrument = await Instrument.findById(experiment.instrument.id)
       experiment.totalExpTime = experiment.expTime
 
       if (experiment.expNo === '10') {
@@ -60,21 +61,12 @@ export const postData = async (req, res) => {
 
     //Calculation of costs for grants
 
-    let grant = await Grant.findOne({
-      include: {
-        $elemMatch: { id: experiment.user.id }
-      }
-    })
+    const grantId = await getGrantId(experiment.user.id, experiment.group.id)
 
-    if (!grant) {
-      grant = await Grant.findOne({
-        include: {
-          $elemMatch: { id: experiment.group.id }
-        }
-      })
+    experiment.grantCosting = {
+      grantId,
+      cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost
     }
-
-    console.log(experiment.expId, grant.grantCode && grant.grantCode)
 
     await experiment.save()
 
