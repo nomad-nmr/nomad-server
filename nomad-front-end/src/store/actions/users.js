@@ -57,10 +57,10 @@ export const usersDeletionStart = () => {
   }
 }
 
-export const usersDeletionCompletion = (response, success) => {
+export const usersDeletionCompletion = payload => {
   return {
     type: actionTypes.DELETE_USERS_COMPLETED,
-    data: { response, success }
+    data: payload
   }
 }
 
@@ -75,9 +75,7 @@ export const usersDeleteHandler = (users, token, showInactive) => {
         { headers: { Authorization: 'Bearer ' + token } }
       )
       .then(res => {
-        let success = res.status == '200'
-        dispatch(usersDeletionCompletion(res.data, success))
-        dispatch(fetchUsers(token, { showInactive }))
+        dispatch(usersDeletionCompletion(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

@@ -30,10 +30,8 @@ const Users = props => {
     authToken,
     showInactive,
     grpList,
-    deleting,
     searchUserValue,
     resetUsrSearch,
-    deleteUsers,
     selectedRows,
     setSelectedRows
   } = props
@@ -216,15 +214,9 @@ const Users = props => {
   ]
   const rowSelection = {
     selectedRowKeys: selectedRows,
-    onChange: (selectedRowKeys, selectedRows) => {
+    onChange: selectedRowKeys => {
       setSelectedRows(selectedRowKeys)
-      setActionDisabled(true)
     }
-    // getCheckboxProps: record => ({
-    //   disabled: record.name === 'Disabled User',
-    //   // Column configuration not to be checked
-    //   name: record.name
-    // })
   }
 
   return (
@@ -309,8 +301,7 @@ const mapDispatchToProps = dispatch => {
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
     fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
     resetUsrSearch: () => dispatch(resetUserSearch()),
-    deleteUsers: (users, token, showInactive) =>
-      dispatch(usersDeleteHandler(users, token, showInactive)),
+
     setSelectedRows: rows => dispatch(updatedCheckedUsers(rows))
   }
 }

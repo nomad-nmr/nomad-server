@@ -36,38 +36,37 @@ const reducer = (state = initialState, action) => {
       return { ...state, checked: action.payload }
 
     case actionTypes.DELETE_USERS_COMPLETED:
-      console.log(action.data)
-      const { response, success } = action.data
-      console.log(response)
-      const { notFoundUsers, deletedUsers, inactivatedUsers } = response
-      success
-        ? Modal.info({
-            title: 'Users Deleted',
-            content: (
-              <>
-                <p>
-                  users deleted: <strong>{deletedUsers}</strong>
-                </p>
-                <p>
-                  users inactivated: <strong>{inactivatedUsers}</strong>
-                </p>
-                {notFoundUsers > 0 ? (
-                  <p>
-                    <strong>{notFoundUsers}</strong> of the users in your selection were not found
-                  </p>
-                ) : (
-                  ''
-                )}
-              </>
-            )
-          })
-        : Modal.error({
-            title: 'Action Failed',
-            content: 'failed to delete the users ' + action.data
-          })
+      const { deletedUsers, inactivatedUsers } = action.data
+
+      Modal.info({
+        title: 'Users Deleted',
+        content: (
+          <div>
+            <p>
+              users deleted: <strong>{deletedUsers.length}</strong>
+            </p>
+            <p>
+              users inactivated: <strong>{inactivatedUsers.length}</strong>
+            </p>
+          </div>
+        )
+      })
+
+      //removing deleted users from the table and updating active status
+      const newUsersTableData = state.usersTableData
+        .filter(usr => !deletedUsers.find(userId => usr._id === userId))
+        .map(usr => {
+          const found = inactivatedUsers.find(userId => userId === usr._id)
+          if (found) {
+            usr.isActive = false
+          }
+          return usr
+        })
+
       return {
         ...state,
-        deleteInProgress: false
+        deleteInProgress: false,
+        usersTableData: newUsersTableData
       }
 
     case actionTypes.FETCH_USERS_TABLE_SUCCESS:
