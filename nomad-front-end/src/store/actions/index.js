@@ -132,7 +132,15 @@ export {
   resetCostsTable,
   toggleCostingDrawer,
   fetchInstrumentsCosting,
-  updateInstrumentsCosting
+  updateInstrumentsCosting,
+  setAccountsType,
+  postGrant,
+  fetchGrants,
+  deleteGrant,
+  updateGrant,
+  fetchGrantsCosts,
+  toggleSetGrantsTable,
+  toggleAddGrantModal
 } from './accounts'
 
 export {

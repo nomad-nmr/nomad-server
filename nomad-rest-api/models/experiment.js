@@ -62,8 +62,16 @@ const experimentSchema = new Schema(
     shim: String,
     proc: String,
     acq: String,
-    dataPath: String
+    dataPath: String,
+    grantCosting: {
+      grantId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Grant'
+      },
+      cost: Number
+    }
   },
+
   { timestamps: true }
 )
 

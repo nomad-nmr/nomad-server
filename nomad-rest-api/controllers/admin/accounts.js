@@ -1,32 +1,23 @@
 import moment from 'moment'
+import { validationResult } from 'express-validator'
 
 import Experiment from '../../models/experiment.js'
 import Claim from '../../models/claim.js'
 import Group from '../../models/group.js'
 import User from '../../models/user.js'
 import Instrument from '../../models/instrument.js'
+import Grant from '../../models/grant.js'
+import {
+  checkDuplicate,
+  getSearchParams,
+  getSearchParamsClaims
+} from '../../utils/accountsUtils.js'
 
 export async function getCosts(req, res) {
   const { groupId, dateRange } = req.query
   try {
-    const searchParams = { $and: [{ status: 'Archived' }] }
-    const searchParamsClaims = { $and: [{ status: 'Approved' }] }
-
-    if (dateRange && dateRange !== 'undefined' && dateRange !== 'null') {
-      const datesArr = dateRange.split(',')
-      searchParams.$and.push({
-        updatedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-      searchParamsClaims.$and.push({
-        createdAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-    }
+    const searchParams = getSearchParams(dateRange)
+    const searchParamsClaims = getSearchParamsClaims(dateRange)
 
     const resData = []
     const instrumentList = await Instrument.find({ isActive: true }, 'name cost')
@@ -220,4 +211,170 @@ export async function putInstrumentsCosting(req, res) {
     console.log(error)
     res.sendStatus(500)
   }
+}
+
+export async function postGrant(req, res) {
+  const errors = validationResult(req)
+  const { grantCode, description, include } = req.body
+
+  try {
+    if (!errors.isEmpty()) {
+      return res.status(422).send(errors)
+    }
+
+    const grants = await Grant.find({})
+    if (checkDuplicate(include, grants)) {
+      return res.status(409).send({
+        message: 'Submitted grant includes user or group that has been added on a different grant'
+      })
+    }
+
+    const newGrantObj = {
+      grantCode: grantCode.toUpperCase(),
+      description,
+      include
+    }
+
+    const grant = new Grant(newGrantObj)
+    const grantObj = await grant.save()
+    res.status(200).json({ ...grantObj._doc, key: grantObj._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getGrants(req, res) {
+  try {
+    const grants = await Grant.find({})
+    const resData = grants.map(grant => ({ ...grant._doc, key: grant._doc._id }))
+    res.status(200).json(resData)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function deleteGrant(req, res) {
+  try {
+    const grant = await Grant.findByIdAndDelete(req.params.grantId)
+    res.status(200).json({ grantId: grant._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function putGrant(req, res) {
+  const { description, include, _id } = req.body
+  try {
+    const grants = await Grant.find({})
+    if (checkDuplicate(include, grants, _id)) {
+      return res.status(409).send({
+        message: 'Submitted grant includes user or group that has been added on a different grant'
+      })
+    }
+
+    const updatedGrant = await Grant.findByIdAndUpdate(req.body._id, { description, include })
+
+    if (!updatedGrant) {
+      return res.sendStatus(404)
+    }
+
+    res.status(200).json({ ...updatedGrant._doc, key: updatedGrant._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getGrantsCosts(req, res) {
+  try {
+    const { dateRange } = req.query
+    const searchParams = getSearchParams(dateRange)
+    const searchParamsClaims = getSearchParamsClaims(dateRange)
+
+    const grants = await Grant.find({}, 'grantCode description')
+
+    const grantsCosts = await Promise.all(
+      grants.map(async grant => {
+        const entrySearchParams = {
+          $and: [...searchParams.$and, { 'grantCosting.grantId': grant._id }]
+        }
+        const entrySearchParamsClaims = {
+          $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': grant._id }]
+        }
+        const usersIdSet = new Set()
+
+        const experiments = await Experiment.find(entrySearchParams, 'grantCosting user')
+        const costExps =
+          Math.round(
+            experiments.reduce((accu, exp) => {
+              usersIdSet.add(exp.user.id.toString())
+              return accu + exp.grantCosting.cost
+            }, 0) * 100
+          ) / 100
+
+        const claims = await Claim.find(entrySearchParamsClaims, 'grantCosting user')
+        const costClaims =
+          Math.round(
+            claims.reduce((accu, claim) => {
+              usersIdSet.add(claim.user._id.toString())
+              return accu + claim.grantCosting.cost
+            }, 0) * 100
+          ) / 100
+
+        const usersArray = await getUsersArr(usersIdSet)
+
+        return {
+          ...grant._doc,
+          costExps,
+          costClaims,
+          usersArray,
+          totalCost: costExps + costClaims,
+          key: grant._id.toString()
+        }
+      })
+    )
+
+    //looking for experiments and claims with no grant ID defined
+    const noGrantSearchParams = {
+      $and: [...searchParams.$and, { 'grantCosting.grantId': { $exists: false } }]
+    }
+
+    const noGrantSearchParamsClaims = {
+      $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': { $exists: false } }]
+    }
+
+    const usersIdSet = new Set()
+
+    const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user')
+    const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user')
+
+    noGrantExps.forEach(exp => usersIdSet.add(exp.user.id.toString()))
+    noGrantClaims.forEach(claim => usersIdSet.add(claim.user._id.toString()))
+
+    const noGrantsData = {
+      expsCount: noGrantExps.length,
+      claimsCount: noGrantClaims.length,
+      users: await getUsersArr(usersIdSet)
+    }
+
+    res.status(200).json({ grantsCosts, noGrantsData })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+// helper function that co
+
+const getUsersArr = async usersIdSet => {
+  const usersArray = await Promise.all(
+    Array.from(usersIdSet).map(async userId => {
+      const user = await User.findById(userId, 'username fullName')
+      return user
+    })
+  )
+  return Promise.resolve(usersArray)
 }

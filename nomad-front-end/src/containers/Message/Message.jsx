@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
 import { useLocation } from 'react-router-dom'
-import { Form, Button, Space, Tag, Divider, Input, Modal, message, Spin } from 'antd'
+import { Form, Button, Space, Divider, Input, Modal, message, Spin } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import SelectGrpUsr from '../../components/Forms/SelectGrpUsr/SelectGrpUsr'
+import UsrGrpTags from '../../components/UsrGrpTags/UsrGrpTags'
 import { fetchGroupList, fetchUserList, sendMessage } from '../../store/actions'
 
 import classes from './Message.module.css'
@@ -29,9 +30,9 @@ const Message = props => {
   // Hook handles redirect from users table
   useEffect(() => {
     const query = new URLSearchParams(location.search).entries()
-    const { userId, username } = Object.fromEntries(query)
+    const { userId, username, fullName } = Object.fromEntries(query)
     if (userId) {
-      setRecipients([{ name: username, type: 'user', id: userId }])
+      setRecipients([{ name: username, type: 'user', id: userId, fullName }])
     }
   }, [location])
 
@@ -41,17 +42,18 @@ const Message = props => {
       content: (
         <div>
           <p>Add recipient with no group selected to address all active users</p>
-          <p>Add recipient with no user selected to address all active users within selected group</p>
           <p>
-            Analogously you can creat a list of recipients that will be excluded and won't receive the message
+            Add recipient with no user selected to address all active users within selected group
+          </p>
+          <p>
+            Analogously you can create a list of recipients that will be excluded and won't receive
+            the message
           </p>
         </div>
       )
     })
 
   const addRecipientHandler = formData => {
-    //console.log(formData)
-
     const isDuplicate = entry => {
       //Without this the function does not work for user as there property _id not id
       if (entry._id) {
@@ -85,7 +87,10 @@ const Message = props => {
         return message.error(`User ${user.username} in a group that is already in the list`)
       }
 
-      const newRecipients = [...recipients, { name: user.username, type: 'user', id: user._id }]
+      const newRecipients = [
+        ...recipients,
+        { name: user.username, type: 'user', id: user._id, fullName: user.fullName }
+      ]
       setRecipients(newRecipients)
     }
   }
@@ -113,40 +118,21 @@ const Message = props => {
       if (isDuplicate({ id: formRecipientsValues.groupId })) {
         return message.error(`User ${user.username} in a group that is already in the list`)
       }
-      const newRecipients = [...excludeRec, { name: user.username, type: 'user', id: user._id }]
+      const newRecipients = [
+        ...excludeRec,
+        { name: user.username, type: 'user', id: user._id, fullName: user.fullName }
+      ]
       setExcludeRec(newRecipients)
     }
   }
 
-  const getRecElement = (recList, exclude) => {
-    const removeRecipientHandler = id => {
-      const updatedRecipients = recList.filter(recipient => recipient.id !== id)
-      if (exclude) {
-        setExcludeRec(updatedRecipients)
-      } else {
-        setRecipients(updatedRecipients)
-      }
-    }
-    const recipientsElement = recList.map((recipient, index) => {
-      const color = recipient.type === 'group' ? 'cyan' : recipient.type === 'user' ? 'green' : 'orange'
-
-      return (
-        <Tag
-          key={index}
-          closable
-          className={classes.Tag}
-          color={color}
-          onClose={e => {
-            e.preventDefault()
-            removeRecipientHandler(recipient.id)
-          }}
-        >
-          {recipient.name}
-        </Tag>
-      )
-    })
-
-    return recipientsElement
+  const removeRecipientTag = id => {
+    const updatedRecipients = recipients.filter(recipient => recipient.id !== id)
+    setRecipients(updatedRecipients)
+  }
+  const removeExRecipientTag = id => {
+    const updatedRecipients = excludeRec.filter(recipient => recipient.id !== id)
+    setExcludeRec(updatedRecipients)
   }
 
   const formFinishHandler = formData => {
@@ -179,7 +165,12 @@ const Message = props => {
           <Button type='primary' style={{ marginBottom: 25 }} htmlType='submit'>
             Add Recipient
           </Button>
-          <Button danger type='dashed' style={{ marginBottom: 25 }} onClick={() => excludeRecipient()}>
+          <Button
+            danger
+            type='dashed'
+            style={{ marginBottom: 25 }}
+            onClick={() => excludeRecipient()}
+          >
             Exclude Recipient
           </Button>
           <Button style={{ marginBottom: 25 }} onClick={() => formRecipients.resetFields()}>
@@ -191,18 +182,22 @@ const Message = props => {
         </Space>
         <div className={classes.Centered}>
           <Divider>Recipients</Divider>
-          {getRecElement(recipients)}
+          <UsrGrpTags state={recipients} removeEntry={removeRecipientTag} />
         </div>
         {excludeRec.length === 0 && <Divider />}
         {excludeRec.length > 0 && (
           <div className={classes.Centered}>
             <Divider>Exclude Recipients</Divider>
-            {getRecElement(excludeRec, true)}
+            <UsrGrpTags state={excludeRec} removeEntry={removeExRecipientTag} />
             <Divider />
           </div>
         )}
       </Form>
-      <Form form={formMessage} className={classes.Centered} onFinish={values => formFinishHandler(values)}>
+      <Form
+        form={formMessage}
+        className={classes.Centered}
+        onFinish={values => formFinishHandler(values)}
+      >
         <Form.Item name='subject'>
           <Input placeholder='Subject' />
         </Form.Item>
@@ -245,7 +240,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     fetchGrpList: token => dispatch(fetchGroupList(token)),
-    fetchUsrList: (token, groupId, showInactive) => dispatch(fetchUserList(token, groupId, showInactive)),
+    fetchUsrList: (token, groupId, showInactive) =>
+      dispatch(fetchUserList(token, groupId, showInactive)),
     sendMsg: (token, data) => dispatch(sendMessage(token, data))
   }
 }

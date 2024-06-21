@@ -48,6 +48,8 @@ import {
   returnToCollectionList,
   removeDatasets,
   downloadCollection,
+  toggleSetGrantsTable,
+  toggleAddGrantModal,
   usersDeleteHandler
 } from '../../../store/actions/index'
 
@@ -261,7 +263,14 @@ const PageHeaderEl = props => {
     case location.pathname === '/admin/accounts':
       headerTitle = 'Accounting'
       avatarSrc = accountingIcon
-      extra = <AccountingControls toggleDrawer={props.tglCostingDrawer} />
+      extra = (
+        <AccountingControls
+          toggleCostDrawer={props.tglCostingDrawer}
+          toggleSetGrants={props.tglSetGrants}
+          toggleAddGrant={props.tglAddGrant}
+          setGrantsVisible={props.setGrantsVisible}
+        />
+      )
 
       break
 
@@ -390,6 +399,8 @@ const mapStateToProps = state => {
     checkedDatasetsSearch: state.datasets.checkedDatasets,
     collectionDisplayType: state.collections.displayType,
     collectionId: state.collections.meta.id,
+    setGrantsVisible: state.accounts.showSetGrants,
+    grantFormVisible: state.accounts.grantFormVisible,
     checkedUsers: state.users.checked
   }
 }
@@ -442,6 +453,8 @@ const mapDispatchToProps = dispatch => {
     toCollectionList: () => dispatch(returnToCollectionList()),
     removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
     downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
+    tglSetGrants: () => dispatch(toggleSetGrantsTable()),
+    tglAddGrant: () => dispatch(toggleAddGrantModal()),
     deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token))
   }
 }

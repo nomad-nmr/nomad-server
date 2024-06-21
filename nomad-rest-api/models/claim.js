@@ -24,6 +24,13 @@ const claimSchema = new Schema(
       type: String,
       required: true,
       default: 'Pending'
+    },
+    grantCosting: {
+      grantId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Grant'
+      },
+      cost: Number
     }
   },
   { timestamps: true }
