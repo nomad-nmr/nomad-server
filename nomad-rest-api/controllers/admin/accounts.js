@@ -290,14 +290,13 @@ export async function putGrant(req, res) {
 
 export async function getGrantsCosts(req, res) {
   try {
-    console.log(req.query)
     const { dateRange } = req.query
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
 
     const grants = await Grant.find({}, 'grantCode description')
 
-    const resData = await Promise.all(
+    const grantsCosts = await Promise.all(
       grants.map(async grant => {
         const entrySearchParams = {
           $and: [...searchParams.$and, { 'grantCosting.grantId': grant._id }]
@@ -305,24 +304,77 @@ export async function getGrantsCosts(req, res) {
         const entrySearchParamsClaims = {
           $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': grant._id }]
         }
+        const usersIdSet = new Set()
 
-        const experiments = await Experiment.find(entrySearchParams, 'grantCosting')
-        const costExps = experiments.reduce((accu, exp) => accu + exp.grantCosting.cost, 0)
+        const experiments = await Experiment.find(entrySearchParams, 'grantCosting user')
+        const costExps =
+          Math.round(
+            experiments.reduce((accu, exp) => {
+              usersIdSet.add(exp.user.id.toString())
+              return accu + exp.grantCosting.cost
+            }, 0) * 100
+          ) / 100
 
-        const claims = await Claim.find(entrySearchParamsClaims, 'grantCosting')
-        const costClaims = claims.reduce((accu, claim) => accu + claim.grantCosting.cost, 0)
+        const claims = await Claim.find(entrySearchParamsClaims, 'grantCosting user')
+        const costClaims =
+          Math.round(
+            claims.reduce((accu, claim) => {
+              usersIdSet.add(claim.user._id.toString())
+              return accu + claim.grantCosting.cost
+            }, 0) * 100
+          ) / 100
+
+        const usersArray = await getUsersArr(usersIdSet)
 
         return {
           ...grant._doc,
-          cost: Math.round((costExps + costClaims) * 100) / 100,
+          costExps,
+          costClaims,
+          usersArray,
+          totalCost: costExps + costClaims,
           key: grant._id.toString()
         }
       })
     )
-    console.log(resData)
-    res.status(200).json(resData)
+
+    //looking for experiments and claims with no grant ID defined
+    const noGrantSearchParams = {
+      $and: [...searchParams.$and, { 'grantCosting.grantId': { $exists: false } }]
+    }
+
+    const noGrantSearchParamsClaims = {
+      $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': { $exists: false } }]
+    }
+
+    const usersIdSet = new Set()
+
+    const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user')
+    const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user')
+
+    noGrantExps.forEach(exp => usersIdSet.add(exp.user.id.toString()))
+    noGrantClaims.forEach(claim => usersIdSet.add(claim.user._id.toString()))
+
+    const noGrantsData = {
+      expsCount: noGrantExps.length,
+      claimsCount: noGrantClaims.length,
+      users: await getUsersArr(usersIdSet)
+    }
+
+    res.status(200).json({ grantsCosts, noGrantsData })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
   }
+}
+
+// helper function that co
+
+const getUsersArr = async usersIdSet => {
+  const usersArray = await Promise.all(
+    Array.from(usersIdSet).map(async userId => {
+      const user = await User.findById(userId, 'username fullName')
+      return user
+    })
+  )
+  return Promise.resolve(usersArray)
 }

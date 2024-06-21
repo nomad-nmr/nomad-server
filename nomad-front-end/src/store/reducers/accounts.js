@@ -11,7 +11,8 @@ const initialState = {
   type: 'Grants',
   grantsData: [],
   showSetGrants: false,
-  showAddGrant: false
+  showAddGrant: false,
+  noGrantsAlert: {}
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -23,7 +24,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, costsTableData: payload, loading: false }
 
     case actionTypes.RESET_COSTS_TABLE:
-      return { ...state, costsTableData: [] }
+      return { ...state, costsTableData: [], noGrantsAlert: {} }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
       return { ...state, costDrawerVisible: !state.costDrawerVisible }
@@ -45,7 +46,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state }
 
     case actionTypes.SET_ACCOUNTS_TYPE:
-      return { ...state, type: payload, costsTableData: [] }
+      return { ...state, type: payload, costsTableData: [], noGrantsAlert: {} }
 
     case actionTypes.POST_GRANT_SUCCESS:
       return { ...state, grantsData: [...state.grantsData, payload] }
@@ -64,8 +65,12 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, grantsData: updatedGrants }
 
     case actionTypes.FETCH_GRANTS_COSTS_SUCCESS:
-      console.log(payload)
-      return { ...state, costsTableData: payload, loading: false }
+      return {
+        ...state,
+        costsTableData: payload.grantsCosts,
+        noGrantsAlert: payload.noGrantsData,
+        loading: false
+      }
 
     default:
       return state

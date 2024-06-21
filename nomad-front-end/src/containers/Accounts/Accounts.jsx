@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Empty, Drawer, Modal } from 'antd'
+import { Empty, Drawer, Modal, Button } from 'antd'
+import { QuestionOutlined } from '@ant-design/icons'
 
 import AccountsForm from '../../components/AccountsComponents/AccountsForm'
 import GrantForm from '../../components/AccountsComponents/GrantForm'
@@ -51,7 +52,7 @@ const Accounts = props => {
     tableData.length === 0 ? (
       <Empty />
     ) : accountsType === 'Grants' ? (
-      <GrantsCostsTable data={tableData} />
+      <GrantsCostsTable data={tableData} alertData={props.noGrantsData} />
     ) : (
       <AccountsTable data={tableData} header={props.tblHeader} />
     )
@@ -155,7 +156,8 @@ const mapStateToProps = state => ({
   accountsType: state.accounts.type,
   grantsData: state.accounts.grantsData,
   setGrantsVisible: state.accounts.showSetGrants,
-  grantFormVisible: state.accounts.showAddGrant
+  grantFormVisible: state.accounts.showAddGrant,
+  noGrantsData: state.accounts.noGrantsAlert
 })
 
 const mapDispatchToProps = dispatch => ({

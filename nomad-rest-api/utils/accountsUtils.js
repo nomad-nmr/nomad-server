@@ -69,7 +69,7 @@ const getGrantId = async (userId, groupId) => {
   if (grant) {
     return Promise.resolve(grant._id)
   } else {
-    return Promise.reject('Grant ID not found')
+    return Promise.resolve(undefined)
   }
 }
 

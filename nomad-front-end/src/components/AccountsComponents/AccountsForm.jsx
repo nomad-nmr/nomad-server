@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal } from 'antd'
-import { CloseOutlined } from '@ant-design/icons'
+import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal, Space } from 'antd'
+import { CloseOutlined, QuestionOutlined } from '@ant-design/icons'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
@@ -40,16 +40,35 @@ const AccountsForm = props => {
     }
   }
 
+  const infoModalConfig = {
+    title: 'Accounting Calculations',
+    width: 800,
+    content: (
+      <div>
+        <strong>Grants</strong>
+        <strong>Groups</strong>
+        <strong>Users</strong>
+      </div>
+    )
+  }
+
   return (
     <Form form={form} layout='inline' onFinish={values => submitHandler(values)}>
-      <Radio.Group
-        options={radioOptions}
-        optionType='button'
-        buttonStyle='solid'
-        value={type}
-        onChange={({ target: { value } }) => props.typeHandler(value)}
-        style={{ marginRight: '50px' }}
-      />
+      <Space size='large' style={{ marginRight: '30px' }}>
+        <Button
+          shape='circle'
+          icon={<QuestionOutlined />}
+          size='small'
+          onClick={() => Modal.info(infoModalConfig)}
+        />
+        <Radio.Group
+          options={radioOptions}
+          optionType='button'
+          buttonStyle='solid'
+          value={type}
+          onChange={({ target: { value } }) => props.typeHandler(value)}
+        />
+      </Space>
       <Form.Item label='Group' name='groupId'>
         <Select style={{ width: 150 }} disabled={type !== 'Users'}>
           {grpOptions}
