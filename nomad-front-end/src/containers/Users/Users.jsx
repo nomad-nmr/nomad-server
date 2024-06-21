@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { Button, Table, Drawer, Tag, Space, Pagination, Tooltip } from 'antd'
+import { Button, Table, Drawer, Flex, Modal, Tag, Space, Pagination, Tooltip } from 'antd'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'
+const { confirm } = Modal
 
 import UserForm from '../../components/Forms/UserForm/UserForm'
 import {
@@ -12,7 +13,9 @@ import {
   toggleUserForm,
   toggleActive,
   fetchGroupList,
-  resetUserSearch
+  resetUserSearch,
+  usersDeleteHandler,
+  updatedCheckedUsers
 } from '../../store/actions/index'
 import { renderDataAccess } from '../../utils/tableUtils'
 
@@ -28,7 +31,9 @@ const Users = props => {
     showInactive,
     grpList,
     searchUserValue,
-    resetUsrSearch
+    resetUsrSearch,
+    selectedRows,
+    setSelectedRows
   } = props
 
   const formRef = useRef({})
@@ -209,10 +214,21 @@ const Users = props => {
       )
     }
   ]
+  const rowSelection = {
+    selectedRowKeys: selectedRows,
+    onChange: selectedRowKeys => {
+      setSelectedRows(selectedRowKeys)
+    }
+  }
 
   return (
     <div style={{ margin: '30px 20px 20px 20px' }}>
       <Table
+        rowSelection={{
+          type: 'checkbox',
+          ...rowSelection
+        }}
+        rowKey={record => record._id}
         size='small'
         dataSource={props.tabData}
         columns={columns}
@@ -264,10 +280,12 @@ const mapStateToProps = state => {
     tabData: state.users.usersTableData,
     totalUsers: state.users.total,
     tabLoading: state.users.tableIsLoading,
+    deleting: state.users.deleteInProgress,
     authToken: state.auth.token,
     usrDrawerVisible: state.users.showForm,
     formEditing: state.users.editing,
     showInactive: state.users.showInactive,
+    selectedRows: state.users.checked,
 
     //list of group names for select component
     grpList: state.groups.groupList,
@@ -284,7 +302,9 @@ const mapDispatchToProps = dispatch => {
     updateUsrHandler: (formData, token) => dispatch(updateUser(formData, token)),
     toggleActive: (id, token) => dispatch(toggleActive(id, token)),
     fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
-    resetUsrSearch: () => dispatch(resetUserSearch())
+    resetUsrSearch: () => dispatch(resetUserSearch()),
+
+    setSelectedRows: rows => dispatch(updatedCheckedUsers(rows))
   }
 }
 

@@ -49,7 +49,8 @@ import {
   removeDatasets,
   downloadCollection,
   toggleSetGrantsTable,
-  toggleAddGrantModal
+  toggleAddGrantModal,
+  usersDeleteHandler
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -128,6 +129,9 @@ const PageHeaderEl = props => {
           showInactive={props.showInactiveUsr}
           switchShowInactive={props.switchShowInactiveUsr}
           query={usernameQuery}
+          checked={props.checkedUsers}
+          deleteHandler={props.deleteUsers}
+          token={props.authToken}
         />
       )
       break
@@ -396,7 +400,8 @@ const mapStateToProps = state => {
     collectionDisplayType: state.collections.displayType,
     collectionId: state.collections.meta.id,
     setGrantsVisible: state.accounts.showSetGrants,
-    grantFormVisible: state.accounts.grantFormVisible
+    grantFormVisible: state.accounts.grantFormVisible,
+    checkedUsers: state.users.checked
   }
 }
 
@@ -449,7 +454,8 @@ const mapDispatchToProps = dispatch => {
     removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
     downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
     tglSetGrants: () => dispatch(toggleSetGrantsTable()),
-    tglAddGrant: () => dispatch(toggleAddGrantModal())
+    tglAddGrant: () => dispatch(toggleAddGrantModal()),
+    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token))
   }
 }
 

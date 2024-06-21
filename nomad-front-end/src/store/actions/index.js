@@ -48,10 +48,12 @@ export {
   addUser,
   updateUser,
   toggleActive,
+  usersDeleteHandler,
   toggleShowInactive,
   searchUser,
   resetUserList,
-  resetUserSearch
+  resetUserSearch,
+  updatedCheckedUsers
 } from './users'
 
 export {

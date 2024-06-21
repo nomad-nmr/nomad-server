@@ -51,6 +51,43 @@ export const addUserFailed = () => {
   }
 }
 
+export const usersDeletionStart = () => {
+  return {
+    type: actionTypes.DELETE_USERS_START
+  }
+}
+
+export const usersDeletionCompletion = payload => {
+  return {
+    type: actionTypes.DELETE_USERS_COMPLETED,
+    data: payload
+  }
+}
+
+export const usersDeleteHandler = (users, token, showInactive) => {
+  const data = { notFound: 0, deleted: 0, inactivated: 0 }
+  return dispatch => {
+    dispatch(usersDeletionStart())
+    axios
+      .post(
+        '/admin/users/delete-users',
+        { users },
+        { headers: { Authorization: 'Bearer ' + token } }
+      )
+      .then(res => {
+        dispatch(usersDeletionCompletion(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const updatedCheckedUsers = payload => ({
+  type: actionTypes.UPDATE_CHECKED_USERS,
+  payload
+})
+
 export const addUser = (formData, token) => {
   return dispatch => {
     dispatch(fetchUsersStart())
