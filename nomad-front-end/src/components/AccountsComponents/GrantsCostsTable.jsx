@@ -56,8 +56,6 @@ const GrantsCostsTable = props => {
     </div>
   )
 
-  console.log(props.data)
-
   const expandElement = record => (
     <Space>
       Users:
