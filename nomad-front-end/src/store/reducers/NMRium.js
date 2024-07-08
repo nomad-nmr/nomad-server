@@ -6,7 +6,7 @@ import history from '../../utils/history'
 const initialState = {
   nmriumState: {
     data: { spectra: [] },
-    version: 4
+    version: 7
   },
   changedData: { data: { spectra: [] }, version: 4 },
   spinning: false,
@@ -40,11 +40,14 @@ const reducer = (state = initialState, { type, payload }) => {
         }
 
         newData = { ...state.changedData }
+
         newData.data.spectra = [...newData.data.spectra, ...noDuplicatesSpectra]
         history.push('/nmrium/' + state.datasetMeta.id)
+
         return { ...state, nmriumState: newData, adding: false, spinning: false }
       }
       history.push('/nmrium/null')
+
       return { ...state, nmriumState: newData, spinning: false, datasetMeta: { id: null } }
 
     case actionTypes.SET_CHANGED_DATA:
@@ -69,8 +72,8 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_NMRIUM_DATA:
       return {
         ...state,
-        nmriumState: { data: { spectra: [] }, version: 4 },
-        changedData: { data: { spectra: [] }, version: 4 },
+        nmriumState: { data: { spectra: [] }, version: 7 },
+        changedData: { data: { spectra: [] }, version: 7 },
         datasetMeta: { id: null }
       }
 
