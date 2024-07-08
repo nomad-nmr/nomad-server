@@ -27,7 +27,6 @@ const NMRiumControls = props => {
     !dataset.id || (accessLevel !== 'admin' && username !== dataset.user.username)
 
   const onSaveAs = () => {
-    console.log(molecules, spectra)
     if (
       molecules.length === 0 &&
       spectra.length === 1 &&
