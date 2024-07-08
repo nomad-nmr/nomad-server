@@ -9,6 +9,7 @@
   font-weight: 600;
   position: fixed;
   bottom: 0;
+  z-index: 3;
   left: 0;
   width: 100%;
 }
