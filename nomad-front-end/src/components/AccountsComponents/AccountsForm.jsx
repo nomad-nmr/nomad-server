@@ -11,11 +11,13 @@ const AccountsForm = props => {
 
   useEffect(() => form.resetFields(), [type])
 
-  const grpOptions = props.groupList.map(grp => (
+  let grpOptions = props.groupList.map(grp => (
     <Option value={grp.id} key={grp.id}>
       {grp.name}
     </Option>
   ))
+
+  grpOptions = [ <Option value='all' key='all' >--all--</Option> , ...grpOptions ]
 
   const radioOptions = ['Grants', 'Groups', 'Users']
 
@@ -70,7 +72,7 @@ const AccountsForm = props => {
         />
       </Space>
       <Form.Item label='Group' name='groupId'>
-        <Select style={{ width: 150 }} disabled={type !== 'Users'}>
+        <Select  loading={props.groupList.length === 0} style={{ width: 150 }} disabled={type !== 'Users'}>
           {grpOptions}
         </Select>
       </Form.Item>
