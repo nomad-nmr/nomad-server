@@ -64,9 +64,12 @@ export async function getCosts(req, res) {
       )
     } else {
       //each entry of the table is user
+      if (groupId !== 'all') {
+        //add the groupid filter if all users are not requested
+        searchParams.$and = [...searchParams.$and, { 'group.id': groupId }]
+        searchParamsClaims.$and = [...searchParamsClaims.$and, { group: groupId }]
+      }
 
-      searchParams.$and = [...searchParams.$and, { 'group.id': groupId }]
-      searchParamsClaims.$and = [...searchParamsClaims.$and, { group: groupId }]
 
       const expArray = await Experiment.find(searchParams, 'instrument totalExpTime user')
       const claimsArray = await Claim.find(searchParamsClaims, 'instrument expTime user')
