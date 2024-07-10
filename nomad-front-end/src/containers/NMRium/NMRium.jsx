@@ -71,6 +71,10 @@ const NMRiumContainer = props => {
   }, [])
 
   useEffect(() => {
+    props.fetchCollectionsList(props.authToken)
+  }, [])
+
+  useEffect(() => {
     if (fidsModalOpen) {
       const modalStateData = []
       data.data.spectra.forEach(spec => {
