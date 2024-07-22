@@ -20,7 +20,7 @@
     "js-file-download": "^0.4.12",
     "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
-    "nmrium": "^0.57.1",
+    "nmrium": "^0.58.0",
     "openchemlib": "^8.5.0",
     "rc-animate": "^3.1.1",
     "rc-tween-one": "^3.0.6",
