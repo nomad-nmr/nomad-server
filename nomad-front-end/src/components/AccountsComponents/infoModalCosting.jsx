@@ -11,11 +11,12 @@ const infoModalConfig = {
         <strong>Grants</strong>
       </div>
       <p>
-        This calculation will work only if grants have been preset. In "Set Grants" table you can
-        assign either individual users or whole group to a grant. If you assign individual user and
-        his own group to two different grants, the experiments that were originated by the user will
-        be charged to the grant corresponding to the user and not to the one corresponding to the
-        whole group.
+        This calculation will work only if grants have been preset and it is based on instrument
+        costing and costing multiplier in the time of archiving of the experiments. In "Set Grants"
+        table you can assign either individual users or whole group to a grant. If you assign
+        individual user and his own group to two different grants, the experiments that were
+        originated by the user will be charged to the grant corresponding to the user and not to the
+        one corresponding to the whole group.
       </p>
       <Alert
         message='If there are experiments originated by a user/s who was not assigned to a grant in the time of archiving the calculation issues a warning with corresponding username/s which allows to amend the results by using users type calculation'

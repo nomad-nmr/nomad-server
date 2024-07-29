@@ -37,6 +37,18 @@ const AccountsForm = props => {
       })
     }
 
+    const fetchCosts = () => {
+      if (dateRange) {
+        values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
+      }
+
+      if (type !== 'Grants') {
+        props.getCosts(token, values)
+      } else {
+        props.getGrantsCosts(token, { dateRange: values.dateRange })
+      }
+    }
+
     if (!dateRange) {
       return Modal.confirm({
         title: 'Date range not defined',
@@ -47,18 +59,11 @@ const AccountsForm = props => {
           </div>
         ),
         onOk() {
-          if (dateRange) {
-            values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
-          }
-
-          if (type !== 'Grants') {
-            props.getCosts(token, values)
-          } else {
-            props.getGrantsCosts(token, { dateRange: values.dateRange })
-          }
+          fetchCosts()
         }
       })
     }
+    fetchCosts()
   }
 
   return (

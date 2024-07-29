@@ -13,7 +13,7 @@ import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
-import { getGrantId } from '../utils/accountsUtils.js'
+import { getGrantInfo } from '../utils/accountsUtils.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -61,11 +61,11 @@ export const postData = async (req, res) => {
 
     //Calculation of costs for grants
 
-    const grantId = await getGrantId(experiment.user.id, experiment.group.id)
+    const { grantId, multiplier } = await getGrantInfo(experiment.user.id, experiment.group.id)
 
     experiment.grantCosting = {
       grantId,
-      cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost
+      cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost * multiplier
     }
 
     await experiment.save()

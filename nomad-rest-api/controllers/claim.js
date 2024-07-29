@@ -8,7 +8,7 @@ import Instrument from '../models/instrument.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Claim from '../models/claim.js'
 import sendUploadCmd from './tracker/sendUploadCmd.js'
-import { getGrantId } from '../utils/accountsUtils.js'
+import { getGrantInfo } from '../utils/accountsUtils.js'
 
 export const getFolders = async (req, res) => {
   const { instrumentId } = req.params
@@ -144,12 +144,12 @@ export const approveClaims = async (req, res) => {
       req.body.map(async id => {
         const claim = await Claim.findById(id)
         const instrument = await Instrument.findById(claim.instrument, 'cost')
-        const grantId = await getGrantId(claim.user, claim.group)
+        const { grantId, multiplier } = await getGrantInfo(claim.user, claim.group)
 
         claim.status = 'Approved'
         claim.grantCosting = {
           grantId,
-          cost: +claim.expTime * instrument.cost
+          cost: +claim.expTime * instrument.cost * multiplier
         }
 
         await claim.save()

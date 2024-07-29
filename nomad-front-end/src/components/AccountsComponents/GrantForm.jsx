@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Button, Input, Space, Modal, message } from 'antd'
+import { Form, Button, Input, Space, Modal, message, InputNumber } from 'antd'
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons'
 
 import SelectGrpUsr from '../Forms/SelectGrpUsr/SelectGrpUsr'
@@ -80,7 +80,6 @@ const GrantForm = props => {
       }
     })
 
-    console.log(usrGrpIdArray)
     const reqObject = {
       ...values,
       include: props.tagsState.map(i => ({ isGroup: i.type === 'group', id: i.id, name: i.name }))
@@ -113,6 +112,15 @@ const GrantForm = props => {
         </Form.Item>
         <Form.Item label='Description' name='description'>
           <Input style={{ width: 470 }} />
+        </Form.Item>
+        <Form.Item
+          label='Costing multiplier'
+          name='multiplier'
+          initialValue={1}
+          rules={[{ required: true, message: 'Please input multiplier. Default value is 1' }]}
+          tooltip='Costing multiplier can be used to adjust costing set in instrument costing table'
+        >
+          <InputNumber min={0} />
         </Form.Item>
         <SelectGrpUsr
           groupList={props.groupList}

@@ -14,6 +14,12 @@ const SetGrantsTable = props => {
       dataIndex: 'description'
     },
     {
+      title: 'Costing multiplier',
+      dataIndex: 'multiplier',
+      width: 150,
+      align: 'center'
+    },
+    {
       title: 'Include',
       align: 'center',
       render: record => (

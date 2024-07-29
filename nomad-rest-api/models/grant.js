@@ -16,7 +16,12 @@ const grantSchema = new Schema({
         required: true
       }
     }
-  ]
+  ],
+  multiplier: {
+    type: Number,
+    required: true,
+    default: 1
+  }
 })
 
 export default model('Grant', grantSchema)
