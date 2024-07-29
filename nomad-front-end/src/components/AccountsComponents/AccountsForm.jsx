@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal, Space } from 'antd'
 import { CloseOutlined, QuestionOutlined } from '@ant-design/icons'
+import infoModalConfig from './infoModalCosting'
 
 const { Option } = Select
 const { RangePicker } = DatePicker
@@ -17,7 +18,12 @@ const AccountsForm = props => {
     </Option>
   ))
 
-  grpOptions = [ <Option value='all' key='all' >--all--</Option> , ...grpOptions ]
+  grpOptions = [
+    <Option value='all' key='all'>
+      --all--
+    </Option>,
+    ...grpOptions
+  ]
 
   const radioOptions = ['Grants', 'Groups', 'Users']
 
@@ -31,27 +37,28 @@ const AccountsForm = props => {
       })
     }
 
-    if (dateRange) {
-      values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
-    }
+    if (!dateRange) {
+      return Modal.confirm({
+        title: 'Date range not defined',
+        content: (
+          <div>
+            <p>If date range is not defined, the calculation can take very long time</p>
+            <p>Do you want to proceed?</p>
+          </div>
+        ),
+        onOk() {
+          if (dateRange) {
+            values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
+          }
 
-    if (type !== 'Grants') {
-      props.getCosts(token, values)
-    } else {
-      props.getGrantsCosts(token, { dateRange: values.dateRange })
+          if (type !== 'Grants') {
+            props.getCosts(token, values)
+          } else {
+            props.getGrantsCosts(token, { dateRange: values.dateRange })
+          }
+        }
+      })
     }
-  }
-
-  const infoModalConfig = {
-    title: 'Accounting Calculations',
-    width: 800,
-    content: (
-      <div>
-        <strong>Grants</strong>
-        <strong>Groups</strong>
-        <strong>Users</strong>
-      </div>
-    )
   }
 
   return (
@@ -72,7 +79,11 @@ const AccountsForm = props => {
         />
       </Space>
       <Form.Item label='Group' name='groupId'>
-        <Select  loading={props.groupList.length === 0} style={{ width: 150 }} disabled={type !== 'Users'}>
+        <Select
+          loading={props.groupList.length === 0}
+          style={{ width: 150 }}
+          disabled={type !== 'Users'}
+        >
           {grpOptions}
         </Select>
       </Form.Item>
