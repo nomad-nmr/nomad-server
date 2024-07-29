@@ -144,12 +144,17 @@ export const approveClaims = async (req, res) => {
       req.body.map(async id => {
         const claim = await Claim.findById(id)
         const instrument = await Instrument.findById(claim.instrument, 'cost')
-        const { grantId, multiplier } = await getGrantInfo(claim.user, claim.group)
 
         claim.status = 'Approved'
-        claim.grantCosting = {
-          grantId,
-          cost: +claim.expTime * instrument.cost * multiplier
+
+        const grant = await getGrantInfo(claim.user, claim.group)
+        if (grant) {
+          const { grantId, multiplier } = grant
+
+          claim.grantCosting = {
+            grantId,
+            cost: +claim.expTime * instrument.cost * multiplier
+          }
         }
 
         await claim.save()

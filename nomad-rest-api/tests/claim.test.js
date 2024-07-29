@@ -220,7 +220,7 @@ describe('PATCH /', () => {
 })
 
 describe('PUT /approve', () => {
-  it('should change status of testClaimRwo to "approve"', async () => {
+  it('should change status of testClaimTwo to "approve"', async () => {
     const { body } = await request(app)
       .put('/claims/approve')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
