@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react'
-import { Form, Input, Button, Select, Checkbox, Space } from 'antd'
+import { Form, Input, Button, Select, Checkbox, Divider } from 'antd'
 
 import dataAccessOptions from '../dataAccessOptions'
 import classes from '../Form.module.css'
@@ -144,7 +144,34 @@ const UserForm = props => {
             {groupSelectOptions}
           </Select>
         </Form.Item>
-        <Form.Item name='accessLevel' label='Access Level'>
+        <Form.Item
+          name='accessLevel'
+          label='Access Level'
+          tooltip={
+            <ul>
+              <li>
+                <span style={{ color: 'red' }}>admin</span> - access to all parts of the system and
+                unaffected by traffic control
+              </li>
+
+              <li>
+                <span style={{ color: '#1677ff' }}>user</span> - ordinary user of walk-in system
+              </li>
+              <li>
+                <span style={{ color: '#389e0d' }}>user-a</span> - ordinary user of walk-in system
+                unaffected by traffic control
+              </li>
+              <Divider />
+              <li>
+                <span style={{ color: 'orange' }}>admin-b</span> - access to administration of batch
+                submission
+              </li>
+              <li>
+                <span style={{ color: '#13c2c2' }}>user-b</span> - ordinary user of batch submission
+              </li>
+            </ul>
+          }
+        >
           <Select style={{ width: '60%' }}>{accessLevelOptions}</Select>
         </Form.Item>
         <Form.Item
@@ -154,7 +181,12 @@ const UserForm = props => {
         >
           <Select style={{ width: '60%' }}>{newDataAccessOptions}</Select>
         </Form.Item>
-        <Form.Item name='manualAccess' label='Manual Access' valuePropName='checked'>
+        <Form.Item
+          name='manualAccess'
+          label='Manual'
+          valuePropName='checked'
+          tooltip='User can claim manual data'
+        >
           <Checkbox />
         </Form.Item>
         <Form.Item name='isActive' label='Active' valuePropName='checked'>

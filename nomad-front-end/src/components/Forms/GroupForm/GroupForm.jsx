@@ -105,11 +105,26 @@ const GroupForm = props => {
             <Form.Item
               name='dataAccess'
               label='Data Access'
-              tooltip={`
-              user - users can see only own data,
-              group - users can see data of other users in the group, 
-              admin - users can see data of all other users
-              `}
+              tooltip={
+                <ul>
+                  <li>
+                    <strong style={{ color: '#1677ff' }}>user</strong> - users can see only own
+                    data,
+                  </li>
+                  <li>
+                    <strong style={{ color: '#9254de' }}>group`</strong> - users can see data of
+                    other users in the group
+                  </li>
+                  <li>
+                    <strong style={{ color: '#f5222d' }}>admin</strong> - users can see data of all
+                    other users
+                  </li>
+                  <li>
+                    <strong style={{ color: '#ffa940' }}>admin-b</strong> - users can see data of
+                    all other users in batch submission groups
+                  </li>
+                </ul>
+              }
             >
               <Select>{dataAccessOptions}</Select>
             </Form.Item>
