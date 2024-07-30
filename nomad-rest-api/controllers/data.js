@@ -61,11 +61,15 @@ export const postData = async (req, res) => {
 
     //Calculation of costs for grants
 
-    const { grantId, multiplier } = await getGrantInfo(experiment.user.id, experiment.group.id)
+    const grant = await getGrantInfo(experiment.user.id, experiment.group.id)
 
-    experiment.grantCosting = {
-      grantId,
-      cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost * multiplier
+    if (grant) {
+      const { grantId, multiplier } = grant
+
+      experiment.grantCosting = {
+        grantId,
+        cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost * multiplier
+      }
     }
 
     await experiment.save()
