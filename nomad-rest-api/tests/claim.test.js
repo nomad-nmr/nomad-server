@@ -128,14 +128,14 @@ describe('POST /', () => {
 })
 
 describe('GET /', () => {
-  it('should return object with 2 test claims if no search params are provided', async () => {
+  it('should return object with 3 test claims if no search params are provided', async () => {
     const { body } = await request(app)
       .get('/claims/')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.total).toBe(2)
-    expect(body.claims.length).toBe(2)
+    expect(body.total).toBe(3)
+    expect(body.claims.length).toBe(3)
   })
 
   it('should fail with status 403 if request is not authorised', async () => {

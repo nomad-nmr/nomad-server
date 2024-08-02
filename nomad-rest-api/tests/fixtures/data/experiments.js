@@ -1,10 +1,10 @@
 import mongoose from 'mongoose'
-import moment from 'moment'
 
 import { testUserOne, testUserTwo, testUserThree } from './users'
-import { testGroupOne } from './groups'
+import { testGroupOne, testGroupTwo } from './groups'
 import { testParamSet1, testParamSet2 } from './parameterSets'
-import { testInstrOne, testInstrTwo } from './instruments'
+import { testInstrOne, testInstrTwo, testInstrThree } from './instruments'
+import { testGrantOne, testGrantTwo } from './grants'
 
 export const testExpOne = {
   _id: new mongoose.Types.ObjectId(),
@@ -28,7 +28,11 @@ export const testExpOne = {
   expNo: '10',
   holder: '2',
   dataPath: './test/path',
-  solvent: 'CDCl3'
+  solvent: 'CDCl3',
+  grantCosting: {
+    grantId: testGrantOne._id,
+    cost: 1
+  }
 }
 
 export const testExpTwo = {
@@ -53,7 +57,11 @@ export const testExpTwo = {
   expNo: '11',
   holder: '2',
   dataPath: './test/path',
-  solvent: 'CDCl3'
+  solvent: 'CDCl3',
+  grantCosting: {
+    grantId: testGrantOne._id,
+    cost: 2
+  }
 }
 
 export const testExpThree = {
@@ -78,12 +86,16 @@ export const testExpThree = {
   expNo: '10',
   holder: '3',
   dataPath: './test/path',
-  solvent: 'C6D6'
+  solvent: 'C6D6',
+  grantCosting: {
+    grantId: testGrantTwo._id,
+    cost: 3
+  }
 }
 
 export const testExpFour = {
   _id: new mongoose.Types.ObjectId(),
-  expId: '2106231100-10-2-test2-10',
+  expId: '2106231100-10-2-test3-10',
   instrument: {
     name: testInstrTwo.name,
     id: testInstrTwo._id
@@ -103,7 +115,11 @@ export const testExpFour = {
   expNo: '10',
   holder: '10',
   dataPath: './test/path',
-  solvent: 'C6D6'
+  solvent: 'C6D6',
+  grantCosting: {
+    grantId: testGrantTwo._id,
+    cost: 4
+  }
 }
 
 export const testExpFive = {
@@ -129,4 +145,30 @@ export const testExpFive = {
   holder: '10',
   dataPath: './test/path',
   solvent: 'C6D6'
+}
+
+export const testExpSix = {
+  _id: new mongoose.Types.ObjectId(),
+  expId: '2106241100-10-2-test3-10',
+  instrument: {
+    name: testInstrThree.name,
+    id: testInstrThree._id
+  },
+  user: {
+    username: testUserThree.username,
+    id: testUserThree._id
+  },
+  group: {
+    name: testGroupTwo.groupName,
+    id: testGroupTwo._id
+  },
+  datasetName: '2106241100-10-2-test3',
+  status: 'Archived',
+  title: 'Test Exp 6',
+  parameterSet: testParamSet1.name,
+  expNo: '10',
+  holder: '10',
+  dataPath: './test/path',
+  solvent: 'CDCl3',
+  totalExpTime: '00:05:00'
 }
