@@ -268,6 +268,9 @@ const PageHeaderEl = props => {
           toggleCostDrawer={props.tglCostingDrawer}
           toggleSetGrants={props.tglSetGrants}
           toggleAddGrant={props.tglAddGrant}
+          loading={props.accountingLoading}
+          tableData={props.accountingTableData}
+          tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
         />
       )
@@ -361,6 +364,9 @@ const PageHeaderEl = props => {
 
 const mapStateToProps = state => {
   return {
+    accountingTableData: state.accounts.costsTableData,
+    accountingLoading: state.accounts.loading,
+    accountingTableHeader: state.accounts.tableHeader,
     cardSwitchOn: state.dash.showCards,
     statusButtonsData: state.dash.statusButtonsData,
     instFormVisible: state.instruments.showForm,
