@@ -51,7 +51,7 @@ const getSearchParamsClaims = dateRange => {
   return searchParamsClaims
 }
 
-const getGrantId = async (userId, groupId) => {
+const getGrantInfo = async (userId, groupId) => {
   let grant = await Grant.findOne({
     include: {
       $elemMatch: { id: userId }
@@ -67,10 +67,10 @@ const getGrantId = async (userId, groupId) => {
   }
 
   if (grant) {
-    return Promise.resolve(grant._id)
+    return Promise.resolve({ grantId: grant._id, multiplier: grant.multiplier })
   } else {
     return Promise.resolve(undefined)
   }
 }
 
-export { checkDuplicate, getSearchParams, getSearchParamsClaims, getGrantId }
+export { checkDuplicate, getSearchParams, getSearchParamsClaims, getGrantInfo }

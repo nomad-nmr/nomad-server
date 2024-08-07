@@ -13,7 +13,7 @@ import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
-import { getGrantId } from '../utils/accountsUtils.js'
+import { getGrantInfo } from '../utils/accountsUtils.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -61,11 +61,15 @@ export const postData = async (req, res) => {
 
     //Calculation of costs for grants
 
-    const grantId = await getGrantId(experiment.user.id, experiment.group.id)
+    const grant = await getGrantInfo(experiment.user.id, experiment.group.id)
 
-    experiment.grantCosting = {
-      grantId,
-      cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost
+    if (grant) {
+      const { grantId, multiplier } = grant
+
+      experiment.grantCosting = {
+        grantId,
+        cost: moment.duration(experiment.totalExpTime).asHours() * instrument.cost * multiplier
+      }
     }
 
     await experiment.save()
@@ -119,7 +123,7 @@ export const getNMRium = async (req, res) => {
   const expIds = req.query.exps.split(',')
   const { dataType } = req.query
 
-  let responseData = { version: 4, data: { spectra: [] } }
+  let responseData = { version: 6, data: { spectra: [] } }
 
   try {
     await Promise.all(
@@ -316,7 +320,7 @@ export const getExpsFromDatasets = async (req, res) => {
       })
     )
 
-    const responseData = { version: 4, data: { spectra: newSpectraArray } }
+    const responseData = { version: 6, data: { spectra: newSpectraArray } }
 
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
       ArrayBuffer.isView(v) ? Array.from(v) : v

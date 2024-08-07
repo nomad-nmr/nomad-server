@@ -64,7 +64,7 @@ describe('POST /auth/login', () => {
     expect(body.message).toBe('Wrong username or password')
   })
 
-  it('should fail with status 400 if user with given username is inactiv', async () => {
+  it('should fail with status 400 if user with given username is inactive', async () => {
     const { body } = await request(app)
       .post('/auth/login')
       .send({
@@ -93,7 +93,7 @@ describe('POST /auth/logout', () => {
 })
 
 describe('POST /auth/password-reset', () => {
-  it('should return object iwth username and e-mail and sent password reset e-mail', async () => {
+  it('should return object with username and e-mail and sent password reset e-mail', async () => {
     const { body } = await request(app)
       .post('/auth/password-reset')
       .send({ username: testUserOne.username })
@@ -102,7 +102,7 @@ describe('POST /auth/password-reset', () => {
     expect(body).toMatchObject({ username: testUserOne.username, email: testUserOne.email })
   })
 
-  it('should fail with status 400 if iser with provided username does not exist', async () => {
+  it('should fail with status 400 if user with provided username does not exist', async () => {
     await request(app).post('/auth/password-reset').send({ username: 'user-x' }).expect(400)
   })
 })

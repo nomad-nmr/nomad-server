@@ -70,7 +70,6 @@ export async function getCosts(req, res) {
         searchParamsClaims.$and = [...searchParamsClaims.$and, { group: groupId }]
       }
 
-
       const expArray = await Experiment.find(searchParams, 'instrument totalExpTime user')
       const claimsArray = await Claim.find(searchParamsClaims, 'instrument expTime user')
 
@@ -218,7 +217,7 @@ export async function putInstrumentsCosting(req, res) {
 
 export async function postGrant(req, res) {
   const errors = validationResult(req)
-  const { grantCode, description, include } = req.body
+  const { grantCode, description, include, multiplier } = req.body
 
   try {
     if (!errors.isEmpty()) {
@@ -235,7 +234,8 @@ export async function postGrant(req, res) {
     const newGrantObj = {
       grantCode: grantCode.toUpperCase(),
       description,
-      include
+      include,
+      multiplier
     }
 
     const grant = new Grant(newGrantObj)
@@ -269,7 +269,7 @@ export async function deleteGrant(req, res) {
 }
 
 export async function putGrant(req, res) {
-  const { description, include, _id } = req.body
+  const { description, multiplier, include, _id } = req.body
   try {
     const grants = await Grant.find({})
     if (checkDuplicate(include, grants, _id)) {
@@ -278,7 +278,11 @@ export async function putGrant(req, res) {
       })
     }
 
-    const updatedGrant = await Grant.findByIdAndUpdate(req.body._id, { description, include })
+    const updatedGrant = await Grant.findByIdAndUpdate(req.body._id, {
+      description,
+      include,
+      multiplier
+    })
 
     if (!updatedGrant) {
       return res.sendStatus(404)

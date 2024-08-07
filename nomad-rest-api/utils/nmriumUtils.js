@@ -12,6 +12,11 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
     const zip = await fs.readFile(dataPath + '.zip')
     const fileCollection = await fileCollectionFromZip(zip)
     const nmriumObj = await read(fileCollection)
+
+    //If nmr-load-save is updated you can check version of nmrium object here
+    // and then update data.js controller and NMRium.js reducer in frontend
+    //console.log(nmriumObj)
+
     const newSpectraArr = nmriumObj.nmriumState.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {

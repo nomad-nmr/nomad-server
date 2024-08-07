@@ -19,7 +19,8 @@ export const testInstrOne = {
   capacity: 60,
   dayAllowance: 20,
   nightAllowance: 195,
-  overheadTime: 255
+  overheadTime: 255,
+  cost: 3
 }
 
 export const testInstrTwo = {
@@ -30,7 +31,8 @@ export const testInstrTwo = {
   name: 'instrument-2',
   isActive: false,
   available: false,
-  capacity: 60
+  capacity: 60,
+  cost: 2
 }
 
 export const testInstrThree = {
@@ -43,6 +45,7 @@ export const testInstrThree = {
     summary: { dayExpt: '00:00', nightExpt: '00:00' },
     statusTable: await getStatus('status1.json')
   },
+  cost: 2,
   dayAllowance: 20,
   nightAllowance: 195,
   overheadTime: 255,

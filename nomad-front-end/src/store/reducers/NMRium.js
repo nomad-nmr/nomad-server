@@ -6,9 +6,9 @@ import history from '../../utils/history'
 const initialState = {
   nmriumState: {
     data: { spectra: [] },
-    version: 7
+    version: 6
   },
-  changedData: { data: { spectra: [] }, version: 4 },
+  changedData: { data: { spectra: [] }, version: 6 },
   spinning: false,
   adding: false,
   showFidsModal: false,
@@ -72,8 +72,8 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_NMRIUM_DATA:
       return {
         ...state,
-        nmriumState: { data: { spectra: [] }, version: 7 },
-        changedData: { data: { spectra: [] }, version: 7 },
+        nmriumState: { data: { spectra: [] }, version: 6 },
+        changedData: { data: { spectra: [] }, version: 6 },
         datasetMeta: { id: null }
       }
 
