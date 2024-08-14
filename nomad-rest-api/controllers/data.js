@@ -123,7 +123,7 @@ export const getNMRium = async (req, res) => {
   const expIds = req.query.exps.split(',')
   const { dataType } = req.query
 
-  let responseData = { version: 6, data: { spectra: [] } }
+  let responseData = { version: 7, data: { spectra: [] } }
 
   try {
     await Promise.all(
@@ -320,7 +320,7 @@ export const getExpsFromDatasets = async (req, res) => {
       })
     )
 
-    const responseData = { version: 6, data: { spectra: newSpectraArray } }
+    const responseData = { version: 7, data: { spectra: newSpectraArray } }
 
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
       ArrayBuffer.isView(v) ? Array.from(v) : v

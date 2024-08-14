@@ -96,6 +96,8 @@ export const getDataset = async (req, res) => {
       nmriumData: dataset.nmriumData
     }
 
+    respObj.nmriumData.version = 7
+
     const respJSON = JSON.stringify(respObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
     //.json can't be used as we already convert object to json above using custom function
     // deepcode ignore XSS: <please specify a reason of ignoring this>
