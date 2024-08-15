@@ -19,17 +19,25 @@ export const testDatasetOne = {
   smiles: ['C1(CCC(O1)C=CC)'],
   createdAt: moment().subtract(4, 'days'),
   nmriumData: {
+    version: 7,
+
     data: {
       spectra: [
         {
           id: testExpOne._id,
           info: { type: 'NMR Spectrum', isFid: false },
-          dataType: 'auto'
+          dataType: 'auto',
+          display: {
+            dimension: 1
+          }
         },
         {
           id: testExpOne._id.toString() + '/fid/12345',
           info: { type: 'NMR FID', isFid: true },
-          dataType: 'auto'
+          dataType: 'auto',
+          display: {
+            dimension: 1
+          }
         }
       ],
       molecules: [{ molfile }]
@@ -52,12 +60,18 @@ export const testDatasetTwo = {
         {
           id: testExpOne._id,
           info: { type: 'NMR Spectrum', isFid: false },
-          dataType: 'auto'
+          dataType: 'auto',
+          display: {
+            dimension: 1
+          }
         },
         {
           id: testExpOne._id.toString() + '/fid/12345',
           info: { type: 'NMR FID', isFid: true },
-          dataType: 'auto'
+          dataType: 'auto',
+          display: {
+            dimension: 1
+          }
         }
       ],
       molecules: []
