@@ -1,14 +1,15 @@
 import { Modal } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
+import { nmriumDataVersion } from '../../utils/nmriumUtils'
 
 import history from '../../utils/history'
 
 const initialState = {
   nmriumState: {
     data: { spectra: [] },
-    version: 7
+    version: nmriumDataVersion
   },
-  changedData: { data: { spectra: [] }, version: 7 },
+  changedData: { data: { spectra: [] }, version: nmriumDataVersion },
   spinning: false,
   adding: false,
   showFidsModal: false,
@@ -72,8 +73,8 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_NMRIUM_DATA:
       return {
         ...state,
-        nmriumState: { data: { spectra: [] }, version: 7 },
-        changedData: { data: { spectra: [] }, version: 7 },
+        nmriumState: { data: { spectra: [] }, version: nmriumDataVersion },
+        changedData: { data: { spectra: [] }, version: nmriumDataVersion },
         datasetMeta: { id: null }
       }
 

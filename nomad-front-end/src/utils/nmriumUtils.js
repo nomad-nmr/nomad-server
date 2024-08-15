@@ -11,3 +11,5 @@ export const skimNMRiumdata = input => {
   delete output.view
   return output
 }
+
+export const nmriumDataVersion = 7

@@ -12,7 +12,7 @@ import Group from '../models/group.js'
 import User from '../models/user.js'
 import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
-import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import { getGrantInfo } from '../utils/accountsUtils.js'
 
 export const postData = async (req, res) => {
@@ -123,7 +123,7 @@ export const getNMRium = async (req, res) => {
   const expIds = req.query.exps.split(',')
   const { dataType } = req.query
 
-  let responseData = { version: 7, data: { spectra: [] } }
+  let responseData = { version: nmriumDataVersion, data: { spectra: [] } }
 
   try {
     await Promise.all(
@@ -320,7 +320,7 @@ export const getExpsFromDatasets = async (req, res) => {
       })
     )
 
-    const responseData = { version: 7, data: { spectra: newSpectraArray } }
+    const responseData = { version: nmriumDataVersion, data: { spectra: newSpectraArray } }
 
     const respDataJSON = JSON.stringify(responseData, (k, v) =>
       ArrayBuffer.isView(v) ? Array.from(v) : v

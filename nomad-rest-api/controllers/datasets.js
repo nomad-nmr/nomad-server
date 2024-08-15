@@ -11,7 +11,7 @@ import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Collection from '../models/collection.js'
-import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import zipDataset from '../utils/zipDataset.js'
 
 export const postDataset = async (req, res) => {
@@ -79,6 +79,14 @@ export const getDataset = async (req, res) => {
 
         i.data = nmriumDataObj.spectra[0].data
         i.meta = nmriumDataObj.spectra[0].meta
+
+        //contourOptions stored in DB by older NMRium is not compatible with version 7 data format
+        // if deleted NMRium generates contours from scratch like for freshly parsed experiments
+
+        if (i.display.dimension === 2 && dataset.nmriumData.version < 7) {
+          delete i.display.contourOptions
+        }
+
         return Promise.resolve(i)
       })
     )
@@ -96,7 +104,8 @@ export const getDataset = async (req, res) => {
       nmriumData: dataset.nmriumData
     }
 
-    respObj.nmriumData.version = 7
+    //version of NMRium data format has to be in sync with nmr-load-save parser
+    respObj.nmriumData.version = nmriumDataVersion
 
     const respJSON = JSON.stringify(respObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
     //.json can't be used as we already convert object to json above using custom function

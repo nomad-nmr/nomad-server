@@ -14,8 +14,10 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
     const nmriumObj = await read(fileCollection)
 
     //If nmr-load-save is updated you can check version of nmrium object here
-    // and then update data.js controller and NMRium.js reducer in frontend
+
     //console.log(nmriumObj)
+
+    //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
     const newSpectraArr = nmriumObj.nmriumState.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
@@ -26,6 +28,7 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
       })
 
     nmriumObj.nmriumState.data.spectra = [...newSpectraArr]
+
     return Promise.resolve(nmriumObj.nmriumState.data)
   } catch (error) {
     Promise.reject(error)
@@ -57,3 +60,5 @@ export const validateNMRiumData = input => {
     })
   )
 }
+
+export const nmriumDataVersion = 7
