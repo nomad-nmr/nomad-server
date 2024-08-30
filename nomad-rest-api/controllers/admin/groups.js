@@ -41,13 +41,19 @@ export async function getGroups(req, res) {
 }
 
 export async function addGroup(req, res) {
-  const { groupName, description, isBatch } = req.body
+  const { groupName, description, isBatch, dataAccess, expList } = req.body
   const errors = validationResult(req)
   try {
     if (!errors.isEmpty()) {
       return res.status(422).send(errors)
     }
-    const group = new Group({ groupName: groupName.toLowerCase(), description, isBatch })
+    const group = new Group({
+      groupName: groupName.toLowerCase(),
+      description,
+      isBatch,
+      dataAccess,
+      expList
+    })
     const newGroup = await group.save()
     res.status(201).json(newGroup)
   } catch (error) {
