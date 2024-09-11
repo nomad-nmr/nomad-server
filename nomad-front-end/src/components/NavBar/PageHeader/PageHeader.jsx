@@ -94,7 +94,8 @@ const PageHeaderEl = props => {
     username,
     grpName,
     accessLevel,
-    authToken
+    authToken,
+    accountType
   } = props
 
   let headerTitle = ''
@@ -272,6 +273,7 @@ const PageHeaderEl = props => {
           tableData={props.accountingTableData}
           tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
+          accType={accountType}
         />
       )
 
@@ -407,6 +409,7 @@ const mapStateToProps = state => {
     collectionId: state.collections.meta.id,
     setGrantsVisible: state.accounts.showSetGrants,
     grantFormVisible: state.accounts.grantFormVisible,
+    accountType: state.accounts.type,
     checkedUsers: state.users.checked
   }
 }

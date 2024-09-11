@@ -21,3 +21,9 @@
 .AdminMenu {
   background-color: #001529;
 }
+
+a[aria-disabled=true]{
+  cursor: default;
+  pointer-events: none;
+  color: #a3a3a3;
+}

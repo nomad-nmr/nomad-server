@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.0.0",
-    "react-make-csv": "^0.0.1",
+    "react-csv": "^2.2.2",
     "@ant-design/pro-card": "^2.3.0",
     "@ant-design/pro-layout": "^7.4.0",
     "antd": "^5.4.7",
