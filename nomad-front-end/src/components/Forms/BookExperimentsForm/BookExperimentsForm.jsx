@@ -313,7 +313,12 @@ const BookExperimentsForm = props => {
         return Modal.confirm(nightQueueWarning)
       }
     }
-    props.bookExpsHandler(token, values, props.submittingUserId)
+    props.bookExpsHandler(
+      token,
+      // timeStamp created at backend by moment.js does not take into account for DST
+      { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+      props.submittingUserId
+    )
     navigate('/')
   }
 

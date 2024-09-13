@@ -24,32 +24,33 @@ export const postSubmission = async (req, res) => {
     const username = user.username
     const instrIds = await Instrument.find({}, '_id')
 
+    const { formData, timeStamp } = req.body
     const submitData = {}
-    for (let sampleKey in req.body) {
+    for (let sampleKey in formData) {
       const instrId = sampleKey.split('-')[0]
       const instrIndex = instrIds.map(i => i._id).findIndex(id => id.toString() === instrId)
       if (instrIndex === -1) {
         return res.status(500).send()
       }
 
-      const holder = req.body[sampleKey].holder
+      const holder = formData[sampleKey].holder
 
       const experiments = []
-      for (let expNo in req.body[sampleKey].exps) {
-        const paramSet = req.body[sampleKey].exps[expNo].paramSet
+      for (let expNo in formData[sampleKey].exps) {
+        const paramSet = formData[sampleKey].exps[expNo].paramSet
         const paramSetObj = await ParameterSet.findOne({ name: paramSet })
         experiments.push({
           expNo,
           paramSet,
           expTitle: paramSetObj.description,
-          params: req.body[sampleKey].exps[expNo].params
+          params: formData[sampleKey].exps[expNo].params
         })
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority } = req.body[sampleKey]
-      const sampleId =
-        moment().format('YYMMDDHHmm') + '-' + instrIndex + '-' + holder + '-' + username
+      const { night, solvent, title, priority } = formData[sampleKey]
+      const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
+      console.log(sampleId)
       const sampleData = {
         userId: user._id,
         group: groupName,
