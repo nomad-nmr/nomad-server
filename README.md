@@ -77,13 +77,13 @@ docker-compose down
 **To dump database**
 
 ```bash
-docker exec -i nomad-server_mongodb_1 sh -c 'mongodump --archive' > mongodb.dump
+docker exec -i nomad-server-mongodb-1 sh -c 'mongodump --archive' > mongodb.dump
 ```
 
 **To restore from dump**
 
 ```bash
-docker exec -i nomad-server_mongodb_1 sh -c 'mongorestore --archive --drop' < mongodb.dump
+docker exec -i nomad-server-mongodb-1 sh -c 'mongorestore --archive --drop' < mongodb.dump
 ```
 
 ---
