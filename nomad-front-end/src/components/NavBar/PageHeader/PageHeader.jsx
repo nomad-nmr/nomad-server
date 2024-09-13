@@ -94,7 +94,8 @@ const PageHeaderEl = props => {
     username,
     grpName,
     accessLevel,
-    authToken
+    authToken,
+    accountType
   } = props
 
   let headerTitle = ''
@@ -268,7 +269,11 @@ const PageHeaderEl = props => {
           toggleCostDrawer={props.tglCostingDrawer}
           toggleSetGrants={props.tglSetGrants}
           toggleAddGrant={props.tglAddGrant}
+          loading={props.accountingLoading}
+          tableData={props.accountingTableData}
+          tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
+          accType={accountType}
         />
       )
 
@@ -361,6 +366,9 @@ const PageHeaderEl = props => {
 
 const mapStateToProps = state => {
   return {
+    accountingTableData: state.accounts.costsTableData,
+    accountingLoading: state.accounts.loading,
+    accountingTableHeader: state.accounts.tableHeader,
     cardSwitchOn: state.dash.showCards,
     statusButtonsData: state.dash.statusButtonsData,
     instFormVisible: state.instruments.showForm,
@@ -401,6 +409,7 @@ const mapStateToProps = state => {
     collectionId: state.collections.meta.id,
     setGrantsVisible: state.accounts.showSetGrants,
     grantFormVisible: state.accounts.grantFormVisible,
+    accountType: state.accounts.type,
     checkedUsers: state.users.checked
   }
 }

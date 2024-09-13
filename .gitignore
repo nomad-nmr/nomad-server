@@ -1,4 +1,5 @@
 /datastore
 /downloads
 /env
+*.dump
 
