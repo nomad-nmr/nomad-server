@@ -149,10 +149,13 @@ describe('POST /experiments', () => {
     await request(app)
       .post('/submit/experiments/undefined')
       .send({
-        [testInstrOne._id.toString() + '-8']: {
-          exps: { 10: { paramSet: 'params-1' }, params: undefined },
-          holder: 8,
-          title: 'test 123'
+        timeStamp: '2409161507',
+        formData: {
+          [testInstrOne._id.toString() + '-8']: {
+            exps: { 10: { paramSet: 'params-1' }, params: undefined },
+            holder: 8,
+            title: 'test 123'
+          }
         }
       })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
@@ -174,10 +177,13 @@ describe('POST /experiments', () => {
     await request(app)
       .post('/submit/experiments/' + testUserTwo._id.toString())
       .send({
-        [testInstrOne._id.toString() + '-8']: {
-          exps: { 10: { paramSet: 'params-1' }, params: undefined },
-          holder: 8,
-          title: 'test by user2'
+        timeStamp: '2409161507',
+        formData: {
+          [testInstrOne._id.toString() + '-8']: {
+            exps: { 10: { paramSet: 'params-1' }, params: undefined },
+            holder: 8,
+            title: 'test by user2'
+          }
         }
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)

@@ -315,7 +315,7 @@ const BookExperimentsForm = props => {
     }
     props.bookExpsHandler(
       token,
-      // timeStamp created at backend by moment.js does not take into account for DST
+      // timeStamp created at backend by moment.js does not take into account for DST and in summer is 1h behind the time
       { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
       props.submittingUserId
     )
