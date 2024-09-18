@@ -81,6 +81,7 @@ const ParamSetForm = props => {
         <Form.Item
           name='name'
           label='Name'
+          tooltip='The name defined here has to match a name of parameter set defined in TopSpin that is accessible via rpar command'
           rules={[{ required: true, whitespace: true, message: 'Parameter set name is required' }]}
         >
           <Input disabled={props.editing} style={{ width: '50%' }} />
@@ -104,7 +105,7 @@ const ParamSetForm = props => {
 
         <Divider>
           Default Parameters
-          <Tooltip title='Parameters required for submission traffic control'>
+          <Tooltip title='Parameters required for submission traffic control. The values have to match those defined in TopSpin parameter of the same name'>
             <QuestionCircleOutlined className={classes.Hint} />
           </Tooltip>
         </Divider>
@@ -184,7 +185,7 @@ const ParamSetForm = props => {
         </Row>
         <Divider>
           Custom Parameters
-          <Tooltip title='Parameters that users are able to change at submission alongside with default parameters ns and d1'>
+          <Tooltip title='Parameters that users are able to change at submission alongside with default parameters ns and d1. The values have to match those defined in TopSpin parameter of the same name'>
             <QuestionCircleOutlined className={classes.Hint} />
           </Tooltip>
         </Divider>
@@ -193,7 +194,11 @@ const ParamSetForm = props => {
           {(fields, { add, remove }) => (
             <>
               {fields.map(field => (
-                <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align='baseline'>
+                <Space
+                  key={field.key}
+                  style={{ display: 'flex', marginBottom: 8 }}
+                  align='baseline'
+                >
                   <Row align='top'>
                     <Col span={4}>
                       <Form.Item
@@ -218,7 +223,9 @@ const ParamSetForm = props => {
                         name={[field.name, 'comment']}
                         fieldKey={[field.fieldKey, 'comment']}
                         style={{ margin: 0 }}
-                        rules={[{ required: true, whitespace: true, message: 'Comment is required' }]}
+                        rules={[
+                          { required: true, whitespace: true, message: 'Comment is required' }
+                        ]}
                       >
                         <Input placeholder='Comment' style={{ width: 285 }} />
                       </Form.Item>
@@ -234,7 +241,10 @@ const ParamSetForm = props => {
                       </Form.Item>
                     </Col>
                     <Col span={1}>
-                      <MinusCircleOutlined style={{ marginTop: 10 }} onClick={() => remove(field.name)} />
+                      <MinusCircleOutlined
+                        style={{ marginTop: 10 }}
+                        onClick={() => remove(field.name)}
+                      />
                     </Col>
                   </Row>
                 </Space>
