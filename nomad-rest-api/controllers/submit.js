@@ -50,7 +50,6 @@ export const postSubmission = async (req, res) => {
       }
       const { night, solvent, title, priority } = formData[sampleKey]
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
-      console.log(sampleId)
       const sampleData = {
         userId: user._id,
         group: groupName,

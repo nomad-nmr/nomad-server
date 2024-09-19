@@ -254,7 +254,11 @@ const BookExperimentsForm = props => {
             return Modal.error(expRejectError)
           }
         }
-        props.bookExpsHandler(token, values, props.submittingUserId)
+        props.bookExpsHandler(
+          token,
+          { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+          props.submittingUserId
+        )
         navigate('/')
       }
     }
