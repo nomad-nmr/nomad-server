@@ -35,6 +35,7 @@ if (process.env.NODE_ENV !== 'test') {
           username: 'admin',
           password: hashedPassword,
           accessLevel: 'admin',
+          dataAccess: 'admin',
           email: 'admin@' + process.env.EMAIL_SUFFIX,
           group: group._id
         })
