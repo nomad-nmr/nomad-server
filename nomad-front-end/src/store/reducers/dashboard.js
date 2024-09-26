@@ -157,6 +157,9 @@ const reducer = (state = initialState, action) => {
         drawerState: { ...state.drawerState, visible: false, pendingChecked: [] }
       }
 
+    case actionTypes.RESET_CHECKED_HOLDERS:
+      return { ...state, statusTabChecked: [] }
+
     default:
       return state
   }

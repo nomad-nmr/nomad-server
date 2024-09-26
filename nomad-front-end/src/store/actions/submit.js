@@ -121,3 +121,25 @@ export const fetchAllowance = (token, instrIds) => {
       })
   }
 }
+
+export const resubmitHoldersSuccess = payload => ({
+  type: actionTypes.RESUBMIT_HOLDERS_SUCCESS,
+  payload
+})
+
+export const resubmitHolders = (token, dataObj) => {
+  return dispatch => {
+    axios
+      .post('/submit/resubmit', dataObj, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        if (res.status === 200) {
+          dispatch(resubmitHoldersSuccess(res.data))
+        }
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

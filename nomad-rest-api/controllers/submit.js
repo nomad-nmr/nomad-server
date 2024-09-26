@@ -335,6 +335,16 @@ export const getAllowance = async (req, res) => {
   }
 }
 
+export async function postResubmit(req, res) {
+  try {
+    console.log(req.body)
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
 //Helper function that sends array of holders to be deleted to the client
 const emitDeleteExps = (instrId, holders, res) => {
   const submitter = getSubmitter()
