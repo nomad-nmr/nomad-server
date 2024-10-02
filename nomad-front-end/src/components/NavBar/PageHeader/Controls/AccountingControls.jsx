@@ -8,7 +8,8 @@ import { CloudDownloadOutlined } from '@ant-design/icons'
 const AccountingControls = props => {
   const { setGrantsVisible, tableData, tableHeader, accType } = props
   const standardColumns = {
-    grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
+    grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]'],
+    users: ['Grant Code ID', 'Grant Code Multiplier']
   }
   const columnsParser = (head, data, type) => {
     let columns = []
@@ -17,6 +18,9 @@ const AccountingControls = props => {
       columns = standardColumns.grants
     } else {
       columns = [head]
+      if (type === 'Users') {
+        columns = [...columns, ...standardColumns.users]
+      }
       let presentColumns = data[0].costsPerInstrument
       presentColumns.forEach(({ instrument }) => {
         const newColumnsToAdd = [
@@ -54,6 +58,18 @@ const AccountingControls = props => {
     } else {
       data.forEach(row => {
         let FlatRow = [row.name]
+        
+        //add the grantcodes
+        let grantCodeInfo = ['--', '--']
+        if (row.grantCode) {
+          grantCodeInfo = [row.grantCode.grantId, row.grantCode.multiplier]
+        }
+        if (type === 'Users') {
+          //only add if its users
+          FlatRow = [...FlatRow, ...grantCodeInfo]
+        }
+
+
         row.costsPerInstrument.forEach(instrumentData => {
           const { cost, expTimeAuto, expTimeClaims } = instrumentData
           FlatRow = [...FlatRow, expTimeClaims, expTimeAuto, cost]
