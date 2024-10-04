@@ -1,10 +1,12 @@
 import { message } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
+import history from '../../utils/history'
 
 const initialState = {
   loading: false,
   bookedHolders: [],
-  allowance: []
+  allowance: [],
+  resubmitData: undefined
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -52,11 +54,12 @@ const reducer = (state = initialState, { type, payload }) => {
         bookedHolders: []
       }
 
-    // case actionTypes.CLEAR_BOOKED_HOLDERS:
-    //   return { ...state, bookedHolders: [] }
-
     case actionTypes.FETCH_ALLOWANCE_SUCCESS:
       return { ...state, allowance: payload }
+
+    case actionTypes.RESUBMIT_HOLDERS_SUCCESS:
+      console.log(payload)
+      return { ...state, resubmitData: payload }
 
     default:
       return state

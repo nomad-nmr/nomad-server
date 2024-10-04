@@ -8,6 +8,7 @@ import ParameterSet from '../models/parameterSet.js'
 import User from '../models/user.js'
 import Experiment from '../models/experiment.js'
 import transporter from '../utils/emailTransporter.js'
+import parameterSet from '../models/parameterSet.js'
 
 let alertSent = false
 
@@ -337,8 +338,35 @@ export const getAllowance = async (req, res) => {
 
 export async function postResubmit(req, res) {
   try {
-    console.log(req.body)
-    res.sendStatus(200)
+    const { instrId, checkedHolders, username } = req.body
+    const submitter = getSubmitter()
+
+    const { status } = await Instrument.findById(req.body.instrId, 'status')
+
+    const experimentData = status.statusTable
+      .filter(entry => checkedHolders.find(holder => holder === entry.holder))
+      .map(entry => ({
+        holder: entry.holder,
+        expNo: entry.expNo,
+        parameterSet: entry.parameterSet,
+        parameters: entry.parameters,
+        title: entry.title.split('||')[0]
+      }))
+
+    if (experimentData.length === 0) {
+      return res.status(422).send({ errors: [{ msg: 'Experiments not found in status table' }] })
+    }
+
+    emitDeleteExps(instrId, checkedHolders, res)
+    submitter.updateBookedHolders(instrId, checkedHolders)
+
+    const user = await User.findOne({ username })
+
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' })
+    }
+
+    res.status(200).json({ userId: user._id, instrId, experimentData })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

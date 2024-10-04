@@ -26,14 +26,13 @@ export async function postLogin(req, res) {
     }
 
     const token = await user.generateAuthToken()
-
     return res.send({
       username: user.username,
       accessLevel: user.accessLevel,
       manualAccess: user.manualAccess,
       groupName: user.group.groupName,
       token: token,
-      expiresIn: process.env.JWT_EXPIRATION
+      expiresIn: +process.env.JWT_EXPIRATION
     })
   } catch (error) {
     res.status(500).send()

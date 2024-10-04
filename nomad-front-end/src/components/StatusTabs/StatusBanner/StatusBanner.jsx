@@ -97,7 +97,6 @@ const StatusBanner = props => {
           })
         }
         props.resetChecked()
-        console.log(Array.from(usernamesSet)[0], checkedHolders, instrId)
         props.resubmitHandler(authToken, {
           username: Array.from(usernamesSet)[0],
           checkedHolders,

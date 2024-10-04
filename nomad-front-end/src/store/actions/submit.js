@@ -139,6 +139,7 @@ export const resubmitHolders = (token, dataObj) => {
         }
       })
       .catch(err => {
+        console.log(err)
         dispatch(errorHandler(err))
       })
   }
