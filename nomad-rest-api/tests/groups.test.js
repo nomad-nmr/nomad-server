@@ -203,7 +203,7 @@ describe('PATCH /api/admin/groups/toggle-active', () => {
 
     //asserting change in DB
     const groupTwoUsers = await User.find({ group: testGroupTwo._id })
-    // expect(groupTwoUsers[0].isActive).toBe(false)
+    expect(groupTwoUsers[0].isActive).toBe(false)
   })
 
   it('should fail with status 404 if wrong group id is provided', async () => {
