@@ -9,6 +9,7 @@ import Instrument from '../../models/instrument.js'
 import Grant from '../../models/grant.js'
 import {
   checkDuplicate,
+  getGrantInfo,
   getSearchParams,
   getSearchParamsClaims
 } from '../../utils/accountsUtils.js'
@@ -82,10 +83,11 @@ export async function getCosts(req, res) {
 
       await Promise.all(
         usrArray.map(async usrId => {
-          const user = await User.findById(usrId)
+          const [user, grantCode] = await Promise.all([User.findById(usrId), getGrantInfo(usrId)])
           const usrInactive = !user.isActive || user.group.toString() !== groupId
           const newEntry = {
             name: `${user.username} - ${user.fullName} ${usrInactive ? '(Inactive)' : ''}`,
+            grantCode,
             costsPerInstrument: [],
             totalCost: 0
           }
