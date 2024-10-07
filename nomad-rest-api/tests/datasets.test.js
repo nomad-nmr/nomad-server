@@ -41,14 +41,14 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
-describe('POST /data/dataset', () => {
+describe('POST /api/data/dataset', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).post('/data/dataset').expect(403)
+    await request(app).post('/api/data/dataset').expect(403)
   })
 
   it('should fail if dataset title is invalid', async () => {
     await request(app)
-      .post('/data/dataset')
+      .post('/api/data/dataset')
       .send({
         title: '1           '
       })
@@ -58,7 +58,7 @@ describe('POST /data/dataset', () => {
 
   it('should fail with error 422 if experiment in the dataset has undefined data type', async () => {
     await request(app)
-      .post('/data/dataset')
+      .post('/api/data/dataset')
       .send({
         title: 'Dataset 1'
       })
@@ -68,7 +68,7 @@ describe('POST /data/dataset', () => {
 
   it('should fail with error 422 if experiment in the dataset has undefined id', async () => {
     await request(app)
-      .post('/data/dataset')
+      .post('/api/data/dataset')
       .send({
         title: 'Dataset 1',
         nmriumData: { data: { spectra: [{ dataType: 'auto' }] } }
@@ -81,7 +81,7 @@ describe('POST /data/dataset', () => {
     const molfile = fs.readFileSync(path.join(__dirname, '/fixtures/data/molecule1.mol')).toString()
 
     const { body } = await request(app)
-      .post('/data/dataset')
+      .post('/api/data/dataset')
       .send({
         title: 'Dataset 1',
         nmriumData: {
@@ -112,23 +112,23 @@ describe('POST /data/dataset', () => {
   })
 })
 
-describe('GET /data/dataset/:datasetId', () => {
+describe('GET /api/data/dataset/:datasetId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .get('/data/dataset/' + testDatasetOne._id.toString())
+      .get('/api/data/dataset/' + testDatasetOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without rights to access the dataset', async () => {
     await request(app)
-      .get('/data/dataset/' + testDatasetOne._id.toString())
+      .get('/api/data/dataset/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(401)
   })
 
   it('should get dataset with spectrum and FID', async () => {
     const resp = await request(app)
-      .get('/data/dataset/' + testDatasetOne._id.toString())
+      .get('/api/data/dataset/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -155,23 +155,23 @@ describe('GET /data/dataset/:datasetId', () => {
   })
 })
 
-describe('PUT /data/dataset/:datasetId', () => {
+describe('PUT /api/data/dataset/:datasetId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .put('/data/dataset/' + testDatasetOne._id.toString())
+      .put('/api/data/dataset/' + testDatasetOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without rights to access the dataset', async () => {
     await request(app)
-      .put('/data/dataset/' + testDatasetOne._id.toString())
+      .put('/api/data/dataset/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(401)
   })
 
   it('should fail with error 422 if experiment in the dataset has undefined data type', async () => {
     await request(app)
-      .put('/data/dataset/' + testDatasetOne._id.toString())
+      .put('/api/data/dataset/' + testDatasetOne._id.toString())
       .send({
         title: 'New title'
       })
@@ -183,7 +183,7 @@ describe('PUT /data/dataset/:datasetId', () => {
     const molfile = fs.readFileSync(path.join(__dirname, '/fixtures/data/molecule2.mol')).toString()
 
     await request(app)
-      .put('/data/dataset/' + testDatasetOne._id.toString())
+      .put('/api/data/dataset/' + testDatasetOne._id.toString())
       .send({
         title: 'New title',
         nmriumData: {
@@ -204,16 +204,16 @@ describe('PUT /data/dataset/:datasetId', () => {
   })
 })
 
-describe('GET /data/dataset-zip/:datasetId', () => {
+describe('GET /api/data/dataset-zip/:datasetId', () => {
   it('should fail if request is not authorized', async () => {
     await request(app)
-      .get('/data/dataset-zip/' + testDatasetOne._id.toString())
+      .get('/api/data/dataset-zip/' + testDatasetOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without read access to the dataset', async () => {
     await request(app)
-      .get('/data/dataset-zip/' + testDatasetOne._id.toString())
+      .get('/api/data/dataset-zip/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(401)
   })
@@ -222,13 +222,13 @@ describe('GET /data/dataset-zip/:datasetId', () => {
   //
   // it('should work', async () => {
   //   const response = await request(app)
-  //     .get('/data/dataset-zip/' + testDatasetOne._id.toString())
+  //     .get('/api/data/dataset-zip/' + testDatasetOne._id.toString())
   //     .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
   //     .expect(200)
   // })
 })
 
-describe('GET /data/dataset-exps/:datasetId', () => {
+describe('GET /api/data/dataset-exps/:datasetId', () => {
   const payload = [
     {
       key: testDatasetOne._id.toString() + '-' + testExpOne._id.toString(),
@@ -244,13 +244,13 @@ describe('GET /data/dataset-exps/:datasetId', () => {
 
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .get('/data/dataset-exps/?queryJSON=' + JSON.stringify(payload))
+      .get('/api/data/dataset-exps/?queryJSON=' + JSON.stringify(payload))
       .expect(403)
   })
 
   it('should return NMRium data object with spectrum and FID', async () => {
     const resp = await request(app)
-      .get('/data/dataset-exps/?queryJSON=' + JSON.stringify(payload))
+      .get('/api/data/dataset-exps/?queryJSON=' + JSON.stringify(payload))
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -262,16 +262,16 @@ describe('GET /data/dataset-exps/:datasetId', () => {
   })
 })
 
-describe('PATCH /datasets/:datasetId', () => {
+describe('PATCH /api/datasets/:datasetId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/datasets/' + testDatasetOne._id.toString())
+      .patch('/api/datasets/' + testDatasetOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 422 if title is invalid', async () => {
     await request(app)
-      .patch('/datasets/' + testDatasetOne._id.toString())
+      .patch('/api/datasets/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send({ title: '' })
       .expect(422)
@@ -279,7 +279,7 @@ describe('PATCH /datasets/:datasetId', () => {
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .patch('/datasets/' + testDatasetOne._id.toString())
+      .patch('/api/datasets/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .send({ title: 'New title     ' })
       .expect(401)
@@ -287,7 +287,7 @@ describe('PATCH /datasets/:datasetId', () => {
 
   it('should change user group and title of dataset 1', async () => {
     const { body } = await request(app)
-      .patch('/datasets/' + testDatasetOne._id.toString())
+      .patch('/api/datasets/' + testDatasetOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send({ title: 'New title     ', userId: testUserThree._id, groupId: testGroupTwo._id })
       .expect(200)
@@ -314,12 +314,12 @@ describe('PATCH /datasets/:datasetId', () => {
 
 describe('GET /datasets', () => {
   it('should fail with error 403 if request is not authorized', async () => {
-    await request(app).get('/datasets/').expect(403)
+    await request(app).get('/api/datasets/').expect(403)
   })
 
   it('should fail with status 422 if query is not defined', async () => {
     await request(app)
-      .get('/datasets/')
+      .get('/api/datasets/')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
   })
@@ -333,7 +333,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -361,7 +361,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -380,7 +380,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -402,7 +402,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -424,7 +424,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -443,7 +443,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -462,7 +462,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -479,7 +479,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -496,7 +496,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -514,7 +514,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -532,7 +532,7 @@ describe('GET /datasets', () => {
     }
 
     const { body } = await request(app)
-      .get('/datasets/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(200)
 
@@ -542,16 +542,16 @@ describe('GET /datasets', () => {
   })
 })
 
-describe('DELETE /datasets/:datasetId', () => {
+describe('DELETE /api/datasets/:datasetId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .delete('/datasets/' + testDatasetOne._id)
+      .delete('/api/datasets/' + testDatasetOne._id)
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .delete('/datasets/' + testDatasetOne._id)
+      .delete('/api/datasets/' + testDatasetOne._id)
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(401)
   })
@@ -559,14 +559,14 @@ describe('DELETE /datasets/:datasetId', () => {
   it('should fail with error 404 if invalid dataset ID is provided', async () => {
     const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .delete('/datasets/' + newId.toString())
+      .delete('/api/datasets/' + newId.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should delete test dataset three from DB', async () => {
     await request(app)
-      .delete('/datasets/' + testDatasetThree._id)
+      .delete('/api/datasets/' + testDatasetThree._id)
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(200)
 
@@ -576,17 +576,17 @@ describe('DELETE /datasets/:datasetId', () => {
   })
 })
 
-describe('PATCH /datasets/tags/:datasetId', () => {
+describe('PATCH /api/datasets/tags/:datasetId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/datasets/tags/' + testDatasetTwo._id)
+      .patch('/api/datasets/tags/' + testDatasetTwo._id)
       .send({ tags: ['test2'] })
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .patch('/datasets/tags/' + testDatasetTwo._id)
+      .patch('/api/datasets/tags/' + testDatasetTwo._id)
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .send({ tags: ['test2'] })
       .expect(401)
@@ -595,7 +595,7 @@ describe('PATCH /datasets/tags/:datasetId', () => {
   it('should fail with error 404 if invalid dataset ID is provided', async () => {
     const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .patch('/datasets/tags/' + newId.toString())
+      .patch('/api/datasets/tags/' + newId.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send({ tags: ['test2'] })
       .expect(404)
@@ -603,7 +603,7 @@ describe('PATCH /datasets/tags/:datasetId', () => {
 
   it('should update tags array for test dataset two', async () => {
     await request(app)
-      .patch('/datasets/tags/' + testDatasetTwo._id)
+      .patch('/api/datasets/tags/' + testDatasetTwo._id)
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .send({ tags: ['test2'] })
       .expect(200)

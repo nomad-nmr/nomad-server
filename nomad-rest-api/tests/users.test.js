@@ -13,10 +13,10 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
-describe('GET /admin/users/', () => {
+describe('GET /api/admin/users/', () => {
   it('should return array of 4 test users with lastLogin descending order', async () => {
     const { body } = await request(app)
-      .get('/admin/users/?current=1&pageSize=10&lastLoginOrder=descend')
+      .get('/api/admin/users/?current=1&pageSize=10&lastLoginOrder=descend')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body).toHaveProperty('total', 4)
@@ -26,12 +26,12 @@ describe('GET /admin/users/', () => {
   })
 
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).get('/admin/users/?current=1&pageSize=10').expect(403)
+    await request(app).get('/api/admin/users/?current=1&pageSize=10').expect(403)
   })
 
   it('should return array of 3 active user', async () => {
     const { body } = await request(app)
-      .get('/admin/users/?current=1&pageSize=10&showInactive=false')
+      .get('/api/admin/users/?current=1&pageSize=10&showInactive=false')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body).toHaveProperty('total', 3)
@@ -40,7 +40,7 @@ describe('GET /admin/users/', () => {
 
   it('should return array with admin test user if "adm" string is provided as username', async () => {
     const { body } = await request(app)
-      .get('/admin/users/?current=1&pageSize=10&username=adm')
+      .get('/api/admin/users/?current=1&pageSize=10&username=adm')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body.users[0]).toHaveProperty('fullName', 'Admin User')
@@ -48,7 +48,7 @@ describe('GET /admin/users/', () => {
 
   it('should return array of 1 test user if group is defined in search params', async () => {
     const { body } = await request(app)
-      .get(`/admin/users/?current=1&pageSize=10&group=${testGroupTwo._id.toString()}`)
+      .get(`/api/admin/users/?current=1&pageSize=10&group=${testGroupTwo._id.toString()}`)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body).toHaveProperty('total', 2)
@@ -58,7 +58,7 @@ describe('GET /admin/users/', () => {
 
   it('should return simple list of active users in a given group for drop down select', async () => {
     const { body } = await request(app)
-      .get(`/admin/users/?list=true&group=${testGroupOne._id.toString()}`)
+      .get(`/api/admin/users/?list=true&group=${testGroupOne._id.toString()}`)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body[0]).toMatchObject({
@@ -71,7 +71,7 @@ describe('GET /admin/users/', () => {
   it('should return simple list of inactive users for drop down select in search', async () => {
     const { body } = await request(app)
       .get(
-        `/admin/users/?list=true&showInactive=true&group=${testGroupOne._id.toString()}&search=true`
+        `/api/admin/users/?list=true&showInactive=true&group=${testGroupOne._id.toString()}&search=true`
       )
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -85,7 +85,7 @@ describe('GET /admin/users/', () => {
   it('should return simple list including ex-users for drop down select in search', async () => {
     const { body } = await request(app)
       .get(
-        `/admin/users/?list=true&showInactive=true&group=${testGroupTwo._id.toString()}&search=true`
+        `/api/admin/users/?list=true&showInactive=true&group=${testGroupTwo._id.toString()}&search=true`
       )
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -97,10 +97,10 @@ describe('GET /admin/users/', () => {
   })
 })
 
-describe('POST /admin/users/', () => {
+describe('POST /api/admin/users/', () => {
   it('should create a new user entry', async () => {
     const { body } = await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'newUser',
         fullName: 'New User',
@@ -122,7 +122,7 @@ describe('POST /admin/users/', () => {
 
   it('should fail with status code 403 if request does not have authorisation header', async () => {
     await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'newUser',
         fullName: 'New User',
@@ -135,7 +135,7 @@ describe('POST /admin/users/', () => {
 
   it('should fail with status code 403 if request if authorised user does not have admin access level', async () => {
     await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'newUser',
         fullName: 'New User',
@@ -149,7 +149,7 @@ describe('POST /admin/users/', () => {
 
   it('should fail with status code 422 if username is an empty string', async () => {
     const { body } = await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: '',
         fullName: 'New User',
@@ -164,7 +164,7 @@ describe('POST /admin/users/', () => {
 
   it('should fail with status code 422 if username is not unique', async () => {
     const { body } = await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'admin',
         fullName: 'Test Unique',
@@ -179,7 +179,7 @@ describe('POST /admin/users/', () => {
 
   it('should fail with status code 422 if invalid e-mail address is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'newUser',
         fullName: 'New User',
@@ -193,7 +193,7 @@ describe('POST /admin/users/', () => {
   })
   it('should fail with status code 422 if invalid fullName provided', async () => {
     const { body } = await request(app)
-      .post('/admin/users/')
+      .post('/api/admin/users/')
       .send({
         username: 'newUser',
         fullName: 'New&User',
@@ -207,10 +207,10 @@ describe('POST /admin/users/', () => {
   })
 })
 
-describe('PUT /admin/users/', () => {
+describe('PUT /api/admin/users/', () => {
   it('should update email and full name of Test User Two', async () => {
     const { body } = await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserTwo._id,
         username: testUserTwo.username,
@@ -234,7 +234,7 @@ describe('PUT /admin/users/', () => {
 
   it('should fail with status code 403 if the request is not authorised', async () => {
     await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserTwo._id,
         username: testUserTwo.username,
@@ -247,7 +247,7 @@ describe('PUT /admin/users/', () => {
 
   it('should fail with status code 403 if the request is authorised by user without admin access', async () => {
     await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserTwo._id,
         username: testUserTwo.username,
@@ -261,7 +261,7 @@ describe('PUT /admin/users/', () => {
 
   it('should fail with status code 422 if the request if empty string is provided as full name', async () => {
     const { body } = await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserTwo._id,
         username: testUserTwo.username,
@@ -276,7 +276,7 @@ describe('PUT /admin/users/', () => {
 
   it('should fail with status code 422 if the request if invalid email is provided', async () => {
     const { body } = await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserTwo._id,
         username: testUserTwo.username,
@@ -291,7 +291,7 @@ describe('PUT /admin/users/', () => {
 
   it('should fail with status code 404 if user id is not found in DB', async () => {
     await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: new mongoose.Types.ObjectId(),
         username: testUserTwo.username,
@@ -305,7 +305,7 @@ describe('PUT /admin/users/', () => {
 
   it('should move user to a different group and update active status', async () => {
     const { body } = await request(app)
-      .put('/admin/users/')
+      .put('/api/admin/users/')
       .send({
         _id: testUserOne._id,
         username: testUserOne.username,
@@ -325,10 +325,10 @@ describe('PUT /admin/users/', () => {
   })
 })
 
-describe('PATCH /admin/users/toggle-active/:id', () => {
+describe('PATCH /api/admin/users/toggle-active/:id', () => {
   it('should toggle active status of user test-1', async () => {
     const { body } = await request(app)
-      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .patch('/api/admin/users/toggle-active/' + testUserOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body._id).toBe(testUserOne._id.toString())
@@ -339,20 +339,20 @@ describe('PATCH /admin/users/toggle-active/:id', () => {
 
   it('should fail with status code 404 if user id is not found in DB', async () => {
     await request(app)
-      .patch('/admin/users/toggle-active/' + new mongoose.Types.ObjectId().toString())
+      .patch('/api/admin/users/toggle-active/' + new mongoose.Types.ObjectId().toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should fail with status code 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .patch('/api/admin/users/toggle-active/' + testUserOne._id.toString())
       .expect(403)
   })
 
   it('should fail with status code 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/admin/users/toggle-active/' + testUserOne._id.toString())
+      .patch('/api/admin/users/toggle-active/' + testUserOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })

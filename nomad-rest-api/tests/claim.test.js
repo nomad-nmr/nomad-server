@@ -50,19 +50,19 @@ vi.mock('../controllers/tracker/sendUploadCmd.js', () => ({
 describe('GET /folders/:instrumentId', () => {
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .get('/claims/folders/' + testInstrOne._id + '/?groupId=undefined')
+      .get('/api/claims/folders/' + testInstrOne._id + '/?groupId=undefined')
       .expect(403)
   })
   it('should fail with status 503 if submitter does not return socketId', async () => {
     await request(app)
-      .get('/claims/folders/' + testInstrTwo._id + '/?groupId=undefined')
+      .get('/api/claims/folders/' + testInstrTwo._id + '/?groupId=undefined')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(503)
   })
 
   it('should fail with status 400 if client could not fetch manual folder for group with id provided', async () => {
     const { body } = await request(app)
-      .get('/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupTwo._id)
+      .get('/api/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(400)
 
@@ -73,7 +73,7 @@ describe('GET /folders/:instrumentId', () => {
   //TODO: revisit to do better testing of tagArchived function
   it('should broadcast to client get-folders event and return response', async () => {
     const { body } = await request(app)
-      .get('/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupOne._id)
+      .get('/api/claims/folders/' + testInstrOne._id + '/?groupId=' + testGroupOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body).toMatchObject({ folders: [], instrumentId: testInstrOne._id.toString() })
@@ -84,7 +84,7 @@ describe('GET /folders/:instrumentId', () => {
 describe('POST /', () => {
   it('should send upload data command to client with test userId provided in request body', async () => {
     const { body } = await request(app)
-      .post('/claims/')
+      .post('/api/claims/')
       .send({
         instrumentId: testInstrOne._id,
         expsArr: ['test-data'],
@@ -100,7 +100,7 @@ describe('POST /', () => {
 
   it('should send upload data command with test userId of user that authorised request if userId is not provided in request body', async () => {
     const { body } = await request(app)
-      .post('/claims/')
+      .post('/api/claims/')
       .send({
         instrumentId: testInstrOne._id,
         expsArr: ['test-data'],
@@ -115,7 +115,7 @@ describe('POST /', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access and request body has userId defined', async () => {
     await request(app)
-      .post('/claims/')
+      .post('/api/claims/')
       .send({
         instrumentId: testInstrOne._id,
         expsArr: ['test-data'],
@@ -130,7 +130,7 @@ describe('POST /', () => {
 describe('GET /', () => {
   it('should return object with 3 test claims if no search params are provided', async () => {
     const { body } = await request(app)
-      .get('/claims/')
+      .get('/api/claims/')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -139,19 +139,19 @@ describe('GET /', () => {
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
-    await request(app).get('/claims/').expect(403)
+    await request(app).get('/api/claims/').expect(403)
   })
 
   it('should fail with status 403 if request is authorised by user without admin access', async () => {
     await request(app)
-      .get('/claims/')
+      .get('/api/claims/')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should return object with 1 test claims if showApproved search param is false', async () => {
     const { body } = await request(app)
-      .get('/claims/?' + new URLSearchParams({ showApproved: false }).toString())
+      .get('/api/claims/?' + new URLSearchParams({ showApproved: false }).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -175,7 +175,7 @@ describe('GET /', () => {
   it('should return object with 1 test claims if showApproved is true and dateRange is to 3 days', async () => {
     const { body } = await request(app)
       .get(
-        '/claims/?' +
+        '/api/claims/?' +
           new URLSearchParams({
             showApproved: true,
             dateRange: [
@@ -194,7 +194,7 @@ describe('GET /', () => {
 describe('PATCH /', () => {
   it('should update expTime for testClaimTwo', async () => {
     const { body } = await request(app)
-      .patch('/claims/')
+      .patch('/api/claims/')
       .send({ claimId: testClaimTwo._id.toString(), expTime: 8 })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
@@ -208,21 +208,21 @@ describe('PATCH /', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/claims/')
+      .patch('/api/claims/')
       .send({ claimId: testClaimTwo._id, expTime: 8 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
-    await request(app).patch('/claims/').send({ claimId: testClaimTwo._id, expTime: 8 }).expect(403)
+    await request(app).patch('/api/claims/').send({ claimId: testClaimTwo._id, expTime: 8 }).expect(403)
   })
 })
 
 describe('PUT /approve', () => {
   it('should change status of testClaimTwo to "approve"', async () => {
     const { body } = await request(app)
-      .put('/claims/approve')
+      .put('/api/claims/approve')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send([testClaimTwo._id])
       .expect(200)
@@ -236,13 +236,13 @@ describe('PUT /approve', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .put('/claims/approve')
+      .put('/api/claims/approve')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .send([testClaimTwo._id])
       .expect(403)
   })
 
   it('should fail with status 403 if request is authorised', async () => {
-    await request(app).put('/claims/approve').send([testClaimTwo._id]).expect(403)
+    await request(app).put('/api/claims/approve').send([testClaimTwo._id]).expect(403)
   })
 })

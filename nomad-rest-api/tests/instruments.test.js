@@ -30,10 +30,10 @@ vi.mock('../socket.js', () => ({
   }))
 }))
 
-describe('GET /admin/instruments/', () => {
+describe('GET /api/admin/instruments/', () => {
   it('should return simple list for use in dropdown select containing one active instrument', async () => {
     const { body } = await request(app)
-      .get('/admin/instruments/?list=true')
+      .get('/api/admin/instruments/?list=true')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(2)
@@ -45,12 +45,12 @@ describe('GET /admin/instruments/', () => {
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
-    await request(app).get('/admin/instruments/?showInactive=false&list=true').expect(403)
+    await request(app).get('/api/admin/instruments/?showInactive=false&list=true').expect(403)
   })
 
   it('should return full list of  all instruments in DB', async () => {
     const { body } = await request(app)
-      .get('/admin/instruments/?showInactive=true')
+      .get('/api/admin/instruments/?showInactive=true')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -62,10 +62,10 @@ describe('GET /admin/instruments/', () => {
   })
 })
 
-describe('POST /admin/instruments/', () => {
+describe('POST /api/admin/instruments/', () => {
   it('should fail with status 422 if empty string is provided as name', async () => {
     const { body } = await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: '',
         model: 'Bruker test',
@@ -78,7 +78,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should fail with status 422 if existing instrument name is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: testInstrOne.name,
         model: 'Bruker test',
@@ -91,7 +91,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should fail with status 422 if model info with more than 50 characters is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: 'instrument-4',
         model: 'Bruker test xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
@@ -104,7 +104,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should fail with status 422 if capacity provided is not inetger number', async () => {
     const { body } = await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: 'instrument-4',
         model: 'Bruker test',
@@ -117,7 +117,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: 'instrument-3',
         model: 'Bruker test',
@@ -129,7 +129,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: 'instrument-3',
         model: 'Bruker test',
@@ -140,7 +140,7 @@ describe('POST /admin/instruments/', () => {
 
   it('should should add new instrument in the database', async () => {
     const { body } = await request(app)
-      .post('/admin/instruments')
+      .post('/api/admin/instruments')
       .send({
         name: 'instrument-4',
         model: 'Bruker test',
@@ -159,10 +159,10 @@ describe('POST /admin/instruments/', () => {
   })
 })
 
-describe('PUT /admin/instruments/', () => {
+describe('PUT /api/admin/instruments/', () => {
   it('should fail with status 422 if empty string is provided as name', async () => {
     const { body } = await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: '',
@@ -176,7 +176,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should fail with status 422 if model info with more than 50 characters is provided', async () => {
     const { body } = await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: 'instrument-1',
@@ -190,7 +190,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should fail with status 422 if capacity provided is not integer number', async () => {
     const { body } = await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: 'instrument-1',
@@ -204,7 +204,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: 'instrument-1',
@@ -217,7 +217,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: 'instrument-1',
@@ -229,7 +229,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should fail with status 404 if wrong instrument id is provided', async () => {
     await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: new mongoose.Types.ObjectId(),
         name: 'instrument-1',
@@ -242,7 +242,7 @@ describe('PUT /admin/instruments/', () => {
 
   it('should update testInsrOne entry in database', async () => {
     const { body } = await request(app)
-      .put('/admin/instruments')
+      .put('/api/admin/instruments')
       .send({
         _id: testInstrOne._id,
         name: 'new instr1',
@@ -267,27 +267,27 @@ describe('PUT /admin/instruments/', () => {
 describe('PATCH /toggle-available/', () => {
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-available/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-available/' + testInstrOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-available/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-available/' + testInstrOne._id.toString())
       .expect(403)
   })
 
   it('should fail with status 404 if invalid instrument id is provided ', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-available/' + new mongoose.Types.ObjectId())
+      .patch('/api/admin/instruments/toggle-available/' + new mongoose.Types.ObjectId())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should toggle available status of instrument-1', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-available/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-available/' + testInstrOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -302,27 +302,27 @@ describe('PATCH /toggle-available/', () => {
 describe('PATCH /toggle-active/', () => {
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-active/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-active/' + testInstrOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-active/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-active/' + testInstrOne._id.toString())
       .expect(403)
   })
 
   it('should fail with status 404 if invalid instrument id is provided ', async () => {
     await request(app)
-      .patch('/admin/instruments/toggle-active/' + new mongoose.Types.ObjectId())
+      .patch('/api/admin/instruments/toggle-active/' + new mongoose.Types.ObjectId())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should toggle active status of instrument-1', async () => {
     const { body } = await request(app)
-      .patch('/admin/instruments/toggle-active/' + testInstrOne._id.toString())
+      .patch('/api/admin/instruments/toggle-active/' + testInstrOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 

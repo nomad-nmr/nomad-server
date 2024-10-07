@@ -14,10 +14,10 @@ beforeEach(setupDB)
 
 vi.mock('../utils/emailTransporter')
 
-describe('POST /admin/message', () => {
+describe('POST /api/admin/message', () => {
   it('should call sendMail to send e-mail to one recipient (testUserOne)', async () => {
     const { body } = await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',
@@ -44,7 +44,7 @@ describe('POST /admin/message', () => {
 
   it('should call sendMail to send e-mail to active users in testGroupOne', async () => {
     const { body } = await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',
@@ -70,7 +70,7 @@ describe('POST /admin/message', () => {
 
   it('should call sendMail to send e-mail to all active users', async () => {
     const { body } = await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',
@@ -95,7 +95,7 @@ describe('POST /admin/message', () => {
 
   it('should call sendMail to send e-mail to all active users while excluding testUserTwo', async () => {
     const { body } = await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',
@@ -126,7 +126,7 @@ describe('POST /admin/message', () => {
 
   it('should fail with status 403 if request is not authorised by user with admin access', async () => {
     await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',
@@ -143,7 +143,7 @@ describe('POST /admin/message', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/admin/message')
+      .post('/api/admin/message')
       .send({
         subject: 'test',
         message: 'test message',

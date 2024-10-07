@@ -14,10 +14,10 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
-describe('GET /admin/param-sets', () => {
+describe('GET /api/admin/param-sets', () => {
   it('should return array with 2 non-hidden parameter set objects', async () => {
     const { body } = await request(app)
-      .get('/admin/param-sets/?instrumentId=null')
+      .get('/api/admin/param-sets/?instrumentId=null')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -28,7 +28,7 @@ describe('GET /admin/param-sets', () => {
 
   it('should return array with 3 parameter set objects if request is authorised by user with admin level access', async () => {
     const { body } = await request(app)
-      .get('/admin/param-sets/?instrumentId=null')
+      .get('/api/admin/param-sets/?instrumentId=null')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -36,12 +36,12 @@ describe('GET /admin/param-sets', () => {
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
-    await request(app).get('/admin/param-sets/?instrumentId=null').expect(403)
+    await request(app).get('/api/admin/param-sets/?instrumentId=null').expect(403)
   })
 
   it('should return only array with one parameter set available on instrument-1', async () => {
     const { body } = await request(app)
-      .get('/admin/param-sets/?instrumentId=' + testInstrOne._id)
+      .get('/api/admin/param-sets/?instrumentId=' + testInstrOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(1)
@@ -50,7 +50,7 @@ describe('GET /admin/param-sets', () => {
 
   it('should return simple list of parameter sets for drop down select available on test instrument 2', async () => {
     const { body } = await request(app)
-      .get('/admin/param-sets/?instrumentId=' + testInstrTwo._id + '&list=true')
+      .get('/api/admin/param-sets/?instrumentId=' + testInstrTwo._id + '&list=true')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(1)
@@ -59,7 +59,7 @@ describe('GET /admin/param-sets', () => {
 
   it('should return array with only one parameter set if "2" is provided as search value', async () => {
     const { body } = await request(app)
-      .get('/admin/param-sets/?instrumentId=null&searchValue=2')
+      .get('/api/admin/param-sets/?instrumentId=null&searchValue=2')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(1)
@@ -67,10 +67,10 @@ describe('GET /admin/param-sets', () => {
   })
 })
 
-describe('POST /admin/param-sets', () => {
+describe('POST /api/admin/param-sets', () => {
   it('should fail with status 422 empty string is provided as parameter name ', async () => {
     const { body } = await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: ''
       })
@@ -81,7 +81,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3'
       })
@@ -90,7 +90,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3'
       })
@@ -100,7 +100,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should fail with status 422 empty parameter set name alredy exists in database', async () => {
     const { body } = await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: testParamSet1.name
       })
@@ -112,7 +112,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should fail with status 422 if default parameter name is provided among custom parameters', async () => {
     const { body } = await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3',
         customParams: [{ name: 'ns', comment: 'NS', value: '8' }]
@@ -125,7 +125,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should fail with status 422 if duplicate custom parameter is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3',
         customParams: [
@@ -141,7 +141,7 @@ describe('POST /admin/param-sets', () => {
 
   it('should create a new  parameter set entry in the database', async () => {
     const { body } = await request(app)
-      .post('/admin/param-sets/')
+      .post('/api/admin/param-sets/')
       .send({
         name: 'parameter-Set-3',
         defaultParams: [
@@ -164,10 +164,10 @@ describe('POST /admin/param-sets', () => {
   })
 })
 
-describe('PUT /admin/param-sets', () => {
+describe('PUT /api/admin/param-sets', () => {
   it('should fail with status 422 empty string is provided as parameter name ', async () => {
     const { body } = await request(app)
-      .put('/admin/param-sets/')
+      .put('/api/admin/param-sets/')
       .send({
         name: ''
       })
@@ -178,7 +178,7 @@ describe('PUT /admin/param-sets', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .put('/admin/param-sets/')
+      .put('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3'
       })
@@ -187,7 +187,7 @@ describe('PUT /admin/param-sets', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .put('/admin/param-sets/')
+      .put('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3'
       })
@@ -197,7 +197,7 @@ describe('PUT /admin/param-sets', () => {
 
   it('should fail with status 422 if default parameter name is provided among custom parameters', async () => {
     const { body } = await request(app)
-      .put('/admin/param-sets/')
+      .put('/api/admin/param-sets/')
       .send({
         name: 'parameter-set-3',
         customParams: [{ name: 'ns', comment: 'NS', value: '8' }]
@@ -210,7 +210,7 @@ describe('PUT /admin/param-sets', () => {
 
   it('should update params-1 parameter set in database', async () => {
     const { body } = await request(app)
-      .put('/admin/param-sets/')
+      .put('/api/admin/param-sets/')
       .send({
         _id: testParamSet1._id,
         name: testParamSet1.name,
@@ -235,10 +235,10 @@ describe('PUT /admin/param-sets', () => {
   })
 })
 
-describe('DELETE /admin/param-sets', () => {
+describe('DELETE /api/admin/param-sets', () => {
   it('should delete params-1 parameter set', async () => {
     const { body } = await request(app)
-      .delete('/admin/param-sets/' + testParamSet1._id)
+      .delete('/api/admin/param-sets/' + testParamSet1._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -254,13 +254,13 @@ describe('DELETE /admin/param-sets', () => {
 
   it('it should fail with status 403 if request is not authorised by user with admin access', async () => {
     await request(app)
-      .delete('/admin/param-sets/' + testParamSet1._id)
+      .delete('/api/admin/param-sets/' + testParamSet1._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
   it('it should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .delete('/admin/param-sets/' + testParamSet1._id)
+      .delete('/api/admin/param-sets/' + testParamSet1._id)
       .expect(403)
   })
 })

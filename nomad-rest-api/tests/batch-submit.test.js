@@ -59,7 +59,7 @@ vi.mock('../socket.js', () => ({
 describe('GET /racks', () => {
   it('should return array of racks', async () => {
     const { body } = await request(app)
-      .get('/batch-submit/racks')
+      .get('/api/batch-submit/racks')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -73,7 +73,7 @@ describe('GET /racks', () => {
 describe('POST /racks', () => {
   it('should return error 422 if title is an empty string', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: '', slotsNumber: 72 })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
@@ -82,7 +82,7 @@ describe('POST /racks', () => {
 
   it('should return error 422 if slots number is an empty string', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: 'Test Rack', slotsNumber: '' })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
@@ -91,7 +91,7 @@ describe('POST /racks', () => {
 
   it('should return error 422 if reck title already exists', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: testRackOne.title, slotsNumber: 72 })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
@@ -100,7 +100,7 @@ describe('POST /racks', () => {
 
   it('should return error 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: 'Test Rack', slotsNumber: 72 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
@@ -108,14 +108,14 @@ describe('POST /racks', () => {
 
   it('should return error 403 if request is not authorised', async () => {
     await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: 'Test Rack', slotsNumber: 72 })
       .expect(403)
   })
 
   it('should crate a new rack in DB assigned to test group two', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({ title: 'New test rack', slotsNumber: 72, group: testGroupTwo._id })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
@@ -131,7 +131,7 @@ describe('POST /racks', () => {
 
   it('should crate a new rack in DB open to all users', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/racks')
+      .post('/api/batch-submit/racks')
       .send({
         title: 'New all users rack',
         slotsNumber: 72,
@@ -153,13 +153,13 @@ describe('POST /racks', () => {
 describe('PATCH /racks/:rackId', () => {
   it('should return error 403 if request is not authorised', async () => {
     await request(app)
-      .patch('/batch-submit/racks/' + testRackOne._id)
+      .patch('/api/batch-submit/racks/' + testRackOne._id)
       .expect(403)
   })
 
   it('should return error 403 if request is authorised by user with admin access level', async () => {
     await request(app)
-      .patch('/batch-submit/racks/' + testRackOne._id)
+      .patch('/api/batch-submit/racks/' + testRackOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
@@ -167,14 +167,14 @@ describe('PATCH /racks/:rackId', () => {
   it('should return error 404 if request if non existing rack id is provided', async () => {
     const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .patch('/batch-submit/racks/' + newId)
+      .patch('/api/batch-submit/racks/' + newId)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should close the test rack two', async () => {
     const { body } = await request(app)
-      .patch('/batch-submit/racks/' + testRackTwo._id)
+      .patch('/api/batch-submit/racks/' + testRackTwo._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -189,13 +189,13 @@ describe('PATCH /racks/:rackId', () => {
 describe('DELETE /racks/:rackId', () => {
   it('should return error 403 if request is not authorised', async () => {
     await request(app)
-      .delete('/batch-submit/racks/' + testRackOne._id)
+      .delete('/api/batch-submit/racks/' + testRackOne._id)
       .expect(403)
   })
 
   it('should return error 403 if request is authorised by user with admin access level', async () => {
     await request(app)
-      .delete('/batch-submit/racks/' + testRackOne._id)
+      .delete('/api/batch-submit/racks/' + testRackOne._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
@@ -203,14 +203,14 @@ describe('DELETE /racks/:rackId', () => {
   it('should return error 404 if request if non existing rack id is provided', async () => {
     const newId = new mongoose.Types.ObjectId()
     await request(app)
-      .delete('/batch-submit/racks/' + newId)
+      .delete('/api/batch-submit/racks/' + newId)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should delete the test rack two', async () => {
     const { body } = await request(app)
-      .delete('/batch-submit/racks/' + testRackTwo._id)
+      .delete('/api/batch-submit/racks/' + testRackTwo._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -225,14 +225,14 @@ describe('DELETE /racks/:rackId', () => {
 describe('POST /sample/:rackId', () => {
   it('should return error 403 if request is not authorised', async () => {
     await request(app)
-      .post('/batch-submit/sample/' + testRackOne._id)
+      .post('/api/batch-submit/sample/' + testRackOne._id)
       .expect(403)
   })
 
   it('should return error 406 if rack is full', async () => {
-    await request(app).post('/batch-submit/sample/' + testRackTwo._id)
+    await request(app).post('/api/batch-submit/sample/' + testRackTwo._id)
     const { body } = await request(app)
-      .post('/batch-submit/sample/' + testRackOne._id)
+      .post('/api/batch-submit/sample/' + testRackOne._id)
       .send([
         {
           slot: 1,
@@ -248,7 +248,7 @@ describe('POST /sample/:rackId', () => {
 
   it('should add one sample in test rack two', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/sample/' + testRackTwo._id)
+      .post('/api/batch-submit/sample/' + testRackTwo._id)
       .send([
         {
           slot: 1,
@@ -276,13 +276,13 @@ describe('POST /sample/:rackId', () => {
 describe('DELETE /sample/:rackId/:slot', () => {
   it('should return error 403 if request is not authorised', async () => {
     await request(app)
-      .delete('/batch-submit/sample/' + testRackOne._id + '/1')
+      .delete('/api/batch-submit/sample/' + testRackOne._id + '/1')
       .expect(403)
   })
 
   it('should delete the sample in slot 1 from test rack one', async () => {
     const { body } = await request(app)
-      .delete('/batch-submit/sample/' + testRackOne._id + '/1')
+      .delete('/api/batch-submit/sample/' + testRackOne._id + '/1')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -299,19 +299,19 @@ describe('DELETE /sample/:rackId/:slot', () => {
 
 describe('POST /book', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).post('/batch-submit/book').expect(403)
+    await request(app).post('/api/batch-submit/book').expect(403)
   })
 
   it('should fail with error 403 if request is authorised by user without admin access', async () => {
     await request(app)
-      .post('/batch-submit/book')
+      .post('/api/batch-submit/book')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should book experiments for sample in slot 2 in test rack 1', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/book')
+      .post('/api/batch-submit/book')
       .send({
         rackId: testRackOne._id,
         instrId: testInstrOne._id,
@@ -340,19 +340,19 @@ describe('POST /book', () => {
 
 describe('POST /submit', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).post('/batch-submit/submit').expect(403)
+    await request(app).post('/api/batch-submit/submit').expect(403)
   })
 
   it('should fail with error 403 if request is authorised by user without admin access', async () => {
     await request(app)
-      .post('/batch-submit/submit')
+      .post('/api/batch-submit/submit')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should submit sample in slot 1 of test rack one', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/submit')
+      .post('/api/batch-submit/submit')
       .send({
         rackId: testRackOne._id,
         slots: [1]
@@ -376,19 +376,19 @@ describe('POST /submit', () => {
 
 describe('POST /cancel', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).post('/batch-submit/submit').expect(403)
+    await request(app).post('/api/batch-submit/submit').expect(403)
   })
 
   it('should fail with error 403 if request is authorised by user without admin access', async () => {
     await request(app)
-      .post('/batch-submit/cancel')
+      .post('/api/batch-submit/cancel')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should cancel booked experiment for slot 1 in test rack one', async () => {
     const { body } = await request(app)
-      .post('/batch-submit/cancel')
+      .post('/api/batch-submit/cancel')
       .send({
         rackId: testRackOne._id,
         slots: [1]

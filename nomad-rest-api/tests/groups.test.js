@@ -14,10 +14,10 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
-describe('GET /admin/groups/', () => {
+describe('GET /api/admin/groups/', () => {
   it('should return an array containing 1 test group object', async () => {
     const { body } = await request(app)
-      .get('/admin/groups/')
+      .get('/api/admin/groups/')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(1)
@@ -26,7 +26,7 @@ describe('GET /admin/groups/', () => {
 
   it('should return an array containing 2 test group objects', async () => {
     const { body } = await request(app)
-      .get('/admin/groups/?showInactive=true')
+      .get('/api/admin/groups/?showInactive=true')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body.length).toBe(2)
@@ -35,12 +35,12 @@ describe('GET /admin/groups/', () => {
   })
 
   it('should fail with status code 403 if request is not authorised', async () => {
-    await request(app).get('/admin/groups/').expect(403)
+    await request(app).get('/api/admin/groups/').expect(403)
   })
 
   it('should return a simple list of groups for drop down select', async () => {
     const { body } = await request(app)
-      .get('/admin/groups/?list=true')
+      .get('/api/admin/groups/?list=true')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body[0]).toMatchObject({
@@ -52,10 +52,10 @@ describe('GET /admin/groups/', () => {
   })
 })
 
-describe('POST /admin/groups/', () => {
+describe('POST /api/admin/groups/', () => {
   it('should add a new group entry into database', async () => {
     const { body } = await request(app)
-      .post('/admin/groups/')
+      .post('/api/admin/groups/')
       .send({
         groupName: 'New-grp',
         description: 'New Group',
@@ -72,7 +72,7 @@ describe('POST /admin/groups/', () => {
 
   it('should fail with status code 403 if authorised user does not have admin access level', async () => {
     await request(app)
-      .post('/admin/groups/')
+      .post('/api/admin/groups/')
       .send({
         groupName: 'new-grp',
         description: 'New Group',
@@ -84,7 +84,7 @@ describe('POST /admin/groups/', () => {
 
   it('should fail with status code 403 if request is not authorised', async () => {
     await request(app)
-      .post('/admin/groups/')
+      .post('/api/admin/groups/')
       .send({
         groupName: 'new-grp',
         description: 'New Group',
@@ -95,7 +95,7 @@ describe('POST /admin/groups/', () => {
 
   it('should fail with status code 422 if empty string is provided for group name', async () => {
     const { body } = await request(app)
-      .post('/admin/groups/')
+      .post('/api/admin/groups/')
       .send({
         groupName: '',
         description: 'New Group',
@@ -108,7 +108,7 @@ describe('POST /admin/groups/', () => {
 
   it('should fail with status code 422 if group name already exists', async () => {
     const { body } = await request(app)
-      .post('/admin/groups/')
+      .post('/api/admin/groups/')
       .send({
         groupName: 'Test-group-1',
         description: 'New Group',
@@ -120,10 +120,10 @@ describe('POST /admin/groups/', () => {
   })
 })
 
-describe('PUT /admin/groups/', () => {
+describe('PUT /api/admin/groups/', () => {
   it('should change description and turn test-group-1 active', async () => {
     const { body } = await request(app)
-      .put('/admin/groups/')
+      .put('/api/admin/groups/')
       .send({
         _id: testGroupOne._id,
         isActive: true,
@@ -143,7 +143,7 @@ describe('PUT /admin/groups/', () => {
   it('should fail with status 404 if wrong group id is provided', async () => {
     const newId = await new mongoose.Types.ObjectId().toString()
     await request(app)
-      .put('/admin/groups/')
+      .put('/api/admin/groups/')
       .send({
         _id: newId,
         isActive: true,
@@ -155,7 +155,7 @@ describe('PUT /admin/groups/', () => {
 
   it('should fail with status 422 if request is not authorised by user with admin access level', async () => {
     await request(app)
-      .put('/admin/groups/')
+      .put('/api/admin/groups/')
       .send({
         _id: testGroupOne._id,
         isActive: true,
@@ -167,7 +167,7 @@ describe('PUT /admin/groups/', () => {
 
   it('should fail with status 422 if request is not authorised', async () => {
     await request(app)
-      .put('/admin/groups/')
+      .put('/api/admin/groups/')
       .send({
         _id: testGroupOne._id,
         isActive: true,
@@ -178,7 +178,7 @@ describe('PUT /admin/groups/', () => {
 
   it('should change test-group-1 to be batch submission group and set access level of users in the group to user-b', async () => {
     const { body } = await request(app)
-      .put('/admin/groups/')
+      .put('/api/admin/groups/')
       .send({
         _id: testGroupOne._id,
         isBatch: true
@@ -193,10 +193,10 @@ describe('PUT /admin/groups/', () => {
   })
 })
 
-describe('PATCH /admin/groups/toggle-active', () => {
+describe('PATCH /api/admin/groups/toggle-active', () => {
   it('should turn test-admins group inactive and change active status of users in the group', async () => {
     const { body } = await request(app)
-      .patch('/admin/groups/toggle-active/' + testGroupTwo._id)
+      .patch('/api/admin/groups/toggle-active/' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
     expect(body._id).toBe(testGroupTwo._id.toString())
@@ -209,34 +209,34 @@ describe('PATCH /admin/groups/toggle-active', () => {
   it('should fail with status 404 if wrong group id is provided', async () => {
     const newId = await new mongoose.Types.ObjectId().toString()
     await request(app)
-      .patch('/admin/groups/toggle-active/' + newId)
+      .patch('/api/admin/groups/toggle-active/' + newId)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(404)
   })
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/admin/groups/toggle-active/' + testGroupTwo._id)
+      .patch('/api/admin/groups/toggle-active/' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .patch('/admin/groups/toggle-active/' + testGroupTwo._id)
+      .patch('/api/admin/groups/toggle-active/' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .patch('/admin/groups/toggle-active/' + testGroupTwo._id)
+      .patch('/api/admin/groups/toggle-active/' + testGroupTwo._id)
       .expect(403)
   })
 })
 
-describe('POST /admin/groups/add-users', () => {
+describe('POST /api/admin/groups/add-users', () => {
   it('should create users in test-group-1 if array of usernames is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/groups/add-users/' + testGroupTwo._id)
+      .post('/api/admin/groups/add-users/' + testGroupTwo._id)
       .send(['add-user-1,add-user@test-mail.com', 'admin', 'test1', 'add-user-2'])
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
@@ -259,7 +259,7 @@ describe('POST /admin/groups/add-users', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access level', async () => {
     await request(app)
-      .post('/admin/groups/add-users/' + testGroupTwo._id)
+      .post('/api/admin/groups/add-users/' + testGroupTwo._id)
       .send(['add-user-1', 'admin', 'test1'])
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
@@ -267,7 +267,7 @@ describe('POST /admin/groups/add-users', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/admin/groups/add-users/' + testGroupTwo._id)
+      .post('/api/admin/groups/add-users/' + testGroupTwo._id)
       .send(['add-user-1', 'admin', 'test1'])
       .expect(403)
   })
