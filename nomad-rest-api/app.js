@@ -61,6 +61,8 @@ app.use('/datasets', datasetsRoutes)
 app.use('/stats', statsRoutes)
 app.use('/collections', collectionRoutes)
 
+app.use('/api/v2/auto-experiments', autoExperimentRoutes)
+
 app.use((req, res) => {
   res.status(404).send()
 })
