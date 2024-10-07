@@ -9,7 +9,7 @@ services:
   backend:
     build: ./nomad-rest-api
     env_file:
-      - ./env-example/backend.env
+      - ./env/backend.env
     ports:
       - '8080:8080'
     volumes:
@@ -23,7 +23,7 @@ services:
   frontend:
     build: ./nomad-front-end
     env_file:
-      - ./env-example/frontend.env
+      - ./env/frontend.env
     ports:
       - '3003:3003'
     volumes:
