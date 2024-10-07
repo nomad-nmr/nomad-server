@@ -25,10 +25,10 @@ vi.mock('bcryptjs', () => {
 
 vi.mock('../utils/emailTransporter')
 
-describe('POST /auth/login', () => {
+describe('POST /api/auth/login', () => {
   it('should return object with user info if username and correct password of active user is provided', async () => {
     const { body } = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         username: testUserTwo.username,
         password: testUserTwo.password
@@ -44,7 +44,7 @@ describe('POST /auth/login', () => {
 
   it('should fail with status 400 if username does not exist', async () => {
     const { body } = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         username: 'user-x',
         password: testUserTwo.password
@@ -55,7 +55,7 @@ describe('POST /auth/login', () => {
 
   it('should fail with status 400 if wrong password is provided', async () => {
     const { body } = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         username: testUserTwo.username,
         password: 'wrong-pass'
@@ -66,7 +66,7 @@ describe('POST /auth/login', () => {
 
   it('should fail with status 400 if user with given username is inactive', async () => {
     const { body } = await request(app)
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         username: testUserOne.username
       })
@@ -75,10 +75,10 @@ describe('POST /auth/login', () => {
   })
 })
 
-describe('POST /auth/logout', () => {
+describe('POST /api/auth/logout', () => {
   it('should removed JWT stored in user database', async () => {
     await request(app)
-      .post('/auth/logout')
+      .post('/api/auth/logout')
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -88,14 +88,14 @@ describe('POST /auth/logout', () => {
   })
 
   it('should fail with status 403 if user is not authorised', async () => {
-    await request(app).post('/auth/logout').expect(403)
+    await request(app).post('/api/auth/logout').expect(403)
   })
 })
 
-describe('POST /auth/password-reset', () => {
+describe('POST /api/auth/password-reset', () => {
   it('should return object with username and e-mail and sent password reset e-mail', async () => {
     const { body } = await request(app)
-      .post('/auth/password-reset')
+      .post('/api/auth/password-reset')
       .send({ username: testUserOne.username })
       .expect(200)
     expect(transporter.sendMail).toBeCalled()
@@ -103,17 +103,17 @@ describe('POST /auth/password-reset', () => {
   })
 
   it('should fail with status 400 if user with provided username does not exist', async () => {
-    await request(app).post('/auth/password-reset').send({ username: 'user-x' }).expect(400)
+    await request(app).post('/api/auth/password-reset').send({ username: 'user-x' }).expect(400)
   })
 })
 
-describe('GET /auth/password-reset', () => {
+describe('GET /api/auth/password-reset', () => {
   it('should return object with username and full name if existing reset token is provided', async () => {
     const userOne = await User.findById(testUserOne._id)
     const token = await userOne.generateResetToken()
 
     const { body } = await request(app)
-      .get('/auth/password-reset/' + token)
+      .get('/api/auth/password-reset/' + token)
       .expect(200)
 
     expect(body).toMatchObject({ username: 'test1', fullName: 'Test User One' })
@@ -121,7 +121,7 @@ describe('GET /auth/password-reset', () => {
 
   it('should fail with status 404 if token is not found', async () => {
     const { body } = await request(app)
-      .get('/auth/password-reset/' + 'wrong-token')
+      .get('/api/auth/password-reset/' + 'wrong-token')
       .expect(404)
     expect(body.message).toBe('Token is invalid or user does not exist')
   })
@@ -136,7 +136,7 @@ describe('GET /auth/password-reset', () => {
     vi.setSystemTime(fakeDate)
 
     const { body } = await request(app)
-      .get('/auth/password-reset/' + token)
+      .get('/api/auth/password-reset/' + token)
       .expect(403)
     expect(body.message).toBe('Token is invalid')
 
@@ -144,11 +144,11 @@ describe('GET /auth/password-reset', () => {
   })
 })
 
-describe('POST /auth/new-password', () => {
+describe('POST /api/auth/new-password', () => {
   //testing route validation
   it('should fail with status 422 if empty string is provided as full name', async () => {
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: '',
@@ -161,7 +161,7 @@ describe('POST /auth/new-password', () => {
 
   it('should fail with status 422 if password is too short', async () => {
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: 'New Full Name',
@@ -176,7 +176,7 @@ describe('POST /auth/new-password', () => {
 
   it('should fail with status 422 if passwords do not match', async () => {
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: 'New Full Name',
@@ -193,7 +193,7 @@ describe('POST /auth/new-password', () => {
     const token = await userOne.generateResetToken()
 
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: 'New Full Name',
@@ -217,7 +217,7 @@ describe('POST /auth/new-password', () => {
     const token = await userOne.generateResetToken()
 
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: testUserOne.username,
         fullName: testUserOne.fullName,
@@ -236,7 +236,7 @@ describe('POST /auth/new-password', () => {
 
   it('should fail with status 404 if invalid token is provided', async () => {
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: 'New Full Name',
@@ -258,7 +258,7 @@ describe('POST /auth/new-password', () => {
     vi.setSystemTime(fakeDate)
 
     const { body } = await request(app)
-      .post('/auth/new-password')
+      .post('/api/auth/new-password')
       .send({
         username: 'test1',
         fullName: 'New Full Name',
