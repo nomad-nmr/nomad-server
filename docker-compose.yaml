@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   mongodb:
     image: 'mongo'
@@ -10,7 +9,7 @@ services:
   backend:
     build: ./nomad-rest-api
     env_file:
-      - ./env/backend.env
+      - ./env-example/backend.env
     ports:
       - '8080:8080'
     volumes:
@@ -24,7 +23,7 @@ services:
   frontend:
     build: ./nomad-front-end
     env_file:
-      - ./env/frontend.env
+      - ./env-example/frontend.env
     ports:
       - '3003:3003'
     volumes:
