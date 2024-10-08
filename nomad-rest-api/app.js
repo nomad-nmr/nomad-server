@@ -25,6 +25,7 @@ import claimRoutes from './routes/claims.js'
 import datasetsRoutes from './routes/datasets.js'
 import statsRoutes from './routes/admin/stats.js'
 import collectionRoutes from './routes/collections.js'
+import autoExperimentRoutes from './routes/auto-experiments.js'
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()

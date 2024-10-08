@@ -7,3 +7,5 @@ const router = Router()
 
 router.get('/', auth, getAutoExperiments)
 // router.get('/:expId/raw-data', auth, getSpectrum)
+
+export default router
