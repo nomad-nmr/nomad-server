@@ -15,10 +15,33 @@ export async function getAutoExperiments(req, res) {
   } = req.query
 
   try {
-    const dataAccess = await req.user.getDataAccess()
-
-
     const searchParams = {}
+
+    const dataAccess = await req.user.getDataAccess()
+    switch (dataAccess) {
+      case 'user':
+        searchParams['user.id'] = req.user._id
+        break
+      case 'group':
+        searchParams.$or = [{ 'user.id': req.user._id }, { 'group.id': req.user.group }]
+        break
+      case 'admin-b':
+      case 'admin':
+        if (groupId !== undefined) {
+          searchParams['group.id'] = {
+            $in: groupId.split(',')
+          }
+        }
+        if (userId !== undefined) {
+          searchParams['user.id'] = {
+            $in: userId.split(',')
+          }
+        }
+        break
+
+      default:
+        throw new Error('Data access rights unknown')
+    }
 
     if (solvent !== undefined) {
       searchParams['solvent'] = {
@@ -52,17 +75,6 @@ export async function getAutoExperiments(req, res) {
       }
     }
 
-    if (groupId !== undefined) {
-      searchParams['group.id'] = {
-        $in: groupId.split(',')
-      }
-    }
-
-    if (userId !== undefined) {
-      searchParams['user.id'] = {
-        $in: userId.split(',')
-      }
-    }
 
     if (datasetName !== undefined) {
       searchParams['datasetName'] = {
