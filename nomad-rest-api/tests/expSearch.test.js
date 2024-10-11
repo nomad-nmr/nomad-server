@@ -28,8 +28,8 @@ describe('GET /search/experiments', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.data.length).toBe(4)
-    expect(body.total).toBe(5)
+    expect(body.data.length).toBe(5)
+    expect(body.total).toBe(6)
   })
 
   it('should return array with one dataset with 2 experiments in total if title substring "exp 1" is provided', async () => {

@@ -3,7 +3,7 @@ import request from 'supertest'
 
 import app from '../app.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
-import { testUserAdmin, testUserOne, testUserThree, testUserTwo } from './fixtures/data/users.js'
+import { testUserAdmin } from './fixtures/data/users.js'
 import { testInstrOne, testInstrThree } from './fixtures/data/instruments.js'
 
 beforeAll(connectDB)
@@ -21,7 +21,7 @@ describe('GET /api/v2/auto-experiments', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(6)
+    expect(body.length).toBe(7)
   })
 
   it('should return an array all experiments from instruments 1', async () => {
@@ -45,7 +45,33 @@ describe('GET /api/v2/auto-experiments', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(3)
+    expect(body.length).toBe(4)
+  })
+
+  it('should limit the number of experiments returned to 2', async () => {
+    const searchParams = {
+      offset: 3,
+      limit: 2,
+    }
+    const { body } = await request(app)
+      .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.length).toBe(2)
+  })
+
+  it('should return experiments within a date range', async () => {
+    const searchParams = {
+      dateRange: '2000-01-01,2024-02-01',
+    }
+    const { body } = await request(app)
+      .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.length).toBe(1)
+    expect(body[0].submittedAt).toBe('2024-01-01T00:00:00.000Z')
   })
 
 })

@@ -4,12 +4,14 @@ export async function getAutoExperiments(req, res) {
   const {
     solvent,
     instrumentId,
-    paramSet,
+    parameterSet,
     title,
     dateRange,
     groupId,
     userId,
     datasetName,
+    offset,
+    limit,
   } = req.query
 
   try {
@@ -18,13 +20,58 @@ export async function getAutoExperiments(req, res) {
 
     const searchParams = {}
 
+    if (solvent !== undefined) {
+      searchParams['solvent'] = {
+        $in: solvent.split(',')
+      }
+    }
+
     if (instrumentId !== undefined) {
       searchParams['instrument.id'] = {
         $in: instrumentId.split(',')
       }
     }
 
-    let experiments = await Experiment.find(searchParams)
+    if (parameterSet !== undefined) {
+      searchParams['parameterSet'] = {
+        $in: parameterSet.split(',')
+      }
+    }
+
+    if (title !== undefined) {
+      searchParams['title'] = {
+        $in: title.split(',')
+      }
+    }
+
+    if (dateRange !== undefined) {
+      const datesArr = dateRange.split(',')
+      searchParams['submittedAt'] = {
+        $gte: new Date(datesArr[0]),
+        $lt: new Date(datesArr[1])
+      }
+    }
+
+    if (groupId !== undefined) {
+      searchParams['group.id'] = {
+        $in: groupId.split(',')
+      }
+    }
+
+    if (userId !== undefined) {
+      searchParams['user.id'] = {
+        $in: userId.split(',')
+      }
+    }
+
+    if (datasetName !== undefined) {
+      searchParams['datasetName'] = {
+        $in: datasetName.split(',')
+      }
+    }
+
+    let experiments = await Experiment.find(searchParams).skip(offset).limit(limit)
+
     res.send(experiments.map(exp => (
       {
         key: exp.expId,
