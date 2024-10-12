@@ -18,19 +18,19 @@ beforeEach(setupDB)
 
 describe('GET /accounts/data', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).get('/admin/accounts/data').expect(403)
+    await request(app).get('/api/admin/accounts/data').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .get('/admin/accounts/data')
+      .get('/api/admin/accounts/data')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should return data array of length 2 with the first object corresponding to testGroupTwo', async () => {
     const { body } = await request(app)
-      .get('/admin/accounts/data/?groupId=undefined')
+      .get('/api/admin/accounts/data/?groupId=undefined')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -41,7 +41,7 @@ describe('GET /accounts/data', () => {
 
   it('should return data array of length 2 the first object corresponding to testUserThree', async () => {
     const { body } = await request(app)
-      .get('/admin/accounts/data/?groupId=' + testGroupTwo._id)
+      .get('/api/admin/accounts/data/?groupId=' + testGroupTwo._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -54,19 +54,19 @@ describe('GET /accounts/data', () => {
 
 describe('GET /accounts/instruments-costing', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).get('/admin/accounts/instruments-costing').expect(403)
+    await request(app).get('/api/admin/accounts/instruments-costing').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .get('/admin/accounts/instruments-costing')
+      .get('/api/admin/accounts/instruments-costing')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should data array of length 2 the first object corresponding to testInstrumentOne', async () => {
     const { body } = await request(app)
-      .get('/admin/accounts/instruments-costing')
+      .get('/api/admin/accounts/instruments-costing')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -78,12 +78,12 @@ describe('GET /accounts/instruments-costing', () => {
 
 describe('PUT /accounts/instruments-costing', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).put('/admin/accounts/instruments-costing').expect(403)
+    await request(app).put('/api/admin/accounts/instruments-costing').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .put('/admin/accounts/instruments-costing')
+      .put('/api/admin/accounts/instruments-costing')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
@@ -94,7 +94,7 @@ describe('PUT /accounts/instruments-costing', () => {
     reqData[testInstrThree.name] = testInstrThree.cost
 
     await request(app)
-      .put('/admin/accounts/instruments-costing')
+      .put('/api/admin/accounts/instruments-costing')
       .send(reqData)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
@@ -108,19 +108,19 @@ describe('PUT /accounts/instruments-costing', () => {
 
 describe('POST /accounts/grants', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).post('/admin/accounts/grants').expect(403)
+    await request(app).post('/api/admin/accounts/grants').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .post('/admin/accounts/grants')
+      .post('/api/admin/accounts/grants')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status code 422 if grantCode of testGrantOne is provided', async () => {
     const { body } = await request(app)
-      .post('/admin/accounts/grants')
+      .post('/api/admin/accounts/grants')
       .send({ grantCode: testGrantOne.grantCode })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
@@ -130,7 +130,7 @@ describe('POST /accounts/grants', () => {
 
   it('should add a new grant into DB', async () => {
     const { body } = await request(app)
-      .post('/admin/accounts/grants')
+      .post('/api/admin/accounts/grants')
       .send({ grantCode: 'XX-test-3-YY', include: [] })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
@@ -141,7 +141,7 @@ describe('POST /accounts/grants', () => {
 
   it('should fail with status code 409 includes property contains testUserOne', async () => {
     const { body } = await request(app)
-      .post('/admin/accounts/grants')
+      .post('/api/admin/accounts/grants')
       .send({
         grantCode: 'XX-test-3-YY',
         include: [
@@ -163,19 +163,19 @@ describe('POST /accounts/grants', () => {
 
 describe('GET /accounts/grants', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).get('/admin/accounts/grants').expect(403)
+    await request(app).get('/api/admin/accounts/grants').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .get('/admin/accounts/grants')
+      .get('/api/admin/accounts/grants')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should get array of 2 objects', async () => {
     const { body } = await request(app)
-      .get('/admin/accounts/grants')
+      .get('/api/admin/accounts/grants')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -187,20 +187,20 @@ describe('GET /accounts/grants', () => {
 describe('DELETE /accounts/grants/:grantId', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
     await request(app)
-      .delete('/admin/accounts/grants/' + testGrantOne._id.toString())
+      .delete('/api/admin/accounts/grants/' + testGrantOne._id.toString())
       .expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .delete('/admin/accounts/grants/' + testGrantOne._id.toString())
+      .delete('/api/admin/accounts/grants/' + testGrantOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should testGrantOne if corresponding id is provided', async () => {
     const { body } = await request(app)
-      .delete('/admin/accounts/grants/' + testGrantOne._id.toString())
+      .delete('/api/admin/accounts/grants/' + testGrantOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -216,19 +216,19 @@ describe('DELETE /accounts/grants/:grantId', () => {
 
 describe('PUT/ /accounts/grants/', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).put('/admin/accounts/grants').expect(403)
+    await request(app).put('/api/admin/accounts/grants').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .put('/admin/accounts/grants')
+      .put('/api/admin/accounts/grants')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status code 409 if user is authorised by user without admin privileges', async () => {
     const { body } = await request(app)
-      .put('/admin/accounts/grants')
+      .put('/api/admin/accounts/grants')
       .send({
         _id: testGrantTwo._id,
         include: [
@@ -249,7 +249,7 @@ describe('PUT/ /accounts/grants/', () => {
 
   it('should should update testGrantTwo', async () => {
     const { body } = await request(app)
-      .put('/admin/accounts/grants')
+      .put('/api/admin/accounts/grants')
       .send({
         _id: testGrantTwo._id,
         include: [
@@ -280,19 +280,19 @@ describe('PUT/ /accounts/grants/', () => {
 
 describe('GET /accounts/grants-costs', () => {
   it('should fail with status code 403 if user is not authorised', async () => {
-    await request(app).get('/admin/accounts/grants-costs').expect(403)
+    await request(app).get('/api/admin/accounts/grants-costs').expect(403)
   })
 
   it('should fail with status code 403 if user is authorised by user without admin privileges', async () => {
     await request(app)
-      .get('/admin/accounts/grants-costs')
+      .get('/api/admin/accounts/grants-costs')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should return grants costs calculation data object', async () => {
     const { body } = await request(app)
-      .get('/admin/accounts/grants-costs')
+      .get('/api/admin/accounts/grants-costs')
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
