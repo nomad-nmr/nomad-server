@@ -5,12 +5,12 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "test-once": "env-cmd -f ../env/backend-test.env vitest --run",
+    "test-once": "env-cmd -f ../envs/dev/backend-test.env vitest --run",
     "test-action": "vitest --run",
-    "test": "env-cmd -f ../env/backend-test.env vitest --reporter verbose",
-    "coverage": "env-cmd -f ../env/backend-test.env vitest run --coverage",
-    "start": "env-cmd -f ../env/api-no-docker.env node server.js",
-    "dev": "env-cmd -f ../env/api-no-docker.env nodemon server.js",
+    "test": "env-cmd -f ../envs/dev/backend-test.env vitest --reporter verbose",
+    "coverage": "env-cmd -f ../envs/dev/backend-test.env vitest run --coverage",
+    "start": "env-cmd -f ../envs/dev/api-no-docker.env node server.js",
+    "dev": "env-cmd -f ../envs/dev/api-no-docker.env nodemon server.js",
     "dev-docker": "nodemon server.js"
   },
   "keywords": [],

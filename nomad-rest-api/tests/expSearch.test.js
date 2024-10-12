@@ -12,9 +12,9 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
-describe('GET /search/experiments', () => {
+describe('GET /api/search/experiments', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).get('/search/experiments').expect(403)
+    await request(app).get('/api/search/experiments').expect(403)
   })
 
   it('should return array with all experiments in DB', async () => {
@@ -24,7 +24,7 @@ describe('GET /search/experiments', () => {
       pageSize: 20
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -40,7 +40,7 @@ describe('GET /search/experiments', () => {
       title: 'exp 1'
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -58,7 +58,7 @@ describe('GET /search/experiments', () => {
       datasetName: '2106231050-2-1-test1'
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -75,7 +75,7 @@ describe('GET /search/experiments', () => {
       solvent: 'C6D6'
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -94,7 +94,7 @@ describe('GET /search/experiments', () => {
     }
 
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -117,7 +117,7 @@ describe('GET /search/experiments', () => {
     }
 
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -138,7 +138,7 @@ describe('GET /search/experiments', () => {
       userId: undefined
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -158,7 +158,7 @@ describe('GET /search/experiments', () => {
       userId: undefined
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -178,7 +178,7 @@ describe('GET /search/experiments', () => {
       userId: testUserTwo._id
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -198,7 +198,7 @@ describe('GET /search/experiments', () => {
       legacyData: true
     }
     const { body } = await request(app)
-      .get('/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(200)
 
@@ -215,18 +215,18 @@ describe('GET /search/experiments', () => {
   })
 })
 
-describe('GET /search/data-access', () => {
+describe('GET /api/search/data-access', () => {
   it('should fail with error 403 if request is not authorised', async () => {
-    await request(app).get('/search/data-access').expect(403)
+    await request(app).get('/api/search/data-access').expect(403)
   })
 
   it('should fail with error 403 if request is not authorised', async () => {
-    const { body } = await request(app).get('/search/data-access').expect(403)
+    const { body } = await request(app).get('/api/search/data-access').expect(403)
   })
 
   it('should return {dataAccess: group}', async () => {
     const { body } = await request(app)
-      .get('/search/data-access')
+      .get('/api/search/data-access')
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
     expect(body).toMatchObject({ dataAccess: 'group' })
@@ -234,7 +234,7 @@ describe('GET /search/data-access', () => {
 
   it('should return {dataAccess: user}', async () => {
     const { body } = await request(app)
-      .get('/search/data-access')
+      .get('/api/search/data-access')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
     expect(body).toMatchObject({ dataAccess: 'user' })
