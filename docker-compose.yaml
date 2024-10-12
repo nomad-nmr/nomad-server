@@ -10,7 +10,7 @@ services:
   backend:
     build: ./nomad-rest-api
     env_file:
-      - ./env/backend.env
+      - ./envs/dev/backend.env
     ports:
       - '8080:8080'
     volumes:
@@ -24,7 +24,7 @@ services:
   frontend:
     build: ./nomad-front-end
     env_file:
-      - ./env/frontend.env
+      - ./envs/dev/frontend.env
     ports:
       - '3003:3003'
     volumes:
@@ -35,6 +35,8 @@ services:
       - backend
 
   client:
+    profiles:
+      - client
     build: ../nomad-spect-client
     volumes:
       - ../nomad-spect-client/src:/app/src
@@ -43,7 +45,7 @@ services:
       - /mnt/c/Users/tl12/nomad-data-test/clientData/auto:/app/nmr-data/auto
       - /mnt/c/Users/tl12/nomad-data-test/clientData/manual:/app/nmr-data/manual
     env_file:
-      - ./env/client.env
+      - ./envs/dev/client.env
 
     depends_on:
       - backend
