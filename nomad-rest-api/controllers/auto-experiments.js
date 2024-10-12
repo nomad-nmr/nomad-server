@@ -1,12 +1,179 @@
 import Experiment from '../models/experiment.js'
 
+export const openApiDoc = {
+  get: {
+    summary: 'Get all auto experiments',
+    description: 'Get a list of all auto experiments',
+    parameters: [
+      {
+        in: 'header',
+        name: 'Authorization',
+        description: 'JWT authorization token',
+        required: true,
+        schema: {
+          type: 'string',
+        },
+      },
+      {
+        in: 'query',
+        name: 'solvent',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'instrumentId',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'parameterSet',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'title',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'startDate',
+        schema: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+      {
+        in: 'query',
+        name: 'endDate',
+        schema: {
+          type: 'string',
+          format: 'date',
+        },
+      },
+      {
+        in: 'query',
+        name: 'groupId',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'userId',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+      {
+        in: 'query',
+        name: 'datasetName',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ]
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: 'All auto experiments',
+        content: {
+          "application/json": {
+            schema: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  key: {
+                    type: 'string',
+                  },
+                  datasetName: {
+                    type: 'string',
+                  },
+                  expNo: {
+                    type: 'string',
+                  },
+                  parameterSet: {
+                    type: 'string',
+                  },
+                  parameters: {
+                    type: 'string',
+                  },
+                  title: {
+                    type: 'string'
+                  },
+                  instrument: {
+                    type: 'string'
+                  },
+                  user: {
+                    type: 'string'
+                  },
+                  group: {
+                    type: 'string'
+                  },
+                  solvent: {
+                    type: 'string'
+                  },
+                  submittedAt: {
+                    type: 'string',
+                    format: 'date-time'
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      403: {
+        description: 'Forbidden. Did you forget to authenticate?',
+        content: {
+          'text/plain': {
+            schema: {
+              type: 'string',
+              example: 'Please authenticate',
+            }
+          }
+        }
+      },
+    },
+  }
+}
+
 export async function getAutoExperiments(req, res) {
   const {
     solvent,
     instrumentId,
     parameterSet,
     title,
-    dateRange,
+    startDate,
+    endDate,
     groupId,
     userId,
     datasetName,
@@ -67,14 +234,17 @@ export async function getAutoExperiments(req, res) {
       }
     }
 
-    if (dateRange !== undefined) {
-      const datesArr = dateRange.split(',')
+    if (startDate !== undefined) {
       searchParams['submittedAt'] = {
-        $gte: new Date(datesArr[0]),
-        $lt: new Date(datesArr[1])
+        $gte: new Date(startDate),
       }
     }
 
+    if (endDate !== undefined) {
+      searchParams['submittedAt'] = {
+        $lt: new Date(endDate),
+      }
+    }
 
     if (datasetName !== undefined) {
       searchParams['datasetName'] = {
@@ -84,7 +254,7 @@ export async function getAutoExperiments(req, res) {
 
     let experiments = await Experiment.find(searchParams).skip(offset).limit(limit)
 
-    res.send(experiments.map(exp => (
+    res.json(experiments.map(exp => (
       {
         key: exp.expId,
         datasetName: exp.datasetName,

@@ -6,11 +6,15 @@ import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
+import swaggerUi from 'swagger-ui-express'
 
 import trackerRoutes from './routes/tracker.js'
 import instrumentsRoutes from './routes/admin/insruments.js'
 import dashRoutes from './routes/dashboard.js'
+
+import { authLoginOpenApiDoc } from './controllers/auth.js'
 import authRoutes from './routes/auth.js'
+
 import usersRoutes from './routes/admin/users.js'
 import groupsRoutes from './routes/admin/groups.js'
 import historyRoutes from './routes/admin/expHistory.js'
@@ -25,7 +29,10 @@ import claimRoutes from './routes/claims.js'
 import datasetsRoutes from './routes/datasets.js'
 import statsRoutes from './routes/admin/stats.js'
 import collectionRoutes from './routes/collections.js'
+
 import autoExperimentRoutes from './routes/auto-experiments.js'
+import { openApiDoc as autoExperimentOpenApiDoc } from './controllers/auto-experiments.js'
+
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()
@@ -62,6 +69,27 @@ app.use('/datasets', datasetsRoutes)
 app.use('/stats', statsRoutes)
 app.use('/collections', collectionRoutes)
 
+
+const swaggerDocument = {
+  openapi: '3.0.0',
+  info: {
+    title: 'NOMAD REST API',
+    version: '2.0.0',
+    description: 'REST API documentation',
+  },
+  servers: [
+    {
+      url: process.env.VITE_API_URL,
+    },
+  ],
+  paths: {
+    '/auth/login': authLoginOpenApiDoc,
+    '/api/v2/auto-experiments': autoExperimentOpenApiDoc,
+  }
+}
+
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 app.use('/api/v2/auto-experiments', autoExperimentRoutes)
 
 app.use((req, res) => {
