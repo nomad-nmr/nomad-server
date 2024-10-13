@@ -92,6 +92,20 @@ export const openApiDoc = {
           ]
         },
       },
+      {
+        in: 'query',
+        name: 'offset',
+        schema: {
+          type: 'integer',
+        }
+      },
+      {
+        in: 'query',
+        name: 'limit',
+        schema: {
+          type: 'integer',
+        }
+      },
     ],
     responses: {
       200: {
@@ -103,7 +117,7 @@ export const openApiDoc = {
               items: {
                 type: "object",
                 properties: {
-                  key: {
+                  id: {
                     type: 'string',
                   },
                   datasetName: {
@@ -132,10 +146,6 @@ export const openApiDoc = {
                   },
                   solvent: {
                     type: 'string'
-                  },
-                  submittedAt: {
-                    type: 'string',
-                    format: 'date-time'
                   },
                 },
               },
@@ -248,7 +258,7 @@ export async function getAutoExperiments(req, res) {
 
     res.json(experiments.map(exp => (
       {
-        key: exp.expId,
+        id: exp.expId,
         datasetName: exp.datasetName,
         expNo: exp.expNo,
         parameterSet: exp.parameterSet,
