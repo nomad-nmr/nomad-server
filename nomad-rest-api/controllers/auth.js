@@ -94,7 +94,7 @@ export async function postLogin(req, res) {
       manualAccess: user.manualAccess,
       groupName: user.group.groupName,
       token: token,
-      expiresIn: process.env.JWT_EXPIRATION
+      expiresIn: +process.env.JWT_EXPIRATION
     })
   } catch (error) {
     res.status(500).send()
