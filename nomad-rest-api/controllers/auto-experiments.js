@@ -1,6 +1,10 @@
 import Experiment from '../models/experiment.js'
+import User from '../models/user.js'
+import JSZip from 'jszip'
+import path from 'path'
+import fs from 'fs/promises'
 
-export const openApiDoc = {
+export const autoExperimentsOpenApiDoc = {
   get: {
     summary: 'Get all auto experiments',
     description: 'Get a list of all auto experiments',
@@ -274,5 +278,103 @@ export async function getAutoExperiments(req, res) {
   } catch (error) {
     console.log(error)
     res.status(500).send()
+  }
+}
+
+export const downloadAutoExperimentOpenApiDoc = {
+  post: {
+    summary: 'Download auto experiments',
+    description: 'Download a zip file of raw auto experiment data',
+    tags: ['NMR Data'],
+    parameters: [
+      {
+        in: 'query',
+        name: 'id',
+        schema: {
+          oneOf: [
+            { type: 'string' },
+            { type: 'array', items: { type: 'string' } }
+          ],
+        },
+      },
+    ],
+    responses: {
+      200: {
+        description: 'Auto experiments',
+        content: {
+        },
+      },
+      403: {
+        description: 'Forbidden. Did you forget to authenticate?',
+        content: {
+          'text/plain': {
+            schema: {
+              type: 'string',
+              example: 'Please authenticate',
+            }
+          }
+        }
+      },
+    },
+  },
+}
+
+export async function downloadAutoExperiments(req, res) {
+  const { id } = req.query
+  try {
+
+    const searchParams = {}
+
+    const dataAccess = await req.user.getDataAccess()
+    switch (dataAccess) {
+      case 'user':
+        searchParams['user.id'] = req.user._id
+        break
+      case 'group':
+        searchParams.$or = [{ 'user.id': req.user._id }, { 'group.id': req.user.group }]
+        break
+      case 'admin-b':
+      case 'admin':
+        break
+
+      default:
+        throw new Error('Data access rights unknown')
+    }
+
+    if (id !== undefined) {
+      searchParams['expId'] = {
+        $in: id.split(',')
+      }
+    }
+
+    let experiments = await Experiment.find(searchParams)
+    console.log(experiments)
+
+    const mainZip = new JSZip()
+
+    await Promise.all(
+      experiments.map(async experiment => {
+
+        const zipFilePath = path.join(
+          process.env.DATASTORE_PATH,
+          experiment.dataPath,
+          experiment.expId + '.zip'
+        )
+
+        const zipFile = await fs.readFile(zipFilePath)
+        const zipObject = await JSZip.loadAsync(zipFile)
+        const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
+        await mainZip.loadAsync(zipContent, { createFolders: true })
+      })
+    )
+
+    const user = await User.findById(req.user._id)
+    user.stats.downloadCount += 1
+    await user.save()
+
+    mainZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(res)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
 }

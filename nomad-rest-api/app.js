@@ -31,7 +31,7 @@ import statsRoutes from './routes/admin/stats.js'
 import collectionRoutes from './routes/collections.js'
 
 import autoExperimentRoutes from './routes/auto-experiments.js'
-import { openApiDoc as autoExperimentOpenApiDoc } from './controllers/auto-experiments.js'
+import { autoExperimentsOpenApiDoc, downloadAutoExperimentOpenApiDoc } from './controllers/auto-experiments.js'
 
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
@@ -96,7 +96,8 @@ const swaggerDocument = {
   ],
   paths: {
     '/api/auth/login': authLoginOpenApiDoc,
-    '/api/v2/auto-experiments': autoExperimentOpenApiDoc,
+    '/api/v2/auto-experiments': autoExperimentsOpenApiDoc,
+    '/api/v2/auto-experiments/download': downloadAutoExperimentOpenApiDoc,
   }
 }
 
