@@ -348,7 +348,6 @@ export async function downloadAutoExperiments(req, res) {
     }
 
     let experiments = await Experiment.find(searchParams)
-    console.log(experiments)
 
     const mainZip = new JSZip()
 
