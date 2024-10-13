@@ -12,6 +12,7 @@ export const authLoginOpenApiDoc = {
   post: {
     summary: 'Login to NOMAD',
     description: 'Returns an access token for the user',
+    tags: ['Auth'],
     requestBody: {
       required: true,
       content: {

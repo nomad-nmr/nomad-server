@@ -82,8 +82,20 @@ const swaggerDocument = {
       url: process.env.VITE_API_URL,
     },
   ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    },
+  },
+  security: [
+    { bearerAuth: [] },
+  ],
   paths: {
-    '/auth/login': authLoginOpenApiDoc,
+    '/api/auth/login': authLoginOpenApiDoc,
     '/api/v2/auto-experiments': autoExperimentOpenApiDoc,
   }
 }

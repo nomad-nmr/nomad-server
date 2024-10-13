@@ -4,16 +4,8 @@ export const openApiDoc = {
   get: {
     summary: 'Get all auto experiments',
     description: 'Get a list of all auto experiments',
+    tags: ['NMR Data'],
     parameters: [
-      {
-        in: 'header',
-        name: 'Authorization',
-        description: 'JWT authorization token',
-        required: true,
-        schema: {
-          type: 'string',
-        },
-      },
       {
         in: 'query',
         name: 'solvent',
