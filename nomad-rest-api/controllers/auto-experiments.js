@@ -300,8 +300,14 @@ export const downloadAutoExperimentOpenApiDoc = {
     ],
     responses: {
       200: {
-        description: 'Auto experiments',
+        description: 'Zip file of raw auto experiment data',
         content: {
+          'application/zip': {
+            schema: {
+              type: 'string',
+              format: 'binary'
+            }
+          }
         },
       },
       403: {
