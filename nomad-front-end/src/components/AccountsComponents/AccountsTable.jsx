@@ -1,10 +1,9 @@
 import React from 'react'
-import { Table, Tooltip } from 'antd'
+import { Table } from 'antd'
 
 import classes from './AccountsTable.module.css'
 
 const AccountsTable = props => {
-  console.log(props)
   const columns = [
     {
       title: props.header,
@@ -17,23 +16,18 @@ const AccountsTable = props => {
     }
   ]
 
-  //add the grantcode if it exists
-  if (props.data[0].grantCode) {
+  //add the grantCode column if data are for user calculation
+  if (props.header === 'User Name') {
     columns.push({
       title: 'Grant Code',
       width: 35,
       dataIndex: 'grantCode',
       key: 'grantCode',
       fixed: 'left',
-      align: 'center',
-      render: (text, record) => {
-        return (record.grantCode && <Tooltip title={`ID: ${record.grantCode?.grantId} \n mutiplier: ${record.grantCode?.multiplier}`}>
-          <p style={{ color: 'blue' }}>See Grants Info</p>
-        </Tooltip>)
-      }
-
+      align: 'center'
     })
   }
+
   //Getting dynamic table headers from the first data object
   props.data[0].costsPerInstrument.forEach((cost, index) => {
     columns.push({

@@ -8,8 +8,7 @@ import { CloudDownloadOutlined } from '@ant-design/icons'
 const AccountingControls = props => {
   const { setGrantsVisible, tableData, tableHeader, accType } = props
   const standardColumns = {
-    grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]'],
-    users: ['Grant Code ID', 'Grant Code Multiplier']
+    grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
   }
   const columnsParser = (head, data, type) => {
     let columns = []
@@ -19,14 +18,14 @@ const AccountingControls = props => {
     } else {
       columns = [head]
       if (type === 'Users') {
-        columns = [...columns, ...standardColumns.users]
+        columns = [...columns, 'Grant Code']
       }
       let presentColumns = data[0].costsPerInstrument
       presentColumns.forEach(({ instrument }) => {
         const newColumnsToAdd = [
           instrument + ' Exp Time Manual',
           instrument + ' Exp Time Auto',
-          instrument + ' Exp Time Cost [£]'
+          instrument + ' Cost [£]'
         ]
         columns = [...columns, ...newColumnsToAdd]
       })
@@ -58,17 +57,10 @@ const AccountingControls = props => {
     } else {
       data.forEach(row => {
         let FlatRow = [row.name]
-        
-        //add the grantcodes
-        let grantCodeInfo = ['--', '--']
-        if (row.grantCode) {
-          grantCodeInfo = [row.grantCode.grantId, row.grantCode.multiplier]
-        }
-        if (type === 'Users') {
-          //only add if its users
-          FlatRow = [...FlatRow, ...grantCodeInfo]
-        }
 
+        if (type === 'Users') {
+          FlatRow = [...FlatRow, row.grantCode]
+        }
 
         row.costsPerInstrument.forEach(instrumentData => {
           const { cost, expTimeAuto, expTimeClaims } = instrumentData
