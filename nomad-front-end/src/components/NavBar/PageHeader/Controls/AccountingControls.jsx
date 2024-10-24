@@ -17,12 +17,15 @@ const AccountingControls = props => {
       columns = standardColumns.grants
     } else {
       columns = [head]
+      if (type === 'Users') {
+        columns = [...columns, 'Grant Code']
+      }
       let presentColumns = data[0].costsPerInstrument
       presentColumns.forEach(({ instrument }) => {
         const newColumnsToAdd = [
           instrument + ' Exp Time Manual',
           instrument + ' Exp Time Auto',
-          instrument + ' Exp Time Cost [£]'
+          instrument + ' Cost [£]'
         ]
         columns = [...columns, ...newColumnsToAdd]
       })
@@ -54,6 +57,11 @@ const AccountingControls = props => {
     } else {
       data.forEach(row => {
         let FlatRow = [row.name]
+
+        if (type === 'Users') {
+          FlatRow = [...FlatRow, row.grantCode]
+        }
+
         row.costsPerInstrument.forEach(instrumentData => {
           const { cost, expTimeAuto, expTimeClaims } = instrumentData
           FlatRow = [...FlatRow, expTimeClaims, expTimeAuto, cost]
