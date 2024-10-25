@@ -70,7 +70,7 @@ vi.mock('bcryptjs', () => {
 describe('POST /holders', () => {
   it('should call getSubmitter and return object with booked holders', async () => {
     const { body } = await request(app)
-      .post('/submit/holders')
+      .post('/api/submit/holders')
       .send({ instrumentId: testInstrOne._id.toString(), count: 2 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -87,7 +87,7 @@ describe('POST /holders', () => {
 
   it('should send email to admins and switch set instrument available false', async () => {
     await request(app)
-      .post('/submit/holders')
+      .post('/api/submit/holders')
       .send({ instrumentId: testInstrThree._id.toString(), count: 2 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -97,7 +97,7 @@ describe('POST /holders', () => {
 
   it('should fail with status 500 is submitter does not return holders arrays', async () => {
     await request(app)
-      .post('/submit/holders')
+      .post('/api/submit/holders')
       .send({ instrumentId: testInstrTwo._id.toString(), count: 2 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(500)
@@ -105,7 +105,7 @@ describe('POST /holders', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/submit/holders')
+      .post('/api/submit/holders')
       .send({ instrumentId: testInstrOne._id.toString(), count: 2 })
       .expect(403)
   })
@@ -114,7 +114,7 @@ describe('POST /holders', () => {
 describe('DELETE /holders', () => {
   it('should call get submitter and respond with status 200', async () => {
     await request(app)
-      .delete('/submit/holders')
+      .delete('/api/submit/holders')
       .send([1, 2])
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -123,14 +123,14 @@ describe('DELETE /holders', () => {
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
-    await request(app).delete('/submit/holders').send([1, 2]).expect(403)
+    await request(app).delete('/api/submit/holders').send([1, 2]).expect(403)
   })
 })
 
 describe('DELETE /holder', () => {
   it('should call get submitter and respond with status 200', async () => {
     await request(app)
-      .delete('/submit/holder/' + testInstrOne._id.toString() + '-' + '2')
+      .delete('/api/submit/holder/' + testInstrOne._id.toString() + '-' + '2')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -139,7 +139,7 @@ describe('DELETE /holder', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .delete('/submit/holder/' + testInstrOne._id.toString() + '-' + '2')
+      .delete('/api/submit/holder/' + testInstrOne._id.toString() + '-' + '2')
       .expect(403)
   })
 })
@@ -147,7 +147,7 @@ describe('DELETE /holder', () => {
 describe('POST /experiments', () => {
   it('should emit booking command to clients and create new experiment in DB on behalf of user who authorised the request', async () => {
     await request(app)
-      .post('/submit/experiments/undefined')
+      .post('/api/submit/experiments/undefined')
       .send({
         timeStamp: '2409161507',
         formData: {
@@ -175,7 +175,7 @@ describe('POST /experiments', () => {
 
   it('should emit booking command to clients and create new experiment in DB on behalf of testUserTwo', async () => {
     await request(app)
-      .post('/submit/experiments/' + testUserTwo._id.toString())
+      .post('/api/submit/experiments/' + testUserTwo._id.toString())
       .send({
         timeStamp: '2409161507',
         formData: {
@@ -196,7 +196,7 @@ describe('POST /experiments', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/submit/experiments/' + testUserTwo._id.toString())
+      .post('/api/submit/experiments/' + testUserTwo._id.toString())
       .send({
         [testInstrOne._id.toString() + '-8']: {
           exps: { 10: { paramSet: 'params-1' }, params: undefined },
@@ -211,7 +211,7 @@ describe('POST /experiments', () => {
 describe('DELETE /experiments', () => {
   it('should call getSubmitter and emit delete command to instrument client', async () => {
     await request(app)
-      .delete('/submit/experiments/' + testInstrOne._id.toString())
+      .delete('/api/submit/experiments/' + testInstrOne._id.toString())
       .send([1, 2])
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -222,7 +222,7 @@ describe('DELETE /experiments', () => {
 
   it('should fail with status 503 if submitter does not return socketId', async () => {
     await request(app)
-      .delete('/submit/experiments/' + testInstrTwo._id.toString())
+      .delete('/api/submit/experiments/' + testInstrTwo._id.toString())
       .send([1, 2])
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(503)
@@ -230,7 +230,7 @@ describe('DELETE /experiments', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .delete('/submit/experiments/' + testInstrOne._id.toString())
+      .delete('/api/submit/experiments/' + testInstrOne._id.toString())
       .send([1, 2])
       .expect(403)
   })
@@ -239,7 +239,7 @@ describe('DELETE /experiments', () => {
 describe('PUT /reset', () => {
   it('should call submitter and emit delete command to clients and return array of holders that were deleted', async () => {
     const { body } = await request(app)
-      .put('/submit/reset/' + testInstrThree._id.toString())
+      .put('/api/submit/reset/' + testInstrThree._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -251,14 +251,14 @@ describe('PUT /reset', () => {
 
   it('should fail with status 403 if request is authorised by user without admin access', async () => {
     await request(app)
-      .put('/submit/reset/' + testInstrThree._id.toString())
+      .put('/api/submit/reset/' + testInstrThree._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(403)
   })
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .put('/submit/reset/' + testInstrThree._id.toString())
+      .put('/api/submit/reset/' + testInstrThree._id.toString())
       .expect(403)
   })
 })
@@ -266,7 +266,7 @@ describe('PUT /reset', () => {
 describe('POST /pending', () => {
   it('should call submitter and emit submit command to clients', async () => {
     await request(app)
-      .post('/submit/pending/submit')
+      .post('/api/submit/pending/submit')
       .send({ data: { [testInstrOne._id]: ['2'] } })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -277,14 +277,14 @@ describe('POST /pending', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .post('/submit/pending/submit')
+      .post('/api/submit/pending/submit')
       .send({ data: { [testInstrOne._id]: ['2'] } })
       .expect(403)
   })
 
   it('should fail with status 503 if submitter does not return socketId', async () => {
     await request(app)
-      .post('/submit/pending/submit')
+      .post('/api/submit/pending/submit')
       .send({ data: { [testInstrTwo._id]: ['2'] } })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(503)
@@ -294,7 +294,7 @@ describe('POST /pending', () => {
 describe('POST /pending-auth', () => {
   it('should call submitter and emit submit command to clients if correct username and password are provided', async () => {
     await request(app)
-      .post('/submit/pending-auth/submit')
+      .post('/api/submit/pending-auth/submit')
       .send({
         data: { [testInstrOne._id]: ['2'] },
         username: testUserOne.username,
@@ -308,7 +308,7 @@ describe('POST /pending-auth', () => {
 
   it('should fail with status 400 if username does not exist', async () => {
     await request(app)
-      .post('/submit/pending-auth/submit')
+      .post('/api/submit/pending-auth/submit')
       .send({
         data: { [testInstrOne._id]: ['2'] },
         username: 'wrong-username',
@@ -318,7 +318,7 @@ describe('POST /pending-auth', () => {
   })
   it('should fail with status 400 if password does not match', async () => {
     await request(app)
-      .post('/submit/pending-auth/submit')
+      .post('/api/submit/pending-auth/submit')
       .send({
         data: { [testInstrOne._id]: ['2'] },
         username: testUserOne.username,
@@ -331,7 +331,7 @@ describe('POST /pending-auth', () => {
 describe('GET /allowance', () => {
   it('should return allowance object with day allowance being reduced', async () => {
     const { body } = await request(app)
-      .get(`/submit/allowance/?instrIds[]=` + testInstrThree._id)
+      .get(`/api/submit/allowance/?instrIds[]=` + testInstrThree._id)
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -351,7 +351,7 @@ describe('GET /allowance', () => {
 
   it('should return nightAllowance reduced', async () => {
     const { body } = await request(app)
-      .get(`/submit/allowance/?instrIds[]=` + testInstrThree._id)
+      .get(`/api/submit/allowance/?instrIds[]=` + testInstrThree._id)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -360,7 +360,7 @@ describe('GET /allowance', () => {
 
   it('should fail with status 403 if request is not authorised', async () => {
     await request(app)
-      .get(`/submit/allowance/?instrIds[]=` + testInstrThree._id)
+      .get(`/api/submit/allowance/?instrIds[]=` + testInstrThree._id)
       .expect(403)
   })
 })

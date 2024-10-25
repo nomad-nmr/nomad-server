@@ -17,12 +17,12 @@ beforeEach(setupDB)
 
 describe('POST / ', () => {
   it('should fail with error 403 if request is not authorized', async () => {
-    await request(app).post('/collections/').expect(403)
+    await request(app).post('/api/collections/').expect(403)
   })
 
   it('should fail with error 422 if new collection is posted without new title ', async () => {
     const { body } = await request(app)
-      .post('/collections/')
+      .post('/api/collections/')
       .send({ collection: '##-new-##' })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(422)
@@ -31,7 +31,7 @@ describe('POST / ', () => {
 
   it('should create a new collection containing test dataset one', async () => {
     const { body } = await request(app)
-      .post('/collections/')
+      .post('/api/collections/')
       .send({
         collection: '##-new-##',
         newTitle: 'New Collection',
@@ -58,7 +58,7 @@ describe('POST / ', () => {
 
   it('should fail with status 403 if request is not authorised by user with admin access or is not collection owner', async () => {
     await request(app)
-      .post('/collections/')
+      .post('/api/collections/')
       .send({
         collection: testCollectionOne._id,
         datasets: [testDatasetThree._id.toString()]
@@ -69,7 +69,7 @@ describe('POST / ', () => {
 
   it('should add test dataset three in test collection one ', async () => {
     const { body } = await request(app)
-      .post('/collections/')
+      .post('/api/collections/')
       .send({
         collection: testCollectionOne._id,
         datasets: [testDatasetThree._id]
@@ -89,7 +89,7 @@ describe('POST / ', () => {
 
   it('should not add test dataset Two in test collection one', async () => {
     const { body } = await request(app)
-      .post('/collections/')
+      .post('/api/collections/')
       .send({
         collection: testCollectionOne._id,
         datasets: [testDatasetTwo._id]
@@ -106,12 +106,12 @@ describe('POST / ', () => {
 
 describe('GET /', () => {
   it('should fail with error 403 if request is not authorized', async () => {
-    await request(app).get('/collections/').expect(403)
+    await request(app).get('/api/collections/').expect(403)
   })
 
   it('should work', async () => {
     const { body } = await request(app)
-      .get('/collections/')
+      .get('/api/collections/')
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -125,20 +125,20 @@ describe('GET /', () => {
 describe('GET /datasets/:collectionId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .get('/collections/datasets/' + testCollectionOne._id.toString())
+      .get('/api/collections/datasets/' + testCollectionOne._id.toString())
       .expect(403)
   })
 
   it('should return data for test collection one if request is authorised by user with shared access', async () => {
     await request(app)
-      .get('/collections/datasets/' + testCollectionOne._id.toString())
+      .get('/api/collections/datasets/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(200)
   })
 
   it('should return data object for test collection one', async () => {
     const { body } = await request(app)
-      .get('/collections/datasets/' + testCollectionOne._id.toString())
+      .get('/api/collections/datasets/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -152,20 +152,20 @@ describe('GET /datasets/:collectionId', () => {
 describe('DELETE /:collectionId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .delete('/collections/' + testCollectionOne._id.toString())
+      .delete('/api/collections/' + testCollectionOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .delete('/collections/' + testCollectionOne._id.toString())
+      .delete('/api/collections/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(401)
   })
 
   it('should delete test collection one', async () => {
     const { body } = await request(app)
-      .delete('/collections/' + testCollectionOne._id.toString())
+      .delete('/api/collections/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
 
@@ -180,20 +180,20 @@ describe('DELETE /:collectionId', () => {
 describe('PATCH /datasets/:collectionId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/collections/datasets/' + testCollectionOne._id.toString())
+      .patch('/api/collections/datasets/' + testCollectionOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .patch('/collections/datasets/' + testCollectionOne._id.toString())
+      .patch('/api/collections/datasets/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(401)
   })
 
   it('should remove dataset from test dataset one', async () => {
     const { body } = await request(app)
-      .patch('/collections/datasets/' + testCollectionOne._id.toString())
+      .patch('/api/collections/datasets/' + testCollectionOne._id.toString())
       .send({ datasetIds: testDatasetTwo._id })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(200)
@@ -212,20 +212,20 @@ describe('PATCH /datasets/:collectionId', () => {
 describe('PATCH /metadata/:collectionId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/collections/metadata/' + testCollectionOne._id.toString())
+      .patch('/api/collections/metadata/' + testCollectionOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .patch('/collections/metadata/' + testCollectionOne._id.toString())
+      .patch('/api/collections/metadata/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(401)
   })
 
   it('should fail with error 422 if title is an empty string', async () => {
     await request(app)
-      .patch('/collections/metadata/' + testCollectionOne._id.toString())
+      .patch('/api/collections/metadata/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .send({ title: '' })
       .expect(422)
@@ -233,7 +233,7 @@ describe('PATCH /metadata/:collectionId', () => {
 
   it('should change title of testCollectionOne', async () => {
     const { body } = await request(app)
-      .patch('/collections/metadata/' + testCollectionOne._id.toString())
+      .patch('/api/collections/metadata/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send({ title: 'New Title', userId: testUserThree._id, groupId: testGroupTwo._id })
       .expect(200)
@@ -254,20 +254,20 @@ describe('PATCH /metadata/:collectionId', () => {
 describe('PATCH /share/:collectionId', () => {
   it('should fail with error 403 if request is not authorized', async () => {
     await request(app)
-      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .patch('/api/collections/share/' + testCollectionOne._id.toString())
       .expect(403)
   })
 
   it('should fail with error 401 if request is authorised by user without write access', async () => {
     await request(app)
-      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .patch('/api/collections/share/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(401)
   })
 
   it('should should update sharedWith array for test collection one', async () => {
     const { body } = await request(app)
-      .patch('/collections/share/' + testCollectionOne._id.toString())
+      .patch('/api/collections/share/' + testCollectionOne._id.toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .send([{ name: testUserThree.username, type: 'user', id: testUserThree._id }])
       .expect(200)
