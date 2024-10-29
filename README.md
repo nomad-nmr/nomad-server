@@ -66,6 +66,12 @@ To start NOMAD you need to navigate to nomad-server folder and run
 docker-compose up -d
 ```
 
+To start after updating dependencies in any package.json file you have to build new Docker images by using command 
+
+```bash
+docker-compose up -d --build
+```
+
 To stop use command
 
 ```console
