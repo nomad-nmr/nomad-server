@@ -1,12 +1,11 @@
 import { message } from 'antd'
 import * as actionTypes from '../actions/actionTypes'
-import history from '../../utils/history'
 
 const initialState = {
   loading: false,
   bookedHolders: [],
   allowance: [],
-  resubmitData: undefined
+  resubmitData: { reservedHolders: [], experimentData: [], userId: undefined }
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -58,8 +57,24 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, allowance: payload }
 
     case actionTypes.RESUBMIT_HOLDERS_SUCCESS:
-      console.log(payload)
-      return { ...state, resubmitData: payload }
+      const { experimentData } = payload
+      const reservedHoldersSet = new Set()
+      experimentData.forEach(exp => {
+        reservedHoldersSet.add(exp.holder)
+      })
+      const reservedHolders = Array.from(reservedHoldersSet).map(holder => ({
+        holder: +holder,
+        instId: payload.instrument._id,
+        instrument: payload.instrument.name,
+        key: payload.instrument._id + '-' + holder,
+        paramsEditing: payload.instrument.paramsEditing,
+        expCount: experimentData.filter(i => i.holder === holder).length
+      }))
+
+      return {
+        ...state,
+        resubmitData: { reservedHolders, expData: payload.experimentData, userId: payload.userId }
+      }
 
     default:
       return state

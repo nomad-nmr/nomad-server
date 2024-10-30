@@ -45,7 +45,7 @@ const BookExperimentsForm = props => {
   const [exptState, setExptState] = useState({})
   const [totalExptState, setTotalExptState] = useState({})
 
-  const { inputData, allowanceData, fetchAllowance, token, accessLevel } = props
+  const { inputData, allowanceData, fetchAllowance, token, accessLevel, resubmit } = props
 
   const priorityAccess = accessLevel === 'user-a' || accessLevel === 'admin'
 
@@ -62,7 +62,7 @@ const BookExperimentsForm = props => {
       } else {
         newFormState.push({
           key: i.key,
-          expCount: 1
+          expCount: resubmit ? i.expCount : 1
         })
       }
     })

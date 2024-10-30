@@ -8,7 +8,6 @@ import ParameterSet from '../models/parameterSet.js'
 import User from '../models/user.js'
 import Experiment from '../models/experiment.js'
 import transporter from '../utils/emailTransporter.js'
-import parameterSet from '../models/parameterSet.js'
 
 let alertSent = false
 
@@ -246,7 +245,11 @@ export const putReset = async (req, res) => {
     res.status(200).json(holdersToDelete)
   } catch (error) {
     console.log(error)
-    res.status(500).send()
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
   }
 }
 
@@ -366,10 +369,16 @@ export async function postResubmit(req, res) {
       return res.status(404).send({ message: 'User not found' })
     }
 
-    res.status(200).json({ userId: user._id, instrId, experimentData })
+    const instrument = await Instrument.findById(instrId, 'name paramsEditing')
+
+    res.status(200).json({ userId: user._id, instrument, experimentData })
   } catch (error) {
     console.log(error)
-    res.sendStatus(500)
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
   }
 }
 
@@ -379,8 +388,8 @@ const emitDeleteExps = (instrId, holders, res) => {
   const { socketId } = submitter.state.get(instrId)
 
   if (!socketId) {
-    console.log('Error: Client disconnected')
-    return res.status(503).send('Client disconnected')
+    throw new Error('Client disconnected')
+    // return  res.status(503).send('Client disconnected')
   }
 
   getIO().to(socketId).emit('delete', JSON.stringify(holders))

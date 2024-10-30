@@ -22,6 +22,7 @@ import Error404 from './components/Errors/Error404'
 import Error403 from './components/Errors/Error403'
 import Credits from './components/Credits/Credits'
 import Reset from './containers/Reset/Reset'
+import Resubmit from './containers/Resubmit/Resubmit'
 
 const { Header, Sider, Content, Footer } = Layout
 
@@ -179,6 +180,16 @@ const App = props => {
                 element={
                   import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
                     <BatchSubmit />
+                  ) : (
+                    <Navigate to='/dashboard' />
+                  )
+                }
+              />
+              <Route
+                path='/resubmit'
+                element={
+                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
+                    <Resubmit />
                   ) : (
                     <Navigate to='/dashboard' />
                   )

@@ -102,6 +102,7 @@ const StatusBanner = props => {
           checkedHolders,
           instrId
         })
+        navigate('/resubmit')
       }}
     >
       Resubmit Selected
