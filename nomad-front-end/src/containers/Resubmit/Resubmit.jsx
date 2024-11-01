@@ -3,19 +3,21 @@ import { connect } from 'react-redux'
 
 import BookExperimentsForm from '../../components/Forms/BookExperimentsForm/BookExperimentsForm'
 
-import { fetchParamSets, fetchAllowance } from '../../store/actions'
+import { fetchParamSets, fetchAllowance, bookExperiments, resetResubmit } from '../../store/actions'
 
 const Resubmit = props => {
-  const { reservedHolders } = props.resubmitData
-  const { fetchParamSets, authToken } = props
+  const { reservedHolders, formValues, userId } = props.resubmitData
+  const { fetchParamSets, authToken, allowance } = props
+
+  useEffect(() => {
+    return () => {
+      props.resetState()
+    }
+  }, [])
 
   useEffect(() => {
     fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
   }, [fetchParamSets, authToken])
-
-  useEffect(() => {
-    console.log(reservedHolders)
-  }, [reservedHolders])
 
   return (
     <div>
@@ -24,10 +26,13 @@ const Resubmit = props => {
           inputData={reservedHolders}
           loading={props.loading}
           accessLevel={props.accessLvl}
+          token={authToken}
           paramSetsData={props.paramSets}
           fetchAllowance={props.fetchAllow}
-          allowanceData={props.allowance}
-          resubmit={true}
+          allowanceData={allowance}
+          formValues={formValues}
+          bookExpsHandler={props.bookExpsHandler}
+          submittingUserId={userId}
         />
       ) : null}
     </div>
@@ -46,7 +51,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => {
   return {
     fetchParamSets: (token, searchParams) => dispatch(fetchParamSets(token, searchParams)),
-    fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds))
+    fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds)),
+    bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
+    resetState: () => dispatch(resetResubmit())
   }
 }
 

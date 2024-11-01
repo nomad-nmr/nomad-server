@@ -144,3 +144,7 @@ export const resubmitHolders = (token, dataObj) => {
       })
   }
 }
+
+export const resetResubmit = () => ({
+  type: actionTypes.RESET_RESUBMIT_DATA
+})

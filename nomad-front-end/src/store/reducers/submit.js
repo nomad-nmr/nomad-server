@@ -5,7 +5,7 @@ const initialState = {
   loading: false,
   bookedHolders: [],
   allowance: [],
-  resubmitData: { reservedHolders: [], experimentData: [], userId: undefined }
+  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined }
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -71,10 +71,35 @@ const reducer = (state = initialState, { type, payload }) => {
         expCount: experimentData.filter(i => i.holder === holder).length
       }))
 
+      let formValues = {}
+      reservedHolders.forEach(entry => {
+        const exps = experimentData.filter(i => i.holder === entry.holder.toString())
+
+        const expsEntries = exps.map(exp => [
+          exp.expNo,
+          {
+            paramSet: exp.parameterSet,
+            params: exp.parameters,
+            expTime: exp.time
+          }
+        ])
+
+        formValues[entry.key] = {
+          title: exps[0].title,
+          solvent: exps[0].solvent,
+          night: exps[0].night,
+          priority: exps[0].priority,
+          exps: Object.fromEntries(expsEntries)
+        }
+      })
+
       return {
         ...state,
-        resubmitData: { reservedHolders, expData: payload.experimentData, userId: payload.userId }
+        resubmitData: { reservedHolders, formValues, userId: payload.userId }
       }
+
+    case actionTypes.RESET_RESUBMIT_DATA:
+      return { ...state, resubmitData: { reservedHolders: [], formValues: {}, userId: undefined } }
 
     default:
       return state

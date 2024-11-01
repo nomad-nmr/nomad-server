@@ -95,7 +95,8 @@ export {
   bookExperiments,
   cancelBookedHoldersSuccess,
   fetchAllowance,
-  resubmitHolders
+  resubmitHolders,
+  resetResubmit
 } from './submit'
 
 export { sendMessage } from './message'

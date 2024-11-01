@@ -348,13 +348,7 @@ export async function postResubmit(req, res) {
 
     const experimentData = status.statusTable
       .filter(entry => checkedHolders.find(holder => holder === entry.holder))
-      .map(entry => ({
-        holder: entry.holder,
-        expNo: entry.expNo,
-        parameterSet: entry.parameterSet,
-        parameters: entry.parameters,
-        title: entry.title.split('||')[0]
-      }))
+      .map(entry => ({ ...entry, title: entry.title.split('||')[0] }))
 
     if (experimentData.length === 0) {
       return res.status(422).send({ errors: [{ msg: 'Experiments not found in status table' }] })
@@ -364,12 +358,13 @@ export async function postResubmit(req, res) {
     submitter.updateBookedHolders(instrId, checkedHolders)
 
     const user = await User.findOne({ username })
-
+    const instrument = await Instrument.findById(instrId, 'name paramsEditing')
     if (!user) {
       return res.status(404).send({ message: 'User not found' })
     }
-
-    const instrument = await Instrument.findById(instrId, 'name paramsEditing')
+    if (!instrument) {
+      return res.status(404).send({ message: 'Instrument not found' })
+    }
 
     res.status(200).json({ userId: user._id, instrument, experimentData })
   } catch (error) {

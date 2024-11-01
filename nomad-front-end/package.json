@@ -1,7 +1,7 @@
 {
   "name": "nomad-front-end",
   "private": false,
-  "version": "3.5.3",
+  "version": "3.5.4-beta",
   "type": "module",
   "scripts": {
     "start": "env-cmd -f ../env/frontend.env vite",

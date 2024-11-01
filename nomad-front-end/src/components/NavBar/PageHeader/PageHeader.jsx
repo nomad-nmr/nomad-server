@@ -206,6 +206,11 @@ const PageHeaderEl = props => {
       avatarSrc = submitIcon
       break
 
+    case location.pathname === '/resubmit':
+      headerTitle = 'Resubmit Experiments'
+      avatarSrc = submitIcon
+      break
+
     case location.pathname === '/batch-submit':
       headerTitle = 'Batch Submit'
       avatarSrc = batchSubmitIcon
