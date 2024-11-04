@@ -341,6 +341,7 @@ export const getAllowance = async (req, res) => {
 
 export async function postResubmit(req, res) {
   try {
+    console.log(req.body)
     const { instrId, checkedHolders, username } = req.body
     const submitter = getSubmitter()
 

@@ -3,15 +3,25 @@ import { connect } from 'react-redux'
 
 import BookExperimentsForm from '../../components/Forms/BookExperimentsForm/BookExperimentsForm'
 
-import { fetchParamSets, fetchAllowance, bookExperiments, resetResubmit } from '../../store/actions'
+import {
+  fetchParamSets,
+  fetchAllowance,
+  bookExperiments,
+  resetResubmit,
+  signOutHandler
+} from '../../store/actions'
 
 const Resubmit = props => {
   const { reservedHolders, formValues, userId } = props.resubmitData
-  const { fetchParamSets, authToken, allowance } = props
+  const { fetchParamSets, authToken, allowance, accessLvl, logoutHandler } = props
 
   useEffect(() => {
     return () => {
       props.resetState()
+
+      if (accessLvl !== 'admin' && authToken) {
+        logoutHandler(authToken)
+      }
     }
   }, [])
 
@@ -25,7 +35,7 @@ const Resubmit = props => {
         <BookExperimentsForm
           inputData={reservedHolders}
           loading={props.loading}
-          accessLevel={props.accessLvl}
+          accessLevel={accessLvl}
           token={authToken}
           paramSetsData={props.paramSets}
           fetchAllowance={props.fetchAllow}
@@ -53,7 +63,8 @@ const mapDispatchToProps = dispatch => {
     fetchParamSets: (token, searchParams) => dispatch(fetchParamSets(token, searchParams)),
     fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds)),
     bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
-    resetState: () => dispatch(resetResubmit())
+    resetState: () => dispatch(resetResubmit()),
+    logoutHandler: token => dispatch(signOutHandler(token))
   }
 }
 

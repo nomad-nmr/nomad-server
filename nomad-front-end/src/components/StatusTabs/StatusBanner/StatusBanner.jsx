@@ -27,9 +27,7 @@ const StatusBanner = props => {
   })
 
   const editableHolders = checkedHolders.filter(holder => {
-    return tabData.find(
-      row => row.holder === holder && (row.status === 'Submitted' || row.status === 'Error')
-    )
+    return tabData.find(row => row.holder === holder && row.status !== 'Running')
   })
 
   const switchElement = (

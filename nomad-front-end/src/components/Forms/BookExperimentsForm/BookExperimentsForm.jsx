@@ -570,7 +570,7 @@ const BookExperimentsForm = props => {
             {resubmit && (
               <Form.Item>
                 <Popconfirm
-                  title='Confirm cancel holders'
+                  title='Cancel holders'
                   description='Booked holders will be canceled '
                   onConfirm={() => navigate('/dashboard')}
                 >
