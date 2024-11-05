@@ -150,7 +150,6 @@ const mapStateToProps = state => ({
   loading: state.accounts.loading,
   tableData: state.accounts.costsTableData,
   costDrwVisible: state.accounts.costDrawerVisible,
-  grantFormVisible: state.accounts.grantFormVisible,
   tblHeader: state.accounts.tableHeader,
   instrumentsCosting: state.accounts.costingData,
   accountsType: state.accounts.type,
