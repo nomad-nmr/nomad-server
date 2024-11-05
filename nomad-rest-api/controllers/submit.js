@@ -207,7 +207,11 @@ export const deleteExps = (req, res) => {
     res.send()
   } catch (error) {
     console.log(error)
-    res.status(500).send()
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
   }
 }
 
