@@ -52,6 +52,18 @@ const BookExperimentsForm = props => {
   const priorityAccess = accessLevel === 'user-a' || accessLevel === 'admin'
   const resubmit = formValues
 
+  //This hook is used to cancel booked holders on the form component dismount
+  // It uses deleteHolders function in submit controller at the backend which has
+  // 120s timeout to allow for iconNMR to pickup submit file
+  useEffect(() => {
+    return () => {
+      props.cancelHolders(
+        token,
+        inputData.map(i => i.key)
+      )
+    }
+  }, [])
+
   //Hook to create state for dynamic ExpNo part of form from inputData
   //InputData gets updated every time new holder is booked
   useEffect(() => {

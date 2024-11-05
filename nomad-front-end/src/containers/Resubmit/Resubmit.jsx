@@ -8,7 +8,8 @@ import {
   fetchAllowance,
   bookExperiments,
   resetResubmit,
-  signOutHandler
+  signOutHandler,
+  cancelBookedHolders
 } from '../../store/actions'
 
 const Resubmit = props => {
@@ -43,6 +44,7 @@ const Resubmit = props => {
           formValues={formValues}
           bookExpsHandler={props.bookExpsHandler}
           submittingUserId={userId}
+          cancelHolders={props.cancelHolders}
         />
       ) : null}
     </div>
@@ -64,7 +66,8 @@ const mapDispatchToProps = dispatch => {
     fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds)),
     bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
     resetState: () => dispatch(resetResubmit()),
-    logoutHandler: token => dispatch(signOutHandler(token))
+    logoutHandler: token => dispatch(signOutHandler(token)),
+    cancelHolders: (token, keys) => dispatch(cancelBookedHolders(token, keys))
   }
 }
 

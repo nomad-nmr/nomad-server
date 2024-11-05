@@ -345,7 +345,6 @@ export const getAllowance = async (req, res) => {
 
 export async function postResubmit(req, res) {
   try {
-    console.log(req.body)
     const { instrId, checkedHolders, username } = req.body
     const submitter = getSubmitter()
 
@@ -360,7 +359,10 @@ export async function postResubmit(req, res) {
     }
 
     emitDeleteExps(instrId, checkedHolders, res)
-    submitter.updateBookedHolders(instrId, checkedHolders)
+    submitter.updateBookedHolders(
+      instrId,
+      checkedHolders.map(i => +i)
+    )
 
     const user = await User.findOne({ username })
     const instrument = await Instrument.findById(instrId, 'name paramsEditing')
