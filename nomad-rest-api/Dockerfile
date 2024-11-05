@@ -8,4 +8,4 @@ RUN npm install
 
 EXPOSE 8080
 
-CMD ["bash", "-c", "npm install && npm run dev-docker"]
+CMD ["npm", "run", "dev-docker"]
