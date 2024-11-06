@@ -34,13 +34,7 @@ const NavBar = props => {
           src={logoWideLight}
           alt='NOMAD logo wide'
           className={classes.Logo}
-          onClick={() => {
-            if (!props.accessLevel || props.accessLevel === 'user-b') {
-              return
-            } else {
-              navigate('/dashboard')
-            }
-          }}
+          onClick={() => navigate('/dashboard')}
         />
       </div>
     )

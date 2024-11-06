@@ -25,7 +25,8 @@ export {
   postPendingAuth,
   toggleAvailableSwitchSuccess,
   deleteExperiments,
-  resetQueue
+  resetQueue,
+  resetCheckedHolders
 } from './dashboard'
 
 export {
@@ -93,7 +94,9 @@ export {
   cancelBookedHolders,
   bookExperiments,
   cancelBookedHoldersSuccess,
-  fetchAllowance
+  fetchAllowance,
+  resubmitHolders,
+  resetResubmit
 } from './submit'
 
 export { sendMessage } from './message'

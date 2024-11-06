@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Form,
   Select,
@@ -13,7 +13,8 @@ import {
   message,
   Modal,
   Checkbox,
-  Tooltip
+  Tooltip,
+  Popconfirm
 } from 'antd'
 import moment from 'moment'
 
@@ -36,6 +37,7 @@ const disabledStyle = {
 const BookExperimentsForm = props => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [formState, setFormState] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
@@ -45,9 +47,23 @@ const BookExperimentsForm = props => {
   const [exptState, setExptState] = useState({})
   const [totalExptState, setTotalExptState] = useState({})
 
-  const { inputData, allowanceData, fetchAllowance, token, accessLevel } = props
+  const { inputData, allowanceData, fetchAllowance, token, accessLevel, formValues } = props
 
   const priorityAccess = accessLevel === 'user-a' || accessLevel === 'admin'
+  const resubmit = formValues
+
+  //This hook is used to cancel booked holders on the form component dismount in /resubmit location
+  // It uses deleteHolders function in submit controller at the backend which has
+  // 120s timeout to allow for iconNMR to pickup submit file
+  useEffect(() => {
+    if (location === '/resubmit')
+      return () => {
+        props.cancelHolders(
+          token,
+          inputData.map(i => i.key)
+        )
+      }
+  }, [])
 
   //Hook to create state for dynamic ExpNo part of form from inputData
   //InputData gets updated every time new holder is booked
@@ -62,7 +78,7 @@ const BookExperimentsForm = props => {
       } else {
         newFormState.push({
           key: i.key,
-          expCount: 1
+          expCount: resubmit ? i.expCount : 1
         })
       }
     })
@@ -72,23 +88,56 @@ const BookExperimentsForm = props => {
     if (instrIds.size !== 0) {
       fetchAllowance(token, Array.from(instrIds))
     }
+
+    //setting up form values and  expTime if form used for resubmit
+    if (resubmit) {
+      form.setFieldsValue(formValues)
+    }
+
     // formState can't be dependency as it gets updated in the hook. That would trigger loop.
     // eslint-disable-next-line
-  }, [inputData])
+  }, [inputData, formValues])
 
   //This hook creates initial totalExpT state with overhead time for each entry
   useEffect(() => {
-    const newTotalExptState = { ...totalExptState }
-    if (allowanceData.length !== 0) {
-      formState.forEach(entry => {
-        const instrId = entry.key.split('-')[0]
-        const { overheadTime } = allowanceData.find(i => i.instrId === instrId)
-        if (!newTotalExptState[entry.key]) {
-          newTotalExptState[entry.key] = overheadTime
+    if (resubmit) {
+      const expTimeStateEntries = []
+      const totalExpTimeStateEntries = []
+
+      if (allowanceData.length > 0) {
+        for (let sampleKey in formValues) {
+          let expTimeSum = allowanceData[0].overheadTime
+          //selecting first element of allowanceData array works as
+          //only holders on one instrument can be selected for resubmit
+          for (let expNo in formValues[sampleKey].exps) {
+            expTimeStateEntries.push([
+              sampleKey + '#' + expNo,
+              formValues[sampleKey].exps[expNo].expTime
+            ])
+            expTimeSum += moment
+              .duration(formValues[sampleKey].exps[expNo].expTime, 'HH:mm:ss')
+              .asSeconds()
+          }
+          totalExpTimeStateEntries.push([sampleKey, expTimeSum])
         }
-      })
+      }
+
+      setExptState(Object.fromEntries(expTimeStateEntries))
+      setTotalExptState(Object.fromEntries(totalExpTimeStateEntries))
+    } else {
+      const newTotalExptState = { ...totalExptState }
+      if (allowanceData.length !== 0 && !resubmit) {
+        formState.forEach(entry => {
+          const instrId = entry.key.split('-')[0]
+          const { overheadTime } = allowanceData.find(i => i.instrId === instrId)
+          if (!newTotalExptState[entry.key]) {
+            newTotalExptState[entry.key] = overheadTime
+          }
+        })
+      }
+      setTotalExptState(newTotalExptState)
     }
-    setTotalExptState(newTotalExptState)
+
     // eslint-disable-next-line
   }, [allowanceData])
 
@@ -129,7 +178,6 @@ const BookExperimentsForm = props => {
   const onParamSetChange = (sampleKey, expNo, paramSetName) => {
     form.resetFields([[sampleKey, 'exps', expNo, 'params']])
     const key = sampleKey + '#' + expNo
-
     const paramSet = props.paramSetsData.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
@@ -453,19 +501,22 @@ const BookExperimentsForm = props => {
             ))}
           </Col>
           {priorityAccess && checkBoxes}
-          <Col span={1}>
-            <button
-              className={classes.CancelButton}
-              value={key}
-              onClick={e => {
-                e.preventDefault()
-                props.onCancelHolder(props.token, e.target.value)
-                form.resetFields([e.target.value])
-              }}
-            >
-              Cancel
-            </button>
-          </Col>
+          {!resubmit && (
+            <Col span={1}>
+              <button
+                className={classes.CancelButton}
+                disabled={resubmit}
+                value={key}
+                onClick={e => {
+                  e.preventDefault()
+                  props.onCancelHolder(props.token, e.target.value)
+                  form.resetFields([e.target.value])
+                }}
+              >
+                Cancel
+              </button>
+            </Col>
+          )}
         </Row>
         <Row gutter={16}>
           <Col
@@ -523,11 +574,25 @@ const BookExperimentsForm = props => {
       ) : (
         <Form form={form} ref={props.formRef} size='small' onFinish={onFinishHandler}>
           {formItems}
-          <Form.Item>
-            <Button type='primary' size='middle' htmlType='submit'>
-              Continue
-            </Button>
-          </Form.Item>
+          <Space>
+            <Form.Item>
+              <Button type='primary' size='middle' htmlType='submit'>
+                Continue
+              </Button>
+            </Form.Item>
+            {resubmit && (
+              <Form.Item>
+                <Popconfirm
+                  title='Cancel holders'
+                  description='Booked holders will be canceled '
+                  onConfirm={() => navigate('/dashboard')}
+                >
+                  <Button size='middle'>Cancel</Button>
+                </Popconfirm>
+              </Form.Item>
+            )}
+          </Space>
+
           <EditParamsModal
             visible={modalVisible}
             closeModal={closeModalHandler}

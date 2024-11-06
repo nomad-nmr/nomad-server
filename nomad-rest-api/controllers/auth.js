@@ -87,7 +87,6 @@ export async function postLogin(req, res) {
     }
 
     const token = await user.generateAuthToken()
-
     return res.send({
       username: user.username,
       accessLevel: user.accessLevel,

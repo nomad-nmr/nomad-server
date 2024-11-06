@@ -16,6 +16,18 @@ const AccountsTable = props => {
     }
   ]
 
+  //add the grantCode column if data are for user calculation
+  if (props.header === 'User Name') {
+    columns.push({
+      title: 'Grant Code',
+      width: 35,
+      dataIndex: 'grantCode',
+      key: 'grantCode',
+      fixed: 'left',
+      align: 'center'
+    })
+  }
+
   //Getting dynamic table headers from the first data object
   props.data[0].costsPerInstrument.forEach((cost, index) => {
     columns.push({
@@ -61,6 +73,7 @@ const AccountsTable = props => {
   const data = props.data.map((entry, key) => {
     const newEntry = {
       name: entry.name,
+      grantCode: entry.grantCode || undefined,
       totalCost: entry.totalCost,
       key
     }
