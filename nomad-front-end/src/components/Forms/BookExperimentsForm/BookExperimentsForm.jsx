@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   Form,
   Select,
@@ -24,7 +24,6 @@ import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
 import nightIcon from '../../../assets/night-mode.svg'
 
 import classes from './BookExperimentsForm.module.css'
-import { all } from 'axios'
 
 const { Option } = Select
 
@@ -38,6 +37,7 @@ const disabledStyle = {
 const BookExperimentsForm = props => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [formState, setFormState] = useState([])
   const [modalVisible, setModalVisible] = useState(false)
@@ -52,16 +52,17 @@ const BookExperimentsForm = props => {
   const priorityAccess = accessLevel === 'user-a' || accessLevel === 'admin'
   const resubmit = formValues
 
-  //This hook is used to cancel booked holders on the form component dismount
+  //This hook is used to cancel booked holders on the form component dismount in /resubmit location
   // It uses deleteHolders function in submit controller at the backend which has
   // 120s timeout to allow for iconNMR to pickup submit file
   useEffect(() => {
-    return () => {
-      props.cancelHolders(
-        token,
-        inputData.map(i => i.key)
-      )
-    }
+    if (location === '/resubmit')
+      return () => {
+        props.cancelHolders(
+          token,
+          inputData.map(i => i.key)
+        )
+      }
   }, [])
 
   //Hook to create state for dynamic ExpNo part of form from inputData
