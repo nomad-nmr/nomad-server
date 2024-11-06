@@ -207,7 +207,11 @@ export const deleteExps = (req, res) => {
     res.send()
   } catch (error) {
     console.log(error)
-    res.status(500).send()
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
   }
 }
 
@@ -245,7 +249,11 @@ export const putReset = async (req, res) => {
     res.status(200).json(holdersToDelete)
   } catch (error) {
     console.log(error)
-    res.status(500).send()
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
   }
 }
 
@@ -335,14 +343,55 @@ export const getAllowance = async (req, res) => {
   }
 }
 
+export async function postResubmit(req, res) {
+  try {
+    const { instrId, checkedHolders, username } = req.body
+    const submitter = getSubmitter()
+
+    const { status } = await Instrument.findById(req.body.instrId, 'status')
+
+    const experimentData = status.statusTable
+      .filter(entry => checkedHolders.find(holder => holder === entry.holder))
+      .map(entry => ({ ...entry, title: entry.title.split('||')[0] }))
+
+    if (experimentData.length === 0) {
+      return res.status(422).send({ errors: [{ msg: 'Experiments not found in status table' }] })
+    }
+
+    emitDeleteExps(instrId, checkedHolders, res)
+    submitter.updateBookedHolders(
+      instrId,
+      checkedHolders.map(i => +i)
+    )
+
+    const user = await User.findOne({ username })
+    const instrument = await Instrument.findById(instrId, 'name paramsEditing')
+    if (!user) {
+      return res.status(404).send({ message: 'User not found' })
+    }
+    if (!instrument) {
+      return res.status(404).send({ message: 'Instrument not found' })
+    }
+
+    res.status(200).json({ userId: user._id, instrument, experimentData })
+  } catch (error) {
+    console.log(error)
+    if (error.toString().includes('Client disconnected')) {
+      res.status(503).send('Client disconnected')
+    } else {
+      res.sendStatus(500)
+    }
+  }
+}
+
 //Helper function that sends array of holders to be deleted to the client
 const emitDeleteExps = (instrId, holders, res) => {
   const submitter = getSubmitter()
   const { socketId } = submitter.state.get(instrId)
 
   if (!socketId) {
-    console.log('Error: Client disconnected')
-    return res.status(503).send('Client disconnected')
+    throw new Error('Client disconnected')
+    // return  res.status(503).send('Client disconnected')
   }
 
   getIO().to(socketId).emit('delete', JSON.stringify(holders))

@@ -1,10 +1,17 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Alert, Row, Col, Tag, Switch, Button, Space, Modal } from 'antd'
+import { useNavigate } from 'react-router-dom'
 
 import TrafficLights from '../../TrafficLights/TrafficLights'
 
-import { deleteExperiments, resetQueue, toggleAvailableOnDash } from '../../../store/actions'
+import {
+  deleteExperiments,
+  resetCheckedHolders,
+  resetQueue,
+  resubmitHolders,
+  toggleAvailableOnDash
+} from '../../../store/actions'
 
 import classes from './StatusBanner.module.css'
 
@@ -13,8 +20,14 @@ const StatusBanner = props => {
   const bannerType = props.data.available ? 'success' : 'error'
   const { authToken, instrId, checkedHolders, accessLvl, data, tabData } = props
 
+  const navigate = useNavigate()
+
   const submittedCheckedHolders = checkedHolders.filter(holder => {
     return tabData.find(row => row.holder === holder && row.status === 'Submitted')
+  })
+
+  const editableHolders = checkedHolders.filter(holder => {
+    return tabData.find(row => row.holder === holder && row.status !== 'Running')
   })
 
   const switchElement = (
@@ -28,7 +41,7 @@ const StatusBanner = props => {
 
   const cancelButton = (
     <Button
-      disabled={!accessLvl}
+      disabled={!accessLvl || checkedHolders.length === 0}
       onClick={() => {
         if (checkedHolders.length > 0) {
           if (submittedCheckedHolders.length > 0) {
@@ -60,6 +73,40 @@ const StatusBanner = props => {
     </Button>
   )
 
+  const resubmitButton = (
+    <Button
+      disabled={!accessLvl || checkedHolders.length === 0}
+      onClick={() => {
+        if (checkedHolders.length !== editableHolders.length) {
+          return Modal.error({
+            title: 'Only holders with status "Submitted" or "Error" can be edited'
+          })
+        }
+
+        const usernamesSet = new Set()
+        tabData.forEach(row => {
+          if (checkedHolders.includes(row.holder)) {
+            usernamesSet.add(row.username)
+          }
+        })
+        if (usernamesSet.size !== 1) {
+          return Modal.error({
+            title: 'Only holders booked by single user can be resubmitted'
+          })
+        }
+        props.resetChecked()
+        props.resubmitHandler(authToken, {
+          username: Array.from(usernamesSet)[0],
+          checkedHolders,
+          instrId
+        })
+        navigate('/resubmit')
+      }}
+    >
+      Resubmit Selected
+    </Button>
+  )
+
   return (
     <Alert
       type={bannerType}
@@ -68,6 +115,7 @@ const StatusBanner = props => {
           <Col className={classes.Switch} span={5}>
             <Space size='large'>
               {cancelButton}
+              {resubmitButton}
               {accessLvl === 'admin' && resetButton}
               {accessLvl === 'admin' && switchElement}
             </Space>
@@ -124,7 +172,9 @@ const mapDispatchToProps = dispatch => {
     toggleAvailable: (instrId, token) => dispatch(toggleAvailableOnDash(instrId, token)),
     deleteHoldersHandler: (token, instrId, holders) =>
       dispatch(deleteExperiments(token, instrId, holders)),
-    resetInstr: (token, instrId) => dispatch(resetQueue(token, instrId))
+    resetInstr: (token, instrId) => dispatch(resetQueue(token, instrId)),
+    resetChecked: () => dispatch(resetCheckedHolders()),
+    resubmitHandler: (token, data) => dispatch(resubmitHolders(token, data))
   }
 }
 

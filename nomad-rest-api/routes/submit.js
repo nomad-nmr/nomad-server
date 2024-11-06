@@ -10,7 +10,8 @@ import {
   deleteExps,
   putReset,
   postPending,
-  getAllowance
+  getAllowance,
+  postResubmit
 } from '../controllers/submit.js'
 
 const router = Router()
@@ -32,5 +33,7 @@ router.post('/pending/:type', auth, postPending)
 router.post('/pending-auth/:type', postPending)
 
 router.get('/allowance/', auth, getAllowance)
+
+router.post('/resubmit', auth, postResubmit)
 
 export default router

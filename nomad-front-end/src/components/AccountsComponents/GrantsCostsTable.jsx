@@ -16,7 +16,8 @@ const GrantsCostsTable = props => {
     },
     {
       title: 'Description',
-      dataIndex: 'description'
+      dataIndex: 'description',
+      sorter: (a, b) => a.description.localeCompare(b.description)
     },
     {
       title: 'Cost [£]',

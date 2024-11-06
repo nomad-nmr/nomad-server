@@ -4,7 +4,8 @@ import * as actionTypes from '../actions/actionTypes'
 const initialState = {
   loading: false,
   bookedHolders: [],
-  allowance: []
+  allowance: [],
+  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined }
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -52,11 +53,53 @@ const reducer = (state = initialState, { type, payload }) => {
         bookedHolders: []
       }
 
-    // case actionTypes.CLEAR_BOOKED_HOLDERS:
-    //   return { ...state, bookedHolders: [] }
-
     case actionTypes.FETCH_ALLOWANCE_SUCCESS:
       return { ...state, allowance: payload }
+
+    case actionTypes.RESUBMIT_HOLDERS_SUCCESS:
+      const { experimentData } = payload
+      const reservedHoldersSet = new Set()
+      experimentData.forEach(exp => {
+        reservedHoldersSet.add(exp.holder)
+      })
+      const reservedHolders = Array.from(reservedHoldersSet).map(holder => ({
+        holder: +holder,
+        instId: payload.instrument._id,
+        instrument: payload.instrument.name,
+        key: payload.instrument._id + '-' + holder,
+        paramsEditing: payload.instrument.paramsEditing,
+        expCount: experimentData.filter(i => i.holder === holder).length
+      }))
+
+      let formValues = {}
+      reservedHolders.forEach(entry => {
+        const exps = experimentData.filter(i => i.holder === entry.holder.toString())
+
+        const expsEntries = exps.map(exp => [
+          exp.expNo,
+          {
+            paramSet: exp.parameterSet,
+            params: exp.parameters,
+            expTime: exp.time
+          }
+        ])
+
+        formValues[entry.key] = {
+          title: exps[0].title,
+          solvent: exps[0].solvent,
+          night: exps[0].night,
+          priority: exps[0].priority,
+          exps: Object.fromEntries(expsEntries)
+        }
+      })
+
+      return {
+        ...state,
+        resubmitData: { reservedHolders, formValues, userId: payload.userId }
+      }
+
+    case actionTypes.RESET_RESUBMIT_DATA:
+      return { ...state, resubmitData: { reservedHolders: [], formValues: {}, userId: undefined } }
 
     default:
       return state

@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { Drawer, Button, Row, Col, message } from 'antd'
+import { Drawer, Button, Space, message } from 'antd'
 import { connect } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
 import DrawerTable from './DrawerTable/DrawerTable'
 import SubmitModal from '../Modals/SubmitModal/SubmitModal'
-import { postPending, signOutHandler, postPendingAuth } from '../../store/actions'
+import { postPending, signOutHandler, postPendingAuth, resubmitHolders } from '../../store/actions'
 
 const StatusDrawer = props => {
   const { id, visible, tableData, dataLoading } = props.status
@@ -12,6 +13,8 @@ const StatusDrawer = props => {
 
   const [modalVisible, setModalVisible] = useState(false)
   const [modalData, setModalData] = useState({})
+
+  const navigate = useNavigate()
 
   let title = ''
   let buttons = null
@@ -22,9 +25,6 @@ const StatusDrawer = props => {
   }
 
   const btnClickHandler = type => {
-    if (selectedHolders.length === 0) {
-      return message.warning('No holders selected!')
-    }
     if (authToken) {
       pendingHandler(authToken, type, selectedHolders)
       if (accessLvl !== 'admin') {
@@ -40,6 +40,28 @@ const StatusDrawer = props => {
 
       setModalVisible(true)
     }
+  }
+
+  const editHandler = () => {
+    console.log(selectedHolders)
+    const usernames = new Set()
+    const instrIds = new Set()
+    selectedHolders.map(row => {
+      usernames.add(row.username)
+      instrIds.add(row).instrIds
+    })
+
+    if (usernames.size !== 1 || instrIds.size !== 1) {
+      return message.error('Holders for multiple users or instruments selected!')
+    }
+
+    props.resubmitHandler(authToken, {
+      username: selectedHolders[0].username,
+      checkedHolders: selectedHolders.map(i => i.holder),
+      instrId: selectedHolders[0].instrId
+    })
+
+    navigate('/resubmit')
   }
 
   switch (id) {
@@ -58,16 +80,24 @@ const StatusDrawer = props => {
       headerClass.backgroundColor = '#ffffb8'
       headerClass.borderBottom += '#fadb14'
       buttons = (
-        <Row>
-          <Col span={2} style={{ textAlign: 'left' }}>
-            <Button onClick={() => btnClickHandler('delete')}>Cancel Selected</Button>
-          </Col>
-          <Col span={20} style={{ textAlign: 'center' }}>
-            <Button type='primary' onClick={() => btnClickHandler('submit')}>
-              Submit
-            </Button>
-          </Col>
-        </Row>
+        <Space size={'large'}>
+          <Button disabled={selectedHolders.length === 0} onClick={() => btnClickHandler('delete')}>
+            Cancel Selected
+          </Button>
+          <Button
+            disabled={selectedHolders.length === 0 || !authToken}
+            onClick={() => editHandler()}
+          >
+            Edit Selected
+          </Button>
+          <Button
+            type='primary'
+            disabled={selectedHolders.length === 0}
+            onClick={() => btnClickHandler('submit')}
+          >
+            Submit
+          </Button>
+        </Space>
       )
       break
     default:
@@ -116,7 +146,8 @@ const mapDispatchToProps = dispatch => {
   return {
     pendingHandler: (token, type, data) => dispatch(postPending(token, type, data)),
     pendingAuthHandler: (type, data) => dispatch(postPendingAuth(type, data)),
-    logoutHandler: token => dispatch(signOutHandler(token))
+    logoutHandler: token => dispatch(signOutHandler(token)),
+    resubmitHandler: (token, data) => dispatch(resubmitHolders(token, data))
   }
 }
 
