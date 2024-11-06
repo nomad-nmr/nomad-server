@@ -1,5 +1,5 @@
 /datastore
 /downloads
-/env
+/envs/dev
 *.dump
 
