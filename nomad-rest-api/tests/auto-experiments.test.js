@@ -63,7 +63,8 @@ describe('GET /api/v2/auto-experiments', () => {
 
   it('should return experiments within a date range', async () => {
     const searchParams = {
-      dateRange: '2000-01-01,2024-02-01',
+      startDate: '2000-01-01',
+      endDate: '2024-02-01',
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
