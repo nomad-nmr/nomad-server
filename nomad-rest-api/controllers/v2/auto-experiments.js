@@ -199,6 +199,11 @@ export async function getAutoExperiments(req, res) {
         searchParams.$or = [{ "user.id": req.user._id }, {
           "group.id": req.user.group,
         }];
+        if (userId !== undefined) {
+          searchParams["user.id"] = {
+            $in: userId.split(","),
+          };
+        }
         break;
       case "admin-b":
       case "admin":

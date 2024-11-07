@@ -84,7 +84,7 @@ describe('GET /api/v2/auto-experiments', () => {
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(2)
+    expect(body.length).toBe(3)
   })
 
 })
