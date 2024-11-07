@@ -196,6 +196,6 @@ export const testExpSeven = {
   holder: '11',
   dataPath: './test/path',
   solvent: 'CDCl3',
-  totalExpTime: '00:05:00',
+  totalExpTime: '00:00:00',
   submittedAt: new Date('2024-01-01T00:00:00.000Z'),
 }
