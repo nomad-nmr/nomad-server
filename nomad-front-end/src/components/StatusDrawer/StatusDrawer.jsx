@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Drawer, Button, Space, message } from 'antd'
+import { Drawer, Button, Space, message, Tooltip } from 'antd'
 import { connect } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
@@ -81,22 +81,31 @@ const StatusDrawer = props => {
       headerClass.borderBottom += '#fadb14'
       buttons = (
         <Space size={'large'}>
-          <Button disabled={selectedHolders.length === 0} onClick={() => btnClickHandler('delete')}>
-            Cancel Selected
-          </Button>
-          <Button
-            disabled={selectedHolders.length === 0 || !authToken}
-            onClick={() => editHandler()}
-          >
-            Edit Selected
-          </Button>
-          <Button
-            type='primary'
-            disabled={selectedHolders.length === 0}
-            onClick={() => btnClickHandler('submit')}
-          >
-            Submit
-          </Button>
+          <Tooltip title='Cancel selected holders'>
+            <Button
+              disabled={selectedHolders.length === 0}
+              onClick={() => btnClickHandler('delete')}
+            >
+              Cancel
+            </Button>
+          </Tooltip>
+          <Tooltip title='Edit selected holders'>
+            <Button
+              disabled={selectedHolders.length === 0 || !authToken}
+              onClick={() => editHandler()}
+            >
+              Edit
+            </Button>
+          </Tooltip>
+          <Tooltip title='Submit selected holders'>
+            <Button
+              type='primary'
+              disabled={selectedHolders.length === 0}
+              onClick={() => btnClickHandler('submit')}
+            >
+              Submit
+            </Button>
+          </Tooltip>
         </Space>
       )
       break

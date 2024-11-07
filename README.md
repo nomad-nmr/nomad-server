@@ -23,32 +23,15 @@ The third main component of the system **[nomad-spect-client](https://github.com
 The repository contains all necessary configuration files to get you started in **[Docker](https://www.docker.com/)** environment.
 You will need to install both docker engine and docker compose. The easiest way to achieve that is to install Docker Desktop available for all operating systems.
 
-Clone both **nomad-server** and **nomad-spect-client** repositories
+Clone **nomad-server** repository
 
 ```bash
 git clone https://github.com/nomad-nmr/nomad-server.git
-git clone https://github.com/nomad-nmr/nomad-spect-client.git
 ```
 
-You can skip the latter if you want to leave the client out and work only with the server code. In that case, you need to comment out the client block in nomad-server/docker-compose.yaml file.
-
-Before you start, the environmental variables needs to be set up in env folder. You can create the folder and copy content of env-example folder in it.
-
-```bash
-cd nomad-server
-mkdir env
-cp env-example/* env/
-```
-
-The system shall start without editing environmental variables. To achieve full functionality, following entries in backend.env file need to be edited.
+To setup SMTP client for sending e-mails, following entries in /envs/dev/backend.env file need to be edited.
 
 ```env
-#Password for automatically generated admin user
-ADMIN_PASSWORD=''
-
-#Secret word for generating JWT
-JWT_SECRET=''
-
 EMAIL_SUFFIX=''
 
 #SMTP configuration
@@ -58,7 +41,11 @@ SMTP_PASS=''
 SMTP_SENDER=''
 ```
 
-To connect the spectrometer client, you need to login using admin username and the backdoor password that was set up in environmental variables and add an instrument into database. More information can be found on [documentation website](https://www.nomad-nmr.uk/docs/getting-started/NOMAD-config). Then you need to enter instrument ID in client.env file and restart the Docker containers.
+You can possibly change the password for automatically generated admin user by editing the following entry.
+
+```env
+ADMIN_PASSWORD='foo'
+```
 
 To start NOMAD you need to navigate to nomad-server folder and run
 
@@ -66,7 +53,7 @@ To start NOMAD you need to navigate to nomad-server folder and run
 docker-compose up -d
 ```
 
-To start after updating dependencies in any package.json file you have to build new Docker images by using command 
+To start after updating dependencies in any package.json file you have to build new Docker images by using command
 
 ```bash
 docker-compose up -d --build
@@ -74,8 +61,30 @@ docker-compose up -d --build
 
 To stop use command
 
-```console
+```bash
 docker-compose down
+```
+
+### Connecting spectrometer client in development environment
+
+Clone **nomad-spect-client** repository in the same folder next to **nomad-server** repository.
+
+```bash
+git clone https://github.com/nomad-nmr/nomad-spect-client.git
+```
+
+To connect the spectrometer client, you need to login using admin username and the backdoor password that was set up in environmental variables and add an instrument into database. More information can be found on [documentation website](https://www.nomad-nmr.uk/docs/getting-started/NOMAD-config). Then you need rewrite INSTRUMENT_ID entry in /envs/dev/client.env file using actual instrument ID.
+
+To start NOMAD together with the client, you need to navigate to nomad-server folder and run
+
+```bash
+docker-compose --profile client up -d
+```
+
+after updating dependencies you need to use
+
+```bash
+docker-compose --profile client up -d --build
 ```
 
 ### Database dumps

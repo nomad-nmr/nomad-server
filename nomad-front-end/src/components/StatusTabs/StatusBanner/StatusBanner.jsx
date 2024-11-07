@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
-import { Alert, Row, Col, Tag, Switch, Button, Space, Modal } from 'antd'
+import { Alert, Row, Col, Tag, Switch, Button, Flex, Modal, Tooltip } from 'antd'
 import { useNavigate } from 'react-router-dom'
 
 import TrafficLights from '../../TrafficLights/TrafficLights'
@@ -31,80 +31,88 @@ const StatusBanner = props => {
   })
 
   const switchElement = (
-    <Switch
-      checked={data.available}
-      checkedChildren='On'
-      unCheckedChildren='Off'
-      onChange={() => props.toggleAvailable(instrId, authToken)}
-    />
+    <Tooltip title='Close/Open queue'>
+      <Switch
+        checked={data.available}
+        checkedChildren='On'
+        unCheckedChildren='Off'
+        onChange={() => props.toggleAvailable(instrId, authToken)}
+      />
+    </Tooltip>
   )
 
   const cancelButton = (
-    <Button
-      disabled={!accessLvl || checkedHolders.length === 0}
-      onClick={() => {
-        if (checkedHolders.length > 0) {
-          if (submittedCheckedHolders.length > 0) {
-            Modal.confirm({
-              title: 'Delete Submitted Experiments!',
-              content: 'Are you sure that you want to experiments with status "Submitted"?',
-              onOk() {
-                props.deleteHoldersHandler(authToken, instrId, checkedHolders)
-              }
-            })
-          } else {
-            props.deleteHoldersHandler(authToken, instrId, checkedHolders)
+    <Tooltip title='Delete selected holders'>
+      <Button
+        disabled={!accessLvl || checkedHolders.length === 0}
+        onClick={() => {
+          if (checkedHolders.length > 0) {
+            if (submittedCheckedHolders.length > 0) {
+              Modal.confirm({
+                title: 'Delete Submitted Experiments!',
+                content: 'Are you sure that you want to experiments with status "Submitted"?',
+                onOk() {
+                  props.deleteHoldersHandler(authToken, instrId, checkedHolders)
+                }
+              })
+            } else {
+              props.deleteHoldersHandler(authToken, instrId, checkedHolders)
+            }
           }
-        }
-      }}
-    >
-      Cancel Selected
-    </Button>
+        }}
+      >
+        Delete
+      </Button>
+    </Tooltip>
   )
 
   const resetButton = (
-    <Button
-      danger
-      onClick={() => {
-        props.resetInstr(authToken, instrId)
-      }}
-    >
-      Reset
-    </Button>
+    <Tooltip title='Delete all holders with "Completed" and "Error" status'>
+      <Button
+        danger
+        onClick={() => {
+          props.resetInstr(authToken, instrId)
+        }}
+      >
+        Reset
+      </Button>
+    </Tooltip>
   )
 
   const resubmitButton = (
-    <Button
-      disabled={!accessLvl || checkedHolders.length === 0}
-      onClick={() => {
-        if (checkedHolders.length !== editableHolders.length) {
-          return Modal.error({
-            title: 'Only holders with status "Submitted" or "Error" can be edited'
-          })
-        }
-
-        const usernamesSet = new Set()
-        tabData.forEach(row => {
-          if (checkedHolders.includes(row.holder)) {
-            usernamesSet.add(row.username)
+    <Tooltip title='Resubmit selected holders'>
+      <Button
+        disabled={!accessLvl || checkedHolders.length === 0}
+        onClick={() => {
+          if (checkedHolders.length !== editableHolders.length) {
+            return Modal.error({
+              title: 'Only holders with status "Submitted" or "Error" can be edited'
+            })
           }
-        })
-        if (usernamesSet.size !== 1) {
-          return Modal.error({
-            title: 'Only holders booked by single user can be resubmitted'
+
+          const usernamesSet = new Set()
+          tabData.forEach(row => {
+            if (checkedHolders.includes(row.holder)) {
+              usernamesSet.add(row.username)
+            }
           })
-        }
-        props.resetChecked()
-        props.resubmitHandler(authToken, {
-          username: Array.from(usernamesSet)[0],
-          checkedHolders,
-          instrId
-        })
-        navigate('/resubmit')
-      }}
-    >
-      Resubmit Selected
-    </Button>
+          if (usernamesSet.size !== 1) {
+            return Modal.error({
+              title: 'Only holders booked by single user can be resubmitted'
+            })
+          }
+          props.resetChecked()
+          props.resubmitHandler(authToken, {
+            username: Array.from(usernamesSet)[0],
+            checkedHolders,
+            instrId
+          })
+          navigate('/resubmit')
+        }}
+      >
+        Resubmit
+      </Button>
+    </Tooltip>
   )
 
   return (
@@ -112,15 +120,16 @@ const StatusBanner = props => {
       type={bannerType}
       message={
         <Row className={classes.Banner}>
-          <Col className={classes.Switch} span={5}>
-            <Space size='large'>
+          <Col span={5}>
+            <Flex gap='middle' align='center'>
               {cancelButton}
               {resubmitButton}
               {accessLvl === 'admin' && resetButton}
-              {accessLvl === 'admin' && switchElement}
-            </Space>
+            </Flex>
           </Col>
-          <Col span={14}>
+          <Col span={1}>{accessLvl === 'admin' && switchElement}</Col>
+
+          <Col span={13}>
             <ul>
               <li>
                 <strong>Busy until: </strong>
