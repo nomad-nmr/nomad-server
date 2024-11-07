@@ -1,119 +1,119 @@
-import Experiment from '../models/experiment.js'
-import User from '../models/user.js'
-import JSZip from 'jszip'
-import path from 'path'
-import fs from 'fs/promises'
+import Experiment from "../../models/experiment.js";
+import User from "../../models/user.js";
+import JSZip from "jszip";
+import path from "path";
+import fs from "fs/promises";
 
 export const autoExperimentsOpenApiDoc = {
   get: {
-    summary: 'Get all auto experiments',
-    description: 'Get a list of all auto experiments',
-    tags: ['NMR Data'],
+    summary: "Get all auto experiments",
+    description: "Get a list of all auto experiments",
+    tags: ["NMR Data"],
     parameters: [
       {
-        in: 'query',
-        name: 'solvent',
+        in: "query",
+        name: "solvent",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'instrumentId',
+        in: "query",
+        name: "instrumentId",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'parameterSet',
+        in: "query",
+        name: "parameterSet",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'title',
+        in: "query",
+        name: "title",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'startDate',
+        in: "query",
+        name: "startDate",
         schema: {
-          type: 'string',
-          format: 'date',
+          type: "string",
+          format: "date",
         },
       },
       {
-        in: 'query',
-        name: 'endDate',
+        in: "query",
+        name: "endDate",
         schema: {
-          type: 'string',
-          format: 'date',
+          type: "string",
+          format: "date",
         },
       },
       {
-        in: 'query',
-        name: 'groupId',
+        in: "query",
+        name: "groupId",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'userId',
+        in: "query",
+        name: "userId",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'datasetName',
+        in: "query",
+        name: "datasetName",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
-          ]
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
         },
       },
       {
-        in: 'query',
-        name: 'offset',
+        in: "query",
+        name: "offset",
         schema: {
-          type: 'integer',
-        }
+          type: "integer",
+        },
       },
       {
-        in: 'query',
-        name: 'limit',
+        in: "query",
+        name: "limit",
         schema: {
-          type: 'integer',
-        }
+          type: "integer",
+        },
       },
     ],
     responses: {
       200: {
-        description: 'All auto experiments',
+        description: "All auto experiments",
         content: {
           "application/json": {
             schema: {
@@ -122,34 +122,34 @@ export const autoExperimentsOpenApiDoc = {
                 type: "object",
                 properties: {
                   id: {
-                    type: 'string',
+                    type: "string",
                   },
                   datasetName: {
-                    type: 'string',
+                    type: "string",
                   },
                   expNo: {
-                    type: 'string',
+                    type: "string",
                   },
                   parameterSet: {
-                    type: 'string',
+                    type: "string",
                   },
                   parameters: {
-                    type: 'string',
+                    type: "string",
                   },
                   title: {
-                    type: 'string'
+                    type: "string",
                   },
                   instrument: {
-                    type: 'string'
+                    type: "string",
                   },
                   user: {
-                    type: 'string'
+                    type: "string",
                   },
                   group: {
-                    type: 'string'
+                    type: "string",
                   },
                   solvent: {
-                    type: 'string'
+                    type: "string",
                   },
                 },
               },
@@ -158,19 +158,19 @@ export const autoExperimentsOpenApiDoc = {
         },
       },
       403: {
-        description: 'Forbidden. Did you forget to authenticate?',
+        description: "Forbidden. Did you forget to authenticate?",
         content: {
-          'text/plain': {
+          "text/plain": {
             schema: {
-              type: 'string',
-              example: 'Please authenticate',
-            }
-          }
-        }
+              type: "string",
+              example: "Please authenticate",
+            },
+          },
+        },
       },
     },
-  }
-}
+  },
+};
 
 export async function getAutoExperiments(req, res) {
   const {
@@ -185,82 +185,86 @@ export async function getAutoExperiments(req, res) {
     datasetName,
     offset,
     limit,
-  } = req.query
+  } = req.query;
 
   try {
-    const searchParams = {}
+    const searchParams = {};
 
-    const dataAccess = await req.user.getDataAccess()
+    const dataAccess = await req.user.getDataAccess();
     switch (dataAccess) {
-      case 'user':
-        searchParams['user.id'] = req.user._id
-        break
-      case 'group':
-        searchParams.$or = [{ 'user.id': req.user._id }, { 'group.id': req.user.group }]
-        break
-      case 'admin-b':
-      case 'admin':
+      case "user":
+        searchParams["user.id"] = req.user._id;
+        break;
+      case "group":
+        searchParams.$or = [{ "user.id": req.user._id }, {
+          "group.id": req.user.group,
+        }];
+        break;
+      case "admin-b":
+      case "admin":
         if (groupId !== undefined) {
-          searchParams['group.id'] = {
-            $in: groupId.split(',')
-          }
+          searchParams["group.id"] = {
+            $in: groupId.split(","),
+          };
         }
         if (userId !== undefined) {
-          searchParams['user.id'] = {
-            $in: userId.split(',')
-          }
+          searchParams["user.id"] = {
+            $in: userId.split(","),
+          };
         }
-        break
+        break;
 
       default:
-        throw new Error('Data access rights unknown')
+        throw new Error("Data access rights unknown");
     }
 
     if (solvent !== undefined) {
-      searchParams['solvent'] = {
-        $in: solvent.split(',')
-      }
+      searchParams["solvent"] = {
+        $in: solvent.split(","),
+      };
     }
 
     if (instrumentId !== undefined) {
-      searchParams['instrument.id'] = {
-        $in: instrumentId.split(',')
-      }
+      searchParams["instrument.id"] = {
+        $in: instrumentId.split(","),
+      };
     }
 
     if (parameterSet !== undefined) {
-      searchParams['parameterSet'] = {
-        $in: parameterSet.split(',')
-      }
+      searchParams["parameterSet"] = {
+        $in: parameterSet.split(","),
+      };
     }
 
     if (title !== undefined) {
-      searchParams['title'] = {
-        $in: title.split(',')
-      }
+      searchParams["title"] = {
+        $in: title.split(","),
+      };
     }
 
     if (startDate !== undefined) {
-      searchParams['submittedAt'] = {
+      searchParams["submittedAt"] = {
         $gte: new Date(startDate),
-      }
+      };
     }
 
     if (endDate !== undefined) {
-      searchParams['submittedAt'] = {
+      searchParams["submittedAt"] = {
         $lt: new Date(endDate),
-      }
+      };
     }
 
     if (datasetName !== undefined) {
-      searchParams['datasetName'] = {
-        $in: datasetName.split(',')
-      }
+      searchParams["datasetName"] = {
+        $in: datasetName.split(","),
+      };
     }
 
-    let experiments = await Experiment.find(searchParams).skip(offset).limit(limit)
+    let experiments = await Experiment.find(searchParams).skip(offset).limit(
+      limit,
+    );
 
-    res.json(experiments.map(exp => (
+    res.json(experiments.map((exp) => (
       {
         id: exp.expId,
         datasetName: exp.datasetName,
@@ -274,112 +278,116 @@ export async function getAutoExperiments(req, res) {
         solvent: exp.solvent,
         submittedAt: exp.submittedAt,
       }
-    )))
+    )));
   } catch (error) {
-    console.log(error)
-    res.status(500).send()
+    console.log(error);
+    res.status(500).send();
   }
 }
 
 export const downloadAutoExperimentOpenApiDoc = {
   post: {
-    summary: 'Download auto experiments',
-    description: 'Download a zip file of raw auto experiment data',
-    tags: ['NMR Data'],
+    summary: "Download auto experiments",
+    description: "Download a zip file of raw auto experiment data",
+    tags: ["NMR Data"],
     parameters: [
       {
-        in: 'query',
-        name: 'id',
+        in: "query",
+        name: "id",
         schema: {
           oneOf: [
-            { type: 'string' },
-            { type: 'array', items: { type: 'string' } }
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
           ],
         },
       },
     ],
     responses: {
       200: {
-        description: 'Zip file of raw auto experiment data',
+        description: "Zip file of raw auto experiment data",
         content: {
-          'application/zip': {
+          "application/zip": {
             schema: {
-              type: 'string',
-              format: 'binary'
-            }
-          }
+              type: "string",
+              format: "binary",
+            },
+          },
         },
       },
       403: {
-        description: 'Forbidden. Did you forget to authenticate?',
+        description: "Forbidden. Did you forget to authenticate?",
         content: {
-          'text/plain': {
+          "text/plain": {
             schema: {
-              type: 'string',
-              example: 'Please authenticate',
-            }
-          }
-        }
+              type: "string",
+              example: "Please authenticate",
+            },
+          },
+        },
       },
     },
   },
-}
+};
 
 export async function downloadAutoExperiments(req, res) {
-  const { id } = req.query
+  const { id } = req.query;
   try {
+    const searchParams = {};
 
-    const searchParams = {}
-
-    const dataAccess = await req.user.getDataAccess()
+    const dataAccess = await req.user.getDataAccess();
     switch (dataAccess) {
-      case 'user':
-        searchParams['user.id'] = req.user._id
-        break
-      case 'group':
-        searchParams.$or = [{ 'user.id': req.user._id }, { 'group.id': req.user.group }]
-        break
-      case 'admin-b':
-      case 'admin':
-        break
+      case "user":
+        searchParams["user.id"] = req.user._id;
+        break;
+      case "group":
+        searchParams.$or = [{ "user.id": req.user._id }, {
+          "group.id": req.user.group,
+        }];
+        break;
+      case "admin-b":
+      case "admin":
+        break;
 
       default:
-        throw new Error('Data access rights unknown')
+        throw new Error("Data access rights unknown");
     }
 
     if (id !== undefined) {
-      searchParams['expId'] = {
-        $in: id.split(',')
-      }
+      searchParams["expId"] = {
+        $in: id.split(","),
+      };
     }
 
-    let experiments = await Experiment.find(searchParams)
+    let experiments = await Experiment.find(searchParams);
 
-    const mainZip = new JSZip()
+    const mainZip = new JSZip();
 
     await Promise.all(
-      experiments.map(async experiment => {
-
+      experiments.map(async (experiment) => {
         const zipFilePath = path.join(
           process.env.DATASTORE_PATH,
           experiment.dataPath,
-          experiment.expId + '.zip'
-        )
+          experiment.expId + ".zip",
+        );
 
-        const zipFile = await fs.readFile(zipFilePath)
-        const zipObject = await JSZip.loadAsync(zipFile)
-        const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
-        await mainZip.loadAsync(zipContent, { createFolders: true })
-      })
-    )
+        const zipFile = await fs.readFile(zipFilePath);
+        const zipObject = await JSZip.loadAsync(zipFile);
+        const zipContent = await zipObject.generateAsync({
+          type: "nodebuffer",
+        });
+        await mainZip.loadAsync(zipContent, { createFolders: true });
+      }),
+    );
 
-    const user = await User.findById(req.user._id)
-    user.stats.downloadCount += 1
-    await user.save()
+    const user = await User.findById(req.user._id);
+    user.stats.downloadCount += 1;
+    await user.save();
 
-    mainZip.generateNodeStream({ type: 'nodebuffer', streamFiles: true }).pipe(res)
+    mainZip.generateNodeStream({ type: "nodebuffer", streamFiles: true }).pipe(
+      res,
+    );
   } catch (error) {
-    console.log(error)
-    res.sendStatus(500)
+    console.log(error);
+    res.sendStatus(500);
   }
 }
