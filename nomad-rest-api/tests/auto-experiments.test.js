@@ -3,7 +3,7 @@ import request from 'supertest'
 
 import app from '../app.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
-import { testUserAdmin } from './fixtures/data/users.js'
+import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testInstrOne, testInstrThree } from './fixtures/data/instruments.js'
 
 beforeAll(connectDB)
@@ -73,6 +73,18 @@ describe('GET /api/v2/auto-experiments', () => {
 
     expect(body.length).toBe(1)
     expect(body[0].submittedAt).toBe('2024-01-01T00:00:00.000Z')
+  })
+
+  it('should return data from specified users in the group if access allows', async () => {
+    const searchParams = {
+      userId: [testUserOne._id, testUserTwo._id],
+    }
+    const { body } = await request(app)
+      .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.length).toBe(2)
   })
 
 })
