@@ -1,7 +1,7 @@
 {
   "name": "nomad-front-end",
   "private": false,
-  "version": "3.5.4-beta",
+  "version": "3.5.4",
   "type": "module",
   "scripts": {
     "start": "env-cmd -f ../env/frontend.env vite",
@@ -22,7 +22,7 @@
     "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "nmrium": "^0.60.0",
-    "openchemlib": "8.16.0",
+    "openchemlib": "^8.17.0",
     "rc-animate": "^3.1.1",
     "rc-tween-one": "^3.0.6",
     "react": "^18.2.0",
@@ -36,7 +36,7 @@
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "socket.io-client": "^4.5.4",
-    "uuid": "^10.0.0"
+    "uuid": "^11.0.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",
