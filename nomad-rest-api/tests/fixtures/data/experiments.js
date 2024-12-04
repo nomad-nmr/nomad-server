@@ -170,5 +170,33 @@ export const testExpSix = {
   holder: '10',
   dataPath: './test/path',
   solvent: 'CDCl3',
-  totalExpTime: '00:05:00'
+  totalExpTime: '00:05:00',
+  submittedAt: new Date('2025-01-01T00:00:00.000Z'),
+}
+
+export const testExpSeven = {
+  _id: new mongoose.Types.ObjectId(),
+  expId: '2106241100-10-2-test4-1',
+  instrument: {
+    name: testInstrThree.name,
+    id: testInstrThree._id
+  },
+  user: {
+    username: testUserThree.username,
+    id: testUserThree._id
+  },
+  group: {
+    name: testGroupTwo.groupName,
+    id: testGroupTwo._id
+  },
+  datasetName: '2106241100-10-2-test4',
+  status: 'Archived',
+  title: 'Test Exp 7',
+  parameterSet: testParamSet1.name,
+  expNo: '10',
+  holder: '11',
+  dataPath: './test/path',
+  solvent: 'CDCl3',
+  totalExpTime: '00:00:00',
+  submittedAt: new Date('2024-01-01T00:00:00.000Z'),
 }

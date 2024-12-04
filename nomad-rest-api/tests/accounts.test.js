@@ -314,7 +314,7 @@ describe('GET /accounts/grants-costs', () => {
       key: testGrantOne._id.toString()
     })
     expect(body.noGrantsData).toMatchObject({
-      expsCount: 1,
+      expsCount: 2,
       claimsCount: 1,
       users: [
         {

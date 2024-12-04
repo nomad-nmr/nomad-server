@@ -34,6 +34,7 @@
     "nodemailer": "^6.9.2",
     "openchemlib": "^8.3.0",
     "socket.io": "^4.5.4",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
