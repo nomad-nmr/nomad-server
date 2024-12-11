@@ -5,6 +5,7 @@ import Instrument from '../../models/instrument.js'
 import Experiment from '../../models/experiment.js'
 import { getIO } from '../../socket.js'
 import { getSubmitter } from '../../server.js'
+import { sortByName } from '../../utils/miscUtils.js'
 
 export const getInstruments = async (req, res) => {
   const searchParams = { isActive: true }
@@ -22,7 +23,8 @@ export const getInstruments = async (req, res) => {
           isManual: instr.isManual
         }
       })
-      return res.send(instrList)
+
+      return res.send(sortByName(instrList))
     } else {
       const completeInstrData = instrumentsData.map(instr => {
         const isConnected = getSubmitter().isConnected(instr._id.toString())

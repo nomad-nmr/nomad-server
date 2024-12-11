@@ -2,6 +2,7 @@ import moment from 'moment'
 
 import Instrument from '../models/instrument.js'
 import Group from '../models/group.js'
+import { sortByName } from '../utils/miscUtils.js'
 
 export const getStatusSummary = async (req, res) => {
   try {
@@ -9,11 +10,14 @@ export const getStatusSummary = async (req, res) => {
       { isActive: true },
       '-status.statusTable -status.historyTable'
     )
+
     if (!data) {
       return res.status(404).send()
     }
-    res.send(data)
+
+    res.send(sortByName(data))
   } catch (error) {
+    console.log(error)
     res.status(500).send({ error: 'API error' })
   }
 }
