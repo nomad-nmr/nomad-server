@@ -17,6 +17,7 @@ import DatasetTable from '../../components/SearchComponents/DatasetTable.jsx'
 import DatasetCard from '../../components/SearchComponents/DatasetCard.jsx'
 import SelectGrpUsr from '../../components/Forms/SelectGrpUsr/SelectGrpUsr.jsx'
 import CopyLinkToClipboard from '../../components/CopyLinkToClipboard/CopyLinkToClipboard.jsx'
+import CollectionModal from '../../components/Modals/CollectionModal/CollectionModal.jsx'
 
 import classes from './Collections.module.css'
 import {
@@ -37,7 +38,10 @@ import {
   fetchGroupList,
   fetchUserList,
   resetUserList,
-  updateCollectionShare
+  updateCollectionShare,
+  toggleCollectionModal,
+  getCollectionsList,
+  addDatasetsToCollection
 } from '../../store/actions'
 
 const Collections = props => {
@@ -78,6 +82,7 @@ const Collections = props => {
   useEffect(() => {
     fetchGrpList(authToken, false)
     props.fetchDataAccess(authToken)
+    props.fetchCollectionsList(authToken)
 
     if (authToken) {
       if (collectionId !== 'list') {
@@ -391,6 +396,14 @@ const Collections = props => {
         collectionId={metaData.id}
         sharedWithState={props.sharedWith}
       />
+      <CollectionModal
+        open={props.colModalOpen}
+        cancelHandler={props.tglColModal}
+        data={props.checkedDatasets}
+        token={props.authToken}
+        requestHandler={props.addToCollection}
+        collectionList={props.collectionList}
+      />
     </div>
   )
 }
@@ -409,7 +422,9 @@ const mapStateToProps = state => ({
   checkedDatasets: state.datasets.checkedDatasets,
   usrList: state.users.userList,
   grpList: state.groups.groupList,
-  dataAccess: state.search.dataAccess
+  dataAccess: state.search.dataAccess,
+  colModalOpen: state.datasets.showModal,
+  collectionList: state.datasets.collectionList
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -435,7 +450,10 @@ const mapDispatchToProps = dispatch => ({
   fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
   fetchUsrList: (token, groupId, showInactive, search) =>
     dispatch(fetchUserList(token, groupId, showInactive, search)),
-  resetUsrList: () => dispatch(resetUserList())
+  resetUsrList: () => dispatch(resetUserList()),
+  fetchCollectionsList: token => dispatch(getCollectionsList(token)),
+  tglColModal: () => dispatch(toggleCollectionModal()),
+  addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)
