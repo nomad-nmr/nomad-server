@@ -83,7 +83,8 @@ export async function getCosts(req, res) {
 
       await Promise.all(
         usrArray.map(async usrId => {
-          const [user, grantInfo] = await Promise.all([User.findById(usrId), getGrantInfo(usrId)])
+          const user = await User.findById(usrId)
+          const grantInfo = await getGrantInfo(usrId, user.group)
 
           let grant
           if (grantInfo) {
