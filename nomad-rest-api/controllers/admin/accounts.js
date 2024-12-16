@@ -368,16 +368,33 @@ export async function getGrantsCosts(req, res) {
 
     const usersIdSet = new Set()
 
-    const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user')
-    const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user')
+    const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user group')
+    const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user group')
 
-    noGrantExps.forEach(exp => usersIdSet.add(exp.user.id.toString()))
-    noGrantClaims.forEach(claim => usersIdSet.add(claim.user._id.toString()))
+    noGrantExps.forEach(exp =>
+      usersIdSet.add(exp.user.id.toString() + '@' + exp.group.id.toString())
+    )
+    noGrantClaims.forEach(claim =>
+      usersIdSet.add(claim.user._id.toString() + '@' + claim.group.toString())
+    )
+
+    const noGrantUsersArray = await Promise.all(
+      Array.from(usersIdSet).map(async id => {
+        const [usrId, grpId] = id.split('@')
+        const user = await User.findById(usrId, 'username fullName')
+        const group = await Group.findById(grpId, 'groupName')
+        return {
+          username: user.username,
+          fullName: user.fullName,
+          group: group.groupName
+        }
+      })
+    )
 
     const noGrantsData = {
       expsCount: noGrantExps.length,
       claimsCount: noGrantClaims.length,
-      users: await getUsersArr(usersIdSet)
+      users: noGrantUsersArray
     }
 
     res.status(200).json({ grantsCosts, noGrantsData })

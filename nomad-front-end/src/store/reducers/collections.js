@@ -79,7 +79,6 @@ const reducer = (state = initialState, { type, payload }) => {
 
       const patchedCollections = [...state.data.collections]
       const collIndex = patchedCollections.findIndex(i => i.key === collectionId)
-      console.log(collIndex)
       patchedCollections[collIndex].datasetsCount = remainDatasets.length
       return {
         ...state,

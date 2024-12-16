@@ -34,6 +34,21 @@ const GrantsCostsTable = props => {
     }
   ]
 
+  const infoTableColumns = [
+    {
+      title: 'Username',
+      dataIndex: 'username'
+    },
+    {
+      title: 'Full Name',
+      dataIndex: 'fullName'
+    },
+    {
+      title: 'Group Name',
+      dataIndex: 'group'
+    }
+  ]
+
   const detailInfo = (
     <div style={{ marginTop: '15px' }}>
       <Flex justify='space-around'>
@@ -46,14 +61,12 @@ const GrantsCostsTable = props => {
           {alertData.claimsCount}{' '}
         </div>
       </Flex>
-      <Flex justify='center' style={{ marginTop: '10px' }}>
-        <strong>Users:</strong>
-        {alertData.users.map(user => (
-          <Tooltip title={user.fullName}>
-            <Tag style={{ marginLeft: '7px' }}>{user.username}</Tag>
-          </Tooltip>
-        ))}
-      </Flex>
+      <Table
+        columns={infoTableColumns}
+        dataSource={alertData.users}
+        pagination={false}
+        style={{ marginTop: '20px' }}
+      />
     </div>
   )
 
@@ -89,7 +102,7 @@ const GrantsCostsTable = props => {
           </div>
           style={{ marginTop: '50px', width: '600px' }}
           action={
-            <Button size='small' danger onClick={() => setDetailVisible(true)}>
+            <Button size='small' danger onClick={() => setDetailVisible(!detailVisible)}>
               Detail
             </Button>
           }

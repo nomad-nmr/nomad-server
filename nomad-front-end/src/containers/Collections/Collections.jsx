@@ -41,7 +41,8 @@ import {
   updateCollectionShare,
   toggleCollectionModal,
   getCollectionsList,
-  addDatasetsToCollection
+  addDatasetsToCollection,
+  removeDatasets
 } from '../../store/actions'
 
 const Collections = props => {
@@ -403,6 +404,8 @@ const Collections = props => {
         token={props.authToken}
         requestHandler={props.addToCollection}
         collectionList={props.collectionList}
+        removeHandler={props.removeDatasets}
+        collectionId={metaData.id}
       />
     </div>
   )
@@ -453,7 +456,8 @@ const mapDispatchToProps = dispatch => ({
   resetUsrList: () => dispatch(resetUserList()),
   fetchCollectionsList: token => dispatch(getCollectionsList(token)),
   tglColModal: () => dispatch(toggleCollectionModal()),
-  addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token))
+  addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
+  removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)
