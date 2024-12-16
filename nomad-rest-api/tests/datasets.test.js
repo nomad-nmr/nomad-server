@@ -175,7 +175,7 @@ describe('PUT /api/data/dataset/:datasetId', () => {
       .send({
         title: 'New title'
       })
-      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
       .expect(422)
   })
 

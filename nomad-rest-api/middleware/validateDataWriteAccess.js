@@ -13,7 +13,7 @@ const validateDataWriteAccess = async (req, res, next) => {
 
     const { accessLevel, _id } = req.user
 
-    if (_id.toString() !== dataObj.user.toString()) {
+    if (accessLevel !== 'admin' && _id.toString() !== dataObj.user.toString()) {
       return res.status(401).send({ message: 'You are not authorised to access this resource' })
     }
 
