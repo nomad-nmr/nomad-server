@@ -29,7 +29,7 @@
     "react-csv": "^2.2.2",
     "react-dom": "^18.2.0",
     "react-ocl": "^7.0.2",
-    "react-redux": "^9.0.4",
+    "react-redux": "^9.2.0",
     "react-router": "^6.13.0",
     "react-router-dom": "^6.13.0",
     "redux": "^5.0.1",
