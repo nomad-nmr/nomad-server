@@ -57,7 +57,9 @@ const Instruments = props => {
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name'
+      dataIndex: 'name',
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      defaultSortOrder: 'ascend'
     },
     {
       title: 'Model',

@@ -156,7 +156,6 @@ const SearchDataset = props => {
         data={props.checkedDatasets}
         token={props.authToken}
         requestHandler={props.addToCollection}
-        fetchCollections={props.fetchCollectionsList}
         collectionList={props.collectionList}
       />
     </div>

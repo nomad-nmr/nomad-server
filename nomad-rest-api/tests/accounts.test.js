@@ -318,9 +318,9 @@ describe('GET /accounts/grants-costs', () => {
       claimsCount: 1,
       users: [
         {
-          _id: testUserThree._id.toString(),
           username: testUserThree.username,
-          fullName: testUserThree.fullName
+          fullName: testUserThree.fullName,
+          group: testGroupTwo.groupName
         }
       ]
     })

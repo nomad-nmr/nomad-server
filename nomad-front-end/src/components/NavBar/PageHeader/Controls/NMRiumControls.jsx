@@ -23,8 +23,7 @@ const NMRiumControls = props => {
   const { dataset, token, saveHandler, accessLevel, username } = props
   const { molecules, spectra, correlations } = props.data.data
   const saveAsDisabled = props.data.data.spectra.length === 0
-  const saveDisabled =
-    !dataset.id || (accessLevel !== 'admin' && username !== dataset.user.username)
+  const saveDisabled = !dataset.id || username !== dataset.user.username
 
   const onSaveAs = () => {
     if (

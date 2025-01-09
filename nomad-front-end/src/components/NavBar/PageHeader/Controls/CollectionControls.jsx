@@ -5,7 +5,8 @@ import {
   RollbackOutlined,
   DeleteOutlined,
   LineChartOutlined,
-  DownloadOutlined
+  DownloadOutlined,
+  FolderAddOutlined
 } from '@ant-design/icons'
 
 import history from '../../../../utils/history'
@@ -43,6 +44,17 @@ const CollectionControls = props => {
                 }}
               >
                 NMRium
+              </Button>
+            </Tooltip>
+            <Divider type='vertical' />
+
+            <Tooltip title='Add selected datasets to another collection'>
+              <Button
+                icon={<FolderAddOutlined />}
+                disabled={checkedDatasets.length === 0}
+                onClick={() => props.toggleColModal()}
+              >
+                Add
               </Button>
             </Tooltip>
             <Tooltip title='Remove selected datasets from collection'>

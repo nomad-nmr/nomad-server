@@ -350,6 +350,7 @@ const PageHeaderEl = props => {
           removeHandler={props.removeDatasets}
           id={props.collectionId}
           downloadHandler={props.downloadCollection}
+          toggleColModal={props.tglColModal}
         />
       )
       break

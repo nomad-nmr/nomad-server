@@ -181,7 +181,6 @@ const NMRiumContainer = props => {
         data={[id]}
         token={props.authToken}
         requestHandler={props.addToCollection}
-        fetchCollections={props.fetchCollectionsList}
         collectionList={props.collectionList}
       />
     </Fragment>

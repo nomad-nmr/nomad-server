@@ -141,6 +141,19 @@ const BookExperimentsForm = props => {
     // eslint-disable-next-line
   }, [allowanceData])
 
+  useEffect(() => {
+    for (let key in totalExptState) {
+      const instrId = key.split('-')[0]
+      const allowanceDataInstr = allowanceData.find(i => i.instrId === instrId)
+      if (allowanceDataInstr && priorityAccess) {
+        const { dayAllowance } = allowanceDataInstr
+        if (totalExptState[key] > dayAllowance * 60) {
+          form.setFieldValue([key, 'night'], true)
+        }
+      }
+    }
+  }, [totalExptState])
+
   const addExpHandler = e => {
     e.preventDefault()
     const newFormState = [...formState]
