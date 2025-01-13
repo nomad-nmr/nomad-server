@@ -55,6 +55,20 @@ const userSchema = new Schema(
       }
     },
 
+    sendStatusEmail: {
+      error: {
+        type: Boolean,
+        required: true,
+        default: process.env.SEND_EMAIL_ERROR || true
+      },
+
+      archived: {
+        type: Boolean,
+        required: true,
+        default: process.env.SEND_EMAIL_ARCHIVED || true
+      }
+    },
+
     tokens: [
       {
         token: {

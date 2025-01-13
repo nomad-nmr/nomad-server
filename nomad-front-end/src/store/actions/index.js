@@ -210,3 +210,5 @@ export {
   updateCollectionShare,
   downloadCollection
 } from './collections'
+
+export { getAccountSettings, saveUserSettings } from './user-account'

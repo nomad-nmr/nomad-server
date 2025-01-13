@@ -21,15 +21,15 @@ export const authLoginOpenApiDoc = {
             type: 'object',
             properties: {
               username: {
-                type: 'string',
+                type: 'string'
               },
               password: {
-                type: 'string',
-              },
-            },
-          },
-        },
-      },
+                type: 'string'
+              }
+            }
+          }
+        }
+      }
     },
     responses: {
       200: {
@@ -40,33 +40,33 @@ export const authLoginOpenApiDoc = {
               type: 'object',
               properties: {
                 username: {
-                  type: 'string',
+                  type: 'string'
                 },
                 accessLevel: {
-                  type: 'string',
+                  type: 'string'
                 },
                 manualAccess: {
-                  type: 'boolean',
+                  type: 'boolean'
                 },
                 groupName: {
-                  type: 'string',
+                  type: 'string'
                 },
                 token: {
-                  type: 'string',
+                  type: 'string'
                 },
                 expiresIn: {
-                  type: 'number',
-                },
-              },
-            },
-          },
-        },
+                  type: 'number'
+                }
+              }
+            }
+          }
+        }
       },
       400: {
-        description: 'Wrong username or password',
-      },
-    },
-  },
+        description: 'Wrong username or password'
+      }
+    }
+  }
 }
 
 export async function postLogin(req, res) {
