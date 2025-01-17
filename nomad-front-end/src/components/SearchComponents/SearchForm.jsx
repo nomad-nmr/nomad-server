@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 import { connect } from 'react-redux'
 import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip, Switch } from 'antd'
@@ -45,6 +45,8 @@ const SearchForm = props => {
   const [form] = Form.useForm()
   const location = useLocation()
 
+  const { datasetName } = useParams()
+
   const [instrumentId, setInstrumentId] = useState(null)
   const [groupList, setGroupList] = useState([])
   const [showEditor, setShowEditor] = useState(false)
@@ -77,9 +79,17 @@ const SearchForm = props => {
     setGrpUsr()
   }, [dataType])
 
+  //hook to search using dataset name extracted from status email link
+  useEffect(() => {
+    if (datasetName !== 'null') {
+      form.setFieldValue('datasetName', datasetName)
+      form.submit()
+    }
+  }, [datasetName])
+
   //Effect to preserve form values. DateRange has to be in form of dayjs object.
   useEffect(() => {
-    if (location.pathname === '/search-experiment') {
+    if (location.pathname.includes('/search-experiment')) {
       const dateRangeNew =
         expSearchParams.dateRange && expSearchParams.dateRange.map(date => dayjs(date))
       form.setFieldsValue({ ...expSearchParams, dateRange: dateRangeNew })

@@ -233,7 +233,7 @@ const PageHeaderEl = props => {
 
       break
 
-    case location.pathname === '/search-experiment':
+    case location.pathname.includes('/search-experiment'):
       headerTitle = 'Search Experiments'
       avatarSrc = searchIcon
       extra = (

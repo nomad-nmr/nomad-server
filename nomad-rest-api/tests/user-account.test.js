@@ -1,6 +1,5 @@
 import { it, expect, describe, beforeEach, beforeAll, afterAll } from 'vitest'
 import request from 'supertest'
-import mongoose from 'mongoose'
 
 import app from '../app.js'
 import User from '../models/user.js'
@@ -55,9 +54,7 @@ describe('PATCH /api/user-account/settings', () => {
     })
 
     //assessing  change in DB
-
     const user = await User.findById(testUserOne._id)
-
     expect(user).toHaveProperty('fullName', 'New Name')
     expect(user.sendStatusEmail).toMatchObject({ error: false, archived: false })
   })

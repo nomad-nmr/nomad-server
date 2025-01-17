@@ -54,7 +54,7 @@ const MainMenu = props => {
       label: <span className={classes.MenuItem}>Search</span>,
       children: [
         {
-          key: '/search-experiment',
+          key: '/search-experiment/null',
           icon: <SearchOutlined style={{ fontSize: 20 }} />,
           label: <span className={classes.MenuItem}>Experiments</span>
         },
