@@ -4,24 +4,21 @@ import transporter from '../../utils/emailTransporter.js'
 
 const sendStatusEmail = {
   error: async datasetName => {
-    const expArray = await Experiment.find({ datasetName, status: 'Error' })
+    const errorExp = await Experiment.One({ datasetName, status: 'Error' })
+    const { instrument, remarks, holder, user, title } = errorExp
+    const { email, fullName, sendStatusEmail } = await User.findById(user.id)
+    if (!email) {
+      return new Error('E-mail not found')
+    }
 
-    if (expArray.length === 1) {
-      //sending e-mail only for one experiment in dataset/holder
-      const { instrument, remarks, holder, user, title } = expArray[0]
-      const { email, fullName, sendStatusEmail } = await User.findById(user.id)
-      if (!email) {
-        return new Error('E-mail not found')
-      }
-
-      const message = `
+    const message = `
       <p>Dear ${fullName}</p>
       <p>
       An experiment on instrument <strong>${
         instrument.name
       }</strong> in holder <strong>${holder}</strong> with title <strong>${
-        title.split('||')[0]
-      }</strong> finished with Error status. 
+      title.split('||')[0]
+    }</strong> finished with Error status. 
       </p>
       <p>
       Error remarks: ${remarks}
@@ -30,14 +27,13 @@ const sendStatusEmail = {
       This is an automated NOMAD notification. Do not replay!
       </i> 
       `
-      if (sendStatusEmail.error) {
-        transporter.sendMail({
-          from: process.env.SMTP_SENDER,
-          to: email,
-          subject: 'NOMAD: Error status warning',
-          html: message
-        })
-      }
+    if (sendStatusEmail.error) {
+      transporter.sendMail({
+        from: process.env.SMTP_SENDER,
+        to: email,
+        subject: 'NOMAD: Error status warning',
+        html: message
+      })
     }
   },
 
