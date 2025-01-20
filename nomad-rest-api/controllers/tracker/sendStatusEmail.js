@@ -4,7 +4,7 @@ import transporter from '../../utils/emailTransporter.js'
 
 const sendStatusEmail = {
   error: async datasetName => {
-    const errorExp = await Experiment.One({ datasetName, status: 'Error' })
+    const errorExp = await Experiment.findOneOne({ datasetName, status: 'Error' })
     const { instrument, remarks, holder, user, title } = errorExp
     const { email, fullName, sendStatusEmail } = await User.findById(user.id)
     if (!email) {
