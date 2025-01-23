@@ -37,14 +37,22 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
             acq: historyTableItem && historyTableItem.acq
           }
 
+          // if (!oldEntry && entry.status === 'Available' && entry.expNo === '10') {
+          //   // sending pending status email for first experiment of dataset/holder
+          //   console.log('HAAAAAAAAAAAAAAAAAAA')
+          //   sendStatusEmail.pending(datasetName)
+          // }
+
           //if entry.status === 'Submitted' is used submittedAt is occasionally missing
           //It might be that entry goes directly to 'Running' status.
+
+          const { datasetName, expNo, group } = entry
+
           if (oldEntry) {
             if (oldEntry.status === 'Available') {
               updateObj.submittedAt = new Date()
             }
 
-            const { datasetName, expNo, group } = entry
             if (oldEntry.status === 'Running' && entry.status === 'Completed') {
               //sending message to client through socket to upload data
               if (process.env.DATASTORE_ON) {
@@ -60,15 +68,12 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               sendStatusEmail.error(datasetName)
             }
 
-            if (oldEntry.status !== 'Available' && entry.status === 'Available' && expNo === '10') {
-              // sending pending status email for first experiment of dataset/holder
-              sendStatusEmail.pending(datasetName)
-            }
-
             if (oldEntry.status !== 'Running' && entry.status === 'Running')
               updateObj.runningAt = new Date()
+          } else if (entry.status === 'Available' && expNo === '10') {
+            // sending pending status email for first experiment of dataset/holder
+            sendStatusEmail.pending(datasetName)
           }
-
           const expHistEntry = await Experiment.findOneAndUpdate({ expId }, updateObj)
 
           if (expHistEntry) {

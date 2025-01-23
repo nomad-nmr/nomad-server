@@ -80,9 +80,8 @@ const sendStatusEmail = {
   },
 
   pending: async datasetName => {
-    const experiment = await Experiment.findOne({ expId: datasetName + '-10' })
+    // const experiment = await Experiment.findOne({ expId: datasetName + '-10' })
     const delay = process.env.PENDING_EMAIL_DELAY || 30
-    console.log('Sending Pending', experiment.expId)
 
     setTimeout(async () => {
       const pendingExp = await Experiment.findOne({ expId: datasetName + '-10' })
