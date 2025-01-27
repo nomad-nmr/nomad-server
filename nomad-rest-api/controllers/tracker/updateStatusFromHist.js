@@ -37,15 +37,6 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
             acq: historyTableItem && historyTableItem.acq
           }
 
-          // if (!oldEntry && entry.status === 'Available' && entry.expNo === '10') {
-          //   // sending pending status email for first experiment of dataset/holder
-          //   console.log('HAAAAAAAAAAAAAAAAAAA')
-          //   sendStatusEmail.pending(datasetName)
-          // }
-
-          //if entry.status === 'Submitted' is used submittedAt is occasionally missing
-          //It might be that entry goes directly to 'Running' status.
-
           const { datasetName, expNo, group } = entry
 
           if (oldEntry) {

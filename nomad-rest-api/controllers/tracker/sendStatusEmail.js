@@ -24,7 +24,7 @@ const sendStatusEmail = {
       Error remarks: ${remarks}
       </p>    
       <i style="margin-top: 20px;">
-      This is an automated NOMAD notification. Do not replay!
+      This is an automated NOMAD notification. Do not reply!
       </i> 
       `
     if (sendStatusEmail.error) {
@@ -65,7 +65,7 @@ const sendStatusEmail = {
       The dataset can be accessed in NOMAD datastore by following <a href=${link}>link</a>
       </p>
       <i style="margin-top: 20px;">
-      This is an automated NOMAD notification. Do not replay! 
+      This is an automated NOMAD notification. Do not reply! 
       </i>
       `
       if (sendStatusEmail.archived) {
@@ -101,14 +101,14 @@ const sendStatusEmail = {
       Please, submit the experiments or cancel the booked holder
       </p>    
       <i style="margin-top: 20px;">
-      This is an automated NOMAD notification. Do not replay!
+      This is an automated NOMAD notification. Do not reply!
       </i> 
       `
 
         transporter.sendMail({
           from: process.env.SMTP_SENDER,
           to: email,
-          subject: 'NOMAD: Experiments in pending status warning',
+          subject: 'NOMAD: Experiments left in pending status warning',
           html: message
         })
       }
