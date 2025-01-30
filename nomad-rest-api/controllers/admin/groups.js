@@ -130,7 +130,7 @@ export async function addUsers(req, res) {
           const user = await User.findOne({ username })
 
           //Rejecting users that are already in the group
-          if (user && user.group.toString() === groupId) {
+          if (user && user.group.toString() === groupId && user.isActive) {
             rejected++
             return
           }

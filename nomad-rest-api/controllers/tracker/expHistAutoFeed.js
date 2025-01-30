@@ -108,7 +108,6 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         }
 
         const experiment = new Experiment(newHistItem)
-        console.log('Huuuuuuuuuaaa', experiment)
         await experiment.save()
       }
     }
