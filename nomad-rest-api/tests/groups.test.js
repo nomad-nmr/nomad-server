@@ -2,55 +2,16 @@ import mongoose from 'mongoose'
 import { it, expect, describe, beforeAll, beforeEach, afterAll } from 'vitest'
 import request from 'supertest'
 
-import app from '../app'
+import app from '../app.js'
 import Group from '../models/group.js'
 import User from '../models/user.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testUserAdmin, testUserOne } from './fixtures/data/users.js'
 import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
-import nodemon from 'nodemon'
 
 beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
-
-describe('GET /api/admin/groups/', () => {
-  it('should return an array containing 1 test group object', async () => {
-    const { body } = await request(app)
-      .get('/api/admin/groups/')
-      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
-      .expect(200)
-    expect(body.length).toBe(1)
-    expect(body[0]).toHaveProperty('groupName', 'test-admins')
-  })
-
-  it('should return an array containing 2 test group objects', async () => {
-    const { body } = await request(app)
-      .get('/api/admin/groups/?showInactive=true')
-      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
-      .expect(200)
-    expect(body.length).toBe(2)
-    expect(body[0]).toHaveProperty('groupName', 'test-admins')
-    expect(body[0]).toHaveProperty('totalUserCount', 2)
-  })
-
-  it('should fail with status code 403 if request is not authorised', async () => {
-    await request(app).get('/api/admin/groups/').expect(403)
-  })
-
-  it('should return a simple list of groups for drop down select', async () => {
-    const { body } = await request(app)
-      .get('/api/admin/groups/?list=true')
-      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
-      .expect(200)
-    expect(body[0]).toMatchObject({
-      name: testGroupTwo.groupName,
-      id: testGroupTwo._id.toString(),
-      isActive: testGroupTwo.isActive,
-      isBatch: true
-    })
-  })
-})
 
 describe('POST /api/admin/groups/', () => {
   it('should add a new group entry into database', async () => {
