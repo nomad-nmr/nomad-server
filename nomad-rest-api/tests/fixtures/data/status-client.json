@@ -1,0 +1,62 @@
+{
+    "instrumentId": "60361c01a94fe37cd04dd7c3",
+    "data": [
+        [
+            {
+                "0": "IconNMR Automation Run Status:"
+            },
+            {
+                "0": "Day Experiments:",
+                "1": "00:00"
+            },
+            {
+                "0": "Busy Until:",
+                "1": "Wed 15:44"
+            },
+            {
+                "0": "Night Experiments:",
+                "1": "00:00"
+            }
+        ],
+        [
+            {
+                "0": "Holder",
+                "1": "Status",
+                "2": "Name",
+                "3": "ExpNo",
+                "4": "Experiment",
+                "5": "User",
+                "6": "Time",
+                "7": "Title"
+            },
+            {
+                "0": "1",
+                "1": "Submitted",
+                "2": "2501291541-5-1-tl12",
+                "3": "10",
+                "4": "proton.c.and",
+                "5": "tl",
+                "6": "00:00:26",
+                "7": "Test run || 1H Observe"
+            }
+        ],
+        [
+            {
+                "1": "Time",
+                "2": "Name",
+                "3": "ExpNo",
+                "4": "Experiment",
+                "5": "User",
+                "6": "Load",
+                "7": "Atma",
+                "8": "Spin",
+                "9": "Lock",
+                "10": "Shim",
+                "11": "Proc",
+                "12": "Title",
+                "13": "Remarks",
+                "Acq": "Holder"
+            }
+        ]
+    ]
+}

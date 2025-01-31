@@ -43,7 +43,7 @@ export const testInstrThree = {
   capacity: 24,
   status: {
     summary: { dayExpt: '00:00', nightExpt: '00:00' },
-    statusTable: await getStatus('status1.json')
+    statusTable: await getStatus('status-db.json')
   },
   cost: 2,
   dayAllowance: 20,
