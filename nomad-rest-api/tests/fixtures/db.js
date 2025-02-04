@@ -24,7 +24,8 @@ import {
   testExpFour,
   testExpFive,
   testExpSix,
-  testExpSeven
+  testExpSeven,
+  testExpEight
 } from './data/experiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
 import { testRackOne, testRackTwo } from './data/racks.js'
@@ -90,6 +91,7 @@ export const setupDB = async () => {
   await new Experiment(testExpFive).save()
   await new Experiment(testExpSix).save()
   await new Experiment(testExpSeven).save()
+  await new Experiment(testExpEight).save()
 
   await new Dataset(testDatasetOne).save()
   await new Dataset(testDatasetTwo).save()

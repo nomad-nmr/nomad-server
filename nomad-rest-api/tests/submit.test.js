@@ -9,7 +9,6 @@ import { testInstrOne, testInstrTwo, testInstrThree } from './fixtures/data/inst
 import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { getSubmitter } from '../server.js'
 import transporter from '../utils/emailTransporter'
-import Instrument from '../models/instrument'
 import Experiment from '../models/experiment'
 
 beforeAll(connectDB)

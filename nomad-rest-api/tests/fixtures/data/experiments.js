@@ -171,7 +171,7 @@ export const testExpSix = {
   dataPath: './test/path',
   solvent: 'CDCl3',
   totalExpTime: '00:05:00',
-  submittedAt: new Date('2025-01-01T00:00:00.000Z'),
+  submittedAt: new Date('2025-01-01T00:00:00.000Z')
 }
 
 export const testExpSeven = {
@@ -198,5 +198,31 @@ export const testExpSeven = {
   dataPath: './test/path',
   solvent: 'CDCl3',
   totalExpTime: '00:00:00',
-  submittedAt: new Date('2024-01-01T00:00:00.000Z'),
+  submittedAt: new Date('2024-01-01T00:00:00.000Z')
+}
+export const testExpEight = {
+  _id: new mongoose.Types.ObjectId(),
+  expId: '2501291553-5-2-tl12-10',
+  instrument: {
+    name: testInstrThree.name,
+    id: testInstrThree._id
+  },
+  user: {
+    username: testUserThree.username,
+    id: testUserThree._id
+  },
+  group: {
+    name: testGroupTwo.groupName,
+    id: testGroupTwo._id
+  },
+  datasetName: '2501291553-5-2-tl12',
+  status: 'Available',
+  title: 'Test run || 1H Observe',
+  parameterSet: testParamSet1.name,
+  expNo: '10',
+  holder: '1',
+  dataPath: './test/path',
+  solvent: 'CDCl3',
+  totalExpTime: '00:00:00',
+  submittedAt: new Date('2025-01-29T15:41:00.000Z')
 }
