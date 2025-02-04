@@ -1,6 +1,7 @@
 import Experiment from '../../models/experiment.js'
 import expHistAutoFeed from './expHistAutoFeed.js'
 import sendUploadCmd from './sendUploadCmd.js'
+import sendStatusEmail from './sendStatusEmail.js'
 
 //updateStatus takes existing status  table from instrument object and compares it with new status table
 // if entry does not exist or there is an existing entry with status change both status table and expHist table are getting updated
@@ -36,14 +37,14 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
             acq: historyTableItem && historyTableItem.acq
           }
 
-          //if entry.status === 'Submitted' is used submittedAt is occasionally missing
-          //It might be that entry goes directly to 'Running' status.
+          const { datasetName, expNo, group } = entry
+
           if (oldEntry) {
             if (oldEntry.status === 'Available') {
               updateObj.submittedAt = new Date()
             }
+
             if (oldEntry.status === 'Running' && entry.status === 'Completed') {
-              const { datasetName, expNo, group } = entry
               //sending message to client through socket to upload data
               if (process.env.DATASTORE_ON) {
                 sendUploadCmd(
@@ -53,10 +54,17 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
                 )
               }
             }
+
+            if (oldEntry.status === 'Running' && entry.status === 'Error') {
+              sendStatusEmail.error(datasetName)
+            }
+
             if (oldEntry.status !== 'Running' && entry.status === 'Running')
               updateObj.runningAt = new Date()
+          } else if (entry.status === 'Available' && expNo === '10') {
+            // sending pending status email for first experiment of dataset/holder
+            sendStatusEmail.pending(datasetName)
           }
-
           const expHistEntry = await Experiment.findOneAndUpdate({ expId }, updateObj)
 
           if (expHistEntry) {

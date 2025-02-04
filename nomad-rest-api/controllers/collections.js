@@ -262,6 +262,8 @@ export const getZip = async (req, res) => {
     const sanitisedTitle = collection.title.replace(/[\/\\]/, '_') + '.zip'
     const zipPath = path.join(uuidPath, sanitisedTitle)
 
+    const downloadTimeout = +process.env.COLLECTION_DOWNLOAD_TIMEOUT || 900000
+
     mainZip
       .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
       .pipe(fs.createWriteStream(zipPath))
@@ -275,16 +277,14 @@ export const getZip = async (req, res) => {
           <p><a href="${
             process.env.FRONT_HOST_URL
           }/downloads/${uuid}/${sanitisedTitle}">Download Collection Link</a></p>
-          <p>Please note that the link is valid for ${
-            +process.env.COLLECTION_DOWNLOAD_TIMEOUT / 60000
-          } minutes only</p>
+          <p>Please note that the link is valid for ${downloadTimeout / 60000} minutes only</p>
           `
         })
       })
 
     setTimeout(() => {
       fs.rmSync(uuidPath, { recursive: true, force: true })
-    }, process.env.COLLECTION_DOWNLOAD_TIMEOUT)
+    }, downloadTimeout)
 
     res.status(200).json({ email: user.email, title: collection.title })
   } catch (error) {

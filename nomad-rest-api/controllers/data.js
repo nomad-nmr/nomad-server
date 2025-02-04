@@ -14,6 +14,7 @@ import Instrument from '../models/instrument.js'
 import { getIO } from '../socket.js'
 import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import { getGrantInfo } from '../utils/accountsUtils.js'
+import sendStatusEmail from './tracker/sendStatusEmail.js'
 
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
@@ -73,6 +74,8 @@ export const postData = async (req, res) => {
     }
 
     await experiment.save()
+
+    sendStatusEmail.archived(datasetName)
 
     res.send()
   } catch (error) {

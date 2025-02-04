@@ -24,6 +24,7 @@ import claimReducer from './store/reducers/claim'
 import claimsHistoryReducer from './store/reducers/claimsHistory'
 import datasetsReducer from './store/reducers/datasets'
 import collectionsReducer from './store/reducers/collections'
+import userAccountReducer from './store/reducers/user-account'
 
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -65,7 +66,8 @@ const rootReducer = combineReducers({
   claim: claimReducer,
   claimsHistory: claimsHistoryReducer,
   datasets: datasetsReducer,
-  collections: collectionsReducer
+  collections: collectionsReducer,
+  userAccount: userAccountReducer
 })
 
 const store = createStore(rootReducer, composeEnhancers(applyMiddleware(thunk)))

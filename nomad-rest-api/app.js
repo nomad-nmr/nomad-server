@@ -27,6 +27,7 @@ import claimRoutes from './routes/claims.js'
 import datasetsRoutes from './routes/datasets.js'
 import statsRoutes from './routes/admin/stats.js'
 import collectionRoutes from './routes/collections.js'
+import userAccountRoutes from './routes/user-account.js'
 
 import autoExperimentRoutes from './routes/v2/auto-experiments.js'
 import {
@@ -69,6 +70,7 @@ app.use('/api/claims', claimRoutes)
 app.use('/api/datasets', datasetsRoutes)
 app.use('/api/stats', statsRoutes)
 app.use('/api/collections', collectionRoutes)
+app.use('/api/user-account', userAccountRoutes)
 
 const swaggerDocument = {
   openapi: '3.0.0',

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { Tooltip } from 'antd'
@@ -9,14 +9,17 @@ import logoWideLight from '../../assets/logo-wide-light.png'
 import PageHeader from './PageHeader/PageHeader'
 import AuthAvatar from './AuthAvatar/AuthAvatar'
 import MainMenu from './MainMenu/MainMenu'
+import AccountSettingsModal from './AccountSettingsModal/AccountSettingsModal'
 
-import { openAuthModal } from '../../store/actions'
+import { getAccountSettings, openAuthModal, saveUserSettings } from '../../store/actions'
 
 import classes from './NavBar.module.css'
 
 const NavBar = props => {
   const location = useLocation()
   const navigate = useNavigate()
+
+  const [modalVisible, setModalVisible] = useState(false)
 
   // Setting up components for left side of NavBar. Components dynamically change with state of admin sider menu.
   const toggleButton = props.collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
@@ -65,9 +68,18 @@ const NavBar = props => {
             username={props.username}
             accessLevel={props.accessLevel}
             toggleAddSample={props.tglAddSample}
+            setModalVisible={setModalVisible}
           />
         </div>
       </div>
+      <AccountSettingsModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        authToken={props.authToken}
+        fetchUserData={props.getUserSettings}
+        userSettings={props.userAccountSettings}
+        onSave={props.saveUserSettings}
+      />
     </nav>
   )
 }
@@ -76,13 +88,17 @@ const mapStateToProps = state => {
   return {
     username: state.auth.username,
     accessLevel: state.auth.accessLevel,
-    manualAccess: state.auth.manualAccess
+    manualAccess: state.auth.manualAccess,
+    authToken: state.auth.token,
+    userAccountSettings: state.userAccount.settings
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    openModalHandler: () => dispatch(openAuthModal())
+    openModalHandler: () => dispatch(openAuthModal()),
+    getUserSettings: token => dispatch(getAccountSettings(token)),
+    saveUserSettings: (token, data) => dispatch(saveUserSettings(token, data))
   }
 }
 

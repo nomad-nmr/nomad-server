@@ -1,4 +1,3 @@
-import { VerticalRightOutlined } from '@ant-design/icons'
 import * as actionTypes from '../actions/actionTypes'
 import { message } from 'antd'
 

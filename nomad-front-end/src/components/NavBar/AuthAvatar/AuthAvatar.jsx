@@ -1,6 +1,6 @@
 import React from 'react'
 import { Avatar, Popover } from 'antd'
-import { UserOutlined } from '@ant-design/icons'
+import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons'
 import classes from './AuthAvatar.module.css'
 
 const AuthAvatar = props => {
@@ -33,24 +33,43 @@ const AuthAvatar = props => {
       <Popover
         placement='bottomRight'
         title={
-          <>
+          <div style={{ marginBottom: '10px' }}>
             Signed in as <strong>{props.username}</strong>
-          </>
+          </div>
         }
         content={
-          <span className={classes.Popover} onClick={() => props.onClick(null)}>
-            Sign out
-          </span>
+          <ul>
+            <li className={classes.Popover}>
+              <SettingOutlined />
+              <span className={classes.Popover} onClick={() => props.setModalVisible(true)}>
+                Account Settings
+              </span>
+            </li>
+            <li className={classes.Popover}>
+              <LogoutOutlined />
+              <span className={classes.Popover} onClick={() => props.onClick(null)}>
+                Sign out
+              </span>
+            </li>
+          </ul>
         }
       >
-        <Avatar size='large' className={assignedClasses.join(' ')} onClick={() => props.onClick(null)}>
+        <Avatar
+          size='large'
+          className={assignedClasses.join(' ')}
+          // onClick={() => props.onClick(null)}
+        >
           {props.username[0].toUpperCase()}
         </Avatar>
       </Popover>
     )
   } else {
     avatarEl = (
-      <Avatar size='large' className={assignedClasses.join(' ')} onClick={() => props.onClick(null)}>
+      <Avatar
+        size='large'
+        className={assignedClasses.join(' ')}
+        onClick={() => props.onClick(null)}
+      >
         {<UserOutlined />}
       </Avatar>
     )

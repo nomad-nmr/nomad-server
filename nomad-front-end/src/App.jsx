@@ -196,7 +196,7 @@ const App = props => {
                 }
               />
               <Route
-                path='/search-experiment'
+                path='/search-experiment/:datasetName'
                 element={
                   import.meta.env.VITE_DATASTORE_ON === 'true' ? (
                     <SearchExperiment />

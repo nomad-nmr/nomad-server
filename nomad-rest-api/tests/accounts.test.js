@@ -2,7 +2,7 @@ import { it, expect, describe, beforeAll, beforeEach, afterAll, vi } from 'vites
 import request from 'supertest'
 
 import app from '../app.js'
-import { connectDB, dropDB, setupDB } from './fixtures/db'
+import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 
 import { testUserAdmin, testUserOne, testUserThree } from './fixtures/data/users.js'
 import { testGroupTwo } from './fixtures/data/groups.js'

@@ -21,12 +21,12 @@ describe('GET /api/v2/auto-experiments', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(7)
+    expect(body.length).toBe(8)
   })
 
   it('should return an array all experiments from instruments 1', async () => {
     const searchParams = {
-      instrumentId: testInstrOne._id,
+      instrumentId: testInstrOne._id
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
@@ -38,20 +38,20 @@ describe('GET /api/v2/auto-experiments', () => {
 
   it('should return an array all experiments from instruments 1 and 3', async () => {
     const searchParams = {
-      instrumentId: [testInstrOne._id, testInstrThree._id],
+      instrumentId: [testInstrOne._id, testInstrThree._id]
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(4)
+    expect(body.length).toBe(5)
   })
 
   it('should limit the number of experiments returned to 2', async () => {
     const searchParams = {
       offset: 3,
-      limit: 2,
+      limit: 2
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
@@ -64,7 +64,7 @@ describe('GET /api/v2/auto-experiments', () => {
   it('should return experiments within a date range', async () => {
     const searchParams = {
       startDate: '2000-01-01',
-      endDate: '2024-02-01',
+      endDate: '2024-02-01'
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
@@ -77,7 +77,7 @@ describe('GET /api/v2/auto-experiments', () => {
 
   it('should return data from specified users in the group if access allows', async () => {
     const searchParams = {
-      userId: [testUserOne._id, testUserTwo._id],
+      userId: [testUserOne._id, testUserTwo._id]
     }
     const { body } = await request(app)
       .get('/api/v2/auto-experiments?' + new URLSearchParams(searchParams).toString())
@@ -86,5 +86,4 @@ describe('GET /api/v2/auto-experiments', () => {
 
     expect(body.length).toBe(3)
   })
-
 })

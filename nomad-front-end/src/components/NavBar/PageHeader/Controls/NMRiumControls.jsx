@@ -18,7 +18,7 @@ const NMRiumControls = props => {
 
   const addExperiments = () => {
     props.addExpsHandler()
-    navigate('/search-experiment')
+    navigate('/search-experiment/null')
   }
   const { dataset, token, saveHandler, accessLevel, username } = props
   const { molecules, spectra, correlations } = props.data.data
