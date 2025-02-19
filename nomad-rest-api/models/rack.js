@@ -29,6 +29,7 @@ const rackSchema = new Schema({
     required: true,
     default: 72
   },
+  sampleJet: Boolean,
   samples: [
     {
       slot: Number,

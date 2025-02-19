@@ -18,7 +18,8 @@ import {
   addSample,
   toggleBookSamplesModal,
   fetchInstrumentList,
-  bookSamples
+  bookSamples,
+  fetchUserList
 } from '../../store/actions'
 
 const BatchSubmit = props => {
@@ -122,6 +123,8 @@ const BatchSubmit = props => {
         onSubmit={props.addRackHandler}
         token={authToken}
         instruments={props.instrList}
+        userList={props.usrList}
+        onGrpChange={props.fetchUsrList}
       />
       <BookSamplesModal
         visible={props.bookSamplesVisible}
@@ -162,7 +165,8 @@ const mapStateToProps = state => {
     instrList: state.instruments.instrumentList,
     loading: state.batchSubmit.loading,
     bookSamplesVisible: state.batchSubmit.bookSamplesVisible,
-    selectedSlots: state.batchSubmit.selectedSlots
+    selectedSlots: state.batchSubmit.selectedSlots,
+    usrList: state.users.userList
   }
 }
 
@@ -179,7 +183,9 @@ const mapDispatchToProps = dispatch => {
     addSampleHandler: (data, rackId, token) => dispatch(addSample(data, rackId, token)),
     toggleBookSamples: () => dispatch(toggleBookSamplesModal()),
     fetchInstrList: token => dispatch(fetchInstrumentList(token)),
-    bookSamples: (data, token) => dispatch(bookSamples(data, token))
+    bookSamples: (data, token) => dispatch(bookSamples(data, token)),
+    fetchUsrList: (token, groupId, showInactive, search) =>
+      dispatch(fetchUserList(token, groupId, showInactive, search))
   }
 }
 
