@@ -54,22 +54,22 @@ const AddRackModal = props => {
     </Option>
   ))
 
-  const closeModal = () => {
+  const resetModal = () => {
     mainForm.resetFields()
     accessForm.resetFields()
     setAccessList([])
     setRackType('Group')
     setShowAccessForm(false)
+  }
+
+  const closeModal = () => {
+    resetModal()
     props.toggleHandler()
   }
 
   const submitForm = values => {
-    console.log(accessList)
-    const accessValues = accessForm.getFieldsValue()
-    console.log(accessValues)
-    props.onSubmit(values, props.token)
-    mainForm.resetFields()
-    accessForm.resetFields()
+    props.onSubmit({ ...values, rackType, accessList }, props.token)
+    resetModal()
   }
 
   const onGroupSelect = grpId => {

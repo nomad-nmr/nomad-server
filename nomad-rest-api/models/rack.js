@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose'
 
 const rackSchema = new Schema({
+  rackType: String,
   title: {
     type: String,
     required: true,
@@ -30,6 +31,11 @@ const rackSchema = new Schema({
     default: 72
   },
   sampleJet: Boolean,
+  accessList: {
+    type: Array,
+    required: true,
+    default: []
+  },
   samples: [
     {
       slot: Number,
