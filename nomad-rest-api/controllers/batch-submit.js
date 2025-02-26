@@ -66,9 +66,7 @@ export const postRack = async (req, res) => {
       return res.status(422).send(errors)
     }
     const newRackObj = { ...req.body, title: req.body.title.toUpperCase() }
-    if (req.body.group === '#all#') {
-      delete newRackObj.group
-    }
+
     const newRack = new Rack(newRackObj)
     await newRack.save()
     res.status(200).json(newRack)

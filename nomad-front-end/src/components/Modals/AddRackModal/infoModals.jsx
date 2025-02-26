@@ -11,8 +11,10 @@ const infoModals = {
             on any instrument.
           </p>
           <p>
-            <strong>Instrument :</strong> Rack assigned to an instrument that can be also set to
-            have restricted access and be available only to selected groups or users.
+            <strong>Instrument :</strong> More flexible type of rack. Rack has to be assigned to an
+            instrument and it can also be set to have restricted access and be available only to
+            selected groups or users. It can also be configured as a rack for Bruker SampleJet
+            autosampler.
           </p>
         </div>
       )

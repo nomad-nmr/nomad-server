@@ -34,7 +34,8 @@ const BatchSubmit = props => {
     setActiveTabId,
     activeTabId,
     fetchParamSets,
-    addSampleVis
+    addSampleVis,
+    grpName
   } = props
 
   const user = { username, accessLevel, authToken }
@@ -71,23 +72,59 @@ const BatchSubmit = props => {
   }, [racksData, activeTabId, setActiveTabId])
 
   let filteredRacks = []
-  if (accessLevel === 'admin' || accessLevel === 'admin-b') {
-    filteredRacks = [...racksData]
-  } else if (accessLevel === 'user-b') {
-    filteredRacks = racksData.filter(rack => {
-      if (!rack.group) {
-        return false
-      } else if (rack.isOpen && rack.group.groupName === props.grpName) {
-        return true
-      } else {
-        return false
-      }
-    })
+
+  if (!authToken) {
+    filteredRacks = racksData.filter(rack => rack.isOpen)
   } else {
-    if (!authToken) {
-      filteredRacks = racksData.filter(rack => rack.isOpen)
-    } else {
-      filteredRacks = racksData.filter(rack => !rack.group && rack.isOpen)
+    switch (accessLevel) {
+      case 'admin':
+        filteredRacks = [...racksData]
+        break
+
+      case 'admin-b':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.accessList.length === 0) {
+            return true
+          } else {
+            return (
+              rack.accessList.some(i => i.type === 'group' && i.name === grpName) ||
+              rack.accessList.some(i => i.type === 'user' && i.name === username)
+            )
+          }
+        })
+        break
+
+      case 'user-b':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.rackType === 'Instrument') {
+            return false
+          } else if (rack.isOpen && rack.group.groupName === grpName) {
+            return true
+          } else {
+            return false
+          }
+        })
+        break
+      case 'user':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.rackType === 'Group' || rack.isOpen === false) {
+            return false
+          } else {
+            if (rack.accessList.length === 0) {
+              return true
+            } else {
+              return (
+                rack.accessList.some(i => i.type === 'group' && i.name === grpName) ||
+                rack.accessList.some(i => i.type === 'user' && i.name === username)
+              )
+            }
+          }
+        })
+
+        break
+
+      default:
+        break
     }
   }
 
@@ -145,6 +182,7 @@ const BatchSubmit = props => {
         activeRackId={activeTabId}
         onAddSample={props.addSampleHandler}
         editParams={activeRack && activeRack.editParams}
+        rackType={activeRack && activeRack.rackType}
       />
     </div>
   )

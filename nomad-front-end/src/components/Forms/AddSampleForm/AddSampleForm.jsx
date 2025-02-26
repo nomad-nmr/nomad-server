@@ -21,7 +21,7 @@ const AddSampleForm = props => {
   const [exptState, setExptState] = useState({})
 
   const { accessLevel, authToken } = props.user
-  const { editParams } = props
+  const { editParams, rackType } = props
 
   const onFromFinish = data => {
     //adding total experimental time for each sample into data object
@@ -203,22 +203,24 @@ const AddSampleForm = props => {
         <Col span={editParams ? 6 : 8}>
           <TitleInput nameKey={i} />
         </Col>
-        <Col span={2}>
-          <Form.Item
-            name={[i, 'tubeId']}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
+        {rackType === 'Group' && (
+          <Col span={2}>
+            <Form.Item
+              name={[i, 'tubeId']}
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
 
-                message: 'Sample ID is required'
-              },
-              { min: 3, max: 6, message: 'Title must have min 3 and max 6 characters' }
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+                  message: 'Sample ID is required'
+                },
+                { min: 3, max: 6, message: 'Title must have min 3 and max 6 characters' }
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+        )}
         <Col span={3}>
           <SolventSelect nameKey={i} />
         </Col>
@@ -261,7 +263,7 @@ const AddSampleForm = props => {
 
       <Row gutter={16} className={classes.Header}>
         <Col span={editParams ? 6 : 8}>Title</Col>
-        <Col span={2}>Tube ID</Col>
+        {rackType === 'Group' && <Col span={2}>Tube ID</Col>}
         <Col span={3}>Solvent</Col>
 
         <Col span={1} offset={1}>
