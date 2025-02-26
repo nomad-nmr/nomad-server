@@ -117,10 +117,7 @@ const StatusTable = props => {
       key: 'holder',
       align: 'center',
       defaultSortOrder: 'descend',
-      sorter: {
-        compare: (a, b) => a.holder - b.holder,
-        multiple: 1
-      }
+      sorter: (a, b) => a.holder - b.holder
     },
     {
       title: 'User',
@@ -164,12 +161,7 @@ const StatusTable = props => {
     {
       title: 'Submitted At',
       align: 'center',
-      render: record => (record.submittedAt ? moment(record.submittedAt).format('ddd HH:mm') : '-'),
-      // defaultSortOrder: 'descend',
-      sorter: {
-        compare: (a, b) => moment(a.submittedAt).valueOf() - moment(b.submittedAt).valueOf(),
-        multiple: 2
-      }
+      render: record => (record.submittedAt ? moment(record.submittedAt).format('ddd HH:mm') : '-')
     },
     {
       title: 'ExpT',
@@ -216,6 +208,8 @@ const StatusTable = props => {
       props.onCheckedHandler(selectedRowKeys)
     }
   }
+
+  console.log(props.data[0])
 
   return (
     <Table
