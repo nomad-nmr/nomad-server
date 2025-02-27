@@ -117,6 +117,7 @@ const StatusTable = props => {
       key: 'holder',
       align: 'center',
       defaultSortOrder: 'descend',
+      sortDirections: ['descend', 'ascend'],
       sorter: (a, b) => a.holder - b.holder
     },
     {
