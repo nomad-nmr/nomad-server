@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer, Alert } from 'antd'
 
-import AddSampleForm from '../Forms/AddSampleForm/AddSampleForm'
+import AddSampleForm from '../../Forms/AddSampleForm/AddSampleForm'
 
 const AddSampleDrawer = props => {
   return (

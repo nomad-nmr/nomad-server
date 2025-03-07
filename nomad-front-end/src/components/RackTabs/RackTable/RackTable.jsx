@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment, useState } from 'react'
 import { connect } from 'react-redux'
 import { Table, Space, Divider, Button, Modal, Form, Input } from 'antd'
 import moment from 'moment'
@@ -42,61 +42,79 @@ const RackTable = props => {
       </Form>
     )
 
-    if (props.rackData.isOpen) {
-      return (
-        <Button
-          type='link'
-          disabled={!authToken || (username !== record.user.username && accessLevel === 'user-b')}
-          onClick={() => {
-            Modal.confirm({
-              title: 'Do you want to delete this rack entry',
-              content: modalList,
+    const actionButtonsDisabled =
+      !authToken || (username !== record.user.username && !accessLevel.includes('admin'))
 
-              onOk() {
-                props.deleteSampleHandler(rackData._id, record.slot, authToken)
-              }
-            })
-          }}
-        >
-          Delete
-        </Button>
-      )
-    } else {
-      return (
-        <Button
-          type='link'
-          disabled={record.status}
-          onClick={() =>
-            Modal.confirm({
-              width: 600,
-              title: 'Reject rack entry',
-              content: (
-                <>
-                  {modalList}
-                  {rejectForm}
-                </>
-              ),
-              onOk() {
-                const messageData = {
-                  recipients: [{ name: record.user.username, type: 'user' }],
-                  subject: 'Sample rejected',
-                  message: `Dear ${record.user.fullName}
+    const deleteButton = (
+      <Button
+        type='link'
+        disabled={actionButtonsDisabled}
+        onClick={() => {
+          Modal.confirm({
+            title: 'Do you want to delete this rack entry',
+            content: modalList,
+
+            onOk() {
+              props.deleteSampleHandler(rackData._id, record.slot, authToken)
+            }
+          })
+        }}
+      >
+        Delete
+      </Button>
+    )
+
+    const rejectButton = (
+      <Button
+        type='link'
+        disabled={record.status}
+        onClick={() =>
+          Modal.confirm({
+            width: 600,
+            title: 'Reject rack entry',
+            content: (
+              <Fragment>
+                {modalList}
+                {rejectForm}
+              </Fragment>
+            ),
+            onOk() {
+              const messageData = {
+                recipients: [{ name: record.user.username, type: 'user' }],
+                subject: 'Sample rejected',
+                message: `Dear ${record.user.fullName}
 
 Your sample in rack ${rackData.title} in slot ${record.slot} with title "${record.title}" 
 was rejected for the following reason: ${form.getFieldValue('reason')}
 `
-                }
-                props.sendMsg(authToken, messageData)
-                props.deleteSampleHandler(rackData._id, record.slot, authToken)
-                form.resetFields()
               }
-            })
-          }
-        >
-          Reject
-        </Button>
-      )
-    }
+              props.sendMsg(authToken, messageData)
+              props.deleteSampleHandler(rackData._id, record.slot, authToken)
+              form.resetFields()
+            }
+          })
+        }
+      >
+        Reject
+      </Button>
+    )
+
+    const editButton = (
+      <Button
+        type='link'
+        disabled={actionButtonsDisabled}
+        onClick={() => props.editHandler(record)}
+      >
+        Edit
+      </Button>
+    )
+
+    return (
+      <Space>
+        {props.rackData.isOpen ? deleteButton : rejectButton}
+        {!record.status && editButton}
+      </Space>
+    )
   }
 
   const columns = [
@@ -215,14 +233,16 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
   const tableDataSource = rackData.samples.map(sample => ({ ...sample, key: sample.slot }))
 
   return (
-    <Table
-      columns={columns}
-      dataSource={tableDataSource}
-      pagination={false}
-      size='small'
-      expandable={{ expandedRowRender: expandElement }}
-      rowSelection={rowSelection}
-    />
+    <Fragment>
+      <Table
+        columns={columns}
+        dataSource={tableDataSource}
+        pagination={false}
+        size='small'
+        expandable={{ expandedRowRender: expandElement }}
+        rowSelection={rowSelection}
+      />
+    </Fragment>
   )
 }
 

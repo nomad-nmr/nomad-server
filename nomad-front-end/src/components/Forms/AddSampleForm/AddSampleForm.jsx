@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Row, Col, Form, Space, Button, Select, Input, message } from 'antd'
 import moment from 'moment'
 
@@ -7,6 +7,7 @@ import TitleInput from '../BookExperimentsForm/TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
 
 import classes from '../BookExperimentsForm/BookExperimentsForm.module.css'
+import { legacy_createStore } from 'redux'
 
 const { Option } = Select
 
@@ -21,9 +22,27 @@ const AddSampleForm = props => {
   const [exptState, setExptState] = useState({})
 
   const { accessLevel, authToken } = props.user
-  const { editParams, rackType } = props
+  const { editParams, rackType, inputData } = props
+
+  useEffect(() => {
+    console.log(inputData)
+    if (inputData) {
+      setFormState([inputData.exps.length])
+      form.setFieldsValue({
+        0: {
+          solvent: inputData.solvent,
+          title: inputData.title,
+          exps: inputData.exps,
+          expTime: inputData.expTime
+        }
+      })
+    }
+  }, [inputData])
+
+  console.log(exptState)
 
   const onFromFinish = data => {
+    console.log(data)
     //adding total experimental time for each sample into data object
     const exptEntries = Object.entries(exptState)
     for (let entry of exptEntries) {
@@ -250,16 +269,18 @@ const AddSampleForm = props => {
 
   return (
     <div style={{ margin: '0px 80px' }}>
-      <div style={{ marginBottom: 15, textAlign: 'center' }}>
-        <Space size='large'>
-          <Button shape='circle' type='primary' onClick={() => addEntryHandler()}>
-            <span className={classes.LargeButton}>+</span>
-          </Button>
-          <Button shape='circle' onClick={() => removeEntryHandler()}>
-            <span className={classes.LargeButton}>-</span>
-          </Button>
-        </Space>
-      </div>
+      {!props.edit && (
+        <div style={{ marginBottom: 15, textAlign: 'center' }}>
+          <Space size='large'>
+            <Button shape='circle' type='primary' onClick={() => addEntryHandler()}>
+              <span className={classes.LargeButton}>+</span>
+            </Button>
+            <Button shape='circle' onClick={() => removeEntryHandler()}>
+              <span className={classes.LargeButton}>-</span>
+            </Button>
+          </Space>
+        </div>
+      )}
 
       <Row gutter={16} className={classes.Header}>
         <Col span={editParams ? 6 : 8}>Title</Col>

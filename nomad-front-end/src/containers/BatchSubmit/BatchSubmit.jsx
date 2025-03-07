@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
 
 import RackTabs from '../../components/RackTabs/RackTabs'
 import AddRackModal from '../../components/Modals/AddRackModal/AddRackModal'
-import AddSampleDrawer from '../../components/AddSampleDrawer/AddSampleDrawer'
+import AddSampleDrawer from '../../components/BatchSubmitComponents/AddSampleDrawer/AddSampleDrawer'
 import BookSamplesModal from '../../components/Modals/BookSamplesModal/BookSamplesModal'
+import EditSampleModal from '../../components/BatchSubmitComponents/EditSampleModal/EditSampleModal'
+
 import {
   addRack,
   fetchGroupList,
@@ -40,6 +42,9 @@ const BatchSubmit = props => {
 
   const user = { username, accessLevel, authToken }
   const activeRack = racksData.find(rack => rack._id === props.activeTabId)
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalData, setModalData] = useState({})
 
   useEffect(() => {
     if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
@@ -139,6 +144,11 @@ const BatchSubmit = props => {
     }
   }
 
+  const entryEditHandler = data => {
+    setModalData(data)
+    setModalOpen(true)
+  }
+
   return (
     <div>
       <Spin size='large' spinning={props.loading}>
@@ -149,6 +159,7 @@ const BatchSubmit = props => {
             data={filteredRacks}
             setActiveTabId={setActiveTabId}
             activeTabId={activeTabId}
+            editHandler={entryEditHandler}
           />
         )}
       </Spin>
@@ -183,6 +194,14 @@ const BatchSubmit = props => {
         onAddSample={props.addSampleHandler}
         editParams={activeRack && activeRack.editParams}
         rackType={activeRack && activeRack.rackType}
+      />
+      <EditSampleModal
+        open={modalOpen}
+        toggleModal={setModalOpen}
+        user={{ username, accessLevel }}
+        paramSets={props.paramSetsList}
+        data={modalData}
+        editParams={activeRack && activeRack.editParams}
       />
     </div>
   )

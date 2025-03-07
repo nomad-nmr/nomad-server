@@ -210,8 +210,6 @@ const StatusTable = props => {
     }
   }
 
-  console.log(props.data[0])
-
   return (
     <Table
       columns={columns}
