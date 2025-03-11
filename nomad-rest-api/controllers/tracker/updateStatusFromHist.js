@@ -63,7 +63,7 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               updateObj.runningAt = new Date()
           } else if (entry.status === 'Available' && expNo === '10') {
             // sending pending status email for first experiment of dataset/holder
-            sendStatusEmail.pending(datasetName)
+            sendStatusEmail.pending(datasetName, instrument._id)
           }
           const expHistEntry = await Experiment.findOneAndUpdate({ expId }, updateObj)
 

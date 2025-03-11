@@ -1,6 +1,8 @@
 import User from '../../models/user.js'
 import Experiment from '../../models/experiment.js'
+import Instrument from '../../models/instrument.js'
 import transporter from '../../utils/emailTransporter.js'
+import instrument from '../../models/instrument.js'
 
 const sendStatusEmail = {
   error: async datasetName => {
@@ -79,14 +81,22 @@ const sendStatusEmail = {
     }
   },
 
-  pending: async datasetName => {
-    // const experiment = await Experiment.findOne({ expId: datasetName + '-10' })
+  pending: async (datasetName, instrumentId) => {
     const delay = process.env.PENDING_EMAIL_DELAY || 30
 
     setTimeout(async () => {
-      const pendingExp = await Experiment.findOne({ expId: datasetName + '-10' })
-      if (pendingExp.status === 'Available') {
-        const { instrument, holder, user, title } = pendingExp
+      const { status } = await Instrument.findById(instrumentId)
+      const pendingExp = status.statusTable.find(
+        i => i.datasetName === datasetName && i.status === 'Available'
+      )
+
+      if (pendingExp) {
+        const exp = await Experiment.findOne({ datasetName: pendingExp.datasetName })
+        if (!exp) {
+          console.log(`Pending experiment ${pendingExp.datasetName} not found in DB`)
+          return
+        }
+        const { instrument, holder, user, title } = exp
         const { email, fullName } = await User.findById(user.id)
         const message = `
       <p>Dear ${fullName}</p>
