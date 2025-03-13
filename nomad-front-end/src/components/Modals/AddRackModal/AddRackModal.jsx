@@ -185,6 +185,7 @@ const AddRackModal = props => {
             setRackType(value)
             mainForm.resetFields()
             accessForm.resetFields()
+            mainForm.setFieldValue('editParams', value === 'Instrument')
           }}
         />
       </Space>
@@ -227,6 +228,11 @@ const AddRackModal = props => {
         <Form.Item name='editParams' label='Edit Parameters'>
           <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
         </Form.Item>
+        {rackType === 'Group' && (
+          <Form.Item name='sampleIdOn' label='Use Sample ID' initialValue={true}>
+            <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+          </Form.Item>
+        )}
         {rackType === 'Instrument' && (
           <Fragment>
             <Form.Item name='sampleJet' label='SampleJet Rack'>

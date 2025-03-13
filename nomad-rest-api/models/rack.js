@@ -31,6 +31,7 @@ const rackSchema = new Schema({
     default: 72
   },
   sampleJet: Boolean,
+  sampleIdOn: Boolean,
   accessList: {
     type: Array,
     required: true,
@@ -64,7 +65,8 @@ const rackSchema = new Schema({
       exps: [
         {
           paramSet: { type: String, required: true },
-          params: String
+          params: String,
+          expt: String
         }
       ],
 

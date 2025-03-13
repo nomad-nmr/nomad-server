@@ -430,3 +430,24 @@ export const cancelBookedSamples = async (req, res) => {
     res.status(500).send({ error: 'API error' })
   }
 }
+
+export async function editSample(req, res) {
+  try {
+    const { rackId } = req.params
+
+    const { slot, title, solvent, exps, expTime } = req.body
+    const rack = await Rack.findById(rackId)
+    if (!rack) {
+      return res.status(404).send({ message: 'Rack not found' })
+    }
+    const newSamples = [...rack.samples]
+    const index = newSamples.findIndex(sample => sample.slot === +slot)
+    newSamples[index] = { ...newSamples[index], title, solvent, exps, expTime }
+    rack.samples = newSamples
+    await rack.save()
+    res.status(200).json(rack)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}

@@ -7,7 +7,6 @@ import TitleInput from '../BookExperimentsForm/TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
 
 import classes from '../BookExperimentsForm/BookExperimentsForm.module.css'
-import { legacy_createStore } from 'redux'
 
 const { Option } = Select
 
@@ -22,10 +21,9 @@ const AddSampleForm = props => {
   const [exptState, setExptState] = useState({})
 
   const { accessLevel, authToken } = props.user
-  const { editParams, rackType, inputData } = props
+  const { editParams, sampleIdOn, inputData, paramSets, rackId } = props
 
   useEffect(() => {
-    console.log(inputData)
     if (inputData) {
       setFormState([inputData.exps.length])
       form.setFieldsValue({
@@ -33,31 +31,15 @@ const AddSampleForm = props => {
           solvent: inputData.solvent,
           title: inputData.title,
           exps: inputData.exps,
-          expTime: inputData.expTime
-        }
+          expTime: inputData.expTime,
+          tubeId: inputData.tubeId
+        },
+        slot: inputData.slot
       })
+      const exptStateArray = inputData.exps.map((exp, i) => ['0#' + i, exp.expt])
+      setExptState(Object.fromEntries(exptStateArray))
     }
   }, [inputData])
-
-  console.log(exptState)
-
-  const onFromFinish = data => {
-    console.log(data)
-    //adding total experimental time for each sample into data object
-    const exptEntries = Object.entries(exptState)
-    for (let entry of exptEntries) {
-      const key = entry[0].split('#')[0]
-      const value = data[key].expTime ? data[key].expTime : '00:00:00'
-      data[key].expTime = moment
-        .duration(value, 'hh:mm:ss')
-        .add(moment.duration(entry[1], 'hh:mm:ss'))
-        .format('HH:mm:ss', { trim: false })
-    }
-
-    props.onAddSample(data, props.rackId, authToken)
-    form.resetFields()
-    setFormState([1])
-  }
 
   const closeHandler = () => {
     form.resetFields()
@@ -67,6 +49,29 @@ const AddSampleForm = props => {
     if (accessLevel !== 'admin' && accessLevel !== 'admin-b') {
       props.signOutHandler(authToken)
     }
+  }
+
+  const onFormFinish = data => {
+    //adding total experimental time for each sample into data object
+    const exptEntries = Object.entries(exptState)
+    for (let entry of exptEntries) {
+      const key = entry[0].split('#')[0]
+      const value = data[key].expTime ? data[key].expTime : '00:00:00'
+      data[key].expTime = moment
+        .duration(value, 'hh:mm:ss')
+        .add(moment.duration(entry[1], 'hh:mm:ss'))
+        .format('HH:mm:ss', { trim: false })
+
+      //storing expt for individual experiments
+      data[key].exps[entry[0].split('#')[1]].expt = entry[1]
+    }
+    if (props.edit) {
+      const { slot } = data
+      props.editSampleHandler({ ...Object.values(data)[0], slot }, rackId, authToken)
+    } else {
+      props.addSampleHandler(data, rackId, authToken)
+    }
+    closeHandler()
   }
 
   const addEntryHandler = () => {
@@ -111,7 +116,7 @@ const AddSampleForm = props => {
     const paramSetName = form.getFieldValue([key, 'exps', expNo, 'paramSet'])
     const paramsString = form.getFieldValue([key, 'exps', expNo, 'params'])
     if (paramSetName) {
-      const { defaultParams, customParams } = props.paramSets.find(
+      const { defaultParams, customParams } = paramSets.find(
         paramSet => paramSet.name === paramSetName
       )
       setModalInputData({
@@ -152,7 +157,7 @@ const AddSampleForm = props => {
     form.resetFields([[sampleKey, 'exps', expNo, 'params']])
     const key = sampleKey + '#' + expNo
 
-    const paramSet = props.paramSets.find(paramSet => paramSet.name === paramSetName)
+    const paramSet = paramSets.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
       return message.warning(
@@ -165,7 +170,7 @@ const AddSampleForm = props => {
     setExptState(newExptState)
   }
 
-  const paramSetsOptions = props.paramSets.map((paramSet, i) => (
+  const paramSetsOptions = paramSets.map((paramSet, i) => (
     <Option value={paramSet.name} key={i}>
       {`${paramSet.description} [${paramSet.name}]`}
     </Option>
@@ -180,7 +185,7 @@ const AddSampleForm = props => {
           <Col span={2}>
             <span>{expNo}</span>
           </Col>
-          <Col span={editParams ? 14 : 19}>
+          <Col span={editParams ? 13 : 18}>
             <Form.Item
               name={[i, 'exps', j, 'paramSet']}
               style={{ textAlign: 'left' }}
@@ -210,7 +215,7 @@ const AddSampleForm = props => {
               </Space>
             </Col>
           )}
-          <Col span={2}>
+          <Col span={3}>
             <span>{exptState[i + '#' + j]}</span>
           </Col>
         </Row>
@@ -219,10 +224,10 @@ const AddSampleForm = props => {
 
     return (
       <Row gutter={16} key={i}>
-        <Col span={editParams ? 6 : 8}>
+        <Col span={editParams ? 5 : 7}>
           <TitleInput nameKey={i} />
         </Col>
-        {rackType === 'Group' && (
+        {sampleIdOn && (
           <Col span={2}>
             <Form.Item
               name={[i, 'tubeId']}
@@ -262,7 +267,7 @@ const AddSampleForm = props => {
             </button>
           </Space>
         </Col>
-        <Col span={editParams ? 11 : 9}>{expElements}</Col>
+        <Col span={editParams ? 12 : 10}>{expElements}</Col>
       </Row>
     )
   })
@@ -283,8 +288,8 @@ const AddSampleForm = props => {
       )}
 
       <Row gutter={16} className={classes.Header}>
-        <Col span={editParams ? 6 : 8}>Title</Col>
-        {rackType === 'Group' && <Col span={2}>Tube ID</Col>}
+        <Col span={editParams ? 5 : 7}>Title</Col>
+        {sampleIdOn && <Col span={2}>Tube ID</Col>}
         <Col span={3}>Solvent</Col>
 
         <Col span={1} offset={1}>
@@ -292,11 +297,15 @@ const AddSampleForm = props => {
         </Col>
         <Col span={editParams ? 7 : 8}>Experiment [Parameter Set]</Col>
         {editParams && <Col span={3}>Parameters</Col>}
-        <Col span={1}>ExpT</Col>
+        <Col span={2}>ExpT</Col>
       </Row>
-      <Form form={form} size='small' onFinish={values => onFromFinish(values)}>
+      <Form form={form} size='small' onFinish={values => onFormFinish(values)}>
         {formItems}
-
+        {props.edit && (
+          <Form.Item name='slot' hidden>
+            <Input />
+          </Form.Item>
+        )}
         <Form.Item>
           <div style={{ textAlign: 'center', marginTop: 15 }}>
             <Space>

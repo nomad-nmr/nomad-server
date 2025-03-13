@@ -14,7 +14,8 @@ import {
   deleteSample,
   bookSamples,
   submitSamples,
-  cancelBookedSamples
+  cancelBookedSamples,
+  editSample
 } from '../controllers/batch-submit.js'
 
 const router = Router()
@@ -56,5 +57,7 @@ router.post('/book', auth, authAdmin, bookSamples)
 router.post('/submit', auth, authAdmin, submitSamples)
 
 router.post('/cancel', auth, authAdmin, cancelBookedSamples)
+
+router.patch('/edit/:rackId', auth, editSample)
 
 export default router

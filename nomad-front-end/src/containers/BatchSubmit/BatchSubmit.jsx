@@ -21,7 +21,8 @@ import {
   toggleBookSamplesModal,
   fetchInstrumentList,
   bookSamples,
-  fetchUserList
+  fetchUserList,
+  editSample
 } from '../../store/actions'
 
 const BatchSubmit = props => {
@@ -54,14 +55,14 @@ const BatchSubmit = props => {
   }, [])
 
   useEffect(() => {
-    if (authToken && activeRack && addSampleVis) {
+    if (authToken && activeRack && (addSampleVis || modalOpen)) {
       fetchParamSets(authToken, {
         instrumentId: activeRack.instrument ? activeRack.instrument : null,
         searchValue: '',
         list: false
       })
     }
-  }, [addSampleVis])
+  }, [addSampleVis, modalOpen])
 
   //Racks data are getting fetch if the tab changes in order to get updated status
   useEffect(() => {
@@ -193,15 +194,18 @@ const BatchSubmit = props => {
         activeRackId={activeTabId}
         onAddSample={props.addSampleHandler}
         editParams={activeRack && activeRack.editParams}
-        rackType={activeRack && activeRack.rackType}
+        sampleIdOn={activeRack && activeRack.sampleIdOn}
       />
       <EditSampleModal
         open={modalOpen}
         toggleModal={setModalOpen}
-        user={{ username, accessLevel }}
+        user={user}
         paramSets={props.paramSetsList}
         data={modalData}
         editParams={activeRack && activeRack.editParams}
+        sampleIdOn={activeRack && activeRack.sampleIdOn}
+        editSampleHandler={props.editSampleHandler}
+        activeRackId={activeTabId}
       />
     </div>
   )
@@ -242,7 +246,8 @@ const mapDispatchToProps = dispatch => {
     fetchInstrList: token => dispatch(fetchInstrumentList(token)),
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
     fetchUsrList: (token, groupId, showInactive, search) =>
-      dispatch(fetchUserList(token, groupId, showInactive, search))
+      dispatch(fetchUserList(token, groupId, showInactive, search)),
+    editSampleHandler: (data, rackId, token) => dispatch(editSample(data, rackId, token))
   }
 }
 

@@ -118,7 +118,6 @@ export const addSample = (data, rackId, token) => {
       })
       .then(res => {
         dispatch(addSampleSuccess(res.data))
-        dispatch(signOutHandler(token))
       })
       .catch(err => {
         if (err.response.status === 406) {
@@ -211,6 +210,27 @@ export const cancelSamples = (data, token) => {
       })
       .then(res => {
         dispatch(submitSamplesSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const editSampleSuccess = payload => ({
+  type: actionTypes.EDIT_SAMPLE_SUCCESS,
+  payload
+})
+
+export const editSample = (sampleData, rackId, token) => {
+  return dispatch => {
+    dispatch(loadingStart())
+    axios
+      .patch('/batch-submit/edit/' + rackId, sampleData, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(editSampleSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

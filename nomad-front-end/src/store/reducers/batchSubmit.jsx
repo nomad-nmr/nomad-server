@@ -1,3 +1,4 @@
+import { act } from 'react'
 import * as actionTypes from '../actions/actionTypes'
 import { Modal } from 'antd'
 
@@ -108,6 +109,13 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.SUBMIT_SAMPLES_SUCCESS:
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
+
+    case actionTypes.EDIT_SAMPLE_SUCCESS:
+      console.log(payload)
+      const newRacksArray = [...state.racks]
+      const index = newRacksArray.findIndex(rack => rack._id === payload._id)
+      newRacksArray[index] = payload
+      return { ...state, racks: newRacksArray, loading: false }
 
     default:
       return state

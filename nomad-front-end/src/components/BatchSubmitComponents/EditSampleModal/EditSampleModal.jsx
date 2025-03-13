@@ -10,6 +10,7 @@ const EditSampleModal = props => {
       open={props.open}
       width='95%'
       onCancel={() => props.toggleModal(false)}
+      footer={null}
     >
       <AddSampleForm
         user={props.user}
@@ -18,6 +19,9 @@ const EditSampleModal = props => {
         inputData={props.data}
         toggleHandler={props.toggleModal}
         editParams={props.editParams}
+        sampleIdOn={props.sampleIdOn}
+        editSampleHandler={props.editSampleHandler}
+        rackId={props.activeRackId}
       />
     </Modal>
   )

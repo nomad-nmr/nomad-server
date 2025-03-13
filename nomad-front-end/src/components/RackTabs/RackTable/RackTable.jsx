@@ -124,55 +124,63 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
       align: 'center',
       width: 75,
       defaultSortOrder: 'descend',
-      sorter: (a, b) => a.slot - b.slot
+      sorter: { compare: (a, b) => a.slot - b.slot },
+      multiple: 1
     },
     {
       title: 'Username',
       dataIndex: ['user', 'username'],
       align: 'center',
-      width: 75
+      width: 150
     },
     {
       title: 'Full Name',
       dataIndex: ['user', 'fullName'],
-      align: 'center'
+      align: 'center',
+      width: 200
     },
     {
       title: 'Group',
       dataIndex: ['user', 'groupName'],
-      align: 'center'
+      align: 'center',
+      width: 150
     },
 
     {
       title: 'Solvent',
       dataIndex: 'solvent',
-      align: 'center'
+      align: 'center',
+      width: 100
     },
     {
       title: 'Title',
       dataIndex: 'title',
-      align: 'center'
+      align: 'center',
+      width: 400
     },
-    {
-      title: 'Sample ID',
-      dataIndex: 'tubeId',
-      align: 'center'
-    },
+
     {
       title: 'Exp Count',
       dataIndex: 'exps',
       align: 'center',
+      width: 100,
       render: value => value.length
     },
     {
       title: 'ExpT',
       dataIndex: 'expTime',
-      align: 'center'
+      align: 'center',
+      width: 100
     },
     {
       title: 'Added at',
       dataIndex: 'addedAt',
       align: 'center',
+      width: 100,
+      sorter: {
+        compare: (a, b) => a.addedAt.localeCompare(b.addedAt),
+        multiple: 2
+      },
       render: value => moment(value).format('HH:mm')
     },
     {
@@ -182,9 +190,18 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
     }
   ]
 
+  if (rackData.sampleIdOn) {
+    columns.splice(6, 0, {
+      title: 'Sample ID',
+      dataIndex: 'tubeId',
+      align: 'center',
+      width: 100
+    })
+  }
+
   if (!rackData.isOpen) {
     columns.splice(
-      7,
+      rackData.sampleIdOn ? 7 : 6,
       0,
       {
         title: 'Instrument',
