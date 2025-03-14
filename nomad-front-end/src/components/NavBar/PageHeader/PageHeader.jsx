@@ -50,7 +50,9 @@ import {
   downloadCollection,
   toggleSetGrantsTable,
   toggleAddGrantModal,
-  usersDeleteHandler
+  usersDeleteHandler,
+  bookSamples,
+  bookSampleJet
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -228,6 +230,8 @@ const PageHeaderEl = props => {
           selectedSlots={props.slots}
           submitSamplesHandler={props.submitSamples}
           cancelSamplesHandler={props.cancelSamples}
+          bookSamplesHandler={props.bookSamples}
+          bookSampleJetHandler={props.bookSampleJet}
         />
       )
 
@@ -470,7 +474,9 @@ const mapDispatchToProps = dispatch => {
     downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
     tglSetGrants: () => dispatch(toggleSetGrantsTable()),
     tglAddGrant: () => dispatch(toggleAddGrantModal()),
-    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token))
+    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token)),
+    bookSamples: (data, token) => dispatch(bookSamples(data, token)),
+    bookSampleJet: (data, token) => dispatch(bookSampleJet(data, token))
   }
 }
 

@@ -14,6 +14,7 @@ const EditSampleModal = props => {
     >
       <AddSampleForm
         user={props.user}
+        signOutHandler={props.signOutHandler}
         paramSets={props.paramSets}
         edit
         inputData={props.data}

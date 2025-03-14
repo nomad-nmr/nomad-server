@@ -111,7 +111,6 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
 
     case actionTypes.EDIT_SAMPLE_SUCCESS:
-      console.log(payload)
       const newRacksArray = [...state.racks]
       const index = newRacksArray.findIndex(rack => rack._id === payload._id)
       newRacksArray[index] = payload

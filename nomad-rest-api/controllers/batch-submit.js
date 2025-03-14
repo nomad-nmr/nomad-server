@@ -172,6 +172,8 @@ export const bookSamples = async (req, res) => {
   const submitter = getSubmitter()
   const { rackId, instrId, slots, closeQueue } = req.body
 
+  console.log(slots)
+
   try {
     const instrument = await Instrument.findById(instrId)
     if (!instrument) {
@@ -446,6 +448,16 @@ export async function editSample(req, res) {
     rack.samples = newSamples
     await rack.save()
     res.status(200).json(rack)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function bookSampleJet(req, res) {
+  try {
+    console.log(req.body)
+    res.sendStatus(200)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

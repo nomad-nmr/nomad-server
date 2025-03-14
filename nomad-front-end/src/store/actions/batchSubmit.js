@@ -237,3 +237,23 @@ export const editSample = (sampleData, rackId, token) => {
       })
   }
 }
+
+export const bookSampleJetSuccess = payload => ({
+  type: actionTypes.BOOK_SAMPLEJET_SUCCESS,
+  payload
+})
+
+export const bookSampleJet = (data, token) => {
+  return dispatch => {
+    axios
+      .post('/batch-submit/bookSampleJet', data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(bookSampleJetSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

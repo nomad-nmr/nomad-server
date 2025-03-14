@@ -200,6 +200,7 @@ const BatchSubmit = props => {
         open={modalOpen}
         toggleModal={setModalOpen}
         user={user}
+        signOutHandler={props.logOutHandler}
         paramSets={props.paramSetsList}
         data={modalData}
         editParams={activeRack && activeRack.editParams}

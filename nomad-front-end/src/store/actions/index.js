@@ -116,7 +116,8 @@ export {
   bookSamples,
   submitSamples,
   cancelSamples,
-  editSample
+  editSample,
+  bookSampleJet
 } from './batchSubmit'
 
 export {
