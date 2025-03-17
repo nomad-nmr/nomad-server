@@ -101,7 +101,9 @@ const reducer = (state = initialState, action) => {
       }
 
     case actionTypes.FETCH_STATUS_TABLE_SUCCESS:
-      const sortedData = action.data.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
+      const sortedData = action.data.every(i => i.submittedAt)
+        ? action.data.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
+        : action.data
       return {
         ...state,
         statusTableData: sortedData,
