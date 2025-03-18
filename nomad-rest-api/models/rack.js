@@ -30,6 +30,7 @@ const rackSchema = new Schema({
     required: true,
     default: 72
   },
+  startFrom: Number,
   sampleJet: Boolean,
   sampleIdOn: Boolean,
   accessList: {

@@ -80,17 +80,10 @@ const BatchSubmitControls = props => {
     const { rackType, instrument, sampleJet } = activeRack
 
     if (rackType === 'Instrument') {
-      if (sampleJet) {
-        props.bookSampleJetHandler(
-          { rackId: activeRack._id, instrId: instrument, slots: selectedSlots },
-          authToken
-        )
-      } else {
-        props.bookSamplesHandler(
-          { rackId: activeRack._id, instrId: instrument, slots: selectedSlots },
-          authToken
-        )
-      }
+      props.bookInstrumentRack(
+        { rackId: activeRack._id, instrId: instrument, slots: selectedSlots, sampleJet },
+        authToken
+      )
     } else {
       props.toggleBookSamples()
     }

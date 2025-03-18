@@ -62,16 +62,35 @@ const reducer = (state = initialState, { type, payload }) => {
       const newSamples = racksNew[rIndex].samples.concat(payload.data)
       const updatedRack = { ...racksNew[rIndex], samples: newSamples }
       racksNew[rIndex] = updatedRack
-      Modal.success({
-        title: 'Add sample to rack success',
-        content: (
+
+      let message = `Put the sample${payload.data.length > 1 ? 's' : ''} in the corresponding slot${
+        payload.data.length > 1 ? 's' : ''
+      }  of the SampleJet rack`
+
+      if (updatedRack.rackType === 'Instrument' && !updatedRack.sampleJet) {
+        message = (
           <div>
-            Put your sample(s) into rack{' '}
-            <span style={{ fontWeight: 600 }}>{racksNew[rIndex].title}</span> in slot(s){' '}
-            <span style={{ fontWeight: 600 }}>{slots.join(', ')}</span>
+            Put your sample{payload.data.length > 1 && 's'} into autosampler of instrument{' '}
+            <span style={{ fontWeight: 600 }}>{payload.instrument}</span> in holder
+            {payload.data.length > 1 ? 's ' : ' '}
+            <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
           </div>
         )
+      } else if (updatedRack.rackType === 'Group') {
+        message = (
+          <div>
+            Put your sample{payload.data.length > 1 && 's'} into rack{' '}
+            <span style={{ fontWeight: 600 }}>{updatedRack.title}</span> in slot
+            {payload.data.length > 1 ? 's ' : ' '}
+            <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
+          </div>
+        )
+      }
+      Modal.success({
+        title: 'Add sample to rack success',
+        content: message
       })
+
       return { ...state, loading: false, addSampleVisible: false, racks: racksNew }
 
     case actionTypes.RACK_FULL:

@@ -220,11 +220,21 @@ const AddRackModal = props => {
         <Form.Item
           name='slotsNumber'
           label='Number of Slots'
-          rules={[{ required: true }]}
+          rules={[{ required: true }, { type: 'integer' }]}
           initialValue={72}
         >
           <InputNumber min={1} />
         </Form.Item>
+        {rackType === 'Instrument' && (
+          <Form.Item
+            name='startFrom'
+            label='Start From Slot'
+            rules={[{ required: true }, { type: 'integer' }]}
+            initialValue={1}
+          >
+            <InputNumber min={1} />
+          </Form.Item>
+        )}
         <Form.Item name='editParams' label='Edit Parameters'>
           <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
         </Form.Item>

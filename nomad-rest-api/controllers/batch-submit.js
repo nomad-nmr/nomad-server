@@ -108,13 +108,14 @@ export const addSample = async (req, res) => {
   const { rackId } = req.params
 
   try {
-    const rack = await Rack.findById(rackId)
+    const rack = await Rack.findById(rackId).populate('instrument', 'name')
     if (!rack) {
       return res.status(404).send('Rack not found!')
     }
     const { samples } = rack
     samples.sort((a, b) => b.slot - a.slot)
-    const newSlotStart = samples[0] ? samples[0].slot + 1 : 1
+    const slotStart = rack.startFrom ? rack.startFrom : 1
+    const newSlotStart = samples[0] ? samples[0].slot + 1 : slotStart
     const newSamples = []
     await Promise.all(
       Object.values(req.body).map(async (sample, index) => {
@@ -140,7 +141,7 @@ export const addSample = async (req, res) => {
       })
     )
     await rack.save()
-    res.send({ rackId, data: newSamples })
+    res.send({ rackId, data: newSamples, instrument: rack.instrument && rack.instrument.name })
   } catch (error) {
     if (error.message === 'Rack is full!') {
       res.status(406).send({ message: 'Rack is Full!', rackId })
@@ -171,8 +172,6 @@ export const deleteSample = async (req, res) => {
 export const bookSamples = async (req, res) => {
   const submitter = getSubmitter()
   const { rackId, instrId, slots, closeQueue } = req.body
-
-  console.log(slots)
 
   try {
     const instrument = await Instrument.findById(instrId)
@@ -225,6 +224,8 @@ export const bookSamples = async (req, res) => {
         .status(400)
         .json(`Instrument ${instrument.name} does not have enough available holders`)
     }
+
+    console.log(availableHolders)
 
     submitter.updateBookedHolders(instrId, availableHolders)
 
@@ -454,7 +455,7 @@ export async function editSample(req, res) {
   }
 }
 
-export async function bookSampleJet(req, res) {
+export async function bookInstrumentRack(req, res) {
   try {
     console.log(req.body)
     res.sendStatus(200)
