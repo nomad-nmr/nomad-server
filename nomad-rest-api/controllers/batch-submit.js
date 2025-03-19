@@ -227,7 +227,7 @@ export const bookSamples = async (req, res) => {
     }
     //======================================================================================
 
-    let availableHolders = slots
+    let availableHolders = slots.sort((a, b) => a - b)
 
     if (rack.rackType === 'Group') {
       availableHolders = submitter.findAvailableHolders(instrId, instrument.capacity, slots.length)
@@ -451,14 +451,15 @@ export async function editSample(req, res) {
   try {
     const { rackId } = req.params
 
-    const { slot, title, solvent, exps, expTime } = req.body
+    const { slot, title, solvent, exps, expTime, tubeId } = req.body
     const rack = await Rack.findById(rackId)
     if (!rack) {
       return res.status(404).send({ message: 'Rack not found' })
     }
+
     const newSamples = [...rack.samples]
     const index = newSamples.findIndex(sample => sample.slot === +slot)
-    newSamples[index] = { ...newSamples[index], title, solvent, exps, expTime }
+    newSamples[index] = { ...newSamples[index], title, solvent, exps, expTime, tubeId }
     rack.samples = newSamples
     await rack.save()
     res.status(200).json(rack)

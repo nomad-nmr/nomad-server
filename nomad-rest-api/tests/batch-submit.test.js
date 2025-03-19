@@ -9,9 +9,9 @@ import { getIO } from '../socket.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testGroupTwo } from './fixtures/data/groups.js'
-import { testRackOne, testRackTwo } from './fixtures/data/racks.js'
+import { testRackOne, testRackTwo, testRackThree } from './fixtures/data/racks.js'
 import { testInstrOne } from './fixtures/data/instruments.js'
-import { testParamSet1 } from './fixtures/data/parameterSets.js'
+import { testParamSet1, testParamSet2 } from './fixtures/data/parameterSets.js'
 
 import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
@@ -63,7 +63,7 @@ describe('GET /racks', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(2)
+    expect(body.length).toBe(3)
     expect(body[1].samples[0].status).toBe('Booked')
     expect(body[1].samples[1].status).not.toBeDefined()
     expect(body[1].samples[2].status).toBe('Booked')
@@ -336,6 +336,29 @@ describe('POST /book', () => {
     const instrument = await Instrument.findById(body.samples[0].instrument.id)
     expect(instrument.available).toBe(false)
   })
+
+  it('should book experiments for sample in slot 1 in test rack 3 returning holder 101', async () => {
+    const { body } = await request(app)
+      .post('/api/batch-submit/book')
+      .send({
+        rackId: testRackThree._id,
+        slots: [1],
+        rackPosition: 1
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.rackId).toBe(testRackThree._id.toString())
+    expect(body.samples.length).toBe(1)
+    expect(body.samples[0]._id).toBeDefined()
+    expect(body.samples[0].dataSetName.split('-')[3]).toBe(testUserAdmin.username)
+    expect(body.samples[0].holder).toBe(101)
+
+    //asserting change in the DB
+    const rack = await Rack.findById(testRackThree._id)
+    expect(rack.samples[0].status).toBe('Booked')
+    expect(rack.samples[0].holder).toBe(101)
+  })
 })
 
 describe('POST /submit', () => {
@@ -410,5 +433,41 @@ describe('POST /cancel', () => {
     expect(rack.samples[0].status).not.toBeDefined()
     expect(rack.samples[0].instrument).toMatchObject({})
     expect(rack.samples[0].holder).not.toBeDefined()
+  })
+})
+
+describe('PATCH /edit/:rackId', () => {
+  it('should fail with error 403 if request is not authorised', async () => {
+    await request(app)
+      .patch('/api/batch-submit/edit/' + testRackOne._id)
+      .expect(403)
+  })
+
+  it('should edit sample in slot 1 of test rack one', async () => {
+    const { body } = await request(app)
+      .patch('/api/batch-submit/edit/' + testRackOne._id)
+      .send({
+        slot: 1,
+        title: 'Edited sample',
+        tubeId: '123ABC',
+        solvent: 'C6D6',
+        exps: [{ paramSet: testParamSet2.name }]
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body._id).toBe(testRackOne._id.toString())
+    expect(body.samples.length).toBe(3)
+    expect(body.samples[0].title).toBe('Edited sample')
+    expect(body.samples[0].tubeId).toBe('123ABC')
+    expect(body.samples[0].solvent).toBe('C6D6')
+    expect(body.samples[0].exps[0]).toMatchObject({ paramSet: testParamSet2.name })
+
+    //asserting change in the DB
+    const rack = await Rack.findById(body._id)
+    expect(rack.samples[0].title).toBe('Edited sample')
+    expect(rack.samples[0].tubeId).toBe('123ABC')
+    expect(rack.samples[0].solvent).toBe('C6D6')
+    expect(rack.samples[0].exps[0]).toMatchObject({ paramSet: testParamSet2.name })
   })
 })
