@@ -129,13 +129,13 @@ describe('POST /racks', () => {
     expect(rack).toBeDefined()
   })
 
-  it('should crate a new rack in DB open to all users', async () => {
+  it('should crate a new instrument type rack in DB', async () => {
     const { body } = await request(app)
       .post('/api/batch-submit/racks')
       .send({
         title: 'New all users rack',
         slotsNumber: 72,
-        group: '#all#',
+        rackType: 'Instrument',
         instrument: testInstrOne._id
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
