@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Row, Col, Form, Space, Button, Select, Input, message } from 'antd'
+import { Row, Col, Form, Space, Button, Select, Input, message, Checkbox } from 'antd'
 import moment from 'moment'
 
 import SolventSelect from '../BookExperimentsForm/SolventSelect/SolventSelect'
@@ -19,6 +19,7 @@ const AddSampleForm = props => {
   const [modalInputData, setModalInputData] = useState({})
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
+  const [copyEntry, setCopyEntry] = useState(false)
 
   const { accessLevel, authToken } = props.user
   const { editParams, sampleIdOn, inputData, paramSets, rackId } = props
@@ -45,6 +46,7 @@ const AddSampleForm = props => {
     form.resetFields()
     setFormState([1])
     setExptState({})
+    setCopyEntry(false)
     props.toggleHandler()
     if (accessLevel !== 'admin' && accessLevel !== 'admin-b') {
       props.signOutHandler(authToken)
@@ -75,8 +77,26 @@ const AddSampleForm = props => {
   }
 
   const addEntryHandler = () => {
-    const newFormState = [...formState, 1]
+    const newFormState = [...formState, copyEntry ? formState[0] : 1]
     setFormState(newFormState)
+    if (copyEntry) {
+      const firstEntryValues = form.getFieldValue('0')
+      form.setFieldValue(formState.length, {
+        ...firstEntryValues,
+        title: `[${formState.length + 1}] ` + firstEntryValues.title
+      })
+
+      const exptNewEntry = Object.entries(exptState)
+        .map(([key, value]) => {
+          if (key.split('#')[0] === '0') {
+            const newKey = formState.length + '#' + key.split('#')[1]
+            return [newKey, value]
+          }
+        })
+        .filter(entry => entry)
+
+      setExptState({ ...exptState, ...Object.fromEntries(exptNewEntry) })
+    }
   }
 
   const removeEntryHandler = () => {
@@ -283,6 +303,15 @@ const AddSampleForm = props => {
             <Button shape='circle' onClick={() => removeEntryHandler()}>
               <span className={classes.LargeButton}>-</span>
             </Button>
+            <Checkbox checked={copyEntry} onChange={e => setCopyEntry(e.target.checked)}>
+              Copy First Entry
+            </Checkbox>
+            {copyEntry && (
+              <div>
+                Entry count:{' '}
+                <span style={{ fontWeight: 600, color: '#1677ff' }}>{formState.length}</span>{' '}
+              </div>
+            )}
           </Space>
         </div>
       )}

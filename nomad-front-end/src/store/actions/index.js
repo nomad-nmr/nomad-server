@@ -117,7 +117,7 @@ export {
   submitSamples,
   cancelSamples,
   editSample,
-  bookInstrumentRack
+  toggleSampleJetModal
 } from './batchSubmit'
 
 export {

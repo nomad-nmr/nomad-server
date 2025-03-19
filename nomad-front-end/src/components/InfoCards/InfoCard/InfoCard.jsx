@@ -10,10 +10,16 @@ import nightIcon from '../../../assets/night-mode.svg'
 import dayIcon from '../../../assets/sunny-day.svg'
 
 const InfoCard = props => {
-  const { name, model, probe, available, nightAllowance, dayAllowance } = props.data
+  const { name, model, probe, available, nightAllowance, dayAllowance, rackOpen } = props.data
   const { busyUntil, dayExpt, nightExpt } = props.data.status.summary
-  const cardColor = available ? '#52c41a' : '#ff4d4f'
-  const cardBackgroundColor = available ? '#f6ffed' : '#fff1f0'
+  let cardColor = available ? '#52c41a' : '#ff4d4f'
+  let cardBackgroundColor = available ? '#f6ffed' : '#fff1f0'
+
+  if (rackOpen) {
+    cardColor = '#fadb14'
+    cardBackgroundColor = '#feffe6'
+  }
+
   return (
     <Card
       className={classes.InfoCard}

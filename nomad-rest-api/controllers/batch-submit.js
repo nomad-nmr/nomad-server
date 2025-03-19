@@ -65,7 +65,16 @@ export const postRack = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(422).send(errors)
     }
-    const newRackObj = { ...req.body, title: req.body.title.toUpperCase() }
+    const mainTitle = req.body.title.toUpperCase()
+    const title = req.body.sampleJet ? mainTitle + ' [SampleJet]' : mainTitle
+    const newRackObj = { ...req.body, title }
+
+    if (req.body.rackType === 'Instrument' && !req.body.sampleJet) {
+      await Instrument.findByIdAndUpdate(req.body.instrument, {
+        rackOpen: true,
+        available: false
+      })
+    }
 
     const newRack = new Rack(newRackObj)
     await newRack.save()
@@ -82,6 +91,9 @@ export const closeRack = async (req, res) => {
     const rack = await Rack.findByIdAndUpdate(rackId, { isOpen: false })
     if (!rack) {
       return res.status(404).send('Rack not found!')
+    }
+    if (rack.rackType === 'Instrument' && !rack.sampleJet) {
+      await Instrument.findByIdAndUpdate(rack.instrument, { rackOpen: false })
     }
     res.status(200).json(rack._id)
   } catch (error) {
@@ -171,9 +183,16 @@ export const deleteSample = async (req, res) => {
 
 export const bookSamples = async (req, res) => {
   const submitter = getSubmitter()
-  const { rackId, instrId, slots, closeQueue } = req.body
+  const { rackId, slots, closeQueue, rackPosition } = req.body
 
   try {
+    const rack = await Rack.findById(rackId).populate('group', 'groupName')
+    if (!rack) {
+      return res.status(404).send('Rack not found!')
+    }
+
+    const instrId = rack.rackType === 'Group' ? req.body.instrId : rack.instrument.toString()
+
     const instrument = await Instrument.findById(instrId)
     if (!instrument) {
       return res.status(404).send('Instrument not found')
@@ -182,11 +201,6 @@ export const bookSamples = async (req, res) => {
     if (closeQueue && instrument.available === true) {
       instrument.available = false
       await instrument.save()
-    }
-
-    const rack = await Rack.findById(rackId).populate('group', 'groupName')
-    if (!rack) {
-      return res.status(404).send('Rack not found!')
     }
 
     //Checking if experiments in slots going to be booked are available on the instrument
@@ -213,33 +227,31 @@ export const bookSamples = async (req, res) => {
     }
     //======================================================================================
 
-    const availableHolders = submitter.findAvailableHolders(
-      instrId,
-      instrument.capacity,
-      slots.length
-    )
+    let availableHolders = slots
 
-    if (availableHolders.length < slots.length) {
-      return res
-        .status(400)
-        .json(`Instrument ${instrument.name} does not have enough available holders`)
+    if (rack.rackType === 'Group') {
+      availableHolders = submitter.findAvailableHolders(instrId, instrument.capacity, slots.length)
+
+      if (availableHolders.length < slots.length) {
+        return res
+          .status(400)
+          .json(`Instrument ${instrument.name} does not have enough available holders`)
+      }
+      submitter.updateBookedHolders(instrId, availableHolders)
+      //Cancelling bookedHolders from submitter  after 2 mins once they get registered in usedHolders from status table
+      setTimeout(() => {
+        availableHolders.forEach(holder => {
+          submitter.cancelBookedHolder(instrId, holder)
+        })
+      }, 120000)
+    } else if (rack.rackType === 'Instrument' && rack.sampleJet) {
+      availableHolders = slots.map(slot => rackPosition * 100 + slot)
     }
-
-    console.log(availableHolders)
-
-    submitter.updateBookedHolders(instrId, availableHolders)
-
-    //Cancelling bookedHolders from submiter  after 2 mins once they get registered in usedHolders from status table
-    setTimeout(() => {
-      availableHolders.forEach(holder => {
-        submitter.cancelBookedHolder(instrId, holder)
-      })
-    }, 120000)
 
     const instrIds = await Instrument.find({}, '_id')
     const instrIndex = instrIds.map(i => i._id).findIndex(id => id.toString() === instrId)
     if (instrIndex === -1) {
-      return res.status(500).send()
+      return res.status(404).send({ msg: 'Instrument not found' })
     }
 
     let holdersCount = 0
@@ -329,7 +341,7 @@ export const bookSamples = async (req, res) => {
       samples: updatedRack.samples.filter(sample => slots.includes(sample.slot))
     })
   } catch (error) {
-    console.log(error.message)
+    console.log(error)
     res.status(500).send({ error: 'API error' })
   }
 }
@@ -449,16 +461,6 @@ export async function editSample(req, res) {
     rack.samples = newSamples
     await rack.save()
     res.status(200).json(rack)
-  } catch (error) {
-    console.log(error)
-    res.sendStatus(500)
-  }
-}
-
-export async function bookInstrumentRack(req, res) {
-  try {
-    console.log(req.body)
-    res.sendStatus(200)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

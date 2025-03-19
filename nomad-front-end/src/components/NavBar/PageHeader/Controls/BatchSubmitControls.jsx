@@ -77,13 +77,12 @@ const BatchSubmitControls = props => {
       return message.warning('No slots have been selected!')
     }
 
-    const { rackType, instrument, sampleJet } = activeRack
+    const { rackType, sampleJet } = activeRack
 
-    if (rackType === 'Instrument') {
-      props.bookInstrumentRack(
-        { rackId: activeRack._id, instrId: instrument, slots: selectedSlots, sampleJet },
-        authToken
-      )
+    if (rackType === 'Instrument' && !sampleJet) {
+      props.bookSamplesHandler({ rackId: activeRack._id, slots: selectedSlots }, authToken)
+    } else if (rackType === 'Instrument' && sampleJet) {
+      props.toggleSampleJetModal()
     } else {
       props.toggleBookSamples()
     }

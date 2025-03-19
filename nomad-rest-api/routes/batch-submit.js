@@ -13,7 +13,6 @@ import {
   addSample,
   deleteSample,
   bookSamples,
-  bookInstrumentRack,
   submitSamples,
   cancelBookedSamples,
   editSample
@@ -54,8 +53,6 @@ router.post('/sample/:rackId', auth, addSample)
 router.delete('/sample/:rackId/:slot', auth, deleteSample)
 
 router.post('/book', auth, authAdmin, bookSamples)
-
-router.post('/book-instr-rack', auth, authAdmin, bookInstrumentRack)
 
 router.post('/submit', auth, authAdmin, submitSamples)
 

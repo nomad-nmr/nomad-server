@@ -238,22 +238,6 @@ export const editSample = (sampleData, rackId, token) => {
   }
 }
 
-export const bookInstrumentRackSuccess = payload => ({
-  type: actionTypes.BOOK_SAMPLEJET_SUCCESS,
-  payload
+export const toggleSampleJetModal = () => ({
+  type: actionTypes.TOGGLE_SAMPLEJET_MODAL
 })
-
-export const bookInstrumentRack = (data, token) => {
-  return dispatch => {
-    axios
-      .post('/batch-submit/book-instr-rack', data, {
-        headers: { Authorization: 'Bearer ' + token }
-      })
-      .then(res => {
-        dispatch(bookInstrumentRackSuccess(res.data))
-      })
-      .catch(err => {
-        dispatch(errorHandler(err))
-      })
-  }
-}

@@ -7,6 +7,7 @@ import AddRackModal from '../../components/Modals/AddRackModal/AddRackModal'
 import AddSampleDrawer from '../../components/BatchSubmitComponents/AddSampleDrawer/AddSampleDrawer'
 import BookSamplesModal from '../../components/Modals/BookSamplesModal/BookSamplesModal'
 import EditSampleModal from '../../components/BatchSubmitComponents/EditSampleModal/EditSampleModal'
+import SampleJetModal from '../../components/Modals/SampleJetModal/SampleJetModal'
 
 import {
   addRack,
@@ -22,7 +23,8 @@ import {
   fetchInstrumentList,
   bookSamples,
   fetchUserList,
-  editSample
+  editSample,
+  toggleSampleJetModal
 } from '../../store/actions'
 
 const BatchSubmit = props => {
@@ -208,6 +210,13 @@ const BatchSubmit = props => {
         editSampleHandler={props.editSampleHandler}
         activeRackId={activeTabId}
       />
+      <SampleJetModal
+        visible={props.sampleJetVisible}
+        toggleVisible={props.toggleSampleJetModal}
+        rackData={{ rackId: props.activeTabId, slots: props.selectedSlots }}
+        submitBookingData={props.bookSamples}
+        token={authToken}
+      />
     </div>
   )
 }
@@ -228,7 +237,8 @@ const mapStateToProps = state => {
     loading: state.batchSubmit.loading,
     bookSamplesVisible: state.batchSubmit.bookSamplesVisible,
     selectedSlots: state.batchSubmit.selectedSlots,
-    usrList: state.users.userList
+    usrList: state.users.userList,
+    sampleJetVisible: state.batchSubmit.sampleJetVisible
   }
 }
 
@@ -248,7 +258,8 @@ const mapDispatchToProps = dispatch => {
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
     fetchUsrList: (token, groupId, showInactive, search) =>
       dispatch(fetchUserList(token, groupId, showInactive, search)),
-    editSampleHandler: (data, rackId, token) => dispatch(editSample(data, rackId, token))
+    editSampleHandler: (data, rackId, token) => dispatch(editSample(data, rackId, token)),
+    toggleSampleJetModal: () => dispatch(toggleSampleJetModal())
   }
 }
 

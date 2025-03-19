@@ -17,6 +17,7 @@ const instrumentSchema = new Schema({
     required: true,
     default: false
   },
+  rackOpen: Boolean,
   isActive: {
     type: Boolean,
     required: true,

@@ -14,7 +14,7 @@ const AddSampleDrawer = props => {
       onClose={props.error ? props.toggleHandler : null}
       mask={true}
       keyboard
-      height='auto'
+      height='60%'
     >
       {props.error ? (
         <Alert

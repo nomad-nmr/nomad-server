@@ -1,10 +1,10 @@
-import { act } from 'react'
 import * as actionTypes from '../actions/actionTypes'
 import { Modal } from 'antd'
 
 const initialState = {
   addRackVisible: false,
   addSampleVisible: false,
+  sampleJetVisible: false,
   bookSamplesVisible: false,
   loading: false,
   activeRackId: null,
@@ -33,6 +33,9 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.TOGGLE_ADD_SAMPLE:
       return { ...state, addSampleVisible: !state.addSampleVisible }
+
+    case actionTypes.TOGGLE_SAMPLEJET_MODAL:
+      return { ...state, sampleJetVisible: !state.sampleJetVisible }
 
     case actionTypes.SET_ACTIVE_RACK_ID:
       return { ...state, activeRackId: payload }
