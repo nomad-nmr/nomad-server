@@ -227,7 +227,7 @@ export const bookSamples = async (req, res) => {
     }
     //======================================================================================
 
-    let availableHolders = slots
+    let availableHolders = slots.sort((a, b) => a - b)
 
     if (rack.rackType === 'Group') {
       availableHolders = submitter.findAvailableHolders(instrId, instrument.capacity, slots.length)
