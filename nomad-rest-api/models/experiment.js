@@ -54,6 +54,7 @@ const experimentSchema = new Schema(
     //duration from awarding status running to status archived
     totalExpTime: String,
     status: { type: String, required: true },
+    batchSubmit: { type: Boolean, default: false },
     remarks: String,
     load: String,
     atma: String,

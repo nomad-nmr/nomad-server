@@ -316,7 +316,8 @@ export const bookSamples = async (req, res) => {
                   parameterSet: exp.paramSet,
                   title: sampleObj.title,
                   night: false,
-                  status: 'Booked'
+                  status: 'Booked',
+                  batchSubmit: true
                 }
                 const experiment = new Experiment(expHistObj)
 
