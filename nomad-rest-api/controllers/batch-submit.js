@@ -225,6 +225,7 @@ export const bookSamples = async (req, res) => {
       }))
       return res.status(422).send({ errors: errorMessages })
     }
+
     //======================================================================================
 
     let availableHolders = slots.sort((a, b) => a - b)
@@ -409,19 +410,22 @@ export const cancelBookedSamples = async (req, res) => {
     //sanitizing data for sending to clients
     let submitDataObj = {}
     const updatedSamplesArr = [...rack.samples]
-    rack.samples.forEach((sample, index) => {
-      if (slots.includes(sample.slot)) {
-        const instrId = sample.instrument.id.toString()
-        if (Object.keys(submitDataObj).includes(instrId)) {
-          submitDataObj[instrId].push(sample.holder)
-        } else {
-          submitDataObj[instrId] = [sample.holder]
+    await Promise.all(
+      rack.samples.map(async (sample, index) => {
+        if (slots.includes(sample.slot)) {
+          const instrId = sample.instrument.id.toString()
+          if (Object.keys(submitDataObj).includes(instrId)) {
+            submitDataObj[instrId].push(sample.holder)
+          } else {
+            submitDataObj[instrId] = [sample.holder]
+          }
+          updatedSamplesArr[index].status = undefined
+          updatedSamplesArr[index].instrument = undefined
+          updatedSamplesArr[index].holder = undefined
         }
-        updatedSamplesArr[index].status = undefined
-        updatedSamplesArr[index].instrument = undefined
-        updatedSamplesArr[index].holder = undefined
-      }
-    })
+        await Experiment.deleteMany({ datasetName: sample.dataSetName }) //deleting booked experiments from history
+      })
+    )
 
     //sending delete data to client
     for (let instrId in submitDataObj) {
