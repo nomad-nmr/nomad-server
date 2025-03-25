@@ -55,9 +55,11 @@ const AddSampleForm = props => {
 
   const onFormFinish = data => {
     //adding total experimental time for each sample into data object
+    console.log(data)
     const exptEntries = Object.entries(exptState)
     for (let entry of exptEntries) {
       const key = entry[0].split('#')[0]
+      console.log(key)
       const value = data[key].expTime ? data[key].expTime : '00:00:00'
       data[key].expTime = moment
         .duration(value, 'hh:mm:ss')
@@ -101,11 +103,18 @@ const AddSampleForm = props => {
 
   const removeEntryHandler = () => {
     const newFormState = [...formState]
+
     if (newFormState.length === 1) {
       return
     }
+
     newFormState.pop()
     setFormState(newFormState)
+
+    const newExptStateArr = Object.entries(exptState).filter(
+      i => i[0].split('#')[0] !== newFormState.length.toString()
+    )
+    setExptState(Object.fromEntries(newExptStateArr))
   }
 
   const addExpHandler = e => {
