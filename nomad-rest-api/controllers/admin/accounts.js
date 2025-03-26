@@ -83,7 +83,7 @@ export async function getCosts(req, res) {
 
       await Promise.all(
         usrArray.map(async usrId => {
-          const user = await User.findById(usrId)
+          const user = await User.findById(usrId).populate('group', 'groupName')
           const grantInfo = await getGrantInfo(usrId, user.group)
 
           let grant
@@ -91,9 +91,10 @@ export async function getCosts(req, res) {
             grant = await Grant.findById(grantInfo.grantId)
           }
 
-          const usrInactive = !user.isActive || user.group.toString() !== groupId
+          const usrInactive = !user.isActive || user.group._id.toString() !== groupId
           const newEntry = {
             name: `${user.username} - ${user.fullName}`,
+            groupName: user.group.groupName,
             grantCode: grant && grant.grantCode,
             costsPerInstrument: [],
             totalCost: 0
@@ -172,7 +173,16 @@ export async function getCosts(req, res) {
       totalEntry.totalCost += row.totalCost
       row.totalCost = Math.round(row.totalCost * 100) / 100
     })
-    sortNames(resData)
+
+    //sorting response data alphabetically
+    resData.sort((a, b) => {
+      const groupComparison = a.groupName.localeCompare(b.groupName)
+      if (groupComparison !== 0) {
+        return groupComparison // If groupName is different, use it for sorting
+      }
+      return a.name.localeCompare(b.name) // Otherwise, sort by username
+    })
+
     totalEntry.totalCost = Math.round(totalEntry.totalCost * 100) / 100
 
     res.send([...resData, totalEntry])
@@ -190,18 +200,6 @@ const getExpTimeSum = expArr => {
   })
   return expTimeSum.format('HH:mm:ss', { trim: false })
 }
-
-//Helper function to sort out alphabetically the first column with names
-const sortNames = inputArray =>
-  inputArray.sort((a, b) => {
-    if (a.name < b.name) {
-      return -1
-    }
-    if (a.name > b.name) {
-      return 1
-    }
-    return 0
-  })
 
 export async function getInstrumentsCosting(req, res) {
   try {

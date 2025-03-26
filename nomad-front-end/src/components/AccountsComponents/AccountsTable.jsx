@@ -16,8 +16,17 @@ const AccountsTable = props => {
     }
   ]
 
-  //add the grantCode column if data are for user calculation
+  //add the grantCode groupName column if data are for user calculation
   if (props.header === 'User Name') {
+    columns.push({
+      title: 'Group Name',
+      width: 35,
+      dataIndex: 'groupName',
+      key: 'groupName',
+      fixed: 'left',
+      align: 'center'
+    })
+
     columns.push({
       title: 'Grant Code',
       width: 35,
@@ -74,6 +83,7 @@ const AccountsTable = props => {
     const newEntry = {
       name: entry.name,
       grantCode: entry.grantCode || undefined,
+      groupName: entry.groupName || undefined,
       totalCost: entry.totalCost,
       key
     }
