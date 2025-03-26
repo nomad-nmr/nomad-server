@@ -40,7 +40,8 @@ const infoModalConfig = {
         menu and total experimental times and costs are listed for individual users who were in the
         group in the time of archiving of the experiments. If "--all--" option is selected the
         calculation will be performed for all users who archived an experiment in the given period
-        of time.
+        of time. Grant codes listed for each user are those that users are assigned to at the time
+        of calculation.
       </p>
       <Alert
         message='If "--all--" option is used the calculation will not register if a user moved from one group to another between the dates used for the calculation and sums of all experiments acquired by the user regardless of the group will be resulted.'

@@ -48,6 +48,10 @@ const Accounts = props => {
     }
   }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
 
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  })
+
   const tableElement =
     tableData.length === 0 ? (
       <Empty />

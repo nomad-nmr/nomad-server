@@ -13,9 +13,10 @@ import {
   getSearchParams,
   getSearchParamsClaims
 } from '../../utils/accountsUtils.js'
+import grant from '../../models/grant.js'
 
 export async function getCosts(req, res) {
-  const { groupId, dateRange } = req.query
+  const { groupId, dateRange, useMultiplier } = req.query
   try {
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
@@ -129,6 +130,10 @@ export async function getCosts(req, res) {
             newEntry.totalCost += cost
           })
 
+          if (useMultiplier === 'true' && grantInfo) {
+            newEntry.totalCost = newEntry.totalCost * grantInfo.multiplier
+          }
+
           resData.push(newEntry)
         })
       )
@@ -176,7 +181,7 @@ export async function getCosts(req, res) {
 
     //sorting response data alphabetically
     resData.sort((a, b) => {
-      const groupComparison = a.groupName.localeCompare(b.groupName)
+      const groupComparison = (a.groupName || '').localeCompare(b.groupName || '')
       if (groupComparison !== 0) {
         return groupComparison // If groupName is different, use it for sorting
       }
