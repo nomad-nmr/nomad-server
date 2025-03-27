@@ -41,6 +41,7 @@ const rackSchema = new Schema({
   samples: [
     {
       slot: Number,
+      wellPosition: String,
       user: {
         id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
         username: String,

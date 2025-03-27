@@ -136,9 +136,21 @@ export const addSample = async (req, res) => {
           throw new Error('Rack is full!')
         }
         const group = await Group.findById(req.user.group)
+
+        //convering slots into well positions
+        //if sampleJet is on
+        let wellPosition = undefined
+        if (rack.sampleJet) {
+          const rows = 'ABCDEFGH'
+          const row = rows[Math.floor((slot - 1) / 12)]
+          const col = ((slot - 1) % 12) + 1
+          wellPosition = `${row}${col}`
+        }
+
         const newSample = {
           ...sample,
           slot,
+          wellPosition,
           user: {
             id: req.user._id,
             username: req.user.username,
@@ -152,6 +164,7 @@ export const addSample = async (req, res) => {
         newSamples.push(newSample)
       })
     )
+
     await rack.save()
     res.send({ rackId, data: newSamples, instrument: rack.instrument && rack.instrument.name })
   } catch (error) {

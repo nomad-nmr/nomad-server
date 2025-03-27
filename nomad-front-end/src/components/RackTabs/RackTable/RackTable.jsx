@@ -120,7 +120,7 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
   const columns = [
     {
       title: 'Slot',
-      dataIndex: 'slot',
+      dataIndex: rackData.sampleJet ? 'wellPosition' : 'slot',
       align: 'center',
       width: 75,
       defaultSortOrder: 'descend',
