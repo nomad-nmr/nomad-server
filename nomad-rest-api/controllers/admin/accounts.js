@@ -13,7 +13,6 @@ import {
   getSearchParams,
   getSearchParamsClaims
 } from '../../utils/accountsUtils.js'
-import grant from '../../models/grant.js'
 
 export async function getCosts(req, res) {
   const { groupId, dateRange, useMultiplier } = req.query
@@ -22,7 +21,7 @@ export async function getCosts(req, res) {
     const searchParamsClaims = getSearchParamsClaims(dateRange)
 
     const resData = []
-    const instrumentList = await Instrument.find({ isActive: true }, 'name cost')
+    const instrumentList = await Instrument.find({ isActive: true }, 'name cost').sort('name')
 
     if (groupId === 'undefined') {
       //each entry of the table is group
