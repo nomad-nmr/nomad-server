@@ -59,7 +59,6 @@ const AddSampleForm = props => {
     const exptEntries = Object.entries(exptState)
     for (let entry of exptEntries) {
       const key = entry[0].split('#')[0]
-      console.log(key)
       const value = data[key].expTime ? data[key].expTime : '00:00:00'
       data[key].expTime = moment
         .duration(value, 'hh:mm:ss')

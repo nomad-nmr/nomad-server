@@ -166,7 +166,11 @@ export const addSample = async (req, res) => {
     )
 
     await rack.save()
-    res.send({ rackId, data: newSamples, instrument: rack.instrument && rack.instrument.name })
+    res.send({
+      rackId,
+      data: newSamples.sort((a, b) => a.slot - b.slot),
+      instrument: rack.instrument && rack.instrument.name
+    })
   } catch (error) {
     if (error.message === 'Rack is full!') {
       res.status(406).send({ message: 'Rack is Full!', rackId })

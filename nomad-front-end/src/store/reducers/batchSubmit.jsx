@@ -66,25 +66,37 @@ const reducer = (state = initialState, { type, payload }) => {
       const updatedRack = { ...racksNew[rIndex], samples: newSamples }
       racksNew[rIndex] = updatedRack
 
-      let message = `Put the sample${payload.data.length > 1 ? 's' : ''} in the corresponding slot${
-        payload.data.length > 1 ? 's' : ''
-      }  of the SampleJet rack`
+      console.log(payload.data)
 
+      const plural = payload.data.length > 1
+      let message = (
+        <div>
+          Put the sample {plural ? 's' : ''} in the slot{plural ? 's' : ''}{' '}
+          <span style={{ fontWeight: 600 }}>
+            {plural
+              ? `${payload.data[0].wellPosition} - ${
+                  payload.data[payload.data.length - 1].wellPosition
+                }`
+              : payload.data[0].wellPosition}
+          </span>{' '}
+          of the SampleJet rack
+        </div>
+      )
       if (updatedRack.rackType === 'Instrument' && !updatedRack.sampleJet) {
         message = (
           <div>
-            Put your sample{payload.data.length > 1 && 's'} into autosampler of instrument{' '}
+            Put your sample{plural > 1 && 's'} into autosampler of instrument{' '}
             <span style={{ fontWeight: 600 }}>{payload.instrument}</span> in holder
-            {payload.data.length > 1 ? 's ' : ' '}
+            {plural > 1 ? 's ' : ' '}
             <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
           </div>
         )
       } else if (updatedRack.rackType === 'Group') {
         message = (
           <div>
-            Put your sample{payload.data.length > 1 && 's'} into rack{' '}
+            Put your sample{plural > 1 && 's'} into rack{' '}
             <span style={{ fontWeight: 600 }}>{updatedRack.title}</span> in slot
-            {payload.data.length > 1 ? 's ' : ' '}
+            {plural > 1 ? 's ' : ' '}
             <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
           </div>
         )
