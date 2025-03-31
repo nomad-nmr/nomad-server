@@ -13,7 +13,8 @@ const initialState = {
   resetUsername: null,
   resetFullName: null,
   resetToken: null,
-  timeoutIds: []
+  timeoutIds: [],
+  customSolvents: []
 }
 
 const reducer = (state = initialState, action) => {
@@ -44,6 +45,7 @@ const reducer = (state = initialState, action) => {
         accessLevel: action.payload.accessLevel,
         manualAccess: action.payload.manualAccess,
         groupName: action.payload.groupName,
+        customSolvents: action.payload.customSolvents,
         authModalVisible: false,
         loading: false
       }
