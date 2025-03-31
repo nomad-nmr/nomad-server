@@ -283,6 +283,7 @@ const PageHeaderEl = props => {
           tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
           accType={accountType}
+          groupName={props.accountsGroupName}
         />
       )
 
@@ -420,7 +421,8 @@ const mapStateToProps = state => {
     setGrantsVisible: state.accounts.showSetGrants,
     grantFormVisible: state.accounts.grantFormVisible,
     accountType: state.accounts.type,
-    checkedUsers: state.users.checked
+    checkedUsers: state.users.checked,
+    accountsGroupName: state.accounts.groupName
   }
 }
 

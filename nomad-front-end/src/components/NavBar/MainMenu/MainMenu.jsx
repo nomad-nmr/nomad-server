@@ -26,6 +26,7 @@ const MainMenu = props => {
   if (
     (import.meta.env.VITE_SUBMIT_ON === 'true' &&
       props.username &&
+      accessLevel !== 'user-d' &&
       location.pathname === '/dashboard') ||
     location.pathname.split('/')[1] === 'admin'
   ) {
@@ -38,6 +39,7 @@ const MainMenu = props => {
 
   if (
     import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
+    accessLevel !== 'user-d' &&
     (location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin')
   ) {
     items.push({

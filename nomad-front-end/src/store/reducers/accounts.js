@@ -11,7 +11,8 @@ const initialState = {
   grantsData: [],
   showSetGrants: false,
   showAddGrant: false,
-  noGrantsAlert: {}
+  noGrantsAlert: {},
+  groupName: undefined
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -20,7 +21,12 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, loading: true }
 
     case actionTypes.FETCH_COSTS_SUCCESS:
-      return { ...state, costsTableData: payload, loading: false }
+      return {
+        ...state,
+        costsTableData: payload.tableData,
+        groupName: payload.groupName,
+        loading: false
+      }
 
     case actionTypes.RESET_COSTS_TABLE:
       return { ...state, costsTableData: [], noGrantsAlert: {} }
@@ -45,7 +51,13 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state }
 
     case actionTypes.SET_ACCOUNTS_TYPE:
-      return { ...state, type: payload, costsTableData: [], noGrantsAlert: {} }
+      return {
+        ...state,
+        type: payload,
+        costsTableData: [],
+        noGrantsAlert: {},
+        groupName: undefined
+      }
 
     case actionTypes.POST_GRANT_SUCCESS:
       return { ...state, grantsData: [...state.grantsData, payload] }

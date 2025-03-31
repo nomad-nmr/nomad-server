@@ -168,7 +168,8 @@ const App = props => {
                 element={
                   username &&
                   import.meta.env.VITE_SUBMIT_ON === 'true' &&
-                  accessLevel !== 'user-b' ? (
+                  accessLevel !== 'user-b' &&
+                  accessLevel !== 'user-d' ? (
                     <Submit />
                   ) : (
                     <Navigate to='/dashboard' />
@@ -178,7 +179,7 @@ const App = props => {
               <Route
                 path='/batch-submit'
                 element={
-                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
+                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
                     <BatchSubmit />
                   ) : (
                     <Navigate to='/dashboard' />

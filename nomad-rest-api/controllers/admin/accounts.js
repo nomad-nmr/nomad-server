@@ -23,6 +23,8 @@ export async function getCosts(req, res) {
     const resData = []
     const instrumentList = await Instrument.find({ isActive: true }, 'name cost').sort('name')
 
+    let groupName
+
     if (groupId === 'undefined') {
       //each entry of the table is group
       const groupList = await Group.find({ isActive: true }, 'groupName')
@@ -102,6 +104,9 @@ export async function getCosts(req, res) {
 
           if (groupId !== 'all') {
             newEntry.name += `${usrInactive ? '(Inactive)' : ''}`
+
+            const group = await Group.findById(groupId, 'groupName')
+            groupName = group.groupName
           }
 
           instrumentList.forEach(i => {
@@ -189,7 +194,7 @@ export async function getCosts(req, res) {
 
     totalEntry.totalCost = Math.round(totalEntry.totalCost * 100) / 100
 
-    res.send([...resData, totalEntry])
+    res.send({ tableData: [...resData, totalEntry], groupName })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)
