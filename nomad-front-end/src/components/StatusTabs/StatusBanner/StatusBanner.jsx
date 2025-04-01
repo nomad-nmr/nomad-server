@@ -17,7 +17,7 @@ import classes from './StatusBanner.module.css'
 
 const StatusBanner = props => {
   const { busyUntil, dayExpt, nightExpt } = props.data.status.summary
-  const bannerType = props.data.available ? 'success' : 'error'
+  const bannerType = props.data.available ? 'success' : props.data.rackOpen ? 'warning' : 'error'
   const { authToken, instrId, checkedHolders, accessLvl, data, tabData } = props
 
   const navigate = useNavigate()
@@ -37,6 +37,7 @@ const StatusBanner = props => {
         checkedChildren='On'
         unCheckedChildren='Off'
         onChange={() => props.toggleAvailable(instrId, authToken)}
+        disabled={props.data.rackOpen}
       />
     </Tooltip>
   )
