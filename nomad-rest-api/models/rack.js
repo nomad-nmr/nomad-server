@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose'
 
 const rackSchema = new Schema({
+  rackType: String,
   title: {
     type: String,
     required: true,
@@ -29,9 +30,18 @@ const rackSchema = new Schema({
     required: true,
     default: 72
   },
+  startFrom: Number,
+  sampleJet: Boolean,
+  sampleIdOn: Boolean,
+  accessList: {
+    type: Array,
+    required: true,
+    default: []
+  },
   samples: [
     {
       slot: Number,
+      wellPosition: String,
       user: {
         id: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
         username: String,
@@ -57,7 +67,8 @@ const rackSchema = new Schema({
       exps: [
         {
           paramSet: { type: String, required: true },
-          params: String
+          params: String,
+          expt: String
         }
       ],
 

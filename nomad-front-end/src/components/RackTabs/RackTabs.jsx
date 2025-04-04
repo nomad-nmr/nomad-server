@@ -13,7 +13,7 @@ const RackTabs = props => {
         <div style={{ fontSize: '1rem', color: fontColor, padding: '0px 5px' }}>{rack.title}</div>
       ),
       key: rack._id,
-      children: <RackTable rackData={rack} />
+      children: <RackTable rackData={rack} editHandler={props.editHandler} />
     }
   })
 

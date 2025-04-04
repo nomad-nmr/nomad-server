@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Row, Col, Form, Space, Button, Select, Input, message } from 'antd'
+import React, { useState, useEffect } from 'react'
+import { Row, Col, Form, Space, Button, Select, Input, message, Checkbox } from 'antd'
 import moment from 'moment'
 
 import SolventSelect from '../BookExperimentsForm/SolventSelect/SolventSelect'
@@ -19,12 +19,43 @@ const AddSampleForm = props => {
   const [modalInputData, setModalInputData] = useState({})
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
+  const [copyEntry, setCopyEntry] = useState(false)
 
   const { accessLevel, authToken } = props.user
-  const { editParams } = props
+  const { editParams, sampleIdOn, inputData, paramSets, rackId } = props
 
-  const onFromFinish = data => {
+  useEffect(() => {
+    if (inputData) {
+      setFormState([inputData.exps.length])
+      form.setFieldsValue({
+        0: {
+          solvent: inputData.solvent,
+          title: inputData.title,
+          exps: inputData.exps,
+          expTime: inputData.expTime,
+          tubeId: inputData.tubeId
+        },
+        slot: inputData.slot
+      })
+      const exptStateArray = inputData.exps.map((exp, i) => ['0#' + i, exp.expt])
+      setExptState(Object.fromEntries(exptStateArray))
+    }
+  }, [inputData])
+
+  const closeHandler = () => {
+    form.resetFields()
+    setFormState([1])
+    setExptState({})
+    setCopyEntry(false)
+    props.toggleHandler()
+    if (accessLevel !== 'admin' && accessLevel !== 'admin-b') {
+      props.signOutHandler(authToken)
+    }
+  }
+
+  const onFormFinish = data => {
     //adding total experimental time for each sample into data object
+    console.log(data)
     const exptEntries = Object.entries(exptState)
     for (let entry of exptEntries) {
       const key = entry[0].split('#')[0]
@@ -33,35 +64,56 @@ const AddSampleForm = props => {
         .duration(value, 'hh:mm:ss')
         .add(moment.duration(entry[1], 'hh:mm:ss'))
         .format('HH:mm:ss', { trim: false })
-    }
 
-    props.onAddSample(data, props.rackId, authToken)
-    form.resetFields()
-    setFormState([1])
-  }
-
-  const closeHandler = () => {
-    form.resetFields()
-    setFormState([1])
-    setExptState({})
-    props.toggleHandler()
-    if (accessLevel !== 'admin' && accessLevel !== 'admin-b') {
-      props.signOutHandler(authToken)
+      //storing expt for individual experiments
+      data[key].exps[entry[0].split('#')[1]].expt = entry[1]
     }
+    if (props.edit) {
+      const { slot } = data
+      props.editSampleHandler({ ...Object.values(data)[0], slot }, rackId, authToken)
+    } else {
+      props.addSampleHandler(data, rackId, authToken)
+    }
+    closeHandler()
   }
 
   const addEntryHandler = () => {
-    const newFormState = [...formState, 1]
+    const newFormState = [...formState, copyEntry ? formState[0] : 1]
     setFormState(newFormState)
+    if (copyEntry) {
+      const firstEntryValues = form.getFieldValue('0')
+      form.setFieldValue(formState.length, {
+        ...firstEntryValues,
+        title: `[${formState.length + 1}] ` + firstEntryValues.title
+      })
+
+      const exptNewEntry = Object.entries(exptState)
+        .map(([key, value]) => {
+          if (key.split('#')[0] === '0') {
+            const newKey = formState.length + '#' + key.split('#')[1]
+            return [newKey, value]
+          }
+        })
+        .filter(entry => entry)
+
+      setExptState({ ...exptState, ...Object.fromEntries(exptNewEntry) })
+    }
   }
 
   const removeEntryHandler = () => {
     const newFormState = [...formState]
+
     if (newFormState.length === 1) {
       return
     }
+
     newFormState.pop()
     setFormState(newFormState)
+
+    const newExptStateArr = Object.entries(exptState).filter(
+      i => i[0].split('#')[0] !== newFormState.length.toString()
+    )
+    setExptState(Object.fromEntries(newExptStateArr))
   }
 
   const addExpHandler = e => {
@@ -92,7 +144,7 @@ const AddSampleForm = props => {
     const paramSetName = form.getFieldValue([key, 'exps', expNo, 'paramSet'])
     const paramsString = form.getFieldValue([key, 'exps', expNo, 'params'])
     if (paramSetName) {
-      const { defaultParams, customParams } = props.paramSets.find(
+      const { defaultParams, customParams } = paramSets.find(
         paramSet => paramSet.name === paramSetName
       )
       setModalInputData({
@@ -133,7 +185,7 @@ const AddSampleForm = props => {
     form.resetFields([[sampleKey, 'exps', expNo, 'params']])
     const key = sampleKey + '#' + expNo
 
-    const paramSet = props.paramSets.find(paramSet => paramSet.name === paramSetName)
+    const paramSet = paramSets.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
       return message.warning(
@@ -146,7 +198,7 @@ const AddSampleForm = props => {
     setExptState(newExptState)
   }
 
-  const paramSetsOptions = props.paramSets.map((paramSet, i) => (
+  const paramSetsOptions = paramSets.map((paramSet, i) => (
     <Option value={paramSet.name} key={i}>
       {`${paramSet.description} [${paramSet.name}]`}
     </Option>
@@ -161,7 +213,7 @@ const AddSampleForm = props => {
           <Col span={2}>
             <span>{expNo}</span>
           </Col>
-          <Col span={editParams ? 14 : 19}>
+          <Col span={editParams ? 13 : 18}>
             <Form.Item
               name={[i, 'exps', j, 'paramSet']}
               style={{ textAlign: 'left' }}
@@ -191,7 +243,7 @@ const AddSampleForm = props => {
               </Space>
             </Col>
           )}
-          <Col span={2}>
+          <Col span={3}>
             <span>{exptState[i + '#' + j]}</span>
           </Col>
         </Row>
@@ -200,25 +252,27 @@ const AddSampleForm = props => {
 
     return (
       <Row gutter={16} key={i}>
-        <Col span={editParams ? 6 : 8}>
+        <Col span={editParams ? 5 : 7}>
           <TitleInput nameKey={i} />
         </Col>
-        <Col span={2}>
-          <Form.Item
-            name={[i, 'tubeId']}
-            rules={[
-              {
-                required: true,
-                whitespace: true,
+        {sampleIdOn && (
+          <Col span={2}>
+            <Form.Item
+              name={[i, 'tubeId']}
+              rules={[
+                {
+                  required: true,
+                  whitespace: true,
 
-                message: 'Sample ID is required'
-              },
-              { min: 3, max: 6, message: 'Title must have min 3 and max 6 characters' }
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Col>
+                  message: 'Sample ID is required'
+                },
+                { min: 3, max: 6, message: 'Title must have min 3 and max 6 characters' }
+              ]}
+            >
+              <Input />
+            </Form.Item>
+          </Col>
+        )}
         <Col span={3}>
           <SolventSelect nameKey={i} />
         </Col>
@@ -241,27 +295,38 @@ const AddSampleForm = props => {
             </button>
           </Space>
         </Col>
-        <Col span={editParams ? 11 : 9}>{expElements}</Col>
+        <Col span={editParams ? 12 : 10}>{expElements}</Col>
       </Row>
     )
   })
 
   return (
     <div style={{ margin: '0px 80px' }}>
-      <div style={{ marginBottom: 15, textAlign: 'center' }}>
-        <Space size='large'>
-          <Button shape='circle' type='primary' onClick={() => addEntryHandler()}>
-            <span className={classes.LargeButton}>+</span>
-          </Button>
-          <Button shape='circle' onClick={() => removeEntryHandler()}>
-            <span className={classes.LargeButton}>-</span>
-          </Button>
-        </Space>
-      </div>
+      {!props.edit && (
+        <div style={{ marginBottom: 15, textAlign: 'center' }}>
+          <Space size='large'>
+            <Button shape='circle' type='primary' onClick={() => addEntryHandler()}>
+              <span className={classes.LargeButton}>+</span>
+            </Button>
+            <Button shape='circle' onClick={() => removeEntryHandler()}>
+              <span className={classes.LargeButton}>-</span>
+            </Button>
+            <Checkbox checked={copyEntry} onChange={e => setCopyEntry(e.target.checked)}>
+              Copy First Entry
+            </Checkbox>
+            {copyEntry && (
+              <div>
+                Entry count:{' '}
+                <span style={{ fontWeight: 600, color: '#1677ff' }}>{formState.length}</span>{' '}
+              </div>
+            )}
+          </Space>
+        </div>
+      )}
 
       <Row gutter={16} className={classes.Header}>
-        <Col span={editParams ? 6 : 8}>Title</Col>
-        <Col span={2}>Tube ID</Col>
+        <Col span={editParams ? 5 : 7}>Title</Col>
+        {sampleIdOn && <Col span={2}>Tube ID</Col>}
         <Col span={3}>Solvent</Col>
 
         <Col span={1} offset={1}>
@@ -269,11 +334,15 @@ const AddSampleForm = props => {
         </Col>
         <Col span={editParams ? 7 : 8}>Experiment [Parameter Set]</Col>
         {editParams && <Col span={3}>Parameters</Col>}
-        <Col span={1}>ExpT</Col>
+        <Col span={2}>ExpT</Col>
       </Row>
-      <Form form={form} size='small' onFinish={values => onFromFinish(values)}>
+      <Form form={form} size='small' onFinish={values => onFormFinish(values)}>
         {formItems}
-
+        {props.edit && (
+          <Form.Item name='slot' hidden>
+            <Input />
+          </Form.Item>
+        )}
         <Form.Item>
           <div style={{ textAlign: 'center', marginTop: 15 }}>
             <Space>

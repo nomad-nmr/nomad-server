@@ -24,6 +24,9 @@ const AuthAvatar = props => {
       case 'user-b':
         assignedClasses.push(classes.UserB)
         break
+      case 'user-d':
+        assignedClasses.push(classes.UserD)
+        break
 
       default:
         break

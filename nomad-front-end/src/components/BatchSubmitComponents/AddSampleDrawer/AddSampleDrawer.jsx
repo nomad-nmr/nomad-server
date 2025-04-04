@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer, Alert } from 'antd'
 
-import AddSampleForm from '../Forms/AddSampleForm/AddSampleForm'
+import AddSampleForm from '../../Forms/AddSampleForm/AddSampleForm'
 
 const AddSampleDrawer = props => {
   return (
@@ -14,7 +14,7 @@ const AddSampleDrawer = props => {
       onClose={props.error ? props.toggleHandler : null}
       mask={true}
       keyboard
-      height='auto'
+      height='60%'
     >
       {props.error ? (
         <Alert
@@ -30,8 +30,9 @@ const AddSampleDrawer = props => {
           user={props.user}
           paramSets={props.paramSets}
           rackId={props.activeRackId}
-          onAddSample={props.onAddSample}
+          addSampleHandler={props.onAddSample}
           editParams={props.editParams}
+          sampleIdOn={props.sampleIdOn}
         />
       )}
     </Drawer>

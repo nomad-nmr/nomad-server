@@ -110,8 +110,8 @@ export const getDrawerTable = async (req, res) => {
       return res.status(404).send()
     }
 
-    const batchGroups = await Group.find({ isBatch: true, isActive: true }, 'groupName')
-    const batchGroupsArr = batchGroups.map(group => group.groupName)
+    // const batchGroups = await Group.find({ isBatch: true, isActive: true }, 'groupName')
+    // const batchGroupsArr = batchGroups.map(group => group.groupName)
 
     let respArray = []
     // pending experiments have status "available" in and errors "error" in the source data table
@@ -145,7 +145,7 @@ export const getDrawerTable = async (req, res) => {
         let expCount = 0
         let newRow = {}
         filteredArray
-          .filter(row => !batchGroupsArr.includes(row.group))
+          .filter(row => !row.batchSubmit)
           .forEach((row, index) => {
             const prevRow = filteredArray[index - 1]
             const nextRow = filteredArray[index + 1]

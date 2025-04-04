@@ -18,13 +18,8 @@ const BookSamplesModal = props => {
   ))
 
   const submitHandler = formData => {
-    if (props.rackData.slots.length === 0) {
-      props.toggleHandler()
-      message.warning('No slots have been selected!')
-    } else {
-      const data = { ...formData, ...props.rackData }
-      props.submitBookingData(data, props.token)
-    }
+    const data = { ...formData, ...props.rackData }
+    props.submitBookingData(data, props.token)
   }
 
   return (

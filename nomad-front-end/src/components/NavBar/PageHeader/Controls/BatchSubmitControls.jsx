@@ -10,14 +10,16 @@ const BatchSubmitControls = props => {
   let activeRack = {}
   let activeRackOpen = true
 
+  const { selectedSlots } = props
+
   if (props.activeRackId) {
     activeRack = props.racksData.find(rack => rack._id === props.activeRackId)
     activeRackOpen = activeRack.isOpen ? true : false
   }
 
   let selectedSamples = []
-  if (props.selectedSlots && activeRack.samples) {
-    selectedSamples = activeRack.samples.filter(sample => props.selectedSlots.includes(sample.slot))
+  if (selectedSlots && activeRack.samples) {
+    selectedSamples = activeRack.samples.filter(sample => selectedSlots.includes(sample.slot))
   }
 
   const onCloseRack = () => {
@@ -71,10 +73,19 @@ const BatchSubmitControls = props => {
     if (bookDisabled) {
       return message.error('Some selected samples have been already booked')
     }
-    if (props.selectedSlots.length === 0) {
+    if (selectedSlots.length === 0) {
       return message.warning('No slots have been selected!')
     }
-    props.toggleBookSamples()
+
+    const { rackType, sampleJet } = activeRack
+
+    if (rackType === 'Instrument' && !sampleJet) {
+      props.bookSamplesHandler({ rackId: activeRack._id, slots: selectedSlots }, authToken)
+    } else if (rackType === 'Instrument' && sampleJet) {
+      props.toggleSampleJetModal()
+    } else {
+      props.toggleBookSamples()
+    }
   }
 
   const areAllSamplesBooked = () => {
@@ -88,7 +99,7 @@ const BatchSubmitControls = props => {
   }
 
   const submitHandler = () => {
-    if (props.selectedSlots.length === 0) {
+    if (selectedSlots.length === 0) {
       return message.warning('No slots have been selected!')
     }
     if (!areAllSamplesBooked()) {
@@ -96,9 +107,7 @@ const BatchSubmitControls = props => {
     }
 
     let totalExpT = 0
-    const selectedSamples = activeRack.samples.filter(sample =>
-      props.selectedSlots.includes(sample.slot)
-    )
+    const selectedSamples = activeRack.samples.filter(sample => selectedSlots.includes(sample.slot))
     selectedSamples.forEach(sample => {
       console.log(sample)
       totalExpT += moment.duration(sample.expTime, 'HH,mm,ss').asSeconds()
@@ -113,16 +122,13 @@ const BatchSubmitControls = props => {
         .duration(totalExpT, 'second')
         .format('HH:mm:ss', { trim: false })} excluding overhead time`,
       onOk() {
-        props.submitSamplesHandler(
-          { rackId: props.activeRackId, slots: props.selectedSlots },
-          authToken
-        )
+        props.submitSamplesHandler({ rackId: props.activeRackId, slots: selectedSlots }, authToken)
       }
     })
   }
 
   const cancelHandler = () => {
-    if (props.selectedSlots.length === 0) {
+    if (selectedSlots.length === 0) {
       return message.warning('No slots have been selected!')
     }
     if (!areAllSamplesBooked()) {
@@ -134,10 +140,7 @@ const BatchSubmitControls = props => {
         <p>Canceled holders will be available to reuse after shor delay of about 2 minutes</p>
       )
     })
-    props.cancelSamplesHandler(
-      { rackId: props.activeRackId, slots: props.selectedSlots },
-      authToken
-    )
+    props.cancelSamplesHandler({ rackId: props.activeRackId, slots: selectedSlots }, authToken)
   }
 
   return (

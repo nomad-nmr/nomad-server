@@ -115,7 +115,9 @@ export {
   setSelectedSlots,
   bookSamples,
   submitSamples,
-  cancelSamples
+  cancelSamples,
+  editSample,
+  toggleSampleJetModal
 } from './batchSubmit'
 
 export {

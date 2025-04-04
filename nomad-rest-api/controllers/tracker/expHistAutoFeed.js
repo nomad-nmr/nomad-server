@@ -91,14 +91,14 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         }
 
         //Console log for debugging saving experiments in DB with duplicate key after server restart
-        if (process.env.SUBMIT_ON === 'true') {
+        if (process.env.SUBMIT_ON === 'true' || !process.env.SUBMIT_ON) {
           console.log('!!!!!!!AUTO-FEED - saving new experiment!!!!')
         }
 
         //sending message to client through socket to upload data when experiment is completed
         if (
           newHistItem.status === 'Completed' &&
-          process.env.DATASTORE_ON === 'true' &&
+          (process.env.DATASTORE_ON === 'true' || !process.env.DATASTORE_ON) &&
           process.env.SUBMIT_ON === 'false'
         ) {
           console.log('AUTO-FEED - sending upload command')

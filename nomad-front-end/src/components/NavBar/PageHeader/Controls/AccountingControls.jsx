@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import { CloudDownloadOutlined } from '@ant-design/icons'
 
 const AccountingControls = props => {
-  const { setGrantsVisible, tableData, tableHeader, accType } = props
+  const { setGrantsVisible, tableData, tableHeader, accType, groupName } = props
   const standardColumns = {
     grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
   }
@@ -98,7 +98,9 @@ const AccountingControls = props => {
       <CSVLink
         aria-disabled={!tableData[1]}
         data={dataParser(tableHeader, tableData, accType)}
-        filename={`${accType} Accounting ${dayjs().format('DD-MM-YY HH_mm')}.csv`}
+        filename={`${accType} Accounting ${
+          accType === 'Users' && groupName ? '[' + groupName + '] ' : ''
+        }${dayjs().format('DD-MM-YY HH_mm')} .csv`}
       >
         <Button icon={<CloudDownloadOutlined />}>Download CSV</Button>
       </CSVLink>
@@ -107,5 +109,3 @@ const AccountingControls = props => {
 }
 
 export default AccountingControls
-
-// <CloudDownloadOutlined style={{ fontSize: '20px' }} />

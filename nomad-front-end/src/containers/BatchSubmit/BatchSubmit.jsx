@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
 
 import RackTabs from '../../components/RackTabs/RackTabs'
 import AddRackModal from '../../components/Modals/AddRackModal/AddRackModal'
-import AddSampleDrawer from '../../components/AddSampleDrawer/AddSampleDrawer'
+import AddSampleDrawer from '../../components/BatchSubmitComponents/AddSampleDrawer/AddSampleDrawer'
 import BookSamplesModal from '../../components/Modals/BookSamplesModal/BookSamplesModal'
+import EditSampleModal from '../../components/BatchSubmitComponents/EditSampleModal/EditSampleModal'
+import SampleJetModal from '../../components/Modals/SampleJetModal/SampleJetModal'
+
 import {
   addRack,
   fetchGroupList,
@@ -18,7 +21,10 @@ import {
   addSample,
   toggleBookSamplesModal,
   fetchInstrumentList,
-  bookSamples
+  bookSamples,
+  fetchUserList,
+  editSample,
+  toggleSampleJetModal
 } from '../../store/actions'
 
 const BatchSubmit = props => {
@@ -33,11 +39,15 @@ const BatchSubmit = props => {
     setActiveTabId,
     activeTabId,
     fetchParamSets,
-    addSampleVis
+    addSampleVis,
+    grpName
   } = props
 
   const user = { username, accessLevel, authToken }
   const activeRack = racksData.find(rack => rack._id === props.activeTabId)
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalData, setModalData] = useState({})
 
   useEffect(() => {
     if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
@@ -47,14 +57,14 @@ const BatchSubmit = props => {
   }, [])
 
   useEffect(() => {
-    if (authToken && activeRack && addSampleVis) {
+    if (authToken && activeRack && (addSampleVis || modalOpen)) {
       fetchParamSets(authToken, {
         instrumentId: activeRack.instrument ? activeRack.instrument : null,
         searchValue: '',
         list: false
       })
     }
-  }, [addSampleVis])
+  }, [addSampleVis, modalOpen])
 
   //Racks data are getting fetch if the tab changes in order to get updated status
   useEffect(() => {
@@ -70,23 +80,59 @@ const BatchSubmit = props => {
   }, [racksData, activeTabId, setActiveTabId])
 
   let filteredRacks = []
-  if (accessLevel === 'admin' || accessLevel === 'admin-b') {
-    filteredRacks = [...racksData]
-  } else if (accessLevel === 'user-b') {
-    filteredRacks = racksData.filter(rack => {
-      if (!rack.group) {
-        return false
-      } else if (rack.isOpen && rack.group.groupName === props.grpName) {
-        return true
-      } else {
-        return false
-      }
-    })
+
+  if (!authToken) {
+    filteredRacks = racksData.filter(rack => rack.isOpen)
   } else {
-    if (!authToken) {
-      filteredRacks = racksData.filter(rack => rack.isOpen)
-    } else {
-      filteredRacks = racksData.filter(rack => !rack.group && rack.isOpen)
+    switch (accessLevel) {
+      case 'admin':
+        filteredRacks = [...racksData]
+        break
+
+      case 'admin-b':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.accessList.length === 0) {
+            return true
+          } else {
+            return (
+              rack.accessList.some(i => i.type === 'group' && i.name === grpName) ||
+              rack.accessList.some(i => i.type === 'user' && i.name === username)
+            )
+          }
+        })
+        break
+
+      case 'user-b':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.rackType === 'Instrument') {
+            return false
+          } else if (rack.isOpen && rack.group.groupName === grpName) {
+            return true
+          } else {
+            return false
+          }
+        })
+        break
+      case 'user':
+        filteredRacks = racksData.filter(rack => {
+          if (rack.rackType === 'Group' || rack.isOpen === false) {
+            return false
+          } else {
+            if (rack.accessList.length === 0) {
+              return true
+            } else {
+              return (
+                rack.accessList.some(i => i.type === 'group' && i.name === grpName) ||
+                rack.accessList.some(i => i.type === 'user' && i.name === username)
+              )
+            }
+          }
+        })
+
+        break
+
+      default:
+        break
     }
   }
 
@@ -101,6 +147,11 @@ const BatchSubmit = props => {
     }
   }
 
+  const entryEditHandler = data => {
+    setModalData(data)
+    setModalOpen(true)
+  }
+
   return (
     <div>
       <Spin size='large' spinning={props.loading}>
@@ -111,6 +162,7 @@ const BatchSubmit = props => {
             data={filteredRacks}
             setActiveTabId={setActiveTabId}
             activeTabId={activeTabId}
+            editHandler={entryEditHandler}
           />
         )}
       </Spin>
@@ -122,6 +174,8 @@ const BatchSubmit = props => {
         onSubmit={props.addRackHandler}
         token={authToken}
         instruments={props.instrList}
+        userList={props.usrList}
+        onGrpChange={props.fetchUsrList}
       />
       <BookSamplesModal
         visible={props.bookSamplesVisible}
@@ -142,6 +196,26 @@ const BatchSubmit = props => {
         activeRackId={activeTabId}
         onAddSample={props.addSampleHandler}
         editParams={activeRack && activeRack.editParams}
+        sampleIdOn={activeRack && activeRack.sampleIdOn}
+      />
+      <EditSampleModal
+        open={modalOpen}
+        toggleModal={setModalOpen}
+        user={user}
+        signOutHandler={props.logOutHandler}
+        paramSets={props.paramSetsList}
+        data={modalData}
+        editParams={activeRack && activeRack.editParams}
+        sampleIdOn={activeRack && activeRack.sampleIdOn}
+        editSampleHandler={props.editSampleHandler}
+        activeRackId={activeTabId}
+      />
+      <SampleJetModal
+        visible={props.sampleJetVisible}
+        toggleVisible={props.toggleSampleJetModal}
+        rackData={{ rackId: props.activeTabId, slots: props.selectedSlots }}
+        submitBookingData={props.bookSamples}
+        token={authToken}
       />
     </div>
   )
@@ -162,7 +236,9 @@ const mapStateToProps = state => {
     instrList: state.instruments.instrumentList,
     loading: state.batchSubmit.loading,
     bookSamplesVisible: state.batchSubmit.bookSamplesVisible,
-    selectedSlots: state.batchSubmit.selectedSlots
+    selectedSlots: state.batchSubmit.selectedSlots,
+    usrList: state.users.userList,
+    sampleJetVisible: state.batchSubmit.sampleJetVisible
   }
 }
 
@@ -179,7 +255,11 @@ const mapDispatchToProps = dispatch => {
     addSampleHandler: (data, rackId, token) => dispatch(addSample(data, rackId, token)),
     toggleBookSamples: () => dispatch(toggleBookSamplesModal()),
     fetchInstrList: token => dispatch(fetchInstrumentList(token)),
-    bookSamples: (data, token) => dispatch(bookSamples(data, token))
+    bookSamples: (data, token) => dispatch(bookSamples(data, token)),
+    fetchUsrList: (token, groupId, showInactive, search) =>
+      dispatch(fetchUserList(token, groupId, showInactive, search)),
+    editSampleHandler: (data, rackId, token) => dispatch(editSample(data, rackId, token)),
+    toggleSampleJetModal: () => dispatch(toggleSampleJetModal())
   }
 }
 

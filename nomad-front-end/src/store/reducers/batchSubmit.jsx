@@ -4,6 +4,7 @@ import { Modal } from 'antd'
 const initialState = {
   addRackVisible: false,
   addSampleVisible: false,
+  sampleJetVisible: false,
   bookSamplesVisible: false,
   loading: false,
   activeRackId: null,
@@ -33,6 +34,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.TOGGLE_ADD_SAMPLE:
       return { ...state, addSampleVisible: !state.addSampleVisible }
 
+    case actionTypes.TOGGLE_SAMPLEJET_MODAL:
+      return { ...state, sampleJetVisible: !state.sampleJetVisible }
+
     case actionTypes.SET_ACTIVE_RACK_ID:
       return { ...state, activeRackId: payload }
 
@@ -61,16 +65,47 @@ const reducer = (state = initialState, { type, payload }) => {
       const newSamples = racksNew[rIndex].samples.concat(payload.data)
       const updatedRack = { ...racksNew[rIndex], samples: newSamples }
       racksNew[rIndex] = updatedRack
-      Modal.success({
-        title: 'Add sample to rack success',
-        content: (
+
+      console.log(payload.data)
+
+      const plural = payload.data.length > 1
+      let message = (
+        <div>
+          Put the sample {plural ? 's' : ''} in the slot{plural ? 's' : ''}{' '}
+          <span style={{ fontWeight: 600 }}>
+            {plural
+              ? `${payload.data[0].wellPosition} - ${
+                  payload.data[payload.data.length - 1].wellPosition
+                }`
+              : payload.data[0].wellPosition}
+          </span>{' '}
+          of the SampleJet rack
+        </div>
+      )
+      if (updatedRack.rackType === 'Instrument' && !updatedRack.sampleJet) {
+        message = (
           <div>
-            Put your sample(s) into rack{' '}
-            <span style={{ fontWeight: 600 }}>{racksNew[rIndex].title}</span> in slot(s){' '}
-            <span style={{ fontWeight: 600 }}>{slots.join(', ')}</span>
+            Put your sample{plural > 1 && 's'} into autosampler of instrument{' '}
+            <span style={{ fontWeight: 600 }}>{payload.instrument}</span> in holder
+            {plural > 1 ? 's ' : ' '}
+            <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
           </div>
         )
+      } else if (updatedRack.rackType === 'Group') {
+        message = (
+          <div>
+            Put your sample{plural > 1 && 's'} into rack{' '}
+            <span style={{ fontWeight: 600 }}>{updatedRack.title}</span> in slot
+            {plural > 1 ? 's ' : ' '}
+            <span style={{ fontWeight: 600 }}>{slots.sort((a, b) => a - b).join(', ')}</span>
+          </div>
+        )
+      }
+      Modal.success({
+        title: 'Add sample to rack success',
+        content: message
       })
+
       return { ...state, loading: false, addSampleVisible: false, racks: racksNew }
 
     case actionTypes.RACK_FULL:
@@ -108,6 +143,12 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.SUBMIT_SAMPLES_SUCCESS:
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
+
+    case actionTypes.EDIT_SAMPLE_SUCCESS:
+      const newRacksArray = [...state.racks]
+      const index = newRacksArray.findIndex(rack => rack._id === payload._id)
+      newRacksArray[index] = payload
+      return { ...state, racks: newRacksArray, loading: false }
 
     default:
       return state

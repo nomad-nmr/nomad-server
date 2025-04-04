@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal, Space } from 'antd'
+import { Form, DatePicker, Button, Select, Tooltip, Radio, Modal, Space, Checkbox } from 'antd'
 import { CloseOutlined, QuestionOutlined } from '@ant-design/icons'
 import infoModalConfig from './infoModalCosting'
 
@@ -95,6 +95,16 @@ const AccountsForm = props => {
       <Form.Item label='Date Range' name='dateRange'>
         <RangePicker allowClear={true} />
       </Form.Item>
+      {type === 'Users' && (
+        <Form.Item
+          label='Multiplier'
+          name='useMultiplier'
+          tooltip='Use grant cost multiplier for calculation'
+          valuePropName='checked'
+        >
+          <Checkbox />
+        </Form.Item>
+      )}
       <Form.Item>
         <Button type='primary' htmlType='submit' loading={props.loading}>
           Calculate Costs

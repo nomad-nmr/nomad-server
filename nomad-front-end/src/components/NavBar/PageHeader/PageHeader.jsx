@@ -50,7 +50,9 @@ import {
   downloadCollection,
   toggleSetGrantsTable,
   toggleAddGrantModal,
-  usersDeleteHandler
+  usersDeleteHandler,
+  bookSamples,
+  toggleSampleJetModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -228,6 +230,8 @@ const PageHeaderEl = props => {
           selectedSlots={props.slots}
           submitSamplesHandler={props.submitSamples}
           cancelSamplesHandler={props.cancelSamples}
+          bookSamplesHandler={props.bookSamples}
+          toggleSampleJetModal={props.toggleSampleJetModal}
         />
       )
 
@@ -279,6 +283,7 @@ const PageHeaderEl = props => {
           tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
           accType={accountType}
+          groupName={props.accountsGroupName}
         />
       )
 
@@ -416,7 +421,8 @@ const mapStateToProps = state => {
     setGrantsVisible: state.accounts.showSetGrants,
     grantFormVisible: state.accounts.grantFormVisible,
     accountType: state.accounts.type,
-    checkedUsers: state.users.checked
+    checkedUsers: state.users.checked,
+    accountsGroupName: state.accounts.groupName
   }
 }
 
@@ -470,7 +476,9 @@ const mapDispatchToProps = dispatch => {
     downloadCollection: (id, token) => dispatch(downloadCollection(id, token)),
     tglSetGrants: () => dispatch(toggleSetGrantsTable()),
     tglAddGrant: () => dispatch(toggleAddGrantModal()),
-    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token))
+    deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token)),
+    bookSamples: (data, token) => dispatch(bookSamples(data, token)),
+    toggleSampleJetModal: () => dispatch(toggleSampleJetModal())
   }
 }
 

@@ -1,20 +1,22 @@
 import mongoose from 'mongoose'
 import { testExpOne, testExpFive } from './experiments.js'
 import { testParamSet1 } from './parameterSets.js'
-import { testUserAdmin } from './users.js'
+import { testUserAdmin, testUserOne } from './users.js'
 import { testGroupTwo } from './groups.js'
 import { testInstrOne } from './instruments.js'
+import rack from '../../../models/rack.js'
 
 export const testRackOne = {
   _id: new mongoose.Types.ObjectId(),
   title: 'TEST RACK 1',
   isOpen: false,
   slotsNumber: 3,
+  rackType: 'Group',
   samples: [
     {
       slot: 1,
       dataSetName: testExpOne.datasetName,
-      user: { id: testUserAdmin._id },
+      user: { id: testUserOne._id },
       instrument: { id: testInstrOne._id, name: testInstrOne.name },
       status: 'Booked',
       solvent: 'CDCl3',
@@ -54,4 +56,28 @@ export const testRackTwo = {
   title: 'TEST RACK 2',
   isOpen: true,
   samples: []
+}
+
+export const testRackThree = {
+  _id: new mongoose.Types.ObjectId(),
+  title: 'TEST RACK 3',
+  isOpen: false,
+  slotsNumber: 96,
+  rackType: 'Instrument',
+  instrument: testInstrOne._id,
+  sampleJet: true,
+  samples: [
+    {
+      slot: 1,
+      user: {
+        id: testUserAdmin._id,
+        username: testUserAdmin.username,
+        groupId: testGroupTwo._id,
+        groupName: testGroupTwo.groupName
+      },
+      solvent: 'CDCl3',
+      title: 'Test sample',
+      exps: [{ paramSet: testParamSet1.name }]
+    }
+  ]
 }

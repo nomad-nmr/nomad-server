@@ -130,7 +130,7 @@ const SearchForm = props => {
     setGrpUsr()
   }, [username, usrList])
 
-  const solventOptions = solvents.map((solvent, i) => (
+  const solventOptions = solvents.concat(props.customSolvents).map((solvent, i) => (
     <Option value={solvent} key={i}>
       {solvent}
     </Option>
@@ -383,7 +383,8 @@ const mapStateToProps = state => ({
   grpName: state.auth.groupName,
   expSearchParams: state.search.formValues,
   datasetSearchParams: state.datasets.searchParams,
-  username: state.auth.username
+  username: state.auth.username,
+  customSolvents: state.auth.customSolvents
 })
 
 const mapDispatchToProps = dispatch => ({

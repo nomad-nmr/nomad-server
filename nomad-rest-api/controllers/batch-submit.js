@@ -65,10 +65,17 @@ export const postRack = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(422).send(errors)
     }
-    const newRackObj = { ...req.body, title: req.body.title.toUpperCase() }
-    if (req.body.group === '#all#') {
-      delete newRackObj.group
+    const mainTitle = req.body.title.toUpperCase()
+    const title = req.body.sampleJet ? mainTitle + ' [SampleJet]' : mainTitle
+    const newRackObj = { ...req.body, title }
+
+    if (req.body.rackType === 'Instrument' && !req.body.sampleJet) {
+      await Instrument.findByIdAndUpdate(req.body.instrument, {
+        rackOpen: true,
+        available: false
+      })
     }
+
     const newRack = new Rack(newRackObj)
     await newRack.save()
     res.status(200).json(newRack)
@@ -84,6 +91,9 @@ export const closeRack = async (req, res) => {
     const rack = await Rack.findByIdAndUpdate(rackId, { isOpen: false })
     if (!rack) {
       return res.status(404).send('Rack not found!')
+    }
+    if (rack.rackType === 'Instrument' && !rack.sampleJet) {
+      await Instrument.findByIdAndUpdate(rack.instrument, { rackOpen: false })
     }
     res.status(200).json(rack._id)
   } catch (error) {
@@ -110,13 +120,14 @@ export const addSample = async (req, res) => {
   const { rackId } = req.params
 
   try {
-    const rack = await Rack.findById(rackId)
+    const rack = await Rack.findById(rackId).populate('instrument', 'name')
     if (!rack) {
       return res.status(404).send('Rack not found!')
     }
     const { samples } = rack
     samples.sort((a, b) => b.slot - a.slot)
-    const newSlotStart = samples[0] ? samples[0].slot + 1 : 1
+    const slotStart = rack.startFrom ? rack.startFrom : 1
+    const newSlotStart = samples[0] ? samples[0].slot + 1 : slotStart
     const newSamples = []
     await Promise.all(
       Object.values(req.body).map(async (sample, index) => {
@@ -125,9 +136,21 @@ export const addSample = async (req, res) => {
           throw new Error('Rack is full!')
         }
         const group = await Group.findById(req.user.group)
+
+        //convering slots into well positions
+        //if sampleJet is on
+        let wellPosition = undefined
+        if (rack.sampleJet) {
+          const rows = 'ABCDEFGH'
+          const row = rows[Math.floor((slot - 1) / 12)]
+          const col = ((slot - 1) % 12) + 1
+          wellPosition = `${row}${col}`
+        }
+
         const newSample = {
           ...sample,
           slot,
+          wellPosition,
           user: {
             id: req.user._id,
             username: req.user.username,
@@ -141,8 +164,13 @@ export const addSample = async (req, res) => {
         newSamples.push(newSample)
       })
     )
+
     await rack.save()
-    res.send({ rackId, data: newSamples })
+    res.send({
+      rackId,
+      data: newSamples.sort((a, b) => a.slot - b.slot),
+      instrument: rack.instrument && rack.instrument.name
+    })
   } catch (error) {
     if (error.message === 'Rack is full!') {
       res.status(406).send({ message: 'Rack is Full!', rackId })
@@ -172,9 +200,16 @@ export const deleteSample = async (req, res) => {
 
 export const bookSamples = async (req, res) => {
   const submitter = getSubmitter()
-  const { rackId, instrId, slots, closeQueue } = req.body
+  const { rackId, slots, closeQueue, rackPosition } = req.body
 
   try {
+    const rack = await Rack.findById(rackId).populate('group', 'groupName')
+    if (!rack) {
+      return res.status(404).send('Rack not found!')
+    }
+
+    const instrId = rack.rackType === 'Group' ? req.body.instrId : rack.instrument.toString()
+
     const instrument = await Instrument.findById(instrId)
     if (!instrument) {
       return res.status(404).send('Instrument not found')
@@ -183,11 +218,6 @@ export const bookSamples = async (req, res) => {
     if (closeQueue && instrument.available === true) {
       instrument.available = false
       await instrument.save()
-    }
-
-    const rack = await Rack.findById(rackId).populate('group', 'groupName')
-    if (!rack) {
-      return res.status(404).send('Rack not found!')
     }
 
     //Checking if experiments in slots going to be booked are available on the instrument
@@ -212,33 +242,34 @@ export const bookSamples = async (req, res) => {
       }))
       return res.status(422).send({ errors: errorMessages })
     }
+
     //======================================================================================
 
-    const availableHolders = submitter.findAvailableHolders(
-      instrId,
-      instrument.capacity,
-      slots.length
-    )
+    let availableHolders = slots.sort((a, b) => a - b)
 
-    if (availableHolders.length < slots.length) {
-      return res
-        .status(400)
-        .json(`Instrument ${instrument.name} does not have enough available holders`)
+    if (rack.rackType === 'Group') {
+      availableHolders = submitter.findAvailableHolders(instrId, instrument.capacity, slots.length)
+
+      if (availableHolders.length < slots.length) {
+        return res
+          .status(400)
+          .json(`Instrument ${instrument.name} does not have enough available holders`)
+      }
+      submitter.updateBookedHolders(instrId, availableHolders)
+      //Cancelling bookedHolders from submitter  after 2 mins once they get registered in usedHolders from status table
+      setTimeout(() => {
+        availableHolders.forEach(holder => {
+          submitter.cancelBookedHolder(instrId, holder)
+        })
+      }, 120000)
+    } else if (rack.rackType === 'Instrument' && rack.sampleJet) {
+      availableHolders = slots.map(slot => rackPosition * 100 + slot)
     }
-
-    submitter.updateBookedHolders(instrId, availableHolders)
-
-    //Cancelling bookedHolders from submiter  after 2 mins once they get registered in usedHolders from status table
-    setTimeout(() => {
-      availableHolders.forEach(holder => {
-        submitter.cancelBookedHolder(instrId, holder)
-      })
-    }, 120000)
 
     const instrIds = await Instrument.find({}, '_id')
     const instrIndex = instrIds.map(i => i._id).findIndex(id => id.toString() === instrId)
     if (instrIndex === -1) {
-      return res.status(500).send()
+      return res.status(404).send({ msg: 'Instrument not found' })
     }
 
     let holdersCount = 0
@@ -303,7 +334,8 @@ export const bookSamples = async (req, res) => {
                   parameterSet: exp.paramSet,
                   title: sampleObj.title,
                   night: false,
-                  status: 'Booked'
+                  status: 'Booked',
+                  batchSubmit: true
                 }
                 const experiment = new Experiment(expHistObj)
 
@@ -328,7 +360,7 @@ export const bookSamples = async (req, res) => {
       samples: updatedRack.samples.filter(sample => slots.includes(sample.slot))
     })
   } catch (error) {
-    console.log(error.message)
+    console.log(error)
     res.status(500).send({ error: 'API error' })
   }
 }
@@ -395,19 +427,22 @@ export const cancelBookedSamples = async (req, res) => {
     //sanitizing data for sending to clients
     let submitDataObj = {}
     const updatedSamplesArr = [...rack.samples]
-    rack.samples.forEach((sample, index) => {
-      if (slots.includes(sample.slot)) {
-        const instrId = sample.instrument.id.toString()
-        if (Object.keys(submitDataObj).includes(instrId)) {
-          submitDataObj[instrId].push(sample.holder)
-        } else {
-          submitDataObj[instrId] = [sample.holder]
+    await Promise.all(
+      rack.samples.map(async (sample, index) => {
+        if (slots.includes(sample.slot)) {
+          const instrId = sample.instrument.id.toString()
+          if (Object.keys(submitDataObj).includes(instrId)) {
+            submitDataObj[instrId].push(sample.holder)
+          } else {
+            submitDataObj[instrId] = [sample.holder]
+          }
+          updatedSamplesArr[index].status = undefined
+          updatedSamplesArr[index].instrument = undefined
+          updatedSamplesArr[index].holder = undefined
         }
-        updatedSamplesArr[index].status = undefined
-        updatedSamplesArr[index].instrument = undefined
-        updatedSamplesArr[index].holder = undefined
-      }
-    })
+        await Experiment.deleteMany({ datasetName: sample.dataSetName }) //deleting booked experiments from history
+      })
+    )
 
     //sending delete data to client
     for (let instrId in submitDataObj) {
@@ -430,5 +465,27 @@ export const cancelBookedSamples = async (req, res) => {
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })
+  }
+}
+
+export async function editSample(req, res) {
+  try {
+    const { rackId } = req.params
+
+    const { slot, title, solvent, exps, expTime, tubeId } = req.body
+    const rack = await Rack.findById(rackId)
+    if (!rack) {
+      return res.status(404).send({ message: 'Rack not found' })
+    }
+
+    const newSamples = [...rack.samples]
+    const index = newSamples.findIndex(sample => sample.slot === +slot)
+    newSamples[index] = { ...newSamples[index], title, solvent, exps, expTime, tubeId }
+    rack.samples = newSamples
+    await rack.save()
+    res.status(200).json(rack)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
 }

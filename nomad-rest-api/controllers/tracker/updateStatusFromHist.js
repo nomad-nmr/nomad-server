@@ -46,7 +46,7 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
 
             if (oldEntry.status === 'Running' && entry.status === 'Completed') {
               //sending message to client through socket to upload data
-              if (process.env.DATASTORE_ON) {
+              if (process.env.DATASTORE_ON === 'true' || !process.env.DATASTORE_ON) {
                 sendUploadCmd(
                   instrument._id.toString(),
                   { datasetName, expNo, group },
@@ -68,8 +68,18 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
           const expHistEntry = await Experiment.findOneAndUpdate({ expId }, updateObj)
 
           if (expHistEntry) {
-            const { solvent, parameters, night, priority, submittedAt, updatedAt } = expHistEntry
-            return { ...entry, solvent, parameters, night, priority, submittedAt, updatedAt }
+            const { solvent, parameters, night, priority, submittedAt, updatedAt, batchSubmit } =
+              expHistEntry
+            return {
+              ...entry,
+              solvent,
+              parameters,
+              night,
+              priority,
+              submittedAt,
+              updatedAt,
+              batchSubmit
+            }
           } else {
             console.log(`Entry with expId ${expId} not found! AUTO-FEED`)
             await expHistAutoFeed(

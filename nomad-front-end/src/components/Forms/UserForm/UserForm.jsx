@@ -87,6 +87,7 @@ const UserForm = props => {
       <Option value='admin-b'>admin-b</Option>
       <Option value='user'>user</Option>
       <Option value='user-a'>user-a</Option>
+      <Option value='user-d'>user-d</Option>
     </Fragment>
   )
 
@@ -160,6 +161,9 @@ const UserForm = props => {
               <li>
                 <span style={{ color: '#389e0d' }}>user-a</span> - ordinary user of walk-in system
                 unaffected by traffic control
+              </li>
+              <li>
+                <span style={{ color: '#9254de' }}>user-d</span> - user with access to data only
               </li>
               <Divider />
               <li>

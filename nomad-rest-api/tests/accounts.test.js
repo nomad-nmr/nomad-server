@@ -34,9 +34,9 @@ describe('GET /accounts/data', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(2)
-    expect(body[0].name).toBe(testGroupTwo.groupName)
-    expect(body[0].totalCost).toBe(18.17)
+    expect(body.tableData.length).toBe(2)
+    expect(body.tableData[0].name).toBe(testGroupTwo.groupName)
+    expect(body.tableData[0].totalCost).toBe(18.17)
   })
 
   it('should return data array of length 2 the first object corresponding to testUserThree', async () => {
@@ -45,10 +45,10 @@ describe('GET /accounts/data', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(2)
-    expect(body[0].name).toMatch(testUserThree.username + ' - ' + testUserThree.fullName)
-
-    expect(body[0].totalCost).toBe(18.17)
+    expect(body.tableData.length).toBe(2)
+    expect(body.tableData[0].name).toMatch(testUserThree.username + ' - ' + testUserThree.fullName)
+    expect(body.tableData[0].totalCost).toBe(18.17)
+    expect(body.groupName).toBe(testGroupTwo.groupName)
   })
 })
 

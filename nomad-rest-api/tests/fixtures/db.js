@@ -28,7 +28,7 @@ import {
   testExpEight
 } from './data/experiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
-import { testRackOne, testRackTwo } from './data/racks.js'
+import { testRackOne, testRackTwo, testRackThree } from './data/racks.js'
 import { testCollectionOne } from './data/collections.js'
 import { testGrantOne, testGrantTwo } from './data/grants.js'
 
@@ -99,6 +99,7 @@ export const setupDB = async () => {
 
   await new Rack(testRackOne).save()
   await new Rack(testRackTwo).save()
+  await new Rack(testRackThree).save()
 
   await new Collection(testCollectionOne).save()
 

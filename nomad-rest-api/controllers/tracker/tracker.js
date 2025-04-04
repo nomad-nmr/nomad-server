@@ -30,7 +30,7 @@ export const updateStatus = async (req, res) => {
 
     const newStatusObj = restructureInput(req.body.data, instrument, batchGroupsArr)
 
-    if (process.env.SUBMIT_ON === 'true') {
+    if (!process.env.SUBMIT_ON || process.env.SUBMIT_ON === 'true') {
       const updatedStatusTable = await updateStatusFromHist(
         instrument,
         newStatusObj.statusTable,

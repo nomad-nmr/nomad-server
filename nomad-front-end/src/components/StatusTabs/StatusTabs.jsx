@@ -8,7 +8,7 @@ import classes from './StatusTabs.module.css'
 
 const statusTabs = props => {
   const items = props.summaryData.map(tab => {
-    const fontColor = tab.available ? '#52c41a' : '#f5222d'
+    const fontColor = tab.available ? '#52c41a' : tab.rackOpen ? '#fadb14' : '#f5222d'
     return {
       label: (
         <div style={{ fontSize: '1.2rem', color: fontColor, padding: '0px 5px' }}>{tab.name}</div>
