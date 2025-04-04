@@ -11,7 +11,7 @@ const CollectionModal = props => {
   const { pathname } = useLocation()
 
   const options = [
-    { label: 'Crete New', value: '##-new-##' },
+    { label: 'Create New', value: '##-new-##' },
     {
       label: '---------',
       options: props.collectionList
