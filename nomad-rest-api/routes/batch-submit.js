@@ -37,7 +37,18 @@ router.post(
           }
         })
       }),
-    body('slotsNumber').isInt().withMessage('Number of slots must be integer')
+    body('slotsNumber').isInt().withMessage('Number of slots must be integer'),
+    body('instrument').custom(value => {
+      return Rack.findOne({ instrument: value, isOpen: true })
+        .populate('instrument')
+        .then(rack => {
+          if (rack) {
+            return Promise.reject(
+              `Error: Rack for instrument ${rack.instrument.name} is already open`
+            )
+          }
+        })
+    })
   ],
   auth,
   authAdmin,
