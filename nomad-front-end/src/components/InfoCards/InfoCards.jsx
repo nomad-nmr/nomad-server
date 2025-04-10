@@ -16,7 +16,7 @@ const infoCards = props => {
                 key={card.key}
                 onClick={() => {
                   if (card.rackOpen) {
-                    navigate('/batch-submit')
+                    navigate('/batch-submit/' + card.key)
                   } else {
                     props.clicked(card.key.toString())
                   }

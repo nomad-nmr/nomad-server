@@ -43,7 +43,7 @@ const MainMenu = props => {
     (location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin')
   ) {
     items.push({
-      key: '/batch-submit',
+      key: '/batch-submit/null',
       label: <span className={classes.MenuItem}>Batch Submit</span>,
       icon: <BatchSubmitIcon style={{ fontSize: 20 }} />
     })

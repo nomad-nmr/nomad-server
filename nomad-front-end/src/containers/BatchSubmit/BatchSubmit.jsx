@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
+import { useParams } from 'react-router-dom'
 
 import RackTabs from '../../components/RackTabs/RackTabs'
 import AddRackModal from '../../components/Modals/AddRackModal/AddRackModal'
@@ -49,6 +50,8 @@ const BatchSubmit = props => {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalData, setModalData] = useState({})
 
+  const { instrumentId } = useParams()
+
   useEffect(() => {
     if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
       fetchGrpList(authToken)
@@ -78,6 +81,18 @@ const BatchSubmit = props => {
       setActiveTabId(racksData[0]._id)
     }
   }, [racksData, activeTabId, setActiveTabId])
+
+  //Hook setting active tabId when the page is loaded from card click
+  useEffect(() => {
+    if (instrumentId && instrumentId !== 'null') {
+      const rack = racksData.find(rack => rack.instrument === instrumentId && rack.isOpen)
+      if (rack) {
+        setTimeout(() => {
+          setActiveTabId(rack._id)
+        }, 200)
+      }
+    }
+  }, [])
 
   let filteredRacks = []
 

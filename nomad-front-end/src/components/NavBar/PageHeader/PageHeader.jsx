@@ -213,7 +213,7 @@ const PageHeaderEl = props => {
       avatarSrc = submitIcon
       break
 
-    case location.pathname === '/batch-submit':
+    case location.pathname.includes('/batch-submit'):
       headerTitle = 'Batch Submit'
       avatarSrc = batchSubmitIcon
       extra = (

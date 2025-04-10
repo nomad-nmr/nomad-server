@@ -177,7 +177,7 @@ const App = props => {
                 }
               />
               <Route
-                path='/batch-submit'
+                path='/batch-submit/:instrumentId'
                 element={
                   import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
                     <BatchSubmit />
