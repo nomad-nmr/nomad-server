@@ -4,7 +4,6 @@ import { testParamSet1 } from './parameterSets.js'
 import { testUserAdmin, testUserOne } from './users.js'
 import { testGroupTwo } from './groups.js'
 import { testInstrOne } from './instruments.js'
-import rack from '../../../models/rack.js'
 
 export const testRackOne = {
   _id: new mongoose.Types.ObjectId(),
@@ -55,6 +54,9 @@ export const testRackTwo = {
   _id: new mongoose.Types.ObjectId(),
   title: 'TEST RACK 2',
   isOpen: true,
+  slotsNumber: 60,
+  rackType: 'Instrument',
+  instrument: testInstrOne._id,
   samples: []
 }
 

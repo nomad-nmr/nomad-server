@@ -296,9 +296,9 @@ export const postPending = async (req, res) => {
 export const getAllowance = async (req, res) => {
   try {
     const respArr = []
-
+    const instrIds = Array.isArray(req.query.instrIds) ? req.query.instrIds : [req.query.instrIds]
     await Promise.all(
-      req.query.instrIds.map(async instrId => {
+      instrIds.map(async instrId => {
         const instr = await Instrument.findById(instrId)
         let { dayAllowance, nightAllowance, nightStart, nightEnd, overheadTime } = instr
 

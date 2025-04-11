@@ -195,7 +195,7 @@ export const searchDatasets = async (req, res) => {
     } = req.query
 
     if (!currentPage || !pageSize) {
-      return res.send(422)
+      return res.sendStatus(422)
     }
 
     let sorter

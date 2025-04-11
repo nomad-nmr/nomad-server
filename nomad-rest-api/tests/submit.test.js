@@ -330,7 +330,7 @@ describe('POST /pending-auth', () => {
 describe('GET /allowance', () => {
   it('should return allowance object with day allowance being reduced', async () => {
     const { body } = await request(app)
-      .get(`/api/submit/allowance/?instrIds[]=` + testInstrThree._id)
+      .get(`/api/submit/allowance/?instrIds=${testInstrThree._id}`)
       .set('Authorization', `Bearer ${testUserTwo.tokens[0].token}`)
       .expect(200)
 
@@ -350,7 +350,7 @@ describe('GET /allowance', () => {
 
   it('should return nightAllowance reduced', async () => {
     const { body } = await request(app)
-      .get(`/api/submit/allowance/?instrIds[]=` + testInstrThree._id)
+      .get(`/api/submit/allowance/?instrIds=${testInstrThree._id}`)
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 

@@ -2,7 +2,6 @@
 // while the app can be also used by supertest for integration tests
 
 import express from 'express'
-import bodyParser from 'body-parser'
 import helmet from 'helmet'
 import moment from 'moment'
 import momentDurationFormatSetup from 'moment-duration-format'
@@ -39,7 +38,9 @@ import {
 const app = express()
 momentDurationFormatSetup(moment)
 
-app.use(bodyParser.json({ strict: true, limit: '50mb' }))
+// app.use(bodyParser.json({ strict: true, limit: '50mb' }))
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(helmet())
 
 //Setting headers to allow CORS
