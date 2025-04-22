@@ -294,11 +294,9 @@ export const postPending = async (req, res) => {
 }
 
 export const getAllowance = async (req, res) => {
-  console.log(req.query.instrIds)
   try {
     const respArr = []
     const instrIds = req.query.instrIds.split(',')
-    console.log(instrIds)
 
     await Promise.all(
       instrIds.map(async instrId => {
