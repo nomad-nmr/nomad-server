@@ -109,6 +109,9 @@ export const fetchAllowance = (token, instrIds) => {
     axios
       .get('/submit/allowance', {
         params: { instrIds: Array.from(instrIds) },
+        paramsSerializer: params => {
+          return new URLSearchParams(params).toString() // Ensures proper serialization
+        },
         headers: { Authorization: 'Bearer ' + token }
       })
       .then(res => {
