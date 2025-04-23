@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json /app/
 
-RUN npm install 
+RUN npm install --legacy-peer-deps
 
 ## next line allows to avoid overwriting node_modules using anonymous volume
 #RUN chown -R node.node /app/node_modules
