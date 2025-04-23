@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import logoRound from '../../../assets/logo-round-small.png'
 import logoWideDark from '../../../assets/logo-wide-dark.png'
 import TweenOne from 'rc-tween-one'

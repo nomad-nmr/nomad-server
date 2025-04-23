@@ -1,7 +1,7 @@
 import React from 'react'
 import { Modal, Typography } from 'antd'
 import { ExclamationCircleOutlined } from '@ant-design/icons'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router'
 
 const { Text } = Typography
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Radio, Button, Tooltip, Space } from 'antd'
 import { LineChartOutlined, FolderAddOutlined } from '@ant-design/icons'
 

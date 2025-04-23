@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { Form, Button, Space, Divider, Input, Modal, message, Spin } from 'antd'
 import { QuestionCircleOutlined } from '@ant-design/icons'
 

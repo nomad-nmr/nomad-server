@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import InfoCard from './InfoCard/InfoCard'
 import classes from './InfoCards.module.css'

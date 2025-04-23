@@ -1,5 +1,5 @@
 import React, { useState, Suspense, useEffect } from 'react'
-import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router'
 import { connect } from 'react-redux'
 import {
   closeAuthModal,
@@ -23,6 +23,21 @@ import Error403 from './components/Errors/Error403'
 import Credits from './components/Credits/Credits'
 import Reset from './containers/Reset/Reset'
 import Resubmit from './containers/Resubmit/Resubmit'
+import Users from './containers/Users/Users'
+import Instruments from './containers/Instruments/Instruments'
+import Groups from './containers/Groups/Groups'
+import Message from './containers/Message/Message'
+import ExpHistory from './containers/ExpHistory/ExpHistory'
+import ParameterSets from './containers/ParameterSets/ParameterSets'
+import Submit from './containers/Submit/Submit'
+import BatchSubmit from './containers/BatchSubmit/BatchSubmit'
+import SearchExperiment from './containers/SearchExperiment/SearchExperiment'
+import SearchDataset from './containers/SearchDataset/SearchDataset'
+import Accounts from './containers/Accounts/Accounts'
+import NMRium from './containers/NMRium/NMRium'
+import Claim from './containers/Claim/Claim'
+import ClaimsHistory from './containers/ClaimsHistory/ClaimsHistory'
+import Collections from './containers/Collections/Collections'
 
 const { Header, Sider, Content, Footer } = Layout
 
@@ -55,24 +70,24 @@ const App = props => {
     }
   }, [])
 
-  // Lazy loading
-  const Users = React.lazy(() => import('./containers/Users/Users'))
-  const Instruments = React.lazy(() => import('./containers/Instruments/Instruments'))
-  const Groups = React.lazy(() => import('./containers/Groups/Groups'))
-  const Message = React.lazy(() => import('./containers/Message/Message'))
-  const ExpHistory = React.lazy(() => import('./containers/ExpHistory/ExpHistory'))
-  const ParameterSets = React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
-  const Submit = React.lazy(() => import('./containers/Submit/Submit'))
-  const BatchSubmit = React.lazy(() => import('./containers/BatchSubmit/BatchSubmit'))
-  const SearchExperiment = React.lazy(() =>
-    import('./containers/SearchExperiment/SearchExperiment')
-  )
-  const SearchDataset = React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
-  const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
-  const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
-  const Claim = React.lazy(() => import('./containers/Claim/Claim'))
-  const ClaimsHistory = React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
-  const Collections = React.lazy(() => import('./containers/Collections/Collections'))
+  // Lazy loading, does not work with React Router v7.5.1
+  // const Users = React.lazy(() => import('./containers/Users/Users'))
+  // const Instruments = React.lazy(() => import('./containers/Instruments/Instruments'))
+  // const Groups = React.lazy(() => import('./containers/Groups/Groups'))
+  // const Message = React.lazy(() => import('./containers/Message/Message'))
+  // const ExpHistory = React.lazy(() => import('./containers/ExpHistory/ExpHistory'))
+  // const ParameterSets = React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
+  // const Submit = React.lazy(() => import('./containers/Submit/Submit'))
+  // const BatchSubmit = React.lazy(() => import('./containers/BatchSubmit/BatchSubmit'))
+  // const SearchExperiment = React.lazy(() =>
+  //   import('./containers/SearchExperiment/SearchExperiment')
+  // )
+  // const SearchDataset = React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
+  // const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
+  // const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
+  // const Claim = React.lazy(() => import('./containers/Claim/Claim'))
+  // const ClaimsHistory = React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
+  // const Collections = React.lazy(() => import('./containers/Collections/Collections'))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null

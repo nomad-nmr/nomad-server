@@ -1,6 +1,6 @@
 import React from 'react'
 import { Form, Select, InputNumber, Button, Space } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import SelectGrpUsr from '../SelectGrpUsr/SelectGrpUsr'
 import classes from '../Form.module.css'

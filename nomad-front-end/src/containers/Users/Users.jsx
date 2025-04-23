@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { connect } from 'react-redux'
 import { Button, Table, Drawer, Flex, Modal, Tag, Space, Pagination, Tooltip } from 'antd'
 import { CheckCircleOutlined, StopOutlined } from '@ant-design/icons'

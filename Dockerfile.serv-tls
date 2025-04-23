@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY ./nomad-front-end/package.json .
 
+# react-copy-to-clipboard@5.1.0 has a peer dependency on react@^16.8.0 || ^17.0.0 || ^18.0.0, and creates conflict with React 19
+# therefore we need to use --legacy-peer-deps
 RUN npm install --legacy-peer-deps
 
 COPY ./nomad-front-end .

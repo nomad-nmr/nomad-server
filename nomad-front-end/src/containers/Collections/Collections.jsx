@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { Tooltip, Button, Select, Row, Col, Form, Space, Switch, Radio } from 'antd'
 import {
   EditOutlined,

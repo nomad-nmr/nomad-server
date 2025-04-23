@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Radio, Popconfirm } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { LineChartOutlined, DownloadOutlined } from '@ant-design/icons'
 
 import classes from '../PageHeader.module.css'

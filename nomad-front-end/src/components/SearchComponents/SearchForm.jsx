@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router'
 
 import { connect } from 'react-redux'
 import { Form, Input, DatePicker, Button, Select, Row, Col, Space, Tooltip, Switch } from 'antd'

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Drawer, Button, Space, message, Tooltip } from 'antd'
 import { connect } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import DrawerTable from './DrawerTable/DrawerTable'
 import SubmitModal from '../Modals/SubmitModal/SubmitModal'

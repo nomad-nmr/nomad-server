@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import moment from 'moment'
 import { connect } from 'react-redux'
 import { Table, Badge, Tag, Button } from 'antd'

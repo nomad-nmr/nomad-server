@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 import { Form, Spin, Button, Space, Input } from 'antd'
 
 import classes from './Reset.module.css'

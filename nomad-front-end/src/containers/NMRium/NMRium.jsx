@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { NMRium } from 'nmrium'
 import { Spin, Button, Tooltip } from 'antd'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 import { EditOutlined } from '@ant-design/icons'
 
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'

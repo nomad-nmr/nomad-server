@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Alert, Row, Col, Tag, Switch, Button, Flex, Modal, Tooltip } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import TrafficLights from '../../TrafficLights/TrafficLights'
 
