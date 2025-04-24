@@ -1,6 +1,6 @@
 import React from 'react'
 import { Result, Button } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 const Error403 = () => {
   const navigate = useNavigate()

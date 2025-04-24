@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { Spin } from 'antd'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import RackTabs from '../../components/RackTabs/RackTabs'
 import AddRackModal from '../../components/Modals/AddRackModal/AddRackModal'

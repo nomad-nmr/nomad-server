@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button, Space, Divider, Tooltip, Modal } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import {
   DownloadOutlined,
   ShareAltOutlined,
