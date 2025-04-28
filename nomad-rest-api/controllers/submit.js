@@ -305,25 +305,64 @@ export const getAllowance = async (req, res) => {
 
         const usrSamples = new Set()
 
-        instr.status.statusTable.forEach(entry => {
-          if (
-            entry.username === req.user.username &&
-            entry.time &&
-            (entry.status === 'Submitted' || entry.status === 'Available')
-          ) {
-            let exptMins = moment.duration(entry.time, 'HH:mm:ss').as('minutes')
-            //adding overhead time for each sample
-            if (!usrSamples.has(entry.datasetName)) {
-              exptMins += overheadTime / 60
+        await Promise.all(
+          instr.status.statusTable.map(async entry => {
+            if (entry.username === req.user.username) {
+              //If status is 'Available' entry.time is empty string
+              //estimate from default exptime from parameter set is used
+              if (entry.status === 'Available') {
+                const parameterSet = await ParameterSet.findOne({
+                  name: entry.parameterSet
+                })
+                const ns = parameterSet.defaultParams[0].value
+                const d1 = parameterSet.defaultParams[1].value
+                const ds = parameterSet.defaultParams[2].value
+                const td1 = parameterSet.defaultParams[3].value
+                const exptime = parameterSet.defaultParams[4].value
+
+                if (entry.parameters) {
+                  const paramsArr = entry.parameters.split(',')
+                  let currentNs = ns
+                  let currentD1 = d1
+                  //Parsing parameters from string to get current values
+                  paramsArr.forEach((i, index) => {
+                    switch (i) {
+                      case 'ns':
+                        currentNs = paramsArr[index + 1]
+                        break
+                      case 'd1':
+                        currentD1 = paramsArr[index + 1]
+                        break
+
+                      default:
+                        break
+                    }
+                  })
+                  const exptUnit = moment.duration(exptime) / (ns * td1 + ds) - d1 * 1000
+                  const newExpt = (exptUnit + currentD1 * 1000) * (currentNs * td1 + ds)
+                  entry.time = moment.duration(newExpt).format('HH:mm:ss', {
+                    trim: false
+                  })
+                } else {
+                  entry.time = exptime
+                }
+              }
+              if (entry.time && (entry.status === 'Submitted' || entry.status === 'Available')) {
+                let exptMins = moment.duration(entry.time, 'HH:mm:ss').as('minutes')
+                //adding overhead time for each sample
+                if (!usrSamples.has(entry.datasetName)) {
+                  exptMins += overheadTime / 60
+                }
+                if (entry.night) {
+                  nightAllowance -= exptMins
+                } else {
+                  dayAllowance -= exptMins
+                }
+                usrSamples.add(entry.datasetName)
+              }
             }
-            if (entry.night) {
-              nightAllowance -= exptMins
-            } else {
-              dayAllowance -= exptMins
-            }
-            usrSamples.add(entry.datasetName)
-          }
-        })
+          })
+        )
         respArr.push({
           instrId,
           dayAllowance,
