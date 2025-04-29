@@ -356,7 +356,7 @@ const BookExperimentsForm = props => {
 
         const dayQueueRemains = Math.round(
           moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
-            moment.duration(dayExpt, 'HH:mm').as('minutes')
+          moment.duration(dayExpt, 'HH:mm').as('minutes')
         )
 
         if (
@@ -402,11 +402,14 @@ const BookExperimentsForm = props => {
     const filteredParamSetArr = props.paramSetsData.filter(paramSet =>
       paramSet.availableOn.includes(sample.instId.toString())
     )
-    const paramSetsOptions = filteredParamSetArr.map((paramSet, i) => (
-      <Option value={paramSet.name} key={i}>
-        {`${paramSet.description} [${paramSet.name}]`}
-      </Option>
-    ))
+    const paramSetsOptions = filteredParamSetArr
+      .slice()
+      .sort((a, b) => a.description.localeCompare(b.description))
+      .map((paramSet, i) => (
+        <Option value={paramSet.name} key={i}>
+          {`${paramSet.description} [${paramSet.name}]`}
+        </Option>
+      ))
 
     //changing style of totalExpt time according to allowance state
     const totalExptClass = [classes.TotalExptBasic]
