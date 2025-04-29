@@ -1,5 +1,5 @@
 import React, { useState, Suspense, useEffect } from 'react'
-import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { Route, Routes, Navigate, useNavigate, useLocation } from 'react-router'
 import { connect } from 'react-redux'
 import {
   closeAuthModal,
@@ -55,24 +55,39 @@ const App = props => {
     }
   }, [])
 
-  // Lazy loading
-  const Users = React.lazy(() => import('./containers/Users/Users'))
-  const Instruments = React.lazy(() => import('./containers/Instruments/Instruments'))
-  const Groups = React.lazy(() => import('./containers/Groups/Groups'))
-  const Message = React.lazy(() => import('./containers/Message/Message'))
-  const ExpHistory = React.lazy(() => import('./containers/ExpHistory/ExpHistory'))
-  const ParameterSets = React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
-  const Submit = React.lazy(() => import('./containers/Submit/Submit'))
-  const BatchSubmit = React.lazy(() => import('./containers/BatchSubmit/BatchSubmit'))
-  const SearchExperiment = React.lazy(() =>
-    import('./containers/SearchExperiment/SearchExperiment')
+  //Higher level component that allows to wrap all the lazy loaded components in a Suspense component
+  //This is required by React Router 7.5
+  const Loadable = Component => props =>
+    (
+      <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
+        <Component {...props} />
+      </Suspense>
+    )
+
+  //Lazy loading, does not work with React Router v7.5.1
+  const Users = Loadable(React.lazy(() => import('./containers/Users/Users')))
+  const Instruments = Loadable(React.lazy(() => import('./containers/Instruments/Instruments')))
+  const Groups = Loadable(React.lazy(() => import('./containers/Groups/Groups')))
+  const Message = Loadable(React.lazy(() => import('./containers/Message/Message')))
+  const ExpHistory = Loadable(React.lazy(() => import('./containers/ExpHistory/ExpHistory')))
+  const ParameterSets = Loadable(
+    React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
   )
-  const SearchDataset = React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
-  const Accounts = React.lazy(() => import('./containers/Accounts/Accounts'))
-  const NMRium = React.lazy(() => import('./containers/NMRium/NMRium'))
-  const Claim = React.lazy(() => import('./containers/Claim/Claim'))
-  const ClaimsHistory = React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
-  const Collections = React.lazy(() => import('./containers/Collections/Collections'))
+  const Submit = Loadable(React.lazy(() => import('./containers/Submit/Submit')))
+  const BatchSubmit = Loadable(React.lazy(() => import('./containers/BatchSubmit/BatchSubmit')))
+  const SearchExperiment = Loadable(
+    React.lazy(() => import('./containers/SearchExperiment/SearchExperiment'))
+  )
+  const SearchDataset = Loadable(
+    React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
+  )
+  const Accounts = Loadable(React.lazy(() => import('./containers/Accounts/Accounts')))
+  const NMRium = Loadable(React.lazy(() => import('./containers/NMRium/NMRium')))
+  const Claim = Loadable(React.lazy(() => import('./containers/Claim/Claim')))
+  const ClaimsHistory = Loadable(
+    React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
+  )
+  const Collections = Loadable(React.lazy(() => import('./containers/Collections/Collections')))
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -125,137 +140,135 @@ const App = props => {
           </Header>
         </Affix>
         <Content className={classes.Content}>
-          <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
-            <Routes>
-              <Route
-                path='/admin/users'
-                element={accessLevel === 'admin' ? <Users /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/groups'
-                element={accessLevel === 'admin' ? <Groups /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/message'
-                element={accessLevel === 'admin' ? <Message /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/instruments'
-                element={accessLevel === 'admin' ? <Instruments /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/history'
-                element={accessLevel === 'admin' ? <ExpHistory /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/claims-history'
-                element={accessLevel === 'admin' ? <ClaimsHistory /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/accounts'
-                element={accessLevel === 'admin' ? <Accounts /> : <Navigate to='/dashboard' />}
-              />
-              <Route
-                path='/admin/parameter-sets'
-                element={accessLevel === 'admin' ? <ParameterSets /> : <Navigate to='/dashboard' />}
-              />
+          <Routes>
+            <Route
+              path='/admin/users'
+              element={accessLevel === 'admin' ? <Users /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/groups'
+              element={accessLevel === 'admin' ? <Groups /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/message'
+              element={accessLevel === 'admin' ? <Message /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/instruments'
+              element={accessLevel === 'admin' ? <Instruments /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/history'
+              element={accessLevel === 'admin' ? <ExpHistory /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/claims-history'
+              element={accessLevel === 'admin' ? <ClaimsHistory /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/accounts'
+              element={accessLevel === 'admin' ? <Accounts /> : <Navigate to='/dashboard' />}
+            />
+            <Route
+              path='/admin/parameter-sets'
+              element={accessLevel === 'admin' ? <ParameterSets /> : <Navigate to='/dashboard' />}
+            />
 
-              <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/dashboard' element={<Dashboard />} />
 
-              <Route path='/reset/:token' element={<Reset />} />
-              <Route
-                path='/submit'
-                element={
-                  username &&
-                  import.meta.env.VITE_SUBMIT_ON === 'true' &&
-                  accessLevel !== 'user-b' &&
-                  accessLevel !== 'user-d' ? (
-                    <Submit />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/batch-submit'
-                element={
-                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
-                    <BatchSubmit />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/resubmit'
-                element={
-                  import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
-                    <Resubmit />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/search-experiment/:datasetName'
-                element={
-                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                    <SearchExperiment />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/search-dataset'
-                element={
-                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                    <SearchDataset />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/nmrium/:datasetId'
-                element={
-                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                    <NMRium />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/claim'
-                element={
-                  import.meta.env.VITE_DATASTORE_ON === 'true' &&
-                  (accessLevel === 'admin' || manualAccess) ? (
-                    <Claim />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
-              <Route
-                path='/collections/:collectionId'
-                element={
-                  import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                    <Collections />
-                  ) : (
-                    <Navigate to='/dashboard' />
-                  )
-                }
-              />
+            <Route path='/reset/:token' element={<Reset />} />
+            <Route
+              path='/submit'
+              element={
+                username &&
+                import.meta.env.VITE_SUBMIT_ON === 'true' &&
+                accessLevel !== 'user-b' &&
+                accessLevel !== 'user-d' ? (
+                  <Submit />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/batch-submit/:instrumentId'
+              element={
+                import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
+                  <BatchSubmit />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/resubmit'
+              element={
+                import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
+                  <Resubmit />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/search-experiment/:datasetName'
+              element={
+                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                  <SearchExperiment />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/search-dataset'
+              element={
+                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                  <SearchDataset />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/nmrium/:datasetId'
+              element={
+                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                  <NMRium />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/claim'
+              element={
+                import.meta.env.VITE_DATASTORE_ON === 'true' &&
+                (accessLevel === 'admin' || manualAccess) ? (
+                  <Claim />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
+            <Route
+              path='/collections/:collectionId'
+              element={
+                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                  <Collections />
+                ) : (
+                  <Navigate to='/dashboard' />
+                )
+              }
+            />
 
-              <Route path='/500' element={<Error500 />} />
-              <Route path='/404' element={<Error404 />} />
-              <Route path='/403' element={<Error403 />} />
-              <Route path='/admin/dashboard' element={<Navigate to='/dashboard' />} />
-              <Route path='/' element={<Navigate to='/dashboard' />} />
-              <Route path='*' element={<Error404 />} />
-            </Routes>
-          </Suspense>
+            <Route path='/500' element={<Error500 />} />
+            <Route path='/404' element={<Error404 />} />
+            <Route path='/403' element={<Error403 />} />
+            <Route path='/admin/dashboard' element={<Navigate to='/dashboard' />} />
+            <Route path='/' element={<Navigate to='/dashboard' />} />
+            <Route path='*' element={<Error404 />} />
+          </Routes>
           {authModal}
           <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
         </Content>

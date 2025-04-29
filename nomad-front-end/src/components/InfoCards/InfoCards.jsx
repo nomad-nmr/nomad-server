@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import InfoCard from './InfoCard/InfoCard'
 import classes from './InfoCards.module.css'
@@ -16,7 +16,7 @@ const infoCards = props => {
                 key={card.key}
                 onClick={() => {
                   if (card.rackOpen) {
-                    navigate('/batch-submit')
+                    navigate('/batch-submit/' + card.key)
                   } else {
                     props.clicked(card.key.toString())
                   }

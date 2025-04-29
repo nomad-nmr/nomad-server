@@ -1,6 +1,6 @@
 import React from 'react'
 import { Radio, Button, Space, Divider, Tooltip } from 'antd'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import {
   RollbackOutlined,
   DeleteOutlined,

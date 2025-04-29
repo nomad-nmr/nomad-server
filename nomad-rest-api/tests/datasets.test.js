@@ -26,17 +26,6 @@ vi.mock('../utils/nmriumUtils.js', async () => {
   }
 })
 
-// vi.mock('fs/promises')
-
-// vi.mock('jszip', async () => {
-//   const jszip = vi.fn(() => ({
-//     loadAsync: vi.fn(),
-//     generateNodeStream: vi.fn(() => ({ pipe: vi.fn(() => {}) }))
-//   }))
-//   jszip.loadAsync = vi.fn(() => ({ files: [], generateAsync: vi.fn() }))
-//   return { default: jszip, loadAsync: vi.fn(), generateNodeStream: vi.fn() }
-// })
-
 beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
@@ -151,7 +140,6 @@ describe('GET /api/data/dataset/:datasetId', () => {
     const filePath = path.join(process.env.DATASTORE_PATH, testExpOne.dataPath, testExpOne.expId)
     expect(getNMRiumDataObj).toHaveBeenCalledWith(filePath, testExpOne.title, false)
     expect(getNMRiumDataObj).toHaveBeenCalled(2)
-    // expect(getNMRiumDataObj).toHaveBeenNthCalledWith(2, filePath, testExpOne.title, true)
   })
 })
 
@@ -217,15 +205,6 @@ describe('GET /api/data/dataset-zip/:datasetId', () => {
       .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
       .expect(401)
   })
-
-  //Mocking JSZip is done but not really clear how to mock or test .pipe(res)
-  //
-  // it('should work', async () => {
-  //   const response = await request(app)
-  //     .get('/api/data/dataset-zip/' + testDatasetOne._id.toString())
-  //     .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
-  //     .expect(200)
-  // })
 })
 
 describe('GET /api/data/dataset-exps/:datasetId', () => {

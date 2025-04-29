@@ -1,5 +1,5 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { connect } from 'react-redux'
 import { PageHeader } from '@ant-design/pro-layout'
 
@@ -213,7 +213,7 @@ const PageHeaderEl = props => {
       avatarSrc = submitIcon
       break
 
-    case location.pathname === '/batch-submit':
+    case location.pathname.includes('/batch-submit'):
       headerTitle = 'Batch Submit'
       avatarSrc = batchSubmitIcon
       extra = (

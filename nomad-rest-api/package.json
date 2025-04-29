@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.6.0 - beta",
+  "version": "3.6.0-beta(3)",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",
@@ -18,9 +18,8 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt-salt": "^2.0.0",
-    "bcryptjs": "^2.4.3",
-    "body-parser": "^1.19.0",
-    "express": "^4.17.1",
+    "bcryptjs": "^3.0.2",
+    "express": "^5.1.0",
     "express-validator": "^7.0.1",
     "filelist-utils": "^1.9.0",
     "helmet": "^8.0.0",

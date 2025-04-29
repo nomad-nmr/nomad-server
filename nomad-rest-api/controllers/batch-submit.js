@@ -62,9 +62,21 @@ export const postRack = async (req, res) => {
   const errors = validationResult(req)
 
   try {
+    if (req.body.instrument) {
+      const rack = await Rack.findOne({ instrument: req.body.instrument, isOpen: true }).populate(
+        'instrument'
+      )
+      if (rack) {
+        errors.errors.push({
+          msg: `Error: Rack for instrument ${rack.instrument.name} is already open`
+        })
+      }
+    }
+
     if (!errors.isEmpty()) {
       return res.status(422).send(errors)
     }
+
     const mainTitle = req.body.title.toUpperCase()
     const title = req.body.sampleJet ? mainTitle + ' [SampleJet]' : mainTitle
     const newRackObj = { ...req.body, title }

@@ -10,7 +10,7 @@ import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testGroupTwo } from './fixtures/data/groups.js'
 import { testRackOne, testRackTwo, testRackThree } from './fixtures/data/racks.js'
-import { testInstrOne } from './fixtures/data/instruments.js'
+import { testInstrOne, testInstrTwo } from './fixtures/data/instruments.js'
 import { testParamSet1, testParamSet2 } from './fixtures/data/parameterSets.js'
 
 import Rack from '../models/rack.js'
@@ -116,7 +116,12 @@ describe('POST /racks', () => {
   it('should crate a new rack in DB assigned to test group two', async () => {
     const { body } = await request(app)
       .post('/api/batch-submit/racks')
-      .send({ title: 'New test rack', slotsNumber: 72, group: testGroupTwo._id })
+      .send({
+        title: 'New test rack',
+        rackType: 'Group',
+        slotsNumber: 72,
+        group: testGroupTwo._id
+      })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
@@ -129,20 +134,37 @@ describe('POST /racks', () => {
     expect(rack).toBeDefined()
   })
 
+  it('if should return error 422 if instrument type rack data being provided for test instrument one', async () => {
+    const { body } = await request(app)
+      .post('/api/batch-submit/racks')
+      .send({
+        title: 'New instrument type rack',
+        slotsNumber: 24,
+        rackType: 'Instrument',
+        instrument: testInstrOne._id
+      })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(422)
+
+    expect(body.errors[0].msg).toBe(
+      `Error: Rack for instrument ${testInstrOne.name} is already open`
+    )
+  })
+
   it('should crate a new instrument type rack in DB', async () => {
     const { body } = await request(app)
       .post('/api/batch-submit/racks')
       .send({
-        title: 'New all users rack',
+        title: 'New instrument type rack',
         slotsNumber: 72,
         rackType: 'Instrument',
-        instrument: testInstrOne._id
+        instrument: testInstrTwo._id
       })
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
     expect(body.group).not.toBeDefined()
-    expect(body.instrument).toBe(testInstrOne._id.toString())
+    expect(body.instrument).toBe(testInstrTwo._id.toString())
 
     //assessing change in DB
     const rack = await Rack.findById(body._id)
