@@ -14,6 +14,8 @@ import Collection from '../models/collection.js'
 import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import zipDataset from '../utils/zipDataset.js'
 
+const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
+
 export const postDataset = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -69,11 +71,7 @@ export const getDataset = async (req, res) => {
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
 
-        const filePath = path.join(
-          process.env.DATASTORE_PATH,
-          experiment.dataPath,
-          experiment.expId
-        )
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
         const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, i.info.isFid)
 

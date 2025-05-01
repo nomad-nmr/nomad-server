@@ -25,6 +25,8 @@ vi.mock('bcryptjs', () => {
 
 vi.mock('../utils/emailTransporter')
 
+const jwtExpiration = process.env.JWT_EXPIRATION || 3600
+
 describe('POST /api/auth/login', () => {
   it('should return object with user info if username and correct password of active user is provided', async () => {
     const { body } = await request(app)
@@ -131,7 +133,7 @@ describe('GET /api/auth/password-reset', () => {
     const token = await userOne.generateResetToken()
 
     const date = new Date()
-    const fakeDate = new Date(date.getTime() + process.env.JWT_EXPIRATION * 1000 + 10000000)
+    const fakeDate = new Date(date.getTime() + jwtExpiration * 1000 + 10000000)
     vi.useFakeTimers()
     vi.setSystemTime(fakeDate)
 
@@ -253,7 +255,7 @@ describe('POST /api/auth/new-password', () => {
     const token = await userOne.generateResetToken()
 
     const date = new Date()
-    const fakeDate = new Date(date.getTime() + process.env.JWT_EXPIRATION * 1000 + 10000000)
+    const fakeDate = new Date(date.getTime() + jwtExpiration * 1000 + 10000000)
     vi.useFakeTimers()
     vi.setSystemTime(fakeDate)
 

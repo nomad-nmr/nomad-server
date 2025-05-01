@@ -16,6 +16,8 @@ import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import { getGrantInfo } from '../utils/accountsUtils.js'
 import sendStatusEmail from './tracker/sendStatusEmail.js'
 
+const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
+
 export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
   try {
@@ -98,11 +100,7 @@ export const getExps = async (req, res) => {
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
 
-        const zipFilePath = path.join(
-          process.env.DATASTORE_PATH,
-          experiment.dataPath,
-          experiment.expId + '.zip'
-        )
+        const zipFilePath = path.join(datastorePath, experiment.dataPath, experiment.expId + '.zip')
 
         const zipFile = await fs.readFile(zipFilePath)
         const zipObject = await JSZip.loadAsync(zipFile)
@@ -136,11 +134,7 @@ export const getNMRium = async (req, res) => {
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
 
-        const filePath = path.join(
-          process.env.DATASTORE_PATH,
-          experiment.dataPath,
-          experiment.expId
-        )
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
         const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title)
 
@@ -177,11 +171,7 @@ export const getPDF = async (req, res) => {
       console.log('Error: experiment not found')
       return sendStatus(404)
     }
-    const zipFilePath = path.join(
-      process.env.DATASTORE_PATH,
-      experiment.dataPath,
-      experiment.expId + '.zip'
-    )
+    const zipFilePath = path.join(datastorePath, experiment.dataPath, experiment.expId + '.zip')
     const zipFile = await fs.readFile(zipFilePath)
 
     let zip = new JSZip()
@@ -258,11 +248,7 @@ export const getFids = async (req, res) => {
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
 
-        const filePath = path.join(
-          process.env.DATASTORE_PATH,
-          experiment.dataPath,
-          experiment.expId
-        )
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
         const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, true)
 
@@ -308,11 +294,7 @@ export const getExpsFromDatasets = async (req, res) => {
             ? await Experiment.findById(expId)
             : await ManualExperiment.findById(expId)
 
-        const filePath = path.join(
-          process.env.DATASTORE_PATH,
-          experiment.dataPath,
-          experiment.expId
-        )
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
         const rawNMRiumDataObj = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
 
         //adding extracted data into NMRIum object

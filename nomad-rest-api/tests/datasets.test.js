@@ -30,6 +30,8 @@ beforeAll(connectDB)
 afterAll(dropDB)
 beforeEach(setupDB)
 
+const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
+
 describe('POST /api/data/dataset', () => {
   it('should fail with error 403 if request is not authorised', async () => {
     await request(app).post('/api/data/dataset').expect(403)
@@ -137,7 +139,7 @@ describe('GET /api/data/dataset/:datasetId', () => {
       tags: ['test']
     })
 
-    const filePath = path.join(process.env.DATASTORE_PATH, testExpOne.dataPath, testExpOne.expId)
+    const filePath = path.join(datastorePath, testExpOne.dataPath, testExpOne.expId)
     expect(getNMRiumDataObj).toHaveBeenCalledWith(filePath, testExpOne.title, false)
     expect(getNMRiumDataObj).toHaveBeenCalled(2)
   })
@@ -235,7 +237,7 @@ describe('GET /api/data/dataset-exps/:datasetId', () => {
 
     const body = JSON.parse(resp.text)
     expect(body.data.spectra.length).toBe(2)
-    const filePath = path.join(process.env.DATASTORE_PATH, testExpOne.dataPath, testExpOne.expId)
+    const filePath = path.join(datastorePath, testExpOne.dataPath, testExpOne.expId)
     expect(getNMRiumDataObj).toHaveBeenCalledWith(filePath, testExpOne.title, false)
     expect(getNMRiumDataObj).toHaveBeenCalled(2)
   })

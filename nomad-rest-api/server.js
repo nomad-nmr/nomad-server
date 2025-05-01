@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs'
 import BcryptSalt from 'bcrypt-salt'
 
 const port = process.env.PORT || 8080
+//setting express server host to listen on specific network
+//defaulting to listen on all networks
 const host = process.env.HOST || '0.0.0.0'
 
 import User from './models/user.js'
@@ -15,7 +17,7 @@ mongoose.set('returnOriginal', false)
 mongoose.set('strictQuery', true)
 
 if (process.env.NODE_ENV !== 'test') {
-  mongoose.connect(process.env.MONGODB_URL).then(async () => {
+  mongoose.connect(process.env.MONGODB_URL || 'mongodb://mongodb:27017/nomad').then(async () => {
     console.log('DB connected')
     //CReating default group and admin user (TODO: refactor into utility function that can be used in tracker auto-feed )
     try {

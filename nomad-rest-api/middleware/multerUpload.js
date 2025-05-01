@@ -6,13 +6,13 @@ import moment from 'moment'
 import { access, mkdir } from 'fs/promises'
 
 const pathDate = moment().format('YYYY-MM')
+const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
 
 const storage = diskStorage({
   destination: async (req, file, cb) => {
     const { group, datasetName } = req.body
-    const datastoreRootPath = process.env.DATASTORE_PATH ? process.env.DATASTORE_PATH : 'data'
     const relativePath = join(group, pathDate, datasetName)
-    const storagePath = join(datastoreRootPath, relativePath)
+    const storagePath = join(datastorePath, relativePath)
 
     try {
       await access(storagePath)

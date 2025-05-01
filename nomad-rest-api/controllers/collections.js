@@ -12,6 +12,8 @@ import { getDatasetResp } from './datasets.js'
 import zipDataset from '../utils/zipDataset.js'
 import transporter from '../utils/emailTransporter.js'
 
+const downloadsPath = process.env.DOWNLOADS_PATH || '/app/downloads'
+
 export const postCollection = async (req, res) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
@@ -255,14 +257,14 @@ export const getZip = async (req, res) => {
     )
 
     const uuid = uuidv4()
-    const uuidPath = path.join(process.env.DOWNLOADS_PATH, uuid)
+    const uuidPath = path.join(downloadsPath, uuid)
 
     await mkdir(uuidPath)
 
     const sanitisedTitle = collection.title.replace(/[\/\\]/, '_') + '.zip'
     const zipPath = path.join(uuidPath, sanitisedTitle)
 
-    const downloadTimeout = +process.env.COLLECTION_DOWNLOAD_TIMEOUT || 900000
+    const downloadTimeout = +process.env.COLLECTION_DOWNLOAD_TIMEOUT || 30
 
     mainZip
       .generateNodeStream({ type: 'nodebuffer', streamFiles: true })
@@ -277,14 +279,14 @@ export const getZip = async (req, res) => {
           <p><a href="${
             process.env.FRONT_HOST_URL
           }/downloads/${uuid}/${sanitisedTitle}">Download Collection Link</a></p>
-          <p>Please note that the link is valid for ${downloadTimeout / 60000} minutes only</p>
+          <p>Please note that the link is valid for ${downloadTimeout} minutes only</p>
           `
         })
       })
 
     setTimeout(() => {
       fs.rmSync(uuidPath, { recursive: true, force: true })
-    }, downloadTimeout)
+    }, downloadTimeout * 60000)
 
     res.status(200).json({ email: user.email, title: collection.title })
   } catch (error) {
