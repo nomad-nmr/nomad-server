@@ -42,6 +42,13 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
           console.log(`AUTO-FEED: New group ${group.groupName} was created`)
         }
 
+        if (!rawHistItemObj.username) {
+          throw new Error(
+            `ERROR: Username is missing. ${rawHistItemObj.datasetName} is likely not the valid NOMAD dataset name and username could not be parsed
+            AUTO-FEED only works with NOMAD dataset names in format generic format XXX-XXX-username (for example $NUMERICDATE-$HOLDER-username)`
+          )
+        }
+
         //AUTO-FEED for user
         let user = await User.findOne({ username: rawHistItemObj.username.toLowerCase() })
         if (!user) {

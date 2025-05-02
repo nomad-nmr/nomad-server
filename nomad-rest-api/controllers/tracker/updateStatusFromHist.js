@@ -81,12 +81,19 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               batchSubmit
             }
           } else {
-            console.log(`Entry with expId ${expId} not found! AUTO-FEED`)
-            await expHistAutoFeed(
-              { name: instrument.name, id: instrument._id },
-              statusTable,
-              historyTable
+            console.log(
+              `Entry with expId ${expId} not found in the database! The experiment was not submitted through NOMAD.`
             )
+
+            if (process.env.AUTO_FEED_ON === 'true') {
+              console.log('Starting expHistAutoFeed')
+
+              await expHistAutoFeed(
+                { name: instrument.name, id: instrument._id },
+                statusTable,
+                historyTable
+              )
+            }
             return entry
           }
         } else {
