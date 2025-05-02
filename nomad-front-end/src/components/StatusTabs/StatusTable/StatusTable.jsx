@@ -200,9 +200,10 @@ const StatusTable = props => {
     getCheckboxProps: record => ({
       disabled:
         !props.accessLvl ||
-        record.status === 'Running' ||
         (props.accessLvl !== 'admin' &&
-          (record.status === 'Error' || record.username !== props.username))
+          (record.status === 'Error' ||
+            record.status === 'Running' ||
+            record.username !== props.username))
     }),
 
     onChange: selectedRowKeys => {
