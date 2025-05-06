@@ -50,7 +50,7 @@ export const updateStatus = async (req, res) => {
     const daySamples = new Set()
 
     newStatusObj.statusTable.forEach(entry => {
-      if (entry.status === 'Submitted') {
+      if (entry && entry.status === 'Submitted') {
         if (entry.night) {
           nightSamples.add(entry.datasetName)
         } else {
