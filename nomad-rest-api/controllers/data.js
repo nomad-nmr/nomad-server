@@ -22,11 +22,11 @@ export const postData = async (req, res) => {
   const { datasetName, expNo, dataPath } = req.body
   try {
     const experiment = await Experiment.findOne({ expId: datasetName + '-' + expNo })
+    if (!experiment) {
+      throw new Error('Experiment not found in database')
+    }
     const instrument = await Instrument.findById(experiment.instrument.id)
 
-    if (!experiment) {
-      throw new Error('Experiment not found in Database')
-    }
     experiment.dataPath = dataPath
     experiment.status = 'Archived'
 

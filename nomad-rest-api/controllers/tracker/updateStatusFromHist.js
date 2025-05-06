@@ -17,9 +17,13 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
         )
 
         //
-        if (!oldEntry || oldEntry.status !== entry.status) {
+        if (
           //looking for expHistEntry only if status has changed to reduce number of DB queries
-
+          !oldEntry ||
+          oldEntry.status !== entry.status ||
+          // avoiding rewriting status if experiment canceled through IconNMR
+          (oldEntry.status !== 'Available' && entry.status === 'Available')
+        ) {
           const historyTableItem = historyTable.find(
             i => i.datasetName === entry.datasetName && i.expNo === entry.expNo
           )
