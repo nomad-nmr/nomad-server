@@ -28,7 +28,7 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
 
           //avoiding to updated status to "Available" if experiment is canceled through IconNMR
           let updatedStatus = entry.status
-          if (oldEntry.status !== 'Available' && entry.status === 'Available') {
+          if (oldEntry && oldEntry.status !== 'Available' && entry.status === 'Available') {
             updatedStatus = oldEntry.status
           }
 
