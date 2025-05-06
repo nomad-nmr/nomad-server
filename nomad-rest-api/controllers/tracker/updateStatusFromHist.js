@@ -22,17 +22,18 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
           !oldEntry ||
           oldEntry.status !== entry.status
         ) {
-          // avoiding rewriting status if experiment canceled through IconNMR
-          if (oldEntry.status !== 'Available' && entry.status === 'Available') {
-            return entry
-          }
-
           const historyTableItem = historyTable.find(
             i => i.datasetName === entry.datasetName && i.expNo === entry.expNo
           )
 
+          //avoiding to updated status to "Available" if experiment is canceled through IconNMR
+          let updatedStatus = entry.status
+          if (oldEntry.status !== 'Available' && entry.status === 'Available') {
+            updatedStatus = oldEntry.status
+          }
+
           const updateObj = {
-            status: entry.status,
+            status: updatedStatus,
             expTime: entry.time,
             remarks: historyTableItem && historyTableItem.remarks,
             load: historyTableItem && historyTableItem.load,
