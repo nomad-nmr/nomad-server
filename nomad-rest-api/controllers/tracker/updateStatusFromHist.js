@@ -77,9 +77,7 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               sendStatusEmail.pending(datasetName, instrument._id)
             }
 
-            const expHistUpdated = { ...expHistEntry, ...updateObj }
-
-            await expHistUpdated.save()
+            await Experiment.findByIdAndUpdate(expHistEntry._id, updateObj)
 
             const { solvent, parameters, night, priority, submittedAt, updatedAt, batchSubmit } =
               expHistEntry
