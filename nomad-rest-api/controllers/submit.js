@@ -296,6 +296,12 @@ export const postPending = async (req, res) => {
 export const getAllowance = async (req, res) => {
   try {
     const respArr = []
+
+    if (req.query.instrIds === undefined) {
+      console.log('Error : Cannot fetch allowance data, instrIds query parameter is required')
+      return res.status(400).send('instrIds query parameter is required')
+    }
+
     const instrIds = req.query.instrIds.split(',')
 
     await Promise.all(

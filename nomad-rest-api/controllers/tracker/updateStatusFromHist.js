@@ -17,8 +17,16 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
         )
 
         //
-        if (!oldEntry || oldEntry.status !== entry.status) {
+        if (
           //looking for expHistEntry only if status has changed to reduce number of DB queries
+          !oldEntry ||
+          oldEntry.status !== entry.status
+        ) {
+          //avoiding to update status to "Available" if experiment is canceled through IconNMR
+          //this is to avoid disappearing of archived experiments from the experiment search
+          if (oldEntry && oldEntry.status !== 'Available' && entry.status === 'Available') {
+            return oldEntry
+          }
 
           const historyTableItem = historyTable.find(
             i => i.datasetName === entry.datasetName && i.expNo === entry.expNo
@@ -39,37 +47,44 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
 
           const { datasetName, expNo, group } = entry
 
-          if (oldEntry) {
-            if (oldEntry.status === 'Available') {
-              updateObj.submittedAt = new Date()
-            }
-
-            if (oldEntry.status === 'Running' && entry.status === 'Completed') {
-              //sending message to client through socket to upload data
-              if (process.env.DATASTORE_ON === 'true' || !process.env.DATASTORE_ON) {
-                sendUploadCmd(
-                  instrument._id.toString(),
-                  { datasetName, expNo, group },
-                  'upload-auto'
-                )
-              }
-            }
-
-            if (oldEntry.status === 'Running' && entry.status === 'Error') {
-              sendStatusEmail.error(datasetName)
-            }
-
-            if (oldEntry.status !== 'Running' && entry.status === 'Running')
-              updateObj.runningAt = new Date()
-          } else if (entry.status === 'Available' && expNo === '10') {
-            // sending pending status email for first experiment of dataset/holder
-            sendStatusEmail.pending(datasetName, instrument._id)
-          }
-          const expHistEntry = await Experiment.findOneAndUpdate({ expId }, updateObj)
+          const expHistEntry = await Experiment.findOne({ expId })
 
           if (expHistEntry) {
+            if (oldEntry) {
+              if (oldEntry.status === 'Available') {
+                updateObj.submittedAt = new Date()
+              }
+
+              if (oldEntry.status === 'Running' && entry.status === 'Completed') {
+                //sending message to client through socket to upload data
+                if (process.env.DATASTORE_ON !== 'false') {
+                  sendUploadCmd(
+                    instrument._id.toString(),
+                    { datasetName, expNo, group },
+                    'upload-auto'
+                  )
+                }
+              }
+
+              if (oldEntry.status === 'Running' && entry.status === 'Error') {
+                sendStatusEmail.error(datasetName)
+              }
+
+              if (oldEntry.status !== 'Running' && entry.status === 'Running')
+                updateObj.runningAt = new Date()
+            } else if (entry.status === 'Available' && expNo === '10') {
+              // sending pending status email for first experiment of dataset/holder
+              sendStatusEmail.pending(datasetName, instrument._id)
+            }
+
+            const updatedExpHistEntry = await Experiment.findByIdAndUpdate(
+              expHistEntry._id,
+              updateObj
+            )
+
             const { solvent, parameters, night, priority, submittedAt, updatedAt, batchSubmit } =
-              expHistEntry
+              updatedExpHistEntry
+
             return {
               ...entry,
               solvent,
@@ -81,12 +96,19 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               batchSubmit
             }
           } else {
-            console.log(`Entry with expId ${expId} not found! AUTO-FEED`)
-            await expHistAutoFeed(
-              { name: instrument.name, id: instrument._id },
-              statusTable,
-              historyTable
+            console.log(
+              `Entry with expId ${expId} not found in the database! The experiment was not submitted through NOMAD.`
             )
+
+            if (process.env.AUTO_FEED_ON === 'true') {
+              console.log('Starting expHistAutoFeed')
+
+              await expHistAutoFeed(
+                { name: instrument.name, id: instrument._id },
+                statusTable,
+                historyTable
+              )
+            }
             return entry
           }
         } else {

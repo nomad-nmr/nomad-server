@@ -7,6 +7,7 @@ import User from '../models/user.js'
 import transporter from '../utils/emailTransporter.js'
 
 const { verify } = jsonwebtoken
+const jwtExpiration = process.env.JWT_EXPIRATION || 3600
 
 export const authLoginOpenApiDoc = {
   post: {
@@ -93,7 +94,7 @@ export async function postLogin(req, res) {
       manualAccess: user.manualAccess,
       groupName: user.group.groupName,
       token: token,
-      expiresIn: +process.env.JWT_EXPIRATION,
+      expiresIn: +jwtExpiration,
       customSolvents: process.env.CUSTOM_SOLVENTS ? process.env.CUSTOM_SOLVENTS.split(',') : []
     })
   } catch (error) {
@@ -122,7 +123,7 @@ export async function postPasswdReset(req, res) {
       html: `<p>Dear user ${user.fullName ? user.fullName : user.username}</p>
 			<p>Use the link bellow to reset your NOMAD-3 password or register a new account</p>
 			<p><a href="${process.env.FRONT_HOST_URL}/reset/${token}">Reset Password Link</a></p>
-			<p>Please note that the link is valid for ${+process.env.JWT_EXPIRATION / 60} minutes only</p>
+			<p>Please note that the link is valid for ${+jwtExpiration / 60} minutes only</p>
 			`
     })
     res.send({ username: user.username, email: user.email })

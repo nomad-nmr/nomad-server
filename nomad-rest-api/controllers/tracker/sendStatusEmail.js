@@ -7,6 +7,10 @@ import instrument from '../../models/instrument.js'
 const sendStatusEmail = {
   error: async datasetName => {
     const errorExp = await Experiment.findOne({ datasetName, status: 'Error' })
+    if (!errorExp) {
+      console.log(`Error experiment ${datasetName} not found in DB`)
+      return
+    }
     const { instrument, remarks, holder, user, title } = errorExp
     const { email, fullName, sendStatusEmail } = await User.findById(user.id)
     if (!email) {

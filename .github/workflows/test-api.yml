@@ -8,12 +8,8 @@ on:
 jobs:
   test:
     env:
-      PORT: 8080
-      MONGODB_URL: 'mongodb://mongodb:27017/nomad'
-      HOST: '0.0.0.0'
       FRONT_HOST_URL: 'http://localhost:3003'
       ADMIN_PASSWORD: 'password'
-      JWT_EXPIRATION: 36000
       JWT_SECRET: 'secret'
       EMAIL_SUFFIX: 'email.com'
       SMTP_HOST: '###'
@@ -23,12 +19,7 @@ jobs:
       SMTP_USER: '###'
       SMTP_PASS: '###'
       SMTP_SENDER: '###'
-      SUBMIT_ON: true
-      DATASTORE_ON: true,
-      DATASTORE_PATH: '/app/datastore'
-      DOWNLOADS_PATH: '/app/downloads'
-      DATA_UPLOAD_TIMEOUT: 30000
-      COLLECTION_DOWNLOAD_TIMEOUT: 900000
+
     runs-on: ubuntu-latest
     steps:
       - name: Get Code

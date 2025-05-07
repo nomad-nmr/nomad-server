@@ -85,7 +85,7 @@ const userSchema = new Schema(
 userSchema.methods.generateAuthToken = async function () {
   const user = this
   const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET, {
-    expiresIn: +process.env.JWT_EXPIRATION
+    expiresIn: +process.env.JWT_EXPIRATION || 3600
   })
 
   user.tokens.push({ token })
@@ -106,7 +106,7 @@ userSchema.methods.removeAuthTokens = async function (token) {
 userSchema.methods.generateResetToken = async function () {
   const user = this
   const token = jwt.sign({ _id: user._id.toString() }, user.password, {
-    expiresIn: +process.env.JWT_EXPIRATION
+    expiresIn: +process.env.JWT_EXPIRATION || 3600
   })
   user.resetToken = token
   await user.save()

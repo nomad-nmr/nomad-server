@@ -7,6 +7,8 @@ import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 
+const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
+
 const zipDataset = async (jszipfile, datasetId) => {
   try {
     const dataset = await Dataset.findById(datasetId)
@@ -23,7 +25,7 @@ const zipDataset = async (jszipfile, datasetId) => {
           const { datasetName, expNo } = experiment
 
           const zipFilePath = path.join(
-            process.env.DATASTORE_PATH,
+            datastorePath,
             experiment.dataPath,
             experiment.expId + '.zip'
           )

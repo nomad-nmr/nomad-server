@@ -42,6 +42,13 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
           console.log(`AUTO-FEED: New group ${group.groupName} was created`)
         }
 
+        if (!rawHistItemObj.username) {
+          throw new Error(
+            `ERROR: Username is missing. ${rawHistItemObj.datasetName} is likely not the valid NOMAD dataset name and username could not be parsed
+            AUTO-FEED only works with NOMAD dataset names in format generic format XXX-XXX-username (for example $NUMERICDATE-$HOLDER-username)`
+          )
+        }
+
         //AUTO-FEED for user
         let user = await User.findOne({ username: rawHistItemObj.username.toLowerCase() })
         if (!user) {
@@ -91,14 +98,14 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         }
 
         //Console log for debugging saving experiments in DB with duplicate key after server restart
-        if (process.env.SUBMIT_ON === 'true' || !process.env.SUBMIT_ON) {
+        if (process.env.SUBMIT_ON !== 'false') {
           console.log('!!!!!!!AUTO-FEED - saving new experiment!!!!')
         }
 
         //sending message to client through socket to upload data when experiment is completed
         if (
           newHistItem.status === 'Completed' &&
-          (process.env.DATASTORE_ON === 'true' || !process.env.DATASTORE_ON) &&
+          process.env.DATASTORE_ON !== 'false' &&
           process.env.SUBMIT_ON === 'false'
         ) {
           console.log('AUTO-FEED - sending upload command')
