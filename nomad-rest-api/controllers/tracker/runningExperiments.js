@@ -34,7 +34,8 @@ const runningExperiments = {
         ...this.state[index],
         datasetName: newRunningExp.datasetName,
         expNo: newRunningExp.expNo,
-        runningAt: new Date()
+        runningAt: new Date(),
+        group: newRunningExp.group
       }
       if (prevRunningExp.datasetName !== 'none') {
         return prevRunningExp
