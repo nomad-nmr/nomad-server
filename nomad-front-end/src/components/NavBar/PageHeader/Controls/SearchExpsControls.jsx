@@ -27,7 +27,7 @@ const SearchControls = props => {
       </div>
       <div>
         NOMAD keeps your NMR data <span style={spanStyle}>F.A.I.R</span> (
-        <span style={spanStyle}>F</span>aindable, <span style={spanStyle}>A</span>ccessible,{' '}
+        <span style={spanStyle}>F</span>indable, <span style={spanStyle}>A</span>ccessible,{' '}
         <span style={spanStyle}>I</span>nteroperable, <span style={spanStyle}>R</span>
         eusable).
       </div>
