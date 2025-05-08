@@ -47,7 +47,7 @@ const experimentSchema = new Schema(
     title: { type: String, required: true },
     night: Boolean,
     priority: Boolean,
-    submittedAt: Date,
+    submittedAt: { type: Date, default: null },
     runningAt: Date,
     expTime: String,
     //total experimental time
