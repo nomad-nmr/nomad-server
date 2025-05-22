@@ -15,7 +15,7 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
 
     //If nmr-load-save is updated you can check version of nmrium object here
 
-    //console.log(nmriumObj)
+    // console.log(nmriumObj)
 
     //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
@@ -61,4 +61,4 @@ export const validateNMRiumData = input => {
   )
 }
 
-export const nmriumDataVersion = 7
+export const nmriumDataVersion = 8
