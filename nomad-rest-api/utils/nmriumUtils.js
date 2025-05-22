@@ -1,7 +1,6 @@
-import fs from 'fs/promises'
-
-import { read } from 'nmr-load-save'
-import { fileCollectionFromZip } from 'filelist-utils'
+// import fs from 'fs/promises'
+import init from '@zakodium/nmrium-core-plugins'
+import { fileCollectionFromPath } from 'filelist-utils'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
@@ -9,9 +8,10 @@ import ManualExperiment from '../models/manualExperiment.js'
 //helper function that converts brukerZipFile into NMRium object
 export const getNMRiumDataObj = async (dataPath, title, fid) => {
   try {
-    const zip = await fs.readFile(dataPath + '.zip')
-    const fileCollection = await fileCollectionFromZip(zip)
-    const nmriumObj = await read(fileCollection)
+    const core = init()
+    // const zip = await fs.readFile(dataPath + '.zip')
+    const fileCollection = await fileCollectionFromPath(dataPath + '.zip')
+    const nmriumObj = await core.read(fileCollection)
 
     //If nmr-load-save is updated you can check version of nmrium object here
 
@@ -61,4 +61,4 @@ export const validateNMRiumData = input => {
   )
 }
 
-export const nmriumDataVersion = 8
+export const nmriumDataVersion = 9
