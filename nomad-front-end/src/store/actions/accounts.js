@@ -16,6 +16,11 @@ export const setTableHeader = payload => ({
   payload
 })
 
+export const searchDescription = payload => ({
+  type: actionTypes.SEARCH_DESCRIPTION,
+  payload
+})
+
 export const fetchCosts = (token, searchParams) => {
   const payload = searchParams.groupId ? 'User Name' : 'Group Name'
   return dispatch => {

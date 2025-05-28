@@ -102,7 +102,7 @@ const MainMenu = props => {
       onClick={e => navigate(e.keyPath[0])}
       selectable={false}
       disabledOverflow={true}
-      style={{ marginRight: 30 }}
+      style={{ marginRight: 30, display: 'flex' }}
       selectedKeys={[location.pathname]}
       items={items}
     />

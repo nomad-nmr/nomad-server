@@ -134,7 +134,7 @@ const App = props => {
         <Affix>
           <Header
             className={classes.Header}
-            style={{ background: '#ffffff', paddingLeft: 0, paddingRight: 30 }}
+            style={{ background: '#ffffff', paddingLeft: 0, paddingRight: 30, height: 'fit-content' }}
           >
             <NavBar collapsed={adminMenuCollapsed} toggleClicked={toggleAdminMenu} />
           </Header>

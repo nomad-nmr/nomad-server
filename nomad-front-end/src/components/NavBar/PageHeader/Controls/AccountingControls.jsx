@@ -1,12 +1,13 @@
 import React from 'react'
-import { Button, Space, Divider } from 'antd'
+import { Button, Space, Divider, Input } from 'antd'
 import classes from '../PageHeader.module.css'
 import { CSVLink } from 'react-csv'
 import dayjs from 'dayjs'
 import { CloudDownloadOutlined } from '@ant-design/icons'
 
 const AccountingControls = props => {
-  const { setGrantsVisible, tableData, tableHeader, accType, groupName } = props
+  const { Search } = Input
+  const { setGrantsVisible, tableData, tableHeader, accType, groupName, searchHandler, searchDefValue } = props
   const standardColumns = {
     grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
   }
@@ -81,8 +82,8 @@ const AccountingControls = props => {
   }
 
   return (
-    <Space className={classes.ExtraContainer}>
-      <Button className={classes.Button} type='primary' onClick={() => props.toggleCostDrawer()}>
+    <Space className={{ ...classes.ExtraContainer }} style={{ flexWrap: 'wrap' }} >
+      <Button className={{ ...classes.Button, marginLeft: 0 }} type='primary' onClick={() => props.toggleCostDrawer()}>
         Set Instruments Costing
       </Button>
       <Divider type='vertical' />
@@ -94,13 +95,22 @@ const AccountingControls = props => {
           Add Grant
         </Button>
       )}
+
+      <Search
+        placeholder='search description'
+        allowClear
+        onSearch={searchHandler}
+        style={{ width: 160, marginLeft: '10px' }}
+        defaultValue={searchDefValue}
+      />
+
       <Divider type='vertical' />
+
       <CSVLink
         aria-disabled={!tableData[1]}
         data={dataParser(tableHeader, tableData, accType)}
-        filename={`${accType} Accounting ${
-          accType === 'Users' && groupName ? '[' + groupName + '] ' : ''
-        }${dayjs().format('DD-MM-YY HH_mm')} .csv`}
+        filename={`${accType} Accounting ${accType === 'Users' && groupName ? '[' + groupName + '] ' : ''
+          }${dayjs().format('DD-MM-YY HH_mm')} .csv`}
       >
         <Button icon={<CloudDownloadOutlined />}>Download CSV</Button>
       </CSVLink>

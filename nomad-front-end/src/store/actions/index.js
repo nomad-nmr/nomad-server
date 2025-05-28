@@ -145,7 +145,8 @@ export {
   updateGrant,
   fetchGrantsCosts,
   toggleSetGrantsTable,
-  toggleAddGrantModal
+  toggleAddGrantModal,
+  searchDescription
 } from './accounts'
 
 export {
