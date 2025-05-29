@@ -1,9 +1,19 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Table, Tag, Space, Button, Popconfirm } from 'antd'
 import { DeleteOutlined } from '@ant-design/icons'
 
 const SetGrantsTable = props => {
-  const { token } = props
+  const { token, data, searchTerm } = props
+  const [modifiedData, setModifiedData] = useState(data);
+  useEffect(()=>{
+    setModifiedData(data);
+    if (searchTerm.trim() !== '') {
+      const filteredData = data.filter(item => {
+        return item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1
+      })
+      setModifiedData(filteredData);
+    }
+  }, [data, searchTerm])
   const columns = [
     {
       title: 'Grant Code',
@@ -11,7 +21,9 @@ const SetGrantsTable = props => {
     },
     {
       title: 'Description',
-      dataIndex: 'description'
+      dataIndex: 'description',
+      sorter: (a, b) =>
+        (a.description || '').localeCompare(b.description || '')
     },
     {
       title: 'Costing multiplier',
@@ -78,7 +90,7 @@ const SetGrantsTable = props => {
 
   return (
     <div style={{ margin: '30px' }}>
-      <Table columns={columns} dataSource={props.data} pagination={false} size='small' />
+      <Table columns={columns} dataSource={modifiedData} pagination={false} size='small' />
     </div>
   )
 }

@@ -52,7 +52,8 @@ import {
   toggleAddGrantModal,
   usersDeleteHandler,
   bookSamples,
-  toggleSampleJetModal
+  toggleSampleJetModal,
+  searchDescription
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -283,6 +284,8 @@ const PageHeaderEl = props => {
           tableHeader={props.accountingTableHeader}
           setGrantsVisible={props.setGrantsVisible}
           accType={accountType}
+          searchHandler={props.descriptionSearchHandler}
+          searchDefValue={props.descriptionSearchValue}
           groupName={props.accountsGroupName}
         />
       )
@@ -392,6 +395,7 @@ const mapStateToProps = state => {
     instrId: state.paramSets.instrumentId,
     paramsSearchValue: state.paramSets.searchValue,
     usrSearchValue: state.users.searchUserValue,
+    descriptionSearchValue: state.accounts.descriptionSearchValue,
     paramsFormVisible: state.paramSets.formVisible,
     username: state.auth.username,
     grpName: state.auth.groupName,
@@ -438,6 +442,7 @@ const mapDispatchToProps = dispatch => {
     toggleShowInactiveGrps: () => dispatch(toggleShowInactiveGroups()),
     setExpHistoryDate: date => dispatch(setExpHistoryDate(date)),
     userSearchHandler: value => dispatch(searchUser(value)),
+    descriptionSearchHandler: value => dispatch(searchDescription(value)),
     setInstrId: id => dispatch(setInstrumentId(id)),
     paramSetSearchHandler: value => dispatch(searchParamSets(value)),
     tglParamsForm: editing => dispatch(toggleParamsForm(editing)),
