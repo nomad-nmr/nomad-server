@@ -30,7 +30,7 @@ import {
 import classes from './Accounts.module.css'
 
 const Accounts = props => {
-  const { fetchGrpList, authToken, grpList, tableData, resetTable, fetchCosting, accountsType } =
+  const { fetchGrpList, authToken, grpList, descriptionSearchValue, tableData, resetTable, fetchCosting, accountsType } =
     props
 
   const [usrGrpTags, setUsrGrpTags] = useState([])
@@ -102,6 +102,7 @@ const Accounts = props => {
             data={props.grantsData}
             deleteHandler={props.delGrant}
             token={authToken}
+            searchTerm={descriptionSearchValue}
             formHandler={props.tglGrantForm}
             formRef={formRef}
             setTagsState={setUsrGrpTags}
@@ -158,6 +159,7 @@ const mapStateToProps = state => ({
   instrumentsCosting: state.accounts.costingData,
   accountsType: state.accounts.type,
   grantsData: state.accounts.grantsData,
+  descriptionSearchValue: state.accounts.descriptionSearchValue,
   setGrantsVisible: state.accounts.showSetGrants,
   grantFormVisible: state.accounts.showAddGrant,
   noGrantsData: state.accounts.noGrantsAlert

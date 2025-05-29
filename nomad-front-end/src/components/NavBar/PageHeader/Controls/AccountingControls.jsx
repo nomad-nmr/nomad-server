@@ -1,12 +1,22 @@
-import React from 'react'
-import { Button, Space, Divider } from 'antd'
-import classes from '../PageHeader.module.css'
+import React, { Fragment } from 'react'
+import { Button, Space, Divider, Input } from 'antd'
 import { CSVLink } from 'react-csv'
 import dayjs from 'dayjs'
 import { CloudDownloadOutlined } from '@ant-design/icons'
 
+import classes from '../PageHeader.module.css'
+
 const AccountingControls = props => {
-  const { setGrantsVisible, tableData, tableHeader, accType, groupName } = props
+  const { Search } = Input
+  const {
+    setGrantsVisible,
+    tableData,
+    tableHeader,
+    accType,
+    groupName,
+    searchHandler,
+    searchDefValue
+  } = props
   const standardColumns = {
     grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
   }
@@ -80,21 +90,25 @@ const AccountingControls = props => {
     return rows
   }
 
-  return (
-    <Space className={classes.ExtraContainer}>
-      <Button className={classes.Button} type='primary' onClick={() => props.toggleCostDrawer()}>
+  let controlElements = (
+    <Fragment>
+      <Button
+        className={{ ...classes.Button }}
+        style={{ marginLeft: '10px' }}
+        type='primary'
+        onClick={() => props.toggleCostDrawer()}
+      >
         Set Instruments Costing
       </Button>
-      <Divider type='vertical' />
-      <Button type={!setGrantsVisible && 'primary'} onClick={() => props.toggleSetGrants()}>
-        {setGrantsVisible ? 'Close & Return' : 'Set Grants'}
+      <Button
+        type={'primary'}
+        onClick={() => props.toggleSetGrants()}
+        style={{ marginLeft: '10px' }}
+      >
+        Set Grants
       </Button>
-      {setGrantsVisible && (
-        <Button type='primary' onClick={() => props.toggleAddGrant()}>
-          Add Grant
-        </Button>
-      )}
       <Divider type='vertical' />
+
       <CSVLink
         aria-disabled={!tableData[1]}
         data={dataParser(tableHeader, tableData, accType)}
@@ -102,8 +116,44 @@ const AccountingControls = props => {
           accType === 'Users' && groupName ? '[' + groupName + '] ' : ''
         }${dayjs().format('DD-MM-YY HH_mm')} .csv`}
       >
-        <Button icon={<CloudDownloadOutlined />}>Download CSV</Button>
+        <Button disabled={!tableData[1]} icon={<CloudDownloadOutlined />}>
+          Download CSV
+        </Button>
       </CSVLink>
+    </Fragment>
+  )
+
+  if (setGrantsVisible) {
+    controlElements = (
+      <Fragment>
+        <Button
+          type='primary'
+          onClick={() => props.toggleAddGrant()}
+          style={{ marginLeft: '10px' }}
+        >
+          Add Grant
+        </Button>
+        <Search
+          placeholder='description'
+          allowClear
+          onSearch={searchHandler}
+          style={{ width: 150, marginLeft: '10px' }}
+          defaultValue={searchDefValue}
+        />
+        <Divider type='vertical' />
+        <Button
+          className={{ ...classes.Button, marginLeft: '10px' }}
+          onClick={() => props.toggleSetGrants()}
+        >
+          Close & Return
+        </Button>
+      </Fragment>
+    )
+  }
+
+  return (
+    <Space className={{ ...classes.ExtraContainer }} style={{ flexWrap: 'wrap' }}>
+      {controlElements}
     </Space>
   )
 }
