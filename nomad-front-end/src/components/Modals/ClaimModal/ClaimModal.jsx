@@ -1,11 +1,18 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Input, InputNumber } from 'antd'
+import { Modal, Form, Input, InputNumber, Select } from 'antd'
 import moment from 'moment'
 
 const ClaimModal = props => {
-  const { checked, open, accessLevel, instrumentId, token, user } = props
+  const { checked, open, accessLevel, updateUserId, instrumentId, token, userid,  user, userList, canClaimForOthers } = props
 
   const [form] = Form.useForm()
+
+  const userOptions = (!canClaimForOthers ? [user] :  [user, ...userList])
+  .map(i => (
+    <Option value={i._id} key={i._id}>
+      {`[${i.username}] ${i.fullName}`}
+    </Option>
+  ))
 
   useEffect(() => {
     if (checked.length > 0 && open) {
@@ -25,10 +32,14 @@ const ClaimModal = props => {
     expsArr = [...expsArr, ...entry.exps]
   })
 
+  const userSelectHandler = (newid) => {
+    updateUserId(newid);
+  }
+
   const processForm = () => {
-    const values = form.getFieldsValue()
+    const values = form.getFieldsValue();
     props.claimHandler(token, {
-      userId: user._id,
+      userId: userid,
       instrumentId,
       expsArr,
       expTime: values.totalExpT,
@@ -37,6 +48,7 @@ const ClaimModal = props => {
     props.toggleModal()
   }
 
+  //TODO, MAKE THE CHANGE HANDLER BETTER QUALITY
   return (
     <Modal
       title='Manual Data Claim'
@@ -46,7 +58,9 @@ const ClaimModal = props => {
     >
       <Form form={form} style={{ marginTop: '20px' }}>
         <Form.Item name='user' label='User'>
-          <Input disabled />
+             <Select  disabled={!canClaimForOthers} onChange={userSelectHandler} style={{ width: 250 }} >
+                     {userOptions}
+            </Select>
         </Form.Item>
         <Form.Item name='note' label='Note'>
           <Input />

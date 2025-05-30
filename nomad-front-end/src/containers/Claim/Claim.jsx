@@ -37,11 +37,6 @@ const Claim = props => {
 
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
 
-  const findUser = userId => {
-    if (userId) {
-      return props.usrList.find(user => user._id === userId)
-    } else return { fullName: ' ', username }
-  }
 
   return (
     <div className={classes.Container}>
@@ -81,8 +76,13 @@ const Claim = props => {
         open={props.showModal}
         toggleModal={props.tglClaimModal}
         checked={checked}
+        userList={props.usrList}
+        updateUserId={props.updateUser}
+        userid={props.userId}
+        canClaimForOthers={props.accessLevel === 'admin'}
         accessLevel={props.accessLevel}
-        user={findUser(props.userId)}
+       //the following allows anyone, admin or non-admin to claim for himself
+        user={{ fullName: 'Self', username }}
         instrumentId={props.instrId}
         claimHandler={props.submitClaim}
         token={props.authToken}

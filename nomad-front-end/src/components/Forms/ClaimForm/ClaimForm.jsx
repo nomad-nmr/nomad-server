@@ -56,6 +56,7 @@ const ClaimForm = props => {
               fetchUsrListHandler={props.onGrpChange}
               token={props.token}
               formRef={formReference}
+              needUserSelection={false}
             />
           )}
           <Form.Item>
