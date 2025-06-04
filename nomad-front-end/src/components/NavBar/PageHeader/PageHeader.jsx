@@ -299,8 +299,6 @@ const PageHeaderEl = props => {
         <ClaimControls
           token={props.authToken}
           checked={props.claimChecked}
-          userId={props.claimUserId}
-          accessLevel={props.accessLevel}
           showArchived={props.showArchived}
           showArchivedHandler={props.tglShowArchived}
           claimId={props.claimId}
