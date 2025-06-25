@@ -9,8 +9,7 @@ const SelectGrpUsr = props => {
     fetchGrpListHandler,
     token,
     formRef,
-    dataAccessLvl,
-    needUserSelection = true
+    dataAccessLvl
   } = props
 
   let groupList = props.groupList
@@ -43,8 +42,7 @@ const SelectGrpUsr = props => {
     </Option>
   ))
 
-  //no need for finding users if you dont need them
-  const usrOptions = (!needUserSelection ? [] : userList).map(i => (
+  const usrOptions = userList.map(i => (
     <Option value={i._id} key={i._id}>
       {`[${i.username}] ${i.fullName}`}
     </Option>
@@ -106,15 +104,11 @@ const SelectGrpUsr = props => {
           />
         </Form.Item>
       )}
-      {
-        needUserSelection && (
-          <Form.Item label='Username' name='userId'>
-          <Select style={{ width: 250 }} disabled={legacy || props.disabled}>
-            {usrOptions}
-          </Select>
-        </Form.Item>
-        )
-      }
+      <Form.Item label='Username' name='userId'>
+        <Select style={{ width: 250 }} disabled={legacy || props.disabled}>
+          {usrOptions}
+        </Select>
+      </Form.Item>
       {props.legacySwitch && (dataAccessLvl === 'group' || dataAccessLvl === 'admin-b') ? (
         <Form.Item
           label='Legacy'
