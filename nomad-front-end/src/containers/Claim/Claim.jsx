@@ -13,7 +13,6 @@ import {
   resetClaim,
   updateCheckedClaimExps,
   updateCheckedClaimDatasets,
-  updateClaimUser,
   resetFoldersData,
   resetClaimProgress,
   toggleClaimModal,
@@ -47,11 +46,8 @@ const Claim = props => {
           token={authToken}
           getFolders={props.fetchFolders}
           groupList={props.grpList}
-          onGrpChange={props.fetchUsrList}
-          userList={props.usrList}
           userAccessLevel={props.accessLevel}
           resetHandler={resetClaim}
-          updateUserId={props.updateUser}
           onGroupChange={props.resetFoldersData}
           showArchived={props.showArchived}
           resetProgress={props.rstClaimProgress}
@@ -77,8 +73,6 @@ const Claim = props => {
         toggleModal={props.tglClaimModal}
         checked={checked}
         userList={props.usrList}
-        updateUserId={props.updateUser}
-        userid={props.userId}
         canClaimForOthers={props.accessLevel === 'admin'}
         accessLevel={props.accessLevel}
        //the following allows anyone, admin or non-admin to claim for himself
@@ -105,7 +99,6 @@ const mapStateToProps = state => {
     claimId: state.claim.claimId,
     totalExpClaimed: state.claim.totalExpCount,
     showModal: state.claim.showModal,
-    userId: state.claim.userId,
     instrId: state.claim.instrumentId,
     username: state.auth.username
   }
@@ -122,7 +115,6 @@ const mapDispatchToProps = dispatch => {
     resetClaim: () => dispatch(resetClaim()),
     updCheckedExps: exps => dispatch(updateCheckedClaimExps(exps)),
     updCheckedData: keys => dispatch(updateCheckedClaimDatasets(keys)),
-    updateUser: userId => dispatch(updateClaimUser(userId)),
     resetFoldersData: () => dispatch(resetFoldersData()),
     rstClaimProgress: () => dispatch(resetClaimProgress()),
     tglClaimModal: () => dispatch(toggleClaimModal()),

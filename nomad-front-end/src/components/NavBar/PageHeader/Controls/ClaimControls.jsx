@@ -8,7 +8,7 @@ const { confirm } = Modal
 
 const ClaimControls = props => {
 
-  const { checked, showArchived, claimId } = props
+  const { checked, showArchived, claimId, groupId, token, fetchUserList } = props
 
   return (
     <div className={classes.ExtraContainer}>
@@ -28,7 +28,10 @@ const ClaimControls = props => {
           type='primary'
           onClick={() => {
       {
-              props.toggleModal()
+              props.toggleModal();
+              //here, also load the relevant users
+              fetchUserList(token, groupId, false, true);
+
               // props.submitClaimHandler(token, { userId, instrumentId, expsArr })
             }
           }}

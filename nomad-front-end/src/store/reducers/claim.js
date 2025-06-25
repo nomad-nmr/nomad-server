@@ -12,7 +12,8 @@ const initialState = {
   showArchived: false,
   claimId: undefined,
   totalExpCount: 0,
-  showModal: false
+  showModal: false,
+  selectedGroupId: undefined
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -21,12 +22,12 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, loading: true }
 
     case actionTypes.GET_MANUAL_FOLDERS_SUCCESS:
-      const { folders, instrumentId } = payload
+      const { folders, instrumentId, groupId } = payload
       const sortedFolders = folders.map(i => {
         i.exps.sort((a, b) => a.expNo - b.expNo)
         return i
       })
-      return { ...state, loading: false, foldersData: sortedFolders, instrumentId }
+      return { ...state, loading: false, foldersData: sortedFolders, instrumentId, selectedGroupId: groupId }
 
     case actionTypes.RESET_CLAIM:
       return { ...state, loading: false, foldersData: [], checked: [] }
@@ -59,8 +60,6 @@ const reducer = (state = initialState, { type, payload }) => {
 
       return { ...state, checked: addTotalExpTime(checkedUpdated, state.foldersData) }
 
-    case actionTypes.UPDATE_CLAIM_USER:
-      return { ...state, userId: payload }
 
     case actionTypes.CLAIM_START:
       return {

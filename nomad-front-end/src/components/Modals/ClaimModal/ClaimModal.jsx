@@ -3,7 +3,7 @@ import { Modal, Form, Input, InputNumber, Select } from 'antd'
 import moment from 'moment'
 
 const ClaimModal = props => {
-  const { checked, open, accessLevel, updateUserId, instrumentId, token, userid,  user, userList, canClaimForOthers } = props
+  const { checked, open, accessLevel, instrumentId, token,  user, userList, canClaimForOthers } = props
 
   const [form] = Form.useForm()
 
@@ -32,14 +32,12 @@ const ClaimModal = props => {
     expsArr = [...expsArr, ...entry.exps]
   })
 
-  const userSelectHandler = (newid) => {
-    updateUserId(newid);
-  }
+
 
   const processForm = () => {
     const values = form.getFieldsValue();
     props.claimHandler(token, {
-      userId: userid,
+      userId: values.userId,
       instrumentId,
       expsArr,
       expTime: values.totalExpT,
@@ -48,17 +46,16 @@ const ClaimModal = props => {
     props.toggleModal()
   }
 
-  //TODO, MAKE THE CHANGE HANDLER BETTER QUALITY
   return (
     <Modal
       title='Manual Data Claim'
       open={open}
       onCancel={() => props.toggleModal()}
-      onOk={() => processForm()}
+      onOk={() => form.submit()}
     >
-      <Form form={form} style={{ marginTop: '20px' }}>
-        <Form.Item name='user' label='User'>
-             <Select  disabled={!canClaimForOthers} onChange={userSelectHandler} style={{ width: 250 }} >
+      <Form onFinish={processForm} form={form} style={{ marginTop: '20px' }}>
+        <Form.Item name='userId' label='User'>
+             <Select defaultValue={userOptions[0]} defaultOpen disabled={!canClaimForOthers}  style={{ width: 250 }} >
                      {userOptions}
             </Select>
         </Form.Item>

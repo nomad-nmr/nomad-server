@@ -53,7 +53,8 @@ import {
   usersDeleteHandler,
   bookSamples,
   toggleSampleJetModal,
-  searchDescription
+  searchDescription,
+  fetchUserList
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -303,6 +304,8 @@ const PageHeaderEl = props => {
           showArchivedHandler={props.tglShowArchived}
           claimId={props.claimId}
           toggleModal={props.tglClaimModal}
+          groupId={props.groupId}
+          fetchUserList={props.fetchUserList}
         />
       )
 
@@ -409,7 +412,6 @@ const mapStateToProps = state => {
     nmriumData: state.nmrium.changedData,
     adding: state.nmrium.adding,
     claimChecked: state.claim.checked,
-    claimUserId: state.claim.userId,
     showArchived: state.claim.showArchived,
     claimId: state.claim.claimId,
     checkedClaims: state.claimsHistory.checked,
@@ -424,7 +426,8 @@ const mapStateToProps = state => {
     grantFormVisible: state.accounts.grantFormVisible,
     accountType: state.accounts.type,
     checkedUsers: state.users.checked,
-    accountsGroupName: state.accounts.groupName
+    accountsGroupName: state.accounts.groupName,
+    groupId: state.claim.selectedGroupId
   }
 }
 
@@ -433,6 +436,8 @@ const mapDispatchToProps = dispatch => {
     toggleCards: () => dispatch(toggleCards()),
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),
+    fetchUserList: (token, groupId, showInactive, search) =>
+          dispatch(fetchUserList(token, groupId, showInactive, search)),
     toggleUsrDrawer: editing => dispatch(toggleUserForm(editing)),
     switchShowInactiveUsr: () => dispatch(toggleShowInactive()),
     toggleShowInactiveInstr: () => dispatch(toggleShowInactiveInstruments()),

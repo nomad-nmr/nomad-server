@@ -23,7 +23,7 @@ export const getManualFolders = (token, instrId, groupId, showArchived) => {
         }
       )
       .then(res => {
-        dispatch(getFoldersSuccess(res.data))
+        dispatch(getFoldersSuccess({...res.data, groupId}))
       })
       .catch(err => {
         dispatch(errorHandler(err))
@@ -45,10 +45,6 @@ export const updateCheckedClaimDatasets = payload => ({
   payload
 })
 
-export const updateClaimUser = payload => ({
-  type: actionTypes.UPDATE_CLAIM_USER,
-  payload
-})
 
 export const submitClaimSuccess = payload => ({
   type: actionTypes.SUBMIT_CLAIM_SUCCESS,
