@@ -179,7 +179,13 @@ const SearchForm = props => {
         <Col span={6}>
           {dataType === 'auto' ? (
             <Form.Item label='Parameter Set' name='paramSet'>
-              <Select allowClear={true}>{paramSetsOptions}</Select>
+              <Select
+                showSearch
+                filterOption={(val, option) => {
+                  return option.children.toLowerCase().indexOf(val.toLowerCase()) > -1
+                }}
+
+                allowClear={true}>{paramSetsOptions}</Select>
             </Form.Item>
           ) : (
             <Form.Item label='Pulse program' name='pulseProgram'>

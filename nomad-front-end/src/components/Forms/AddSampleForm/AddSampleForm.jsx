@@ -224,7 +224,13 @@ const AddSampleForm = props => {
                 }
               ]}
             >
-              <Select onChange={value => onParamSetChange(i, j, value)}>{paramSetsOptions}</Select>
+              <Select
+                showSearch
+                filterOption={(val, option) => {
+                  return option.children.toLowerCase().indexOf(val.toLowerCase()) > -1
+                }}
+                onChange={value => onParamSetChange(i, j, value)}>{paramSetsOptions}
+              </Select>
             </Form.Item>
           </Col>
           {editParams && (

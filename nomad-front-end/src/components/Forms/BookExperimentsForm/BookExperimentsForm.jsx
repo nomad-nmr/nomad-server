@@ -356,7 +356,7 @@ const BookExperimentsForm = props => {
 
         const dayQueueRemains = Math.round(
           moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
-            moment.duration(dayExpt, 'HH:mm').as('minutes')
+          moment.duration(dayExpt, 'HH:mm').as('minutes')
         )
 
         if (
@@ -486,6 +486,10 @@ const BookExperimentsForm = props => {
                     ]}
                   >
                     <Select
+                      showSearch
+                      filterOption={(val, option) => {
+                        return option.children.toLowerCase().indexOf(val.toLowerCase()) > -1
+                      }}
                       onChange={value => {
                         onParamSetChange(key, expNo, value)
                       }}
