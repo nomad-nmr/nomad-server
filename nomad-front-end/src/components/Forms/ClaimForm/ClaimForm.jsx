@@ -2,7 +2,6 @@ import React from 'react'
 import { Form, Select, Space, Button, Tooltip } from 'antd'
 import { CloseOutlined } from '@ant-design/icons'
 
-import SelectGrpUsr from '../SelectGrpUsr/SelectGrpUsr'
 
 const { Option } = Select
 
@@ -23,14 +22,11 @@ const ClaimForm = props => {
     props.getFolders(props.token, values.instrumentId, values.groupId, props.showArchived)
   }
 
-  const updateState = values => {
-    if (values.userId) {
-      props.updateUserId(values.userId)
-    }
-    if (values.groupId) {
-      props.onGroupChange()
-    }
-  }
+    const grpOptions = props.groupList.map(i => (
+    <Option value={i.id} key={i.id}>
+      {i.name}
+    </Option>
+  ))
 
   return (
     <div>
@@ -39,7 +35,6 @@ const ClaimForm = props => {
         layout='inline'
         onFinish={values => getFoldersHandler(values)}
         ref={formReference}
-        onValuesChange={values => updateState(values)}
       >
         <Space size='large' style={{ alignItems: 'flex-start' }}>
           <Form.Item
@@ -50,13 +45,13 @@ const ClaimForm = props => {
             <Select style={{ width: 200 }}>{instrOptions}</Select>
           </Form.Item>
           {props.userAccessLevel === 'admin' && (
-            <SelectGrpUsr
-              userList={props.userList}
-              groupList={props.groupList}
-              fetchUsrListHandler={props.onGrpChange}
-              token={props.token}
-              formRef={formReference}
-            />
+          <Form.Item label='Group' name='groupId'>
+               <Select
+                 style={{ width: 150 }}
+               >
+                 {grpOptions}
+               </Select>
+             </Form.Item>
           )}
           <Form.Item>
             <Space size='large'>

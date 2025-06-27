@@ -13,7 +13,6 @@ import {
   resetClaim,
   updateCheckedClaimExps,
   updateCheckedClaimDatasets,
-  updateClaimUser,
   resetFoldersData,
   resetClaimProgress,
   toggleClaimModal,
@@ -37,11 +36,6 @@ const Claim = props => {
 
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
 
-  const findUser = userId => {
-    if (userId) {
-      return props.usrList.find(user => user._id === userId)
-    } else return { fullName: ' ', username }
-  }
 
   return (
     <div className={classes.Container}>
@@ -52,11 +46,8 @@ const Claim = props => {
           token={authToken}
           getFolders={props.fetchFolders}
           groupList={props.grpList}
-          onGrpChange={props.fetchUsrList}
-          userList={props.usrList}
           userAccessLevel={props.accessLevel}
           resetHandler={resetClaim}
-          updateUserId={props.updateUser}
           onGroupChange={props.resetFoldersData}
           showArchived={props.showArchived}
           resetProgress={props.rstClaimProgress}
@@ -81,8 +72,11 @@ const Claim = props => {
         open={props.showModal}
         toggleModal={props.tglClaimModal}
         checked={checked}
+        userList={props.usrList}
+        canClaimForOthers={props.accessLevel === 'admin'}
         accessLevel={props.accessLevel}
-        user={findUser(props.userId)}
+       //the following allows anyone, admin or non-admin to claim for himself
+        user={{ fullName: 'Self', username }}
         instrumentId={props.instrId}
         claimHandler={props.submitClaim}
         token={props.authToken}
@@ -105,7 +99,6 @@ const mapStateToProps = state => {
     claimId: state.claim.claimId,
     totalExpClaimed: state.claim.totalExpCount,
     showModal: state.claim.showModal,
-    userId: state.claim.userId,
     instrId: state.claim.instrumentId,
     username: state.auth.username
   }
@@ -122,7 +115,6 @@ const mapDispatchToProps = dispatch => {
     resetClaim: () => dispatch(resetClaim()),
     updCheckedExps: exps => dispatch(updateCheckedClaimExps(exps)),
     updCheckedData: keys => dispatch(updateCheckedClaimDatasets(keys)),
-    updateUser: userId => dispatch(updateClaimUser(userId)),
     resetFoldersData: () => dispatch(resetFoldersData()),
     rstClaimProgress: () => dispatch(resetClaimProgress()),
     tglClaimModal: () => dispatch(toggleClaimModal()),

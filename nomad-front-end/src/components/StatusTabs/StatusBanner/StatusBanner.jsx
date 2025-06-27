@@ -26,10 +26,6 @@ const StatusBanner = props => {
     return tabData.find(row => row.holder === holder && row.status === 'Submitted')
   })
 
-  const editableHolders = checkedHolders.filter(holder => {
-    return tabData.find(row => row.holder === holder && row.status !== 'Running')
-  })
-
   const switchElement = (
     <Tooltip title='Close/Open queue'>
       <Switch
@@ -85,11 +81,6 @@ const StatusBanner = props => {
       <Button
         disabled={!accessLvl || checkedHolders.length === 0}
         onClick={() => {
-          if (checkedHolders.length !== editableHolders.length) {
-            return Modal.error({
-              title: 'Only holders with status "Submitted" or "Error" can be edited'
-            })
-          }
 
           const usernamesSet = new Set()
           tabData.forEach(row => {
