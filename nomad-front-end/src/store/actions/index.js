@@ -170,7 +170,6 @@ export {
   resetClaim,
   updateCheckedClaimExps,
   updateCheckedClaimDatasets,
-  updateClaimUser,
   submitClaim,
   resetFoldersData,
   toggleShowArchivedSwitch,
