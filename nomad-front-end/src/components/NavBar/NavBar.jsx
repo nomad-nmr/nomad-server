@@ -67,6 +67,7 @@ const NavBar = props => {
             onClick={props.openModalHandler}
             username={props.username}
             accessLevel={props.accessLevel}
+            accountsAccess={props.accountsAccess}
             toggleAddSample={props.tglAddSample}
             setModalVisible={setModalVisible}
           />
@@ -89,6 +90,7 @@ const mapStateToProps = state => {
     username: state.auth.username,
     accessLevel: state.auth.accessLevel,
     manualAccess: state.auth.manualAccess,
+    accountsAccess: state.auth.accountsAccess,
     authToken: state.auth.token,
     userAccountSettings: state.userAccount.settings
   }

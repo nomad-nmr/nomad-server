@@ -193,6 +193,14 @@ const UserForm = props => {
         >
           <Checkbox />
         </Form.Item>
+        <Form.Item
+          name='accountsAccess'
+          label='Accounts'
+          valuePropName='checked'
+          tooltip='User can access accounts and usage statistics of own group'
+        >
+          <Checkbox />
+        </Form.Item>
         <Form.Item name='isActive' label='Active' valuePropName='checked'>
           <Checkbox />
         </Form.Item>

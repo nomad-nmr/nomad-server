@@ -108,6 +108,7 @@ export const signInHandler = formData => {
           groupName: resp.data.groupName,
           accessLevel: resp.data.accessLevel,
           manualAccess: resp.data.manualAccess,
+          accountsAccess: resp.data.accountsAccess,
           token: resp.data.token,
           customSolvents: resp.data.customSolvents,
           expirationDate
@@ -134,6 +135,7 @@ export const authCheckState = () => {
         expirationDate,
         groupName,
         manualAccess,
+        accountsAccess,
         customSolvents
       } = user
       const expDateTime = Date.parse(expirationDate)
@@ -141,7 +143,15 @@ export const authCheckState = () => {
         dispatch(signOutHandler(token))
       } else {
         dispatch(
-          signInSuccess({ token, username, accessLevel, groupName, manualAccess, customSolvents })
+          signInSuccess({
+            token,
+            username,
+            accessLevel,
+            groupName,
+            manualAccess,
+            accountsAccess,
+            customSolvents
+          })
         )
         const expiresIn = (expDateTime - new Date().getTime()) / 1000
         dispatch(checkAuthTimeout(expiresIn, token))

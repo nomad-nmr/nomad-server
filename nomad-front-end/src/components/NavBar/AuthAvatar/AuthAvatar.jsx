@@ -1,9 +1,12 @@
 import React from 'react'
 import { Avatar, Popover } from 'antd'
-import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons'
+import { useNavigate } from 'react-router'
+import { UserOutlined, LogoutOutlined, SettingOutlined, BarChartOutlined } from '@ant-design/icons'
 import classes from './AuthAvatar.module.css'
 
 const AuthAvatar = props => {
+  const navigate = useNavigate()
+
   const assignedClasses = [classes.AuthAvatar]
 
   let avatarEl
@@ -48,6 +51,14 @@ const AuthAvatar = props => {
                 Account Settings
               </span>
             </li>
+            {props.accountsAccess && (
+              <li className={classes.Popover}>
+                <BarChartOutlined />
+                <span className={classes.Popover} onClick={() => navigate('/group-accounts')}>
+                  Accounts & Statistics
+                </span>
+              </li>
+            )}
             <li className={classes.Popover}>
               <LogoutOutlined />
               <span className={classes.Popover} onClick={() => props.onClick(null)}>

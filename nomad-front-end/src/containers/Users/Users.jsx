@@ -168,6 +168,17 @@ const Users = props => {
             ) : (
               <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
             )
+        },
+        {
+          title: 'Accounts',
+          dataIndex: 'accountsAccess',
+          align: 'center',
+          render: record =>
+            record ? (
+              <CheckCircleOutlined style={{ color: '#389e0d', fontSize: '18px' }} />
+            ) : (
+              <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
+            )
         }
       ]
     },
