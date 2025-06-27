@@ -42,6 +42,10 @@ const userSchema = new Schema(
       type: Boolean,
       default: false
     },
+    accountsAccess: {
+      type: Boolean,
+      default: false
+    },
     lastLogin: Date,
 
     stats: {
