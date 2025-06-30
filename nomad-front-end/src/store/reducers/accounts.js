@@ -30,7 +30,13 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.RESET_COSTS_TABLE:
-      return { ...state, costsTableData: [], noGrantsAlert: {} }
+      return {
+        ...state,
+        costsTableData: [],
+        noGrantsAlert: {},
+        type: 'Grants',
+        groupName: undefined
+      }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
       return { ...state, costDrawerVisible: !state.costDrawerVisible }

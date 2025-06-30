@@ -1,7 +1,7 @@
 import React from 'react'
 import { Avatar, Popover } from 'antd'
 import { useNavigate } from 'react-router'
-import { UserOutlined, LogoutOutlined, SettingOutlined, BarChartOutlined } from '@ant-design/icons'
+import { UserOutlined, LogoutOutlined, SettingOutlined, PoundOutlined } from '@ant-design/icons'
 import classes from './AuthAvatar.module.css'
 
 const AuthAvatar = props => {
@@ -53,9 +53,9 @@ const AuthAvatar = props => {
             </li>
             {props.accountsAccess && (
               <li className={classes.Popover}>
-                <BarChartOutlined />
+                <PoundOutlined />
                 <span className={classes.Popover} onClick={() => navigate('/group-accounts')}>
-                  Accounting
+                  Costs Accounting
                 </span>
               </li>
             )}

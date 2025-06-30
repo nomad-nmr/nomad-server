@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Form, DatePicker, Space, Button, Radio, Empty } from 'antd'
 
 import AccountsTable from '../../components/AccountsComponents/AccountsTable'
 import GrantsCostsTable from '../../components/AccountsComponents/GrantsCostsTable'
-import { fetchCosts, setAccountsType } from '../../store/actions'
+import { fetchCosts, setAccountsType, resetCostsTable } from '../../store/actions'
 
 import classes from './GroupAccounts.module.css'
 
@@ -12,8 +12,18 @@ const { RangePicker } = DatePicker
 const radioOptions = ['Grants', 'Users']
 
 const GroupAccounts = props => {
-  const { accountsType, tableData } = props
+  const { accountsType, tableData, resetTable } = props
   const [form] = Form.useForm()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    return () => {
+      resetTable()
+      form.resetFields()
+    }
+  }, [resetTable])
+
+  useEffect(() => form.resetFields(), [accountsType])
 
   const submitHandler = values => {
     let { dateRange } = values
@@ -75,7 +85,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   setAccountsType: type => dispatch(setAccountsType(type)),
-  fetchCostsData: (token, searchParams) => dispatch(fetchCosts(token, searchParams))
+  fetchCostsData: (token, searchParams) => dispatch(fetchCosts(token, searchParams)),
+  resetTable: () => dispatch(resetCostsTable())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupAccounts)
