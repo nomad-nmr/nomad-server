@@ -44,7 +44,7 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SET_TABLE_HEADER:
       return { ...state, tableHeader: payload }
 
-    case actionTypes.SEARCH_DESCRIPTION:  
+    case actionTypes.SEARCH_DESCRIPTION:
       return { ...state, descriptionSearchValue: payload }
 
     case actionTypes.FETCH_INSTRUMENTS_COSTING_SUCCESS:

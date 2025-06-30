@@ -17,7 +17,7 @@ import {
 
 const router = Router()
 
-router.get('/data', auth, authAdmin, getCosts)
+router.get('/data', auth, getCosts)
 
 router.get('/instruments-costing', auth, authAdmin, getInstrumentsCosting)
 

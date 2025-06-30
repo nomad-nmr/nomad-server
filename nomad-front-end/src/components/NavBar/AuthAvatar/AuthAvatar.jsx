@@ -55,7 +55,7 @@ const AuthAvatar = props => {
               <li className={classes.Popover}>
                 <BarChartOutlined />
                 <span className={classes.Popover} onClick={() => navigate('/group-accounts')}>
-                  Accounts & Statistics
+                  Accounting
                 </span>
               </li>
             )}

@@ -13,10 +13,21 @@ import {
   getSearchParams,
   getSearchParamsClaims
 } from '../../utils/accountsUtils.js'
+import user from '../../models/user.js'
+import group from '../../models/group.js'
 
 export async function getCosts(req, res) {
-  const { groupId, dateRange, useMultiplier } = req.query
+  const { dateRange, useMultiplier, groupAccounts } = req.query
+  let { groupId } = req.query
   try {
+    if (req.user.accessLevel !== 'admin' && !req.user.accountsAccess) {
+      return res.status(403).json({ message: 'Access denied' })
+    }
+
+    if (groupAccounts === 'true' && groupId !== 'undefined') {
+      groupId = req.user.group.toString()
+    }
+
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
 
