@@ -86,6 +86,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, grantsData: updatedGrants }
 
     case actionTypes.FETCH_GRANTS_COSTS_SUCCESS:
+      console.log(payload)
       return {
         ...state,
         costsTableData: payload.grantsCosts,

@@ -4,7 +4,7 @@ import { Form, DatePicker, Space, Button, Radio, Empty } from 'antd'
 
 import AccountsTable from '../../components/AccountsComponents/AccountsTable'
 import GrantsCostsTable from '../../components/AccountsComponents/GrantsCostsTable'
-import { fetchCosts, setAccountsType, resetCostsTable } from '../../store/actions'
+import { fetchCosts, setAccountsType, resetCostsTable, fetchGrantsCosts } from '../../store/actions'
 
 import classes from './GroupAccounts.module.css'
 
@@ -33,7 +33,7 @@ const GroupAccounts = props => {
     if (accountsType === 'Users') {
       props.fetchCostsData(props.authToken, { dateRange, groupAccounts: true })
     } else {
-      console.log('get grants costs')
+      props.fetchGrantsCosts(props.authToken, { dateRange, groupAccounts: true })
     }
   }
 
@@ -66,7 +66,7 @@ const GroupAccounts = props => {
             <RangePicker allowClear={true} />
           </Form.Item>
           <Form.Item>
-            <Button type='primary' htmlType='submit'>
+            <Button type='primary' htmlType='submit' loading={props.loading}>
               Calculate Costs
             </Button>
           </Form.Item>
@@ -78,15 +78,18 @@ const GroupAccounts = props => {
 }
 
 const mapStateToProps = state => ({
+  loading: state.accounts.loading,
   authToken: state.auth.token,
   tableData: state.accounts.costsTableData,
+  noGrantsData: state.accounts.noGrantsAlert,
   accountsType: state.accounts.type
 })
 
 const mapDispatchToProps = dispatch => ({
   setAccountsType: type => dispatch(setAccountsType(type)),
   fetchCostsData: (token, searchParams) => dispatch(fetchCosts(token, searchParams)),
-  resetTable: () => dispatch(resetCostsTable())
+  resetTable: () => dispatch(resetCostsTable()),
+  fetchGrantsCosts: (token, data) => dispatch(fetchGrantsCosts(token, data))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupAccounts)
