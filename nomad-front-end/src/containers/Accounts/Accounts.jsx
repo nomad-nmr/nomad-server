@@ -53,7 +53,7 @@ const Accounts = props => {
     return () => {
       resetTable()
     }
-  }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
+  }, [authToken, fetchGrpList, resetTable, fetchCosting])
 
   useEffect(() => {
     window.scrollTo(0, 0)
