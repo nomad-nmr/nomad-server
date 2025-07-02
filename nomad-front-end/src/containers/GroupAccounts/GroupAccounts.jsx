@@ -31,7 +31,7 @@ const GroupAccounts = props => {
       dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
     }
     if (accountsType === 'Users') {
-      props.fetchCostsData(props.authToken, { dateRange, groupAccounts: true })
+      props.fetchCostsData(props.authToken, { dateRange, groupAccounts: true, useMultiplier: true })
     } else {
       props.fetchGrantsCosts(props.authToken, { dateRange, groupAccounts: true })
     }
