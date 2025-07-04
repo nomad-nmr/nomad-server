@@ -79,7 +79,7 @@ export const postClaim = async (req, res) => {
 
     sendUploadCmd(
       instrumentId,
-      { userId: userId.toString(), group: group.groupName, expsArr, claimId },
+      { userId, group: group.groupName, expsArr, claimId },
       'upload-manual'
     )
 
