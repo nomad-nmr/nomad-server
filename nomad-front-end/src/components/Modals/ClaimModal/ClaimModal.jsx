@@ -3,15 +3,14 @@ import { Modal, Form, Input, InputNumber, Select } from 'antd'
 import moment from 'moment'
 
 const ClaimModal = props => {
-  const { checked, open, accessLevel, instrumentId, token,  user, userList, canClaimForOthers } = props
+  const { checked, open, accessLevel, instrumentId, token, userList, canClaimForOthers } = props
 
   const [form] = Form.useForm()
 
-  const userOptions = (!canClaimForOthers ? [user] :  [user, ...userList])
-  .map(i => (
-    <Option value={i._id} key={i._id}>
+  const userOptions = userList.map(i => (
+    <Select.Option value={i._id} key={i._id ? i._id : 'undefined'}>
       {`[${i.username}] ${i.fullName}`}
-    </Option>
+    </Select.Option>
   ))
 
   useEffect(() => {
@@ -21,8 +20,7 @@ const ClaimModal = props => {
         0
       )
       form.setFieldsValue({
-        totalExpT: expTimeSum,
-        user: `${props.user.fullName} [${props.user.username}]`
+        totalExpT: expTimeSum
       })
     }
   }, [checked, open])
@@ -32,10 +30,8 @@ const ClaimModal = props => {
     expsArr = [...expsArr, ...entry.exps]
   })
 
-
-
   const processForm = () => {
-    const values = form.getFieldsValue();
+    const values = form.getFieldsValue()
     props.claimHandler(token, {
       userId: values.userId,
       instrumentId,
@@ -54,11 +50,17 @@ const ClaimModal = props => {
       onOk={() => form.submit()}
     >
       <Form onFinish={processForm} form={form} style={{ marginTop: '20px' }}>
-        <Form.Item name='userId' label='User'>
-             <Select defaultValue={userOptions[0]} defaultOpen disabled={!canClaimForOthers}  style={{ width: 250 }} >
-                     {userOptions}
+        {canClaimForOthers && (
+          <Form.Item
+            name='userId'
+            label='User'
+            rules={[{ required: true, message: 'Please select user that you claim data for!' }]}
+          >
+            <Select disabled={!canClaimForOthers} style={{ width: 250 }}>
+              {userOptions}
             </Select>
-        </Form.Item>
+          </Form.Item>
+        )}
         <Form.Item name='note' label='Note'>
           <Input />
         </Form.Item>

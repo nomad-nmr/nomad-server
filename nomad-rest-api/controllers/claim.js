@@ -48,7 +48,7 @@ export const postClaim = async (req, res) => {
     let { userId } = req.body
     let groupId
 
-    if (userId) {
+    if (userId && userId !== 'undefined') {
       if (accessLevel !== 'admin') {
         return res.status(403).send()
       }
@@ -79,7 +79,7 @@ export const postClaim = async (req, res) => {
 
     sendUploadCmd(
       instrumentId,
-      { userId, group: group.groupName, expsArr, claimId },
+      { userId: userId.toString(), group: group.groupName, expsArr, claimId },
       'upload-manual'
     )
 

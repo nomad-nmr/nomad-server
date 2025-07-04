@@ -304,8 +304,9 @@ const PageHeaderEl = props => {
           showArchivedHandler={props.tglShowArchived}
           claimId={props.claimId}
           toggleModal={props.tglClaimModal}
-          groupId={props.groupId}
+          groupId={props.claimGroupId}
           fetchUserList={props.fetchUserList}
+          accessLevel={props.accessLevel}
         />
       )
 
@@ -427,7 +428,7 @@ const mapStateToProps = state => {
     accountType: state.accounts.type,
     checkedUsers: state.users.checked,
     accountsGroupName: state.accounts.groupName,
-    groupId: state.claim.selectedGroupId
+    claimGroupId: state.claim.selectedGroupId
   }
 }
 
@@ -437,7 +438,7 @@ const mapDispatchToProps = dispatch => {
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),
     fetchUserList: (token, groupId, showInactive, search) =>
-          dispatch(fetchUserList(token, groupId, showInactive, search)),
+      dispatch(fetchUserList(token, groupId, showInactive, search)),
     toggleUsrDrawer: editing => dispatch(toggleUserForm(editing)),
     switchShowInactiveUsr: () => dispatch(toggleShowInactive()),
     toggleShowInactiveInstr: () => dispatch(toggleShowInactiveInstruments()),
