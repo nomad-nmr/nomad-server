@@ -46,6 +46,7 @@ const BookExperimentsForm = props => {
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
   const [totalExptState, setTotalExptState] = useState({})
+  const [disableContinue, setDisableContinue] = useState(false)
 
   const { inputData, allowanceData, fetchAllowance, token, accessLevel, formValues } = props
 
@@ -55,14 +56,22 @@ const BookExperimentsForm = props => {
   //This hook is used to cancel booked holders on the form component dismount in /resubmit location
   // It uses deleteHolders function in submit controller at the backend which has
   // 120s timeout to allow for iconNMR to pickup submit file
+  // It also sets disableContinue state to true for 20s to prevent user from submitting form.
+  // If form is submitted to early then delete and book submit will created in the same time.
+
   useEffect(() => {
-    if (location === '/resubmit')
+    if (location.pathname === '/resubmit') {
+      setDisableContinue(true)
+      setTimeout(() => {
+        setDisableContinue(false)
+      }, 20000)
       return () => {
         props.cancelHolders(
           token,
           inputData.map(i => i.key)
         )
       }
+    }
   }, [])
 
   //Hook to create state for dynamic ExpNo part of form from inputData
@@ -356,7 +365,7 @@ const BookExperimentsForm = props => {
 
         const dayQueueRemains = Math.round(
           moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
-          moment.duration(dayExpt, 'HH:mm').as('minutes')
+            moment.duration(dayExpt, 'HH:mm').as('minutes')
         )
 
         if (
@@ -593,7 +602,13 @@ const BookExperimentsForm = props => {
           {formItems}
           <Space>
             <Form.Item>
-              <Button type='primary' size='middle' htmlType='submit'>
+              <Button
+                type='primary'
+                size='middle'
+                htmlType='submit'
+                loading={disableContinue}
+                disabled={disableContinue}
+              >
                 Continue
               </Button>
             </Form.Item>
