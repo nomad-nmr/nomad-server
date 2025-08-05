@@ -27,10 +27,16 @@ const reducer = (state = initialState, { type, payload }) => {
         i.exps.sort((a, b) => a.expNo - b.expNo)
         return i
       })
-      return { ...state, loading: false, foldersData: sortedFolders, instrumentId, selectedGroupId: groupId }
+      return {
+        ...state,
+        loading: false,
+        foldersData: sortedFolders,
+        instrumentId,
+        selectedGroupId: groupId
+      }
 
     case actionTypes.RESET_CLAIM:
-      return { ...state, loading: false, foldersData: [], checked: [] }
+      return { ...state, loading: false, foldersData: [], checked: [], selectedGroupId: undefined }
 
     case actionTypes.UPDATE_CHECKED_CLAIM_EXPS:
       let checkedNew = []
@@ -59,7 +65,6 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
       return { ...state, checked: addTotalExpTime(checkedUpdated, state.foldersData) }
-
 
     case actionTypes.CLAIM_START:
       return {
