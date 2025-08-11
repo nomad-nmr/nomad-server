@@ -12,7 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@ant-design/pro-card": "^2.3.0",
-    "@ant-design/pro-layout": "^7.4.0",
+    "@ant-design/pro-layout": "^7.22.7",
     "antd": "^5.4.7",
     "axios": "^1.2.1",
     "cheminfo-font": "^1.13.1",
