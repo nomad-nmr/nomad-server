@@ -23,7 +23,9 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
         delete i.originalData
-        i.display.name = title
+        const expIdArr = i.info.name.split('/')
+        i.info.expId = expIdArr[1] + '-' + expIdArr[2]
+        i.info.name = title.split('||')[0] + ' - ' + expIdArr[2]
         return i
       })
 
