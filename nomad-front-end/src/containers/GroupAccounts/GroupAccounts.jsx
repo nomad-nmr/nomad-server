@@ -38,7 +38,7 @@ const GroupAccounts = props => {
   }
 
   const tableElement =
-    tableData.length === 0 ? (
+    !tableData || tableData.length === 0 ? (
       <Empty />
     ) : accountsType === 'Grants' ? (
       <GrantsCostsTable data={tableData} alertData={props.noGrantsData} />
