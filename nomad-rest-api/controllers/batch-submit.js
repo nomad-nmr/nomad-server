@@ -363,7 +363,7 @@ export const bookSamples = async (req, res) => {
     const { socketId } = submitter.state.get(instrId)
     if (!socketId) {
       console.log('Error: Client disconnected')
-      return res.status(503).send('Client disconnected')
+      return res.status(503).send({ message: 'Client disconnected' })
     }
     getIO().to(socketId).emit('book', JSON.stringify(samplesToBook))
 
@@ -408,7 +408,7 @@ export const submitSamples = async (req, res) => {
 
       if (!socketId) {
         console.log('Error: Client disconnected')
-        return res.status(503).send('Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
       }
 
       getIO().to(socketId).emit('submit', JSON.stringify(submitDataObj[instrId]))
@@ -462,7 +462,7 @@ export const cancelBookedSamples = async (req, res) => {
 
       if (!socketId) {
         console.log('Error: Client disconnected')
-        return res.status(503).send('Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
       }
 
       getIO().to(socketId).emit('delete', JSON.stringify(submitDataObj[instrId]))

@@ -20,7 +20,7 @@ export const getFolders = async (req, res) => {
   const { socketId } = submitter.state.get(instrumentId)
   if (!socketId) {
     console.log('Error: Client disconnected')
-    return res.status(503).send('Client disconnected')
+    return res.status(503).send({ message: 'Client disconnected' })
   }
 
   getIO()
