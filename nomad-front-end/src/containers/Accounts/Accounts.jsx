@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Empty, Drawer, Modal, Button } from 'antd'
-import { QuestionOutlined } from '@ant-design/icons'
 
 import AccountsForm from '../../components/AccountsComponents/AccountsForm'
 import GrantForm from '../../components/AccountsComponents/GrantForm'
@@ -30,8 +29,16 @@ import {
 import classes from './Accounts.module.css'
 
 const Accounts = props => {
-  const { fetchGrpList, authToken, grpList, descriptionSearchValue, tableData, resetTable, fetchCosting, accountsType } =
-    props
+  const {
+    fetchGrpList,
+    authToken,
+    grpList,
+    descriptionSearchValue,
+    tableData,
+    resetTable,
+    fetchCosting,
+    accountsType
+  } = props
 
   const [usrGrpTags, setUsrGrpTags] = useState([])
 
@@ -46,7 +53,7 @@ const Accounts = props => {
     return () => {
       resetTable()
     }
-  }, [authToken, fetchGrpList, resetTable, fetchCosting, accountsType])
+  }, [authToken, fetchGrpList, resetTable, fetchCosting])
 
   useEffect(() => {
     window.scrollTo(0, 0)

@@ -36,7 +36,6 @@ const Claim = props => {
 
   const manualInstrList = props.instrList.filter(instr => instr.isManual)
 
-
   return (
     <div className={classes.Container}>
       <div className={classes.FormContainer}>
@@ -75,8 +74,7 @@ const Claim = props => {
         userList={props.usrList}
         canClaimForOthers={props.accessLevel === 'admin'}
         accessLevel={props.accessLevel}
-       //the following allows anyone, admin or non-admin to claim for himself
-        user={{ fullName: 'Self', username }}
+        //the following allows anyone, admin or non-admin to claim for himself
         instrumentId={props.instrId}
         claimHandler={props.submitClaim}
         token={props.authToken}

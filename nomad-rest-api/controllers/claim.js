@@ -20,7 +20,7 @@ export const getFolders = async (req, res) => {
   const { socketId } = submitter.state.get(instrumentId)
   if (!socketId) {
     console.log('Error: Client disconnected')
-    return res.status(503).send('Client disconnected')
+    return res.status(503).send({ message: 'Client disconnected' })
   }
 
   getIO()
@@ -48,7 +48,7 @@ export const postClaim = async (req, res) => {
     let { userId } = req.body
     let groupId
 
-    if (userId) {
+    if (userId && userId !== 'undefined') {
       if (accessLevel !== 'admin') {
         return res.status(403).send()
       }

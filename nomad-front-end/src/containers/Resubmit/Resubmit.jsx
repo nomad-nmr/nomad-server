@@ -30,8 +30,6 @@ const Resubmit = props => {
     fetchParamSets(authToken, { instrumentId: null, searchValue: '' })
   }, [fetchParamSets, authToken])
 
-  console.log(props.cancelHolders)
-
   return (
     <div>
       {reservedHolders.length !== 0 || props.loading ? (

@@ -62,7 +62,7 @@ const AdminMenu = props => {
         },
         {
           key: '/admin/accounts',
-          label: 'Accounting',
+          label: 'Costs Accounting',
           icon: <PoundOutlined />
         },
         {

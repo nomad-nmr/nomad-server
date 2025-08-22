@@ -110,7 +110,7 @@ export const postSubmission = async (req, res) => {
 
       if (!socketId) {
         console.log('Error: Client disconnected')
-        return res.status(503).send('Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
       }
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
@@ -208,7 +208,7 @@ export const deleteExps = (req, res) => {
   } catch (error) {
     console.log(error)
     if (error.toString().includes('Client disconnected')) {
-      res.status(503).send('Client disconnected')
+      res.status(503).send({ message: 'Client disconnected' })
     } else {
       res.sendStatus(500)
     }
@@ -250,7 +250,7 @@ export const putReset = async (req, res) => {
   } catch (error) {
     console.log(error)
     if (error.toString().includes('Client disconnected')) {
-      res.status(503).send('Client disconnected')
+      res.status(503).send({ message: 'Client disconnected' })
     } else {
       res.sendStatus(500)
     }
@@ -281,7 +281,7 @@ export const postPending = async (req, res) => {
 
       if (!socketId) {
         console.log('Error: Client disconnected')
-        return res.status(503).send('Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
       }
 
       getIO().to(socketId).emit(req.params.type, JSON.stringify(data[instrId]))
@@ -423,7 +423,7 @@ export async function postResubmit(req, res) {
   } catch (error) {
     console.log(error)
     if (error.toString().includes('Client disconnected')) {
-      res.status(503).send('Client disconnected')
+      res.status(503).send({ message: 'Client disconnected' })
     } else {
       res.sendStatus(500)
     }

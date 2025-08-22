@@ -15,8 +15,17 @@ import {
 } from '../../utils/accountsUtils.js'
 
 export async function getCosts(req, res) {
-  const { groupId, dateRange, useMultiplier } = req.query
+  const { dateRange, useMultiplier, groupAccounts } = req.query
+  let { groupId } = req.query
   try {
+    if (req.user.accessLevel !== 'admin' && !req.user.accountsAccess) {
+      return res.status(403).json({ message: 'Access denied' })
+    }
+
+    if (groupAccounts === 'true' && groupId !== 'undefined') {
+      groupId = req.user.group.toString()
+    }
+
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
 
@@ -317,11 +326,33 @@ export async function putGrant(req, res) {
 
 export async function getGrantsCosts(req, res) {
   try {
-    const { dateRange } = req.query
+    if (req.user.accessLevel !== 'admin' && !req.user.accountsAccess) {
+      return res.status(403).json({ message: 'Access denied' })
+    }
+
+    const { dateRange, groupAccounts } = req.query
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
 
-    const grants = await Grant.find({}, 'grantCode description')
+    let grants = await Grant.find({})
+
+    if (groupAccounts === 'true') {
+      grants = await Promise.all(
+        grants.map(async grant => {
+          for (const i of grant.include) {
+            if (i.isGroup) {
+              if (i.id.toString() === req.user.group.toString()) return grant
+            } else {
+              const user = await User.findById(i.id, 'group')
+              if (user && user.group.toString() === req.user.group.toString()) return grant
+            }
+          }
+          return null
+        })
+      )
+
+      grants = grants.filter(grant => grant !== null) // filter out null values
+    }
 
     const grantsCosts = await Promise.all(
       grants.map(async grant => {
@@ -371,6 +402,11 @@ export async function getGrantsCosts(req, res) {
 
     const noGrantSearchParamsClaims = {
       $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': { $exists: false } }]
+    }
+
+    if (groupAccounts === 'true') {
+      noGrantSearchParams.$and.push({ 'group.id': req.user.group.toString() })
+      noGrantSearchParamsClaims.$and.push({ group: req.user.group.toString() })
     }
 
     const usersIdSet = new Set()

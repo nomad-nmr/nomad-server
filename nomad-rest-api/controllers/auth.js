@@ -92,6 +92,7 @@ export async function postLogin(req, res) {
       username: user.username,
       accessLevel: user.accessLevel,
       manualAccess: user.manualAccess,
+      accountsAccess: user.accountsAccess,
       groupName: user.group.groupName,
       token: token,
       expiresIn: +jwtExpiration,

@@ -30,7 +30,13 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.RESET_COSTS_TABLE:
-      return { ...state, costsTableData: [], noGrantsAlert: {} }
+      return {
+        ...state,
+        costsTableData: [],
+        noGrantsAlert: {},
+        type: 'Grants',
+        groupName: undefined
+      }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
       return { ...state, costDrawerVisible: !state.costDrawerVisible }
@@ -44,7 +50,7 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SET_TABLE_HEADER:
       return { ...state, tableHeader: payload }
 
-    case actionTypes.SEARCH_DESCRIPTION:  
+    case actionTypes.SEARCH_DESCRIPTION:
       return { ...state, descriptionSearchValue: payload }
 
     case actionTypes.FETCH_INSTRUMENTS_COSTING_SUCCESS:

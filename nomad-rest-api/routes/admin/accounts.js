@@ -17,7 +17,7 @@ import {
 
 const router = Router()
 
-router.get('/data', auth, authAdmin, getCosts)
+router.get('/data', auth, getCosts)
 
 router.get('/instruments-costing', auth, authAdmin, getInstrumentsCosting)
 
@@ -48,6 +48,6 @@ router.delete('/grants/:grantId', auth, authAdmin, deleteGrant)
 
 router.put('/grants', auth, authAdmin, putGrant)
 
-router.get('/grants-costs', auth, authAdmin, getGrantsCosts)
+router.get('/grants-costs', auth, getGrantsCosts)
 
 export default router

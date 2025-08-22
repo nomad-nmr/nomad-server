@@ -44,7 +44,8 @@ const App = props => {
     onSignIn,
     onSignOut,
     onTryAutoSignIn,
-    err
+    err,
+    accountsAccess
   } = props
 
   useEffect(() => {
@@ -88,6 +89,9 @@ const App = props => {
     React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
   )
   const Collections = Loadable(React.lazy(() => import('./containers/Collections/Collections')))
+  const GroupAccounts = Loadable(
+    React.lazy(() => import('./containers/GroupAccounts/GroupAccounts'))
+  )
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -134,7 +138,12 @@ const App = props => {
         <Affix>
           <Header
             className={classes.Header}
-            style={{ background: '#ffffff', paddingLeft: 0, paddingRight: 30, height: 'fit-content' }}
+            style={{
+              background: '#ffffff',
+              paddingLeft: 0,
+              paddingRight: 30,
+              height: 'fit-content'
+            }}
           >
             <NavBar collapsed={adminMenuCollapsed} toggleClicked={toggleAdminMenu} />
           </Header>
@@ -175,6 +184,11 @@ const App = props => {
             />
 
             <Route path='/dashboard' element={<Dashboard />} />
+
+            <Route
+              path='/group-accounts'
+              element={accountsAccess ? <GroupAccounts /> : <Navigate to='/dashboard' />}
+            />
 
             <Route path='/reset/:token' element={<Reset />} />
             <Route
@@ -286,6 +300,7 @@ const mapStateToProps = state => {
     authToken: state.auth.token,
     accessLevel: state.auth.accessLevel,
     manualAccess: state.auth.manualAccess,
+    accountsAccess: state.auth.accountsAccess,
     authModalVisible: state.auth.authModalVisible,
     authSpin: state.auth.loading,
     err: state.errors.error
