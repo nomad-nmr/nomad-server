@@ -17,7 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@zakodium/nmrium-core-plugins": "^0.1.2",
+    "@zakodium/nmrium-core-plugins": "^0.1.9",
     "bcrypt-salt": "^2.0.0",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
