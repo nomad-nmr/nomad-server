@@ -356,7 +356,8 @@ export const getDatasetResp = datasetsInput => {
       solvent: spec.info.solvent,
       name: spec.info.name,
       title: spec.info.title,
-      date: spec.info.date
+      date: spec.info.date,
+      expId: spec.info.expId
     }))
     return {
       key: i._id,

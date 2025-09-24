@@ -159,9 +159,9 @@ const DatasetTable = props => {
 
   const expColumns = [
     {
-      title: 'Name',
+      title: 'Experiment ID / Name',
       align: 'center',
-      dataIndex: 'name'
+      render: record => (record.expId ? record.expId : record.name)
     },
     {
       title: 'Data Type',
