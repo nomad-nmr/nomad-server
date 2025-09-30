@@ -4,7 +4,7 @@ import { body } from 'express-validator'
 import auth from '../middleware/auth.js'
 import validateDataWriteAccess from '../middleware/validateDataWriteAccess.js'
 
-import { patchDataset, searchDatasets, deleteDataset, updateTags } from '../controllers/datasets.js'
+import { patchDataset, searchDatasets, deleteDataset, updateTags, getComments, addComment } from '../controllers/datasets.js'
 
 const router = Router()
 
@@ -19,6 +19,10 @@ router.patch(
 router.get('/', auth, searchDatasets)
 
 router.delete('/:datasetId', auth, validateDataWriteAccess, deleteDataset)
+
+router.get('/comments/:datasetId', auth, getComments)
+router.put('/comments/:datasetId', 
+  [body('text', 'Invalid comment text').trim().isString().isLength({min: 1, max: 1000})], auth, addComment)
 
 router.patch('/tags/:datasetId', auth, validateDataWriteAccess, updateTags)
 

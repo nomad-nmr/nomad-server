@@ -174,6 +174,58 @@ export const patchDataset = async (req, res) => {
   }
 }
 
+const visibleDatasetsSearchParams = (searchParams, dataAccess, userId, user, legacyData) => {
+
+  //this switch should assure that search is performed in accordance with data access privileges
+  switch (dataAccess) {
+    case 'user':
+      // only see his own datasets
+      searchParams.$and.push({ user: user._id })
+      break
+
+    case 'group':
+      if (legacyData === 'true') {
+        searchParams.$and.push({ user: user._id })
+        searchParams.$nor = [{ group: user.group }]
+      } else {
+        if (userId && userId !== 'undefined') {
+          searchParams.$and.push({ user: userId, group: user.group })
+        } else {
+          searchParams.$and.push({ group: user.group })
+        }
+      }
+      break
+
+    case 'admin-b':
+      if (legacyData === 'true') {
+        searchParams.$and.push({ user: user._id })
+        searchParams.$nor = [{ group: user.group }]
+      } else {
+        adminSearchLogic()
+        if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
+          searchParams.$and.push({ group: user.group })
+        }
+      }
+      break
+
+    case 'admin':
+      adminSearchLogic()
+      break
+    default:
+      throw new Error('Data access rights unknown')
+  }
+}
+
+const adminSearchLogic = (searchParams, userId, groupId) => {
+  if (groupId && groupId !== 'undefined') {
+    searchParams.$and.push({ group: groupId })
+  }
+
+  if (userId && userId !== 'undefined') {
+    searchParams.$and.push({ user: userId })
+  }
+}
+
 export const searchDatasets = async (req, res) => {
   try {
     const {
@@ -245,53 +297,8 @@ export const searchDatasets = async (req, res) => {
       searchParams.$and.push({ tags })
     }
 
-    const adminSearchLogic = () => {
-      if (groupId && groupId !== 'undefined') {
-        searchParams.$and.push({ group: groupId })
-      }
-
-      if (userId && userId !== 'undefined') {
-        searchParams.$and.push({ user: userId })
-      }
-    }
-
-    //this switch should assure that search is performed in accordance with data access privileges
-    switch (dataAccess) {
-      case 'user':
-        searchParams.$and.push({ user: req.user._id })
-        break
-
-      case 'group':
-        if (legacyData === 'true') {
-          searchParams.$and.push({ user: req.user._id })
-          searchParams.$nor = [{ group: req.user.group }]
-        } else {
-          if (userId && userId !== 'undefined') {
-            searchParams.$and.push({ user: userId, group: req.user.group })
-          } else {
-            searchParams.$and.push({ group: req.user.group })
-          }
-        }
-        break
-
-      case 'admin-b':
-        if (legacyData === 'true') {
-          searchParams.$and.push({ user: req.user._id })
-          searchParams.$nor = [{ group: req.user.group }]
-        } else {
-          adminSearchLogic()
-          if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
-            searchParams.$and.push({ group: req.user.group })
-          }
-        }
-        break
-
-      case 'admin':
-        adminSearchLogic()
-        break
-      default:
-        throw new Error('Data access rights unknown')
-    }
+    //mutate the searchparams 
+    visibleDatasetsSearchParams(searchParams, dataAccess, userId, req.user, req.legacyData);
 
     let total = await Dataset.find(searchParams).countDocuments()
     let datasets
@@ -334,7 +341,6 @@ export const searchDatasets = async (req, res) => {
     }
 
     const respData = getDatasetResp(datasets)
-
     res.status(200).json({ datasets: respData, total })
   } catch (error) {
     console.log(error)
@@ -382,6 +388,47 @@ export const getDatasetResp = datasetsInput => {
       })
     }
   })
+}
+
+export const getComments = async (req, res) => {
+  const dataAccess = await req.user.getDataAccess();
+  const searchParams = { $and: [{}] }
+  try {
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, req.legacyData);
+    searchParams.$and.push({ "_id": req.params.datasetId });
+    let comments = await Dataset.findOne(searchParams, { comments: 1 }).populate('comments.user', 'username');
+    comments = { comments: comments.comments }
+    res.status(200).json(comments)
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500)
+  }
+}
+
+export const addComment = async (req, res) => {
+  const dataAccess = await req.user.getDataAccess();
+  const searchParams = { $and: [{}] }
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return res.status(422).send(errors)
+  }
+  try {
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, req.legacyData);
+    searchParams.$and.push({ "_id": req.params.datasetId });
+    let matchedDataset = await Dataset.findOne(searchParams, { _id: 1, comments: 1 });
+    if (!matchedDataset) {
+      return res.sendStatus(401)
+    }
+    matchedDataset.comments.push({
+      text: req.body.text,
+      user: req.user._id,
+    });
+    matchedDataset.save()
+    res.sendStatus(200)
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500)
+  }
 }
 
 export const deleteDataset = async (req, res) => {
