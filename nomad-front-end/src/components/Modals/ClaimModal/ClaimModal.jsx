@@ -3,7 +3,16 @@ import { Modal, Form, Input, InputNumber, Select } from 'antd'
 import moment from 'moment'
 
 const ClaimModal = props => {
-  const { checked, open, accessLevel, instrumentId, token, userList, canClaimForOthers } = props
+  const {
+    checked,
+    open,
+    accessLevel,
+    instrumentId,
+    token,
+    userList,
+    canClaimForOthers,
+    sampleManager
+  } = props
 
   const [form] = Form.useForm()
 
@@ -37,16 +46,20 @@ const ClaimModal = props => {
       instrumentId,
       expsArr,
       expTime: values.totalExpT,
-      note: values.note
+      note: values.note,
+      sampleManager
     })
     props.toggleModal()
   }
 
   return (
     <Modal
-      title='Manual Data Claim'
+      title={sampleManager ? 'Sample Manager Dataset Claim' : 'Manual Data Claim'}
       open={open}
-      onCancel={() => props.toggleModal()}
+      onCancel={() => {
+        props.resetClaim()
+        props.toggleModal()
+      }}
       onOk={() => form.submit()}
     >
       <Form onFinish={processForm} form={form} style={{ marginTop: '20px' }}>
