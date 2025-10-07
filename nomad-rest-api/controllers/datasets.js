@@ -298,7 +298,7 @@ export const searchDatasets = async (req, res) => {
     }
 
     //mutate the searchparams 
-    visibleDatasetsSearchParams(searchParams, dataAccess, userId, req.user, req.legacyData);
+    visibleDatasetsSearchParams(searchParams, dataAccess, userId, req.user, legacyData);
 
     let total = await Dataset.find(searchParams).countDocuments()
     let datasets
@@ -394,7 +394,7 @@ export const getComments = async (req, res) => {
   const dataAccess = await req.user.getDataAccess();
   const searchParams = { $and: [{}] }
   try {
-    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, req.legacyData);
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined);
     searchParams.$and.push({ "_id": req.params.datasetId });
     let comments = await Dataset.findOne(searchParams, { comments: 1 }).populate('comments.user', 'username');
     comments = { comments: comments.comments }
@@ -413,7 +413,7 @@ export const addComment = async (req, res) => {
     return res.status(422).send(errors)
   }
   try {
-    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, req.legacyData);
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined);
     searchParams.$and.push({ "_id": req.params.datasetId });
     let matchedDataset = await Dataset.findOne(searchParams, { _id: 1, comments: 1 });
     if (!matchedDataset) {
