@@ -88,6 +88,7 @@ import accountingIcon from '../../../assets/accounting.png'
 import uploadIcon from '../../../assets/uploadIcon.png'
 import claimIcon from '../../../assets/claimIcon.svg'
 import collectionIcon from '../../../assets/folder-icon.png'
+import { openCommentsDrawer } from '../../../store/actions/datasets'
 
 const PageHeaderEl = props => {
   const {
@@ -330,6 +331,7 @@ const PageHeaderEl = props => {
     case location.pathname.includes('/nmrium'):
       extra = (
         <NMRiumControls
+          openCommentsDrawer={props.openCommentsDrawer}
           token={props.authToken}
           addExpsHandler={props.setAddExps}
           data={props.nmriumData}
@@ -434,6 +436,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
     toggleCards: () => dispatch(toggleCards()),
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),
