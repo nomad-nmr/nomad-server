@@ -422,19 +422,34 @@ export const updateTags = async (req, res) => {
 }
 
 export const postSampleManager = async (req, res) => {
-  console.log(req.body)
   try {
     const { userId, group, expsArr, sampleManagerData } = req.body
     const groupId = await Group.findOne({ groupName: group }).select('_id')
 
-    const spectraArr = await Promise.all(
+    const nmriumSpectraArr = await Promise.all(
       expsArr.map(async expId => {
-        const { _id } = await ManualExperiment.findOne({ expId }).select('_id')
-        return { id: _id.toString(), dataType: 'manual', info: { isFid: false } }
+        const experiment = await ManualExperiment.findOne({ expId })
+
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
+
+        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, false)
+
+        const nmriumSpecObj = {
+          ...nmriumDataObj.spectra[0],
+          dataType: 'manual',
+          id: experiment._id.toString(),
+          data: null,
+          meta: null
+        }
+
+        return nmriumSpecObj
       })
     )
 
-    const nmriumData = { version: 'sample-manager', data: { spectra: spectraArr, molecules: [] } }
+    const nmriumData = {
+      version: 'sample-manager',
+      data: { spectra: nmriumSpectraArr, molecules: [] }
+    }
 
     const dataset = new Dataset({
       user: userId,
