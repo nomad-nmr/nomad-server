@@ -49,6 +49,7 @@ export default function CommentsDrawer({ visible, onClose, accessLevel, target, 
                 <Button disabled={loading} onClick={() => (fetchComments(target?.key))}>Refresh</Button>
             }
             open={visible}
+            width={500}
             onClose={onClose}
             loading={loading}
             footer={<CommentBox errorHandler={errorHandler} setFetchedComments={setFetchedComments} target={target} fetchComments={fetchComments} token={token} newCommentDraft={newCommentDraft} setNewCommentDraft={setNewCommentDraft} />}
