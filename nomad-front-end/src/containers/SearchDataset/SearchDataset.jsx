@@ -20,6 +20,7 @@ import {
   addDatasetsToCollection,
   getCollectionsList
 } from '../../store/actions'
+import { openCommentsDrawer } from '../../store/actions/datasets'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -109,6 +110,7 @@ const SearchDataset = props => {
           onDeleteDataset={props.deleteDataset}
           onSorterChange={onSorterChange}
           user={user}
+          openCommentsDrawer={props.openCommentsDrawer}
           checkedExpsHandler={props.updateCheckedExps}
           checkedDatasetsHandler={props.updateCheckedDatasets}
           checkedExps={props.checkedExps}
@@ -124,6 +126,7 @@ const SearchDataset = props => {
                 key={i.key}
                 checked={checked}
                 data={i}
+                openCommentsDrawer={props.openCommentsDrawer}
                 onDeleteDataset={props.deleteDataset}
                 onDownloadDataset={props.downloadDataset}
                 checkedDatasetsHandler={props.updateCheckedDatasets}
@@ -178,6 +181,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
   downloadDataset: (datasetId, fileName, token) =>

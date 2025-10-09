@@ -5,7 +5,8 @@ import {
   DownloadOutlined,
   ShareAltOutlined,
   SaveOutlined,
-  FolderAddOutlined
+  FolderAddOutlined,
+  CommentOutlined
 } from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../../../CopyLinkToClipboard/CopyLinkToClipboard'
@@ -53,6 +54,7 @@ const NMRiumControls = props => {
     }
     props.toggleDatasetModal()
   }
+  console.log(dataset)
 
   return (
     <div className={classes.ExtraContainer}>
@@ -85,6 +87,14 @@ const NMRiumControls = props => {
             onClick={() => props.toggleColModal()}
           >
             Add
+          </Button>
+        </Tooltip>
+          <Tooltip title='Comments'>
+          <Button
+            icon={<CommentOutlined />}
+            onClick={() => props.openCommentsDrawer(dataset.id)}
+          >
+            Comments
           </Button>
         </Tooltip>
         <Divider type='vertical' />

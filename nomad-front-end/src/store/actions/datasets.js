@@ -61,6 +61,12 @@ export const getDatasets = (searchParams, token) => {
       })
       .catch(err => {
         dispatch(errorHandler(err))
+      }).finally(()=>{
+        window.dispatchEvent(new CustomEvent("clear-comments", {
+          detail: {
+            dataset: 'all'
+          }
+        }));
       })
   }
 }
@@ -85,6 +91,15 @@ export const deleteDataset = (datasetId, token) => {
       })
   }
 }
+
+export const openCommentsDrawer = payload => ({
+  type: actionTypes.OPEN_COMMENTS_FOR_DATASET,
+  payload
+})
+
+export const closeCommentsDrawer = () => ({
+  type: actionTypes.CLOSE_COMMENTS
+})
 
 export const toggleDatasetDisplay = payload => ({
   type: actionTypes.TOGGLE_DATASET_DISPLAY,

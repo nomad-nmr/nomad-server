@@ -6,7 +6,8 @@ import Icon, {
   FolderOpenOutlined,
   DownloadOutlined,
   DeleteOutlined,
-  ShareAltOutlined
+  ShareAltOutlined,
+  CommentOutlined
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
@@ -103,6 +104,14 @@ const DatasetTable = props => {
               onClick={() => showStructure(record)}
               disabled={record.molSVGs.length === 0}
               icon={<Icon component={structureIconSVG} />}
+            />
+          </Tooltip>
+                    <Tooltip title='Comments' placement='left'>
+            <Button
+              onClick={() => {
+                props.openCommentsDrawer(record.key)
+              }}
+              icon={<Icon component={CommentOutlined} />}
             />
           </Tooltip>
 

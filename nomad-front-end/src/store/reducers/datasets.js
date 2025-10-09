@@ -4,6 +4,8 @@ import { Modal } from 'antd'
 
 const initialState = {
   loading: false,
+  commentsOpen: false,
+  commentsTarget: undefined,
   data: [],
   total: undefined,
   //formFields (searchParams) values are stored in Redux state
@@ -39,6 +41,12 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.DELETE_DATASET_SUCCESS:
       const newData = state.data.filter(i => i.key !== payload.datasetId)
       return { ...state, data: newData, loading: false }
+
+    case actionTypes.OPEN_COMMENTS_FOR_DATASET:
+      return{ ...state, commentsOpen: true, commentsTarget: payload}  
+
+    case actionTypes.CLOSE_COMMENTS:
+      return{...state, commentsOpen: false, commentsTarget: undefined}  
 
     case actionTypes.TOGGLE_DATASET_DISPLAY:
       return { ...state, displayType: payload }
