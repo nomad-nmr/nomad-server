@@ -1,5 +1,4 @@
 import path from 'path'
-import fs from 'fs/promises'
 
 import { validationResult } from 'express-validator'
 import JSZip from 'jszip'
@@ -11,6 +10,7 @@ import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Collection from '../models/collection.js'
+import Group from '../models/group.js'
 import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import zipDataset from '../utils/zipDataset.js'
 
@@ -415,6 +415,38 @@ export const updateTags = async (req, res) => {
     dataset.tags = req.body.tags
     const savedDataset = await dataset.save()
     res.status(200).json({ tags: savedDataset.tags, datasetId: savedDataset._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const postSampleManager = async (req, res) => {
+  console.log(req.body)
+  try {
+    const { userId, group, expsArr, sampleManagerData } = req.body
+    const groupId = await Group.findOne({ groupName: group }).select('_id')
+
+    const spectraArr = await Promise.all(
+      expsArr.map(async expId => {
+        const { _id } = await ManualExperiment.findOne({ expId }).select('_id')
+        return { id: _id.toString(), dataType: 'manual', info: { isFid: false } }
+      })
+    )
+
+    const nmriumData = { version: 'sample-manager', data: { spectra: spectraArr, molecules: [] } }
+
+    const dataset = new Dataset({
+      user: userId,
+      group: groupId,
+      title: expsArr[0].split('#-#')[0],
+      nmriumData,
+      sampleManagerData
+    })
+
+    await dataset.save()
+
+    res.sendStatus(200)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

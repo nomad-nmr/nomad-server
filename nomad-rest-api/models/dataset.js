@@ -19,7 +19,8 @@ const datasetSchema = new Schema(
     smiles: Array,
     nmriumData: Object,
     tags: Array,
-    inCollections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }]
+    inCollections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
+    sampleManagerData: [Object]
   },
   { timestamps: true }
 )

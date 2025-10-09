@@ -29,6 +29,7 @@ const zipDataset = async (jszipfile, datasetId) => {
             experiment.dataPath,
             experiment.expId + '.zip'
           )
+          console.log(zipFilePath)
           const zipFile = await fs.readFile(zipFilePath)
           const zipObject = await JSZip.loadAsync(zipFile)
 
@@ -45,6 +46,9 @@ const zipDataset = async (jszipfile, datasetId) => {
                 sanitisedTitle + '/' + newExpNo + '/'
               )
             }
+
+            console.log(newKey)
+
             zipObject.files[newKey] = zipObject.files[key]
             delete zipObject.files[key]
           })
