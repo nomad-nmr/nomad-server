@@ -436,7 +436,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
+    openCommentsDrawer: (dataset) => dispatch(openCommentsDrawer(dataset)),
     toggleCards: () => dispatch(toggleCards()),
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),

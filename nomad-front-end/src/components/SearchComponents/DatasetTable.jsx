@@ -109,7 +109,7 @@ const DatasetTable = props => {
                     <Tooltip title='Comments' placement='left'>
             <Button
               onClick={() => {
-                props.openCommentsDrawer(record.key)
+                props.openCommentsDrawer(record)
               }}
               icon={<Icon component={CommentOutlined} />}
             />
