@@ -105,8 +105,9 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         //sending message to client through socket to upload data when experiment is completed
         if (
           newHistItem.status === 'Completed' &&
-          process.env.DATASTORE_ON !== 'false' &&
-          process.env.SUBMIT_ON === 'false'
+          process.env.DATASTORE_ON !== 'false'
+          // &&
+          // process.env.SUBMIT_ON === 'false'
         ) {
           console.log('AUTO-FEED - sending upload command')
           const { datasetName, expNo, group } = histItem
