@@ -181,7 +181,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  openCommentsDrawer: (dataset) => dispatch(openCommentsDrawer(dataset)),
+  openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
   downloadDataset: (datasetId, fileName, token) =>

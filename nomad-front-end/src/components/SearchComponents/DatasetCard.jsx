@@ -30,7 +30,7 @@ const DatasetCard = props => {
   const actions = [
     <Checkbox checked={props.checked} onChange={onCheckboxChange} />,
     <Tooltip title='Comments'>
-      <CommentOutlined onClick={()=>{props.openCommentsDrawer(data)}} />
+      <CommentOutlined onClick={()=>{props.openCommentsDrawer(data.key)}} />
     </Tooltip>,
     <Tooltip title='Open dataset in NMRium'>
       <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
