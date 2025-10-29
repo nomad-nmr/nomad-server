@@ -29,22 +29,27 @@ const DatasetCard = props => {
 
   const actions = [
     <Checkbox checked={props.checked} onChange={onCheckboxChange} />,
-    <Tooltip title='Comments'>
-      <CommentOutlined onClick={()=>{props.openCommentsDrawer(data)}} />
-    </Tooltip>,
     <Tooltip title='Open dataset in NMRium'>
       <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
+    </Tooltip>,
+    <Tooltip title='Download dataset'>
+      <DownloadOutlined
+        onClick={() => props.onDownloadDataset(data.key, data.title, props.token)}
+      />
+    </Tooltip>,
+    <Tooltip title='Comments'>
+      <CommentOutlined
+        onClick={() => {
+          props.openCommentsDrawer(data)
+        }}
+        style={{ color: data.commentsCount > 0 ? '#1890ff' : 'inherit' }}
+      />
     </Tooltip>,
     <CopyLinkToClipboard id={data.key} path='nmrium'>
       <Tooltip title='Copy dataset link'>
         <ShareAltOutlined />
       </Tooltip>
-    </CopyLinkToClipboard>,
-    <Tooltip title='Download dataset'>
-      <DownloadOutlined
-        onClick={() => props.onDownloadDataset(data.key, data.title, props.token)}
-      />
-    </Tooltip>
+    </CopyLinkToClipboard>
   ]
 
   if (user.username === data.username || user.accessLevel === 'admin') {
