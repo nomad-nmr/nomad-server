@@ -198,7 +198,8 @@ export {
   updateTagsDatasets,
   toggleCollectionModal,
   addDatasetsToCollection,
-  getCollectionsList
+  getCollectionsList,
+  openCommentsDrawer
 } from './datasets'
 
 export {

@@ -42,7 +42,8 @@ import {
   toggleCollectionModal,
   getCollectionsList,
   addDatasetsToCollection,
-  removeDatasets
+  removeDatasets,
+  openCommentsDrawer
 } from '../../store/actions'
 
 const Collections = props => {
@@ -238,6 +239,7 @@ const Collections = props => {
             checkedExps={props.checkedExps}
             checkedExpsHandler={props.updateCheckedExps}
             updateTags={props.updateDatasetTags}
+            openCommentsDrawer={props.openCommentsDrawer}
           />
         ) : (
           <div className={classes.Cards}>
@@ -254,6 +256,7 @@ const Collections = props => {
                   token={authToken}
                   user={user}
                   updateTags={props.updateDatasetTags}
+                  openCommentsDrawer={props.openCommentsDrawer}
                 />
               )
             })}
@@ -457,7 +460,8 @@ const mapDispatchToProps = dispatch => ({
   fetchCollectionsList: token => dispatch(getCollectionsList(token)),
   tglColModal: () => dispatch(toggleCollectionModal()),
   addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
-  removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token))
+  removeDatasets: (colId, ids, token) => dispatch(removeDatasets(colId, ids, token)),
+  openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Collections)

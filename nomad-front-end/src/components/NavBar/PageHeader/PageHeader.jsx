@@ -54,7 +54,8 @@ import {
   bookSamples,
   toggleSampleJetModal,
   searchDescription,
-  fetchUserList
+  fetchUserList,
+  openCommentsDrawer
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -88,7 +89,6 @@ import accountingIcon from '../../../assets/accounting.png'
 import uploadIcon from '../../../assets/uploadIcon.png'
 import claimIcon from '../../../assets/claimIcon.svg'
 import collectionIcon from '../../../assets/folder-icon.png'
-import { openCommentsDrawer } from '../../../store/actions/datasets'
 
 const PageHeaderEl = props => {
   const {
@@ -436,7 +436,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
+    openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
     toggleCards: () => dispatch(toggleCards()),
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),

@@ -18,9 +18,9 @@ import {
   updateTagsDatasets,
   toggleCollectionModal,
   addDatasetsToCollection,
-  getCollectionsList
+  getCollectionsList,
+  openCommentsDrawer
 } from '../../store/actions'
-import { openCommentsDrawer } from '../../store/actions/datasets'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -181,7 +181,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  openCommentsDrawer: (datasetId) => dispatch(openCommentsDrawer(datasetId)),
+  openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
   downloadDataset: (datasetId, fileName, token) =>

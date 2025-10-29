@@ -175,7 +175,6 @@ export const patchDataset = async (req, res) => {
 }
 
 const visibleDatasetsSearchParams = (searchParams, dataAccess, userId, user, legacyData) => {
-
   //this switch should assure that search is performed in accordance with data access privileges
   switch (dataAccess) {
     case 'user':
@@ -297,8 +296,8 @@ export const searchDatasets = async (req, res) => {
       searchParams.$and.push({ tags })
     }
 
-    //mutate the searchparams 
-    visibleDatasetsSearchParams(searchParams, dataAccess, userId, req.user, legacyData);
+    //mutate the searchparams
+    visibleDatasetsSearchParams(searchParams, dataAccess, userId, req.user, legacyData)
 
     let total = await Dataset.find(searchParams).countDocuments()
     let datasets
@@ -375,6 +374,7 @@ export const getDatasetResp = datasetsInput => {
       createdAt: i.createdAt,
       updatedAt: i.updatedAt,
       expsInfo,
+      commentsCount: i.comments.length,
       molSVGs: i.nmriumData.data.molecules.map(mol => {
         const molecule = OCLMolecule.fromMolfile(mol.molfile)
         return {
@@ -391,42 +391,45 @@ export const getDatasetResp = datasetsInput => {
 }
 
 export const getComments = async (req, res) => {
-  const dataAccess = await req.user.getDataAccess();
+  const dataAccess = await req.user.getDataAccess()
   const searchParams = { $and: [{}] }
   try {
-    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined);
-    searchParams.$and.push({ "_id": req.params.datasetId });
-    let comments = await Dataset.findOne(searchParams, { comments: 1 }).populate('comments.user', 'username');
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined)
+    searchParams.$and.push({ _id: req.params.datasetId })
+    let comments = await Dataset.findOne(searchParams, { comments: 1 }).populate(
+      'comments.user',
+      'username'
+    )
     comments = { comments: comments.comments }
     res.status(200).json(comments)
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.sendStatus(500)
   }
 }
 
 export const addComment = async (req, res) => {
-  const dataAccess = await req.user.getDataAccess();
+  const dataAccess = await req.user.getDataAccess()
   const searchParams = { $and: [{}] }
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
     return res.status(422).send(errors)
   }
   try {
-    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined);
-    searchParams.$and.push({ "_id": req.params.datasetId });
-    let matchedDataset = await Dataset.findOne(searchParams, { _id: 1, comments: 1 });
+    visibleDatasetsSearchParams(searchParams, dataAccess, req.userId, req.user, undefined)
+    searchParams.$and.push({ _id: req.params.datasetId })
+    let matchedDataset = await Dataset.findOne(searchParams, { _id: 1, comments: 1 })
     if (!matchedDataset) {
       return res.sendStatus(401)
     }
     matchedDataset.comments.push({
       text: req.body.text,
-      user: req.user._id,
-    });
+      user: req.user._id
+    })
     matchedDataset.save()
     res.sendStatus(200)
   } catch (error) {
-    console.log(error);
+    console.log(error)
     res.sendStatus(500)
   }
 }
