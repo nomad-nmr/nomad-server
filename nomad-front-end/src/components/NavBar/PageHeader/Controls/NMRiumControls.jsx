@@ -92,7 +92,7 @@ const NMRiumControls = props => {
           <Tooltip title='Comments'>
           <Button
             icon={<CommentOutlined />}
-            onClick={() => props.openCommentsDrawer(dataset.id)}
+            onClick={() => props.openCommentsDrawer(dataset)}
           >
             Comments
           </Button>

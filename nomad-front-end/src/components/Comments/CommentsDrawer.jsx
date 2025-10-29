@@ -6,12 +6,11 @@ export default function CommentsDrawer({ visible, onClose, accessLevel, target, 
     const [fetchedComments, setFetchedComments] = useState({});
     const [loading, setLoading] = useState(false);
     const [newCommentDraft, setNewCommentDraft] = useState('')
-
     useEffect(() => {
-        if (!target || fetchedComments[target]) {
+        if (!target || fetchedComments[target.key]) {
             return
         }
-        fetchComments(target)
+        fetchComments(target.key)
     }, [target]);
 
     useEffect(() => {
@@ -44,22 +43,23 @@ export default function CommentsDrawer({ visible, onClose, accessLevel, target, 
 
     return (
         <Drawer
-            title="Comments"
+            title={"Comments: " + target?.title}
             placement="right"
             extra={
-                <Button disabled={loading} onClick={() => (fetchComments(target))}>Refresh</Button>
+                <Button disabled={loading} onClick={() => (fetchComments(target?.key))}>Refresh</Button>
             }
             open={visible}
+            width={500}
             onClose={onClose}
             loading={loading}
             footer={<CommentBox errorHandler={errorHandler} setFetchedComments={setFetchedComments} target={target} fetchComments={fetchComments} token={token} newCommentDraft={newCommentDraft} setNewCommentDraft={setNewCommentDraft} />}
         >
             {
-                (!fetchedComments[target] || fetchedComments[target].length === 0) && !loading ?
+                (!target || !fetchedComments[target.key] || fetchedComments[target.key].length === 0) && !loading ?
                     <>
                         <Empty />
                     </> :
-                    <CommentsList onClose={onClose} accessLevel={accessLevel} comments={fetchedComments[target]} />
+                    <CommentsList onClose={onClose} accessLevel={accessLevel} comments={fetchedComments[target.key]} />
 
 
             }
@@ -74,12 +74,12 @@ const CommentBox = ({ token, errorHandler, fetchComments, target }) => {
 
     const onSubmit = (comment) => {
         setUploadingComment(true);
-        axios.put('/datasets/comments/' + target, {
+        axios.put('/datasets/comments/' + target.key, {
             text: comment
         }, {
             headers: { Authorization: 'Bearer ' + token }
         }).then(async () => {
-            await fetchComments(target);
+            await fetchComments(target.key);
             form.resetFields();
         }).catch(err => errorHandler(err))
             .finally(() => setUploadingComment(false)

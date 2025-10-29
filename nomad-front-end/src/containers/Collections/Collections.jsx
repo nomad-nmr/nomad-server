@@ -44,6 +44,7 @@ import {
   addDatasetsToCollection,
   removeDatasets
 } from '../../store/actions'
+import { openCommentsDrawer } from '../../store/actions/datasets.js'
 
 const Collections = props => {
   const {
@@ -227,6 +228,7 @@ const Collections = props => {
 
         {props.displayType === 'table' ? (
           <DatasetTable
+            openCommentsDrawer={props.openCommentsDrawer}
             dataSource={datasetsData}
             loading={loading}
             user={user}
@@ -431,6 +433,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  openCommentsDrawer: (dataset) => dispatch(openCommentsDrawer(dataset)),
   fetchCollections: (token, values) => dispatch(fetchCollections(token, values)),
   openAuthModal: () => dispatch(openAuthModal()),
   openCollection: (token, id) => dispatch(openCollection(token, id)),
