@@ -16,7 +16,7 @@
     "antd": "^5.4.7",
     "axios": "^1.2.1",
     "cheminfo-font": "^1.13.1",
-    "dayjs": "^1.11.7",
+    "dayjs": "^1.11.19",
     "history": "^5.3.0",
     "js-file-download": "^0.4.12",
     "moment": "^2.29.4",
