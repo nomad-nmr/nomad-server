@@ -197,7 +197,7 @@ const DatasetTable = props => {
               Modal.info({
                 content: JSON.stringify(record.data, null, 2),
                 width: 600,
-                title: 'Sample Info'
+                title: `Sample : ${record.data.Sample.Label}`
               })
             }
           >
