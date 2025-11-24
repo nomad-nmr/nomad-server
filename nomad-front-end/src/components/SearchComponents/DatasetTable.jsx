@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router'
 import DatasetTags from '../DatasetTags/DatasetTags'
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import structureIconSVG from './StructureIcon'
+import SampleDataModal from './SampleDataModal'
 import classes from './SearchExpsTable.module.css'
 
 const DatasetTable = props => {
@@ -195,9 +196,10 @@ const DatasetTable = props => {
             type='link'
             onClick={() =>
               Modal.info({
-                content: JSON.stringify(record.data, null, 2),
-                width: 600,
-                title: `Sample : ${record.data.Sample.Label}`
+                content: <SampleDataModal data={record.data} />,
+                width: 700,
+                title: `Sample: ${record.data.Sample?.Label || 'Untitled'}`,
+                okText: 'Close'
               })
             }
           >
