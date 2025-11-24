@@ -368,7 +368,8 @@ export const getDatasetResp = datasetsInput => {
           dataType: 'sample',
           data: sample,
           date: sample.Metadata.created_timestamp,
-          title: sample.Sample.Label
+          title: sample.Sample.Label,
+          pulseSequence: sample.Metadata.ejected_timestamp ? 'Ejected' : ''
         })
       })
     }

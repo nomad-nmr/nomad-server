@@ -188,7 +188,22 @@ const DatasetTable = props => {
       align: 'center',
       dataIndex: 'title',
       render: (value, record) =>
-        record.dataType !== 'sample' ? value : <Button type='link'>{value}</Button>
+        record.dataType !== 'sample' ? (
+          value
+        ) : (
+          <Button
+            type='link'
+            onClick={() =>
+              Modal.info({
+                content: JSON.stringify(record.data, null, 2),
+                width: 600,
+                title: 'Sample Info'
+              })
+            }
+          >
+            {value}
+          </Button>
+        )
     },
     {
       title: 'Date',
