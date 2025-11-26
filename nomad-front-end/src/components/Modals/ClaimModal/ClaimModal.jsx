@@ -41,15 +41,34 @@ const ClaimModal = props => {
 
   const processForm = () => {
     const values = form.getFieldsValue()
-    props.claimHandler(token, {
+    const claimData = {
       userId: values.userId,
       instrumentId,
       expsArr,
       expTime: values.totalExpT,
       note: values.note,
       sampleManager
-    })
-    props.toggleModal()
+    }
+    if (sampleManager) {
+      Modal.confirm({
+        title: 'Confirm Sampe Manager Claim',
+        content: `Are you sure you want to claim manual experiments as Sample Manager Dataset?
+        Cilck OK to confirm or Cancel to proceed with regular claim.
+        `,
+        onOk() {
+          props.claimHandler(token, claimData)
+          props.toggleModal()
+        },
+        onCancel() {
+          claimData.sampleManager = false
+          props.claimHandler(token, claimData)
+          props.toggleModal()
+        }
+      })
+    } else {
+      props.claimHandler(token, claimData)
+      props.toggleModal()
+    }
   }
 
   return (
