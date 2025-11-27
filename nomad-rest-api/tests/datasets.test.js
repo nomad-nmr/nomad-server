@@ -99,7 +99,7 @@ describe('POST /api/data/dataset', () => {
     //asserting change in DB
     const dataset = await Dataset.findById(body.id)
     expect(dataset.title).toMatch('Dataset 1')
-    expect(dataset.smiles[0]).toMatch('C1(=CC=CC=C1)')
+    expect(dataset.smiles[0]).toMatch('C1=CC=CC=C1')
   })
 })
 
@@ -190,7 +190,7 @@ describe('PUT /api/data/dataset/:datasetId', () => {
     const dataset = await Dataset.findById(testDatasetOne._id)
     expect(dataset.title).toMatch('New title')
     expect(dataset.nmriumData.data.spectra.length).toBe(1)
-    expect(dataset.smiles[0]).toMatch('C1(CCCO1)')
+    expect(dataset.smiles[0]).toMatch('C1COCC1')
   })
 })
 

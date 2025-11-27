@@ -2,6 +2,7 @@ import path from 'path'
 import fs from 'fs/promises'
 
 import JSZip from 'jszip'
+import moment from 'moment'
 
 import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
@@ -29,6 +30,7 @@ const zipDataset = async (jszipfile, datasetId) => {
             experiment.dataPath,
             experiment.expId + '.zip'
           )
+
           const zipFile = await fs.readFile(zipFilePath)
           const zipObject = await JSZip.loadAsync(zipFile)
 
@@ -45,8 +47,12 @@ const zipDataset = async (jszipfile, datasetId) => {
                 sanitisedTitle + '/' + newExpNo + '/'
               )
             }
-            zipObject.files[newKey] = zipObject.files[key]
-            delete zipObject.files[key]
+
+            //if subfolder structure has changed, rename the key
+            if (newKey !== key) {
+              zipObject.files[newKey] = zipObject.files[key]
+              delete zipObject.files[key]
+            }
           })
 
           const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
@@ -58,10 +64,22 @@ const zipDataset = async (jszipfile, datasetId) => {
       jszipfile.file(sanitisedTitle + '/' + i.label + '.mol', i.molfile)
     })
 
+    if (dataset.sampleManagerData.length > 0) {
+      dataset.sampleManagerData.forEach(i => {
+        const jsonFileName = timestampToFilename(i.Metadata.created_timestamp, i.Sample.Label)
+        jszipfile.file(sanitisedTitle + '/' + jsonFileName, JSON.stringify(i, null, 2))
+      })
+    }
+
     return Promise.resolve()
   } catch (error) {
     return Promise.reject(error)
   }
+}
+
+function timestampToFilename(ts, label) {
+  const formatted = moment.utc(ts).local().format('YYYY-MM-DD_HHmmss')
+  return `${formatted}_${label}.json`
 }
 
 export default zipDataset

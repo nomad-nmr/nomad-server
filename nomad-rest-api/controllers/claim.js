@@ -41,7 +41,7 @@ export const getFolders = async (req, res) => {
 }
 
 export const postClaim = async (req, res) => {
-  const { instrumentId, expsArr, claimId, note, expTime } = req.body
+  const { instrumentId, expsArr, claimId, note, expTime, sampleManager } = req.body
   const { accessLevel } = req.user
 
   try {
@@ -79,7 +79,7 @@ export const postClaim = async (req, res) => {
 
     sendUploadCmd(
       instrumentId,
-      { userId, group: group.groupName, expsArr, claimId },
+      { userId, group: group.groupName, expsArr, claimId, sampleManager },
       'upload-manual'
     )
 

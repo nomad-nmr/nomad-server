@@ -22,7 +22,7 @@ import {
 import classes from './Claim.module.css'
 
 const Claim = props => {
-  const { authToken, fetchInstrList, fetchGrpList, resetClaim, checked, username } = props
+  const { authToken, fetchInstrList, fetchGrpList, resetClaim, checked } = props
 
   const formReference = useRef({})
 
@@ -66,6 +66,11 @@ const Claim = props => {
         checkedExps={props.checkedExps}
         checkedDatasetsHandler={props.updCheckedData}
         checked={checked}
+        toggleModal={props.tglClaimModal}
+        accessLevel={props.accessLevel}
+        groupId={props.grpId}
+        token={authToken}
+        fetchUserList={props.fetchUsrList}
       />
       <ClaimModal
         open={props.showModal}
@@ -78,6 +83,8 @@ const Claim = props => {
         instrumentId={props.instrId}
         claimHandler={props.submitClaim}
         token={props.authToken}
+        sampleManager={props.sampleManager}
+        resetClaim={resetClaim}
       />
     </div>
   )
@@ -98,7 +105,9 @@ const mapStateToProps = state => {
     totalExpClaimed: state.claim.totalExpCount,
     showModal: state.claim.showModal,
     instrId: state.claim.instrumentId,
-    username: state.auth.username
+    username: state.auth.username,
+    grpId: state.claim.selectedGroupId,
+    sampleManager: state.claim.sampleManager
   }
 }
 

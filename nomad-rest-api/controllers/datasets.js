@@ -1,5 +1,4 @@
 import path from 'path'
-import fs from 'fs/promises'
 
 import { validationResult } from 'express-validator'
 import JSZip from 'jszip'
@@ -11,8 +10,10 @@ import Dataset from '../models/dataset.js'
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Collection from '../models/collection.js'
+import Group from '../models/group.js'
 import { getNMRiumDataObj, nmriumDataVersion } from '../utils/nmriumUtils.js'
 import zipDataset from '../utils/zipDataset.js'
+import { title } from 'process'
 
 const datastorePath = process.env.DATASTORE_PATH || '/app/datastore'
 
@@ -345,7 +346,7 @@ export const searchDatasets = async (req, res) => {
 //helper function for formatting dataset array of datasets
 //used in collections controller
 export const getDatasetResp = datasetsInput => {
-  return datasetsInput.map(i => {
+  const respArray = datasetsInput.map(i => {
     const expsInfo = i.nmriumData.data.spectra.map(spec => ({
       key: i.id + '-' + spec.id,
       dataType: spec.dataType,
@@ -359,6 +360,27 @@ export const getDatasetResp = datasetsInput => {
       date: spec.info.date,
       expId: spec.info.expId
     }))
+
+    if (i.sampleManagerData && i.sampleManagerData.length > 0) {
+      i.sampleManagerData.forEach((sample, index) => {
+        expsInfo.push({
+          key: index,
+          dataType: 'sample',
+          data: sample,
+          date: sample.Metadata.created_timestamp,
+          title: sample.Sample.Label,
+          pulseSequence: sample.Metadata.ejected_timestamp ? 'Ejected' : ''
+        })
+      })
+    }
+
+    // sort expsInfo ascending by date (safely handling missing/invalid dates)
+    expsInfo.sort((a, b) => {
+      const tA = a.date ? new Date(a.date).getTime() : 0
+      const tB = b.date ? new Date(b.date).getTime() : 0
+      return tA - tB
+    })
+
     return {
       key: i._id,
       username: i.user.username,
@@ -382,6 +404,7 @@ export const getDatasetResp = datasetsInput => {
       })
     }
   })
+  return respArray
 }
 
 export const deleteDataset = async (req, res) => {
@@ -415,6 +438,53 @@ export const updateTags = async (req, res) => {
     dataset.tags = req.body.tags
     const savedDataset = await dataset.save()
     res.status(200).json({ tags: savedDataset.tags, datasetId: savedDataset._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export const postSampleManager = async (req, res) => {
+  try {
+    const { userId, group, expsArr, sampleManagerData } = req.body
+    const groupId = await Group.findOne({ groupName: group }).select('_id')
+
+    const nmriumSpectraArr = await Promise.all(
+      expsArr.map(async expId => {
+        const experiment = await ManualExperiment.findOne({ expId })
+
+        const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
+
+        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, false)
+
+        const nmriumSpecObj = {
+          ...nmriumDataObj.spectra[0],
+          dataType: 'manual',
+          id: experiment._id.toString(),
+          data: null,
+          meta: null
+        }
+
+        return nmriumSpecObj
+      })
+    )
+
+    const nmriumData = {
+      version: 'sample-manager',
+      data: { spectra: nmriumSpectraArr, molecules: [] }
+    }
+
+    const dataset = new Dataset({
+      user: userId,
+      group: groupId,
+      title: expsArr[0].split('#-#')[0],
+      nmriumData,
+      sampleManagerData
+    })
+
+    await dataset.save()
+
+    res.sendStatus(200)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

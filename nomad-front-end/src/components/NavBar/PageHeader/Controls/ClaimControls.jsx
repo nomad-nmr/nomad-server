@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Modal, Switch, Space } from 'antd'
-import { ExclamationCircleFilled } from '@ant-design/icons'
+import { Button, Modal, Switch } from 'antd'
 
 import classes from '../PageHeader.module.css'
 

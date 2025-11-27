@@ -13,7 +13,8 @@ const initialState = {
   claimId: undefined,
   totalExpCount: 0,
   showModal: false,
-  selectedGroupId: undefined
+  selectedGroupId: undefined,
+  sampleManager: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -36,7 +37,14 @@ const reducer = (state = initialState, { type, payload }) => {
       }
 
     case actionTypes.RESET_CLAIM:
-      return { ...state, loading: false, foldersData: [], checked: [], selectedGroupId: undefined }
+      return {
+        ...state,
+        loading: false,
+        foldersData: [],
+        checked: [],
+        selectedGroupId: undefined,
+        sampleManager: false
+      }
 
     case actionTypes.UPDATE_CHECKED_CLAIM_EXPS:
       let checkedNew = []
@@ -64,7 +72,11 @@ const reducer = (state = initialState, { type, payload }) => {
         checkedUpdated = state.checked.filter(entry => entry.datasetName !== dataset.datasetName)
       }
 
-      return { ...state, checked: addTotalExpTime(checkedUpdated, state.foldersData) }
+      return {
+        ...state,
+        checked: addTotalExpTime(checkedUpdated, state.foldersData),
+        sampleManager: payload.sampleManager ? true : false
+      }
 
     case actionTypes.CLAIM_START:
       return {
