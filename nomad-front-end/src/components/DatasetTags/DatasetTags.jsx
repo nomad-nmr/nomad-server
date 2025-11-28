@@ -81,6 +81,7 @@ const DatasetTags = props => {
           ref={inputRef}
           type='text'
           size='small'
+          maxLength={20}
           style={{
             width: 78
           }}
