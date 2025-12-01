@@ -82,6 +82,7 @@ const DatasetTags = props => {
           type='text'
           size='small'
           maxLength={20}
+          showCount
           style={{
             width: 78
           }}
