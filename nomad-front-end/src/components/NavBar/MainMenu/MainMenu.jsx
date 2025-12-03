@@ -8,7 +8,8 @@ import Icon, {
   LineChartOutlined,
   UploadOutlined,
   DatabaseOutlined,
-  FolderOutlined
+  FolderOutlined,
+  FormOutlined
 } from '@ant-design/icons'
 import batchIconSvg from './BatchSubmitIcon'
 
@@ -80,6 +81,21 @@ const MainMenu = props => {
   ]
 
   if (manualAccess || accessLevel === 'admin') {
+    subChildren.unshift({
+      key: 'sample-manager',
+      icon: <FormOutlined style={{ fontSize: 20 }} />,
+      label: (
+        <a
+          href='https://waudbylab.org/nmr-samples/'
+          target='_blank'
+          rel='noopener noreferrer'
+          style={{ fontSize: '16px', fontWeight: 500, color: 'inherit' }}
+          onClick={e => e.stopPropagation()}
+        >
+          Sample Manager
+        </a>
+      )
+    })
     subChildren.unshift({
       key: '/claim',
       icon: <UploadOutlined style={{ fontSize: 20 }} />,
