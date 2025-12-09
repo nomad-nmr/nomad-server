@@ -129,6 +129,15 @@ const InstrumentsForm = props => {
             </Form.Item>
             <Form.Item
               style={{ textAlign: 'left' }}
+              name='isManual'
+              label='Manually Used'
+              tooltip='Instrument set for manual use and data archiving'
+              valuePropName='checked'
+            >
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+            </Form.Item>
+            <Form.Item
+              style={{ textAlign: 'left' }}
               name='paramsEditing'
               label='Parameters Editing'
               tooltip='Allow or deny users from editing parameters'
@@ -138,9 +147,9 @@ const InstrumentsForm = props => {
             </Form.Item>
             <Form.Item
               style={{ textAlign: 'left' }}
-              name='isManual'
-              label='Manually Used'
-              tooltip='Instrument set for manual use and data archiving'
+              name='skipHolder'
+              label='Skip Holder'
+              tooltip='Allow or deny users from skipping holders'
               valuePropName='checked'
             >
               <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />

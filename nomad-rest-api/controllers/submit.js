@@ -133,9 +133,9 @@ export const postBookHolders = async (req, res) => {
       throw new Error('Submitter error')
     }
 
-    const { capacity, name, paramsEditing } = await Instrument.findById(
+    const { capacity, name, paramsEditing, skipHolder } = await Instrument.findById(
       instrumentId,
-      'capacity name paramsEditing'
+      'capacity name paramsEditing skipHolder'
     )
 
     const availableHolders = submitter.findAvailableHolders(instrumentId, capacity, count)
@@ -163,7 +163,13 @@ export const postBookHolders = async (req, res) => {
       }
     }
 
-    res.send({ instrumentId, instrumentName: name, holders: availableHolders, paramsEditing })
+    res.send({
+      instrumentId,
+      instrumentName: name,
+      holders: availableHolders,
+      paramsEditing,
+      skipHolder
+    })
   } catch (error) {
     console.log(error)
     res.status(500).send()

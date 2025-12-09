@@ -156,6 +156,21 @@ const Instruments = props => {
         )
     },
     {
+      title: () => (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          Skip
+          <p>Holder</p>
+        </div>
+      ),
+      align: 'center',
+      render: record =>
+        record.skipHolder ? (
+          <CheckCircleOutlined style={{ color: '#389e0d', fontSize: '18px' }} />
+        ) : (
+          <StopOutlined style={{ color: '#cf1322', fontSize: '18px' }} />
+        )
+    },
+    {
       title: 'Actions',
       align: 'center',
       render: record => (

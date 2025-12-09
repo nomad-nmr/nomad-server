@@ -173,7 +173,6 @@ const BookExperimentsForm = props => {
 
   useEffect(() => {
     if (newHolderData) {
-      console.log(form.getFieldsValue())
       form.setFieldValue(newHolderData.key, {
         holder: newHolderData.holder
       })
@@ -479,6 +478,7 @@ const BookExperimentsForm = props => {
                   type='primary'
                   style={{ marginBottom: '25px' }}
                   onClick={() => props.getNewHolder(token, key)}
+                  disabled={!sample.skipHolder && !priorityAccess}
                 >
                   Skip
                 </Button>

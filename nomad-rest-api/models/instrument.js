@@ -46,6 +46,11 @@ const instrumentSchema = new Schema({
     default: true
   },
 
+  skipHolder: {
+    type: Boolean,
+    default: false
+  },
+
   status: {
     summary: {
       busyUntil: {
