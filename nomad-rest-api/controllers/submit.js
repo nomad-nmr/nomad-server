@@ -430,6 +430,29 @@ export async function postResubmit(req, res) {
   }
 }
 
+export async function getNewHolder(req, res) {
+  try {
+    const submitter = getSubmitter()
+    const { key } = req.params
+    const instrumentId = key.split('-')[0]
+    const holder = key.split('-')[1]
+    const { capacity } = await Instrument.findById(instrumentId, 'capacity')
+
+    const [newHolder] = submitter.findAvailableHolders(instrumentId, capacity, 1)
+    submitter.updateBookedHolders(instrumentId, [newHolder])
+
+    //skipped holder gets freed after 5 mins
+    setTimeout(() => {
+      submitter.cancelBookedHolder(instrumentId, holder)
+    }, 300000)
+
+    res.send({ key, holder: newHolder })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
 //Helper function that sends array of holders to be deleted to the client
 const emitDeleteExps = (instrId, holders, res) => {
   const submitter = getSubmitter()

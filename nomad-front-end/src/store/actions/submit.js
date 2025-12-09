@@ -151,3 +151,23 @@ export const resubmitHolders = (token, dataObj) => {
 export const resetResubmit = () => ({
   type: actionTypes.RESET_RESUBMIT_DATA
 })
+
+export const getNewHolderSuccess = payload => ({
+  type: actionTypes.GET_NEW_HOLDER_SUCCESS,
+  payload
+})
+
+export const getNewHolder = (token, key) => {
+  return dispatch => {
+    axios
+      .get('/submit/new-holder/' + key, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(getNewHolderSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
