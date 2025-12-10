@@ -173,8 +173,10 @@ const BookExperimentsForm = props => {
 
   useEffect(() => {
     if (newHolderData) {
-      form.setFieldValue(newHolderData.key, {
-        holder: newHolderData.holder
+      form.setFieldsValue({
+        [newHolderData.key]: {
+          holder: newHolderData.holder
+        }
       })
     }
   }, [newHolderData])
