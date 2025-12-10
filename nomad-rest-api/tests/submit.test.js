@@ -363,3 +363,32 @@ describe('GET /allowance', () => {
       .expect(403)
   })
 })
+
+describe('GET /new-holder/:key', () => {
+  it('should call getSubmitter and return new holder with booked status', async () => {
+    const { body } = await request(app)
+      .get('/api/submit/new-holder/' + testInstrOne._id.toString() + '-' + '1')
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+
+    expect(body).toMatchObject({
+      key: testInstrOne._id.toString() + '-' + '1',
+      holder: expect.any(Number)
+    })
+
+    expect(getSubmitter).toBeCalled()
+  })
+
+  it('should fail with status 403 if request is not authorised', async () => {
+    await request(app)
+      .get('/api/submit/new-holder/' + testInstrOne._id.toString() + '-' + '1')
+      .expect(403)
+  })
+
+  it('should fail with status 500 if submitter does not return available holders', async () => {
+    await request(app)
+      .get('/api/submit/new-holder/' + testInstrTwo._id.toString() + '-' + '1')
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(500)
+  })
+})

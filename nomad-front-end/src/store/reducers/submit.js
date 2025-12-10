@@ -5,7 +5,8 @@ const initialState = {
   loading: false,
   bookedHolders: [],
   allowance: [],
-  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined }
+  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined },
+  newHolder: null
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -100,6 +101,9 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.RESET_RESUBMIT_DATA:
       return { ...state, resubmitData: { reservedHolders: [], formValues: {}, userId: undefined } }
+
+    case actionTypes.GET_NEW_HOLDER_SUCCESS:
+      return { ...state, newHolder: payload }
 
     default:
       return state

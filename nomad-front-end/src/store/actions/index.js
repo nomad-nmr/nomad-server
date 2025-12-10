@@ -96,7 +96,8 @@ export {
   cancelBookedHoldersSuccess,
   fetchAllowance,
   resubmitHolders,
-  resetResubmit
+  resetResubmit,
+  getNewHolder
 } from './submit'
 
 export { sendMessage } from './message'
