@@ -84,12 +84,12 @@ describe('POST /holders', () => {
     expect(getSubmitter).toBeCalled(1)
   })
 
-  it('should send email to admins and switch set instrument available false', async () => {
+  it('should send email to admins and return status 406 when all holders are booked', async () => {
     await request(app)
       .post('/api/submit/holders')
       .send({ instrumentId: testInstrThree._id.toString(), count: 2 })
       .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
-      .expect(200)
+      .expect(406)
 
     expect(transporter.sendMail).toBeCalled()
   })

@@ -3,6 +3,7 @@ import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
   loading: false,
+  newHolderLoading: false,
   bookedHolders: [],
   allowance: [],
   resubmitData: { reservedHolders: [], formValues: {}, userId: undefined },
@@ -44,7 +45,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.CANCEL_BOOKED_HOLDERS_SUCCESS:
       return {
         ...state,
-        bookedHolders: []
+        bookedHolders: [],
+        loading: false,
+        newHolderLoading: false
       }
 
     case actionTypes.BOOK_EXPERIMENTS_SUCCESS:
@@ -102,8 +105,11 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.RESET_RESUBMIT_DATA:
       return { ...state, resubmitData: { reservedHolders: [], formValues: {}, userId: undefined } }
 
+    case actionTypes.START_NEW_HOLDER_FETCH:
+      return { ...state, newHolderLoading: true }
+
     case actionTypes.GET_NEW_HOLDER_SUCCESS:
-      return { ...state, newHolder: payload }
+      return { ...state, newHolder: payload, newHolderLoading: false }
 
     default:
       return state

@@ -95,10 +95,6 @@ export const bookExperiments = (token, formData, userId) => {
   }
 }
 
-// export const cancelBookedHoldersSuccess = () => ({
-//   type: actionTypes.CLEAR_BOOKED_HOLDERS
-// })
-
 export const fetchAlloawanceSucces = payload => ({
   type: actionTypes.FETCH_ALLOWANCE_SUCCESS,
   payload
@@ -156,9 +152,13 @@ export const getNewHolderSuccess = payload => ({
   type: actionTypes.GET_NEW_HOLDER_SUCCESS,
   payload
 })
+export const startNewHolderFetch = () => ({
+  type: actionTypes.START_NEW_HOLDER_FETCH
+})
 
 export const getNewHolder = (token, key) => {
   return dispatch => {
+    dispatch(startNewHolderFetch())
     axios
       .get('/submit/new-holder/' + key, {
         headers: { Authorization: 'Bearer ' + token }

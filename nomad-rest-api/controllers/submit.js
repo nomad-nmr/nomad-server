@@ -9,6 +9,8 @@ import User from '../models/user.js'
 import Experiment from '../models/experiment.js'
 import transporter from '../utils/emailTransporter.js'
 
+//Flag to prevent multiple alert e-mails being sent within short time frame
+// Can't be defined inside function scope as it would reset on each function call
 let alertSent = false
 
 export const postSubmission = async (req, res) => {
@@ -132,11 +134,8 @@ export const postBookHolders = async (req, res) => {
     if (!usedHolders || !bookedHolders) {
       throw new Error('Submitter error')
     }
-
-    const { capacity, name, paramsEditing, skipHolder } = await Instrument.findById(
-      instrumentId,
-      'capacity name paramsEditing skipHolder'
-    )
+    const instrument = await Instrument.findByIdAndUpdate(instrumentId)
+    const { capacity, paramsEditing, skipHolder, autoReset } = instrument
 
     const availableHolders = submitter.findAvailableHolders(instrumentId, capacity, count)
 
@@ -144,7 +143,11 @@ export const postBookHolders = async (req, res) => {
 
     //If there are no available holders then queue gets shut down and e-mail to admins is sent.
     if (availableHolders.length === 0) {
-      const instrument = await Instrument.findByIdAndUpdate(instrumentId)
+      if (autoReset) {
+        const holdersToDelete = getHoldersToDelete(instrument.status.statusTable, false)
+        submitter.resetBookedHolders(instrumentId)
+        emitDeleteExps(instrumentId, holdersToDelete)
+      }
       const admins = await User.find({ accessLevel: 'admin', isActive: true }, 'email')
       const recipients = admins.map(i => i.email)
       if (!alertSent) {
@@ -152,8 +155,16 @@ export const postBookHolders = async (req, res) => {
           from: process.env.SMTP_SENDER,
           cc: process.env.SMTP_SENDER,
           to: recipients,
-          subject: 'NOMAD-ALERT: No holders available',
-          text: `All holders on instrument ${instrument.name} have been booked!`
+          subject: `NOMAD-ALERT: No holders available${
+            autoReset ? ' - Automatic Reset Applied' : ''
+          }`,
+          text: `All holders on instrument ${instrument.name} have been booked!
+          ${
+            autoReset
+              ? 'The queue has been automatically reset.'
+              : 'Please take action to free up holders.'
+          }
+          `
         })
         //Preventing alert to be sent multiple times
         alertSent = true
@@ -161,11 +172,14 @@ export const postBookHolders = async (req, res) => {
           alertSent = false
         }, 600000)
       }
+      return res
+        .status(406)
+        .send({ message: `No holders available${autoReset ? ' - Automatic Reset Applied' : ''}` })
     }
 
     res.send({
       instrumentId,
-      instrumentName: name,
+      instrumentName: instrument.name,
       holders: availableHolders,
       paramsEditing,
       skipHolder
@@ -230,28 +244,10 @@ export const putReset = async (req, res) => {
       return res.status(404).send('Instrument not found')
     }
 
-    const holders = []
-
-    instrument.status.statusTable.forEach((row, index) => {
-      const prevRow = instrument.status.statusTable[index - 1]
-      if (index === 0 || prevRow.datasetName !== row.datasetName) {
-        holders.push({ number: row.holder, status: [row.status] })
-      } else {
-        const i = holders.length - 1
-        holders[i].status.push(row.status)
-      }
-    })
-
-    const filteredHolders = holders.filter(holder =>
-      holder.status.every(
-        status => status !== 'Submitted' && status !== 'Running' && status !== 'Available'
-      )
-    )
-
-    const holdersToDelete = filteredHolders.map(holder => holder.number)
+    const holdersToDelete = getHoldersToDelete(instrument.status.statusTable, false)
 
     submitter.resetBookedHolders(instrId)
-    emitDeleteExps(instrId, holdersToDelete, res)
+    emitDeleteExps(instrId, holdersToDelete)
     res.status(200).json(holdersToDelete)
   } catch (error) {
     console.log(error)
@@ -445,6 +441,10 @@ export async function getNewHolder(req, res) {
     const { capacity } = await Instrument.findById(instrumentId, 'capacity')
 
     const [newHolder] = submitter.findAvailableHolders(instrumentId, capacity, 1)
+    if (!newHolder) {
+      return res.status(406).send({ message: 'No holders available' })
+    }
+
     submitter.updateBookedHolders(instrumentId, [newHolder])
 
     //skipped holder gets freed after 5 mins
@@ -460,7 +460,7 @@ export async function getNewHolder(req, res) {
 }
 
 //Helper function that sends array of holders to be deleted to the client
-const emitDeleteExps = (instrId, holders, res) => {
+const emitDeleteExps = (instrId, holders) => {
   const submitter = getSubmitter()
   const { socketId } = submitter.state.get(instrId)
 
@@ -470,4 +470,34 @@ const emitDeleteExps = (instrId, holders, res) => {
   }
 
   getIO().to(socketId).emit('delete', JSON.stringify(holders))
+}
+
+//helper function that determines which holders can be deleted during reset
+const getHoldersToDelete = (statusTable, autoReset) => {
+  const holders = []
+
+  statusTable.forEach((row, index) => {
+    const prevRow = statusTable[index - 1]
+    if (index === 0 || prevRow.datasetName !== row.datasetName) {
+      holders.push({ number: row.holder, status: [row.status] })
+    } else {
+      const i = holders.length - 1
+      holders[i].status.push(row.status)
+    }
+  })
+
+  const filteredHolders = holders.filter(holder =>
+    holder.status.every(status =>
+      autoReset
+        ? status !== 'Running' &&
+          status !== 'Available' &&
+          status !== 'Running' &&
+          status !== 'Error'
+        : status !== 'Submitted' && status !== 'Running' && status !== 'Available'
+    )
+  )
+
+  const holdersToDelete = filteredHolders.map(holder => holder.number)
+
+  return holdersToDelete
 }

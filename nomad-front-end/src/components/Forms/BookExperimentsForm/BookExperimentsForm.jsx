@@ -481,6 +481,7 @@ const BookExperimentsForm = props => {
                   style={{ marginBottom: '25px' }}
                   onClick={() => props.getNewHolder(token, key)}
                   disabled={!sample.skipHolder && !priorityAccess}
+                  loading={props.newHolderLoading && props.newHolderData?.key === key}
                 >
                   Skip
                 </Button>
