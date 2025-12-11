@@ -129,6 +129,7 @@ const Submit = props => {
           allowanceData={props.allowance}
           getNewHolder={props.getNewHolder}
           newHolderData={props.newHolder}
+          newHolderLoading={props.newHolderLoading}
         />
       ) : null}
     </div>
@@ -147,7 +148,8 @@ const mapStateToProps = state => {
     grpList: state.groups.groupList,
     usrList: state.users.userList,
     allowance: state.submit.allowance,
-    newHolder: state.submit.newHolder
+    newHolder: state.submit.newHolder,
+    newHolderLoading: state.submit.newHolderLoading
   }
 }
 
