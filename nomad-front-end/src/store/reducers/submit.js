@@ -22,7 +22,8 @@ const reducer = (state = initialState, { type, payload }) => {
           instrument: payload.instrumentName,
           holder,
           key: payload.instrumentId + '-' + holder,
-          paramsEditing: payload.paramsEditing
+          paramsEditing: payload.paramsEditing,
+          skipHolder: payload.skipHolder
         }))
         return {
           ...state,
