@@ -413,7 +413,7 @@ export async function postResubmit(req, res) {
     )
 
     const user = await User.findOne({ username })
-    const instrument = await Instrument.findById(instrId, 'name paramsEditing')
+    const instrument = await Instrument.findById(instrId, 'name paramsEditing skipHolder')
     if (!user) {
       return res.status(404).send({ message: 'User not found' })
     }

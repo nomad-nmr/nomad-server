@@ -73,6 +73,7 @@ const reducer = (state = initialState, { type, payload }) => {
         instrument: payload.instrument.name,
         key: payload.instrument._id + '-' + holder,
         paramsEditing: payload.instrument.paramsEditing,
+        skipHolder: payload.instrument.skipHolder,
         expCount: experimentData.filter(i => i.holder === holder).length
       }))
 
