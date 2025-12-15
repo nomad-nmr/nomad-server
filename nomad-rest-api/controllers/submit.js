@@ -488,7 +488,12 @@ const getHoldersToDelete = (statusTable, autoReset) => {
 
   const filteredHolders = holders.filter(holder =>
     holder.status.every(status =>
-      autoReset ? status === 'Completed' : status === 'Completed' || status === 'Error'
+      autoReset
+        ? status !== 'Running' &&
+          status !== 'Available' &&
+          status !== 'Submitted' &&
+          status !== 'Error'
+        : status !== 'Submitted' && status !== 'Running' && status !== 'Available'
     )
   )
 
