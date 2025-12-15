@@ -144,7 +144,7 @@ export const postBookHolders = async (req, res) => {
     //If there are no available holders then queue gets shut down and e-mail to admins is sent.
     if (availableHolders.length === 0) {
       if (autoReset) {
-        const holdersToDelete = getHoldersToDelete(instrument.status.statusTable, false)
+        const holdersToDelete = getHoldersToDelete(instrument.status.statusTable, true)
         submitter.resetBookedHolders(instrumentId)
         emitDeleteExps(instrumentId, holdersToDelete)
       }
