@@ -39,7 +39,8 @@ const zipDataset = async (jszipfile, datasetId) => {
           //Changing subfolder structure in the zip file
           Object.keys(zipObject.files).forEach(key => {
             let newKey
-            if (key.split('/').length === 1) {
+
+            if (key.split('/').filter(i => i !== '').length === 1) {
               newKey = sanitisedTitle + '/'
             } else {
               newKey = key.replace(
