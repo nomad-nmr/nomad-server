@@ -104,7 +104,7 @@ export const getDataset = async (req, res) => {
     }
 
     //version of NMRium data format has to be in sync with nmr-load-save parser
-    respObj.nmriumData.version = nmriumDataVersion
+    // respObj.nmriumData.version = nmriumDataVersion
 
     const respJSON = JSON.stringify(respObj, (k, v) => (ArrayBuffer.isView(v) ? Array.from(v) : v))
     //.json can't be used as we already convert object to json above using custom function
