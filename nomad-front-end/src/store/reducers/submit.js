@@ -3,9 +3,11 @@ import * as actionTypes from '../actions/actionTypes'
 
 const initialState = {
   loading: false,
+  newHolderLoading: false,
   bookedHolders: [],
   allowance: [],
-  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined }
+  resubmitData: { reservedHolders: [], formValues: {}, userId: undefined },
+  newHolder: null
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -20,7 +22,8 @@ const reducer = (state = initialState, { type, payload }) => {
           instrument: payload.instrumentName,
           holder,
           key: payload.instrumentId + '-' + holder,
-          paramsEditing: payload.paramsEditing
+          paramsEditing: payload.paramsEditing,
+          skipHolder: payload.skipHolder
         }))
         return {
           ...state,
@@ -43,7 +46,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.CANCEL_BOOKED_HOLDERS_SUCCESS:
       return {
         ...state,
-        bookedHolders: []
+        bookedHolders: [],
+        loading: false,
+        newHolderLoading: false
       }
 
     case actionTypes.BOOK_EXPERIMENTS_SUCCESS:
@@ -68,6 +73,7 @@ const reducer = (state = initialState, { type, payload }) => {
         instrument: payload.instrument.name,
         key: payload.instrument._id + '-' + holder,
         paramsEditing: payload.instrument.paramsEditing,
+        skipHolder: payload.instrument.skipHolder,
         expCount: experimentData.filter(i => i.holder === holder).length
       }))
 
@@ -100,6 +106,12 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.RESET_RESUBMIT_DATA:
       return { ...state, resubmitData: { reservedHolders: [], formValues: {}, userId: undefined } }
+
+    case actionTypes.START_NEW_HOLDER_FETCH:
+      return { ...state, newHolderLoading: true }
+
+    case actionTypes.GET_NEW_HOLDER_SUCCESS:
+      return { ...state, newHolder: payload, newHolderLoading: false }
 
     default:
       return state

@@ -18,7 +18,8 @@ import {
   fetchGroupList,
   fetchUserList,
   cancelBookedHoldersSuccess,
-  fetchAllowance
+  fetchAllowance,
+  getNewHolder
 } from '../../store/actions'
 
 const Submit = props => {
@@ -126,6 +127,9 @@ const Submit = props => {
           submittingUserId={submittingUser}
           fetchAllowance={props.fetchAllow}
           allowanceData={props.allowance}
+          getNewHolder={props.getNewHolder}
+          newHolderData={props.newHolder}
+          newHolderLoading={props.newHolderLoading}
         />
       ) : null}
     </div>
@@ -143,7 +147,9 @@ const mapStateToProps = state => {
     reservedHolders: state.submit.bookedHolders,
     grpList: state.groups.groupList,
     usrList: state.users.userList,
-    allowance: state.submit.allowance
+    allowance: state.submit.allowance,
+    newHolder: state.submit.newHolder,
+    newHolderLoading: state.submit.newHolderLoading
   }
 }
 
@@ -161,7 +167,8 @@ const mapDispatchToProps = dispatch => {
     cancelBookedHoldersHandler: (token, keys) => dispatch(cancelBookedHolders(token, keys)),
     bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
     clrBookedHolders: () => dispatch(cancelBookedHoldersSuccess()),
-    fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds))
+    fetchAllow: (token, instrIds) => dispatch(fetchAllowance(token, instrIds)),
+    getNewHolder: (token, key) => dispatch(getNewHolder(token, key))
   }
 }
 

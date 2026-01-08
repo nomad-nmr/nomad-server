@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { Modal } from 'antd'
-import { StructureEditor } from 'react-ocl/full'
+import { CanvasMoleculeEditor } from 'react-ocl'
 
 const StructureEditorModal = props => {
   const [smilesState, setSmilesState] = useState(undefined)
@@ -16,11 +16,12 @@ const StructureEditorModal = props => {
         props.openHandler(false)
       }}
     >
-      <StructureEditor
-        svgMenu
+      <CanvasMoleculeEditor
+        width={700}
+        height={500}
         fragment={false}
-        onChange={useCallback((netMolfile, molecule) => {
-          setSmilesState(molecule.toSmiles())
+        onChange={useCallback(event => {
+          setSmilesState(event.getSmiles())
         })}
       />
     </Modal>

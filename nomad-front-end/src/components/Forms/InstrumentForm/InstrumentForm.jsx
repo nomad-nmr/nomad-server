@@ -116,8 +116,6 @@ const InstrumentsForm = props => {
             <Form.Item style={{ textAlign: 'left' }} name='nightEnd' label='Night Queue End'>
               <TimePicker format='HH:mm' />
             </Form.Item>
-          </Col>
-          <Col span={7}>
             <Form.Item
               style={{ textAlign: 'left' }}
               name='overheadTime'
@@ -126,6 +124,17 @@ const InstrumentsForm = props => {
               rules={[{ required: true, message: ' Overhead time is required' }]}
             >
               <InputNumber min={0} />
+            </Form.Item>
+          </Col>
+          <Col span={7}>
+            <Form.Item
+              style={{ textAlign: 'left' }}
+              name='isManual'
+              label='Manually Used'
+              tooltip='Instrument set for manual use and data archiving'
+              valuePropName='checked'
+            >
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
             </Form.Item>
             <Form.Item
               style={{ textAlign: 'left' }}
@@ -138,9 +147,18 @@ const InstrumentsForm = props => {
             </Form.Item>
             <Form.Item
               style={{ textAlign: 'left' }}
-              name='isManual'
-              label='Manually Used'
-              tooltip='Instrument set for manual use and data archiving'
+              name='skipHolder'
+              label='Skip Holder'
+              tooltip='Allow or deny users from skipping holders'
+              valuePropName='checked'
+            >
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+            </Form.Item>
+            <Form.Item
+              style={{ textAlign: 'left' }}
+              name='autoReset'
+              label='Auto Reset'
+              tooltip='Automatically reset queue when no holders are available'
               valuePropName='checked'
             >
               <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />

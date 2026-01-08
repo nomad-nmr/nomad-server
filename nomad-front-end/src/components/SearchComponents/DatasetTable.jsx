@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router'
 import DatasetTags from '../DatasetTags/DatasetTags'
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
 import structureIconSVG from './StructureIcon'
+import SampleDataModal from './SampleDataModal'
 import classes from './SearchExpsTable.module.css'
 
 const DatasetTable = props => {
@@ -201,12 +202,30 @@ const DatasetTable = props => {
     {
       title: 'Title',
       align: 'center',
-      dataIndex: 'title'
+      dataIndex: 'title',
+      render: (value, record) =>
+        record.dataType !== 'sample' ? (
+          value
+        ) : (
+          <Button
+            type='link'
+            onClick={() =>
+              Modal.info({
+                content: <SampleDataModal data={record.data} />,
+                width: 700,
+                title: `Sample: ${record.data.Sample?.Label || 'Untitled'}`,
+                okText: 'Close'
+              })
+            }
+          >
+            {value}
+          </Button>
+        )
     },
     {
       title: 'Date',
       dataIndex: 'date',
-      render: record => (record ? dayjs(record).format('DD-MMM-YY') : '-')
+      render: record => (record ? dayjs(record).format('DD-MMM-YY HH:mm:ss') : '-')
     }
   ]
 
@@ -214,8 +233,10 @@ const DatasetTable = props => {
     const selectExps = {
       selectionType: 'checkbox',
       columnTitle: 'Select',
-      // selectedRowKeys: props.checkedExps.map(i => i.key),
-      onSelect: (record, selected) => props.checkedExpsHandler({ record, selected })
+      onSelect: (record, selected) => props.checkedExpsHandler({ record, selected }),
+      getCheckboxProps: record => ({
+        disabled: record.dataType === 'sample'
+      })
     }
 
     return (
@@ -225,7 +246,9 @@ const DatasetTable = props => {
         pagination={false}
         size='small'
         rowSelection={selectExps}
-        rowClassName={classes.RowExpansion}
+        rowClassName={rowData =>
+          rowData.dataType !== 'sample' ? classes.RowExpansionExp : classes.RowExpansionSample
+        }
       />
     )
   }
@@ -236,7 +259,6 @@ const DatasetTable = props => {
     selectedRowKeys: props.checkedDatasets,
     onSelect: (record, selected) => props.checkedDatasetsHandler({ key: record.key, selected })
   }
-
   return (
     <Table
       columns={columns}

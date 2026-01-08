@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.6.2",
+  "version": "3.6.3",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@zakodium/nmrium-core-plugins": "^0.1.9",
+    "@zakodium/nmrium-core-plugins": "0.6.21",
     "bcrypt-salt": "^2.0.0",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
@@ -31,17 +31,17 @@
     "mongoose": "^8.0.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^7.0.3",
-    "openchemlib": "^8.3.0",
+    "openchemlib": "^9.18.2",
     "socket.io": "^4.5.4",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.0.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^3.0.4",
+    "@vitest/coverage-v8": "^4.0.14",
     "env-cmd": "^10.1.0",
     "mongodb-memory-server": "^10.0.0",
     "nodemon": "^3.0.1",
     "supertest": "^7.0.0",
-    "vitest": "^3.0.4"
+    "vitest": "^4.0.14"
   }
 }

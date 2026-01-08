@@ -1,11 +1,11 @@
 import React from 'react'
-import { Table } from 'antd'
+import { Table, Button } from 'antd'
 import dayjs from 'dayjs'
 
 import classes from './ClaimTable.module.css'
 
 const ClaimTable = props => {
-  const { checked } = props
+  const { checked, accessLevel, token, groupId } = props
   const columns = [
     {
       title: 'Dataset Name',
@@ -23,6 +23,35 @@ const ClaimTable = props => {
       title: 'Number of experiments',
       dataIndex: 'exps',
       render: record => record.length
+    },
+    {
+      title: 'Actions',
+      render: record => {
+        if (record.sampleManager) {
+          return (
+            <Button
+              type='link'
+              onClick={() => {
+                const payload = {
+                  dataset: {
+                    datasetName: record.datasetName,
+                    exps: record.exps.map(exp => exp.key)
+                  },
+                  selected: true,
+                  sampleManager: true
+                }
+                props.checkedDatasetsHandler(payload)
+                if (accessLevel === 'admin') {
+                  props.fetchUserList(token, groupId, false)
+                }
+                props.toggleModal()
+              }}
+            >
+              Claim Sample Manager Dataset
+            </Button>
+          )
+        }
+      }
     }
   ]
 

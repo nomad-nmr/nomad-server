@@ -3,7 +3,16 @@ import { Modal, Form, Input, InputNumber, Select } from 'antd'
 import moment from 'moment'
 
 const ClaimModal = props => {
-  const { checked, open, accessLevel, instrumentId, token, userList, canClaimForOthers } = props
+  const {
+    checked,
+    open,
+    accessLevel,
+    instrumentId,
+    token,
+    userList,
+    canClaimForOthers,
+    sampleManager
+  } = props
 
   const [form] = Form.useForm()
 
@@ -32,21 +41,44 @@ const ClaimModal = props => {
 
   const processForm = () => {
     const values = form.getFieldsValue()
-    props.claimHandler(token, {
+    const claimData = {
       userId: values.userId,
       instrumentId,
       expsArr,
       expTime: values.totalExpT,
-      note: values.note
-    })
-    props.toggleModal()
+      note: values.note,
+      sampleManager
+    }
+    if (sampleManager) {
+      Modal.confirm({
+        title: 'Confirm Sampe Manager Claim',
+        content: `Are you sure you want to claim manual experiments as Sample Manager Dataset?
+        Cilck OK to confirm or Cancel to proceed with regular claim.
+        `,
+        onOk() {
+          props.claimHandler(token, claimData)
+          props.toggleModal()
+        },
+        onCancel() {
+          claimData.sampleManager = false
+          props.claimHandler(token, claimData)
+          props.toggleModal()
+        }
+      })
+    } else {
+      props.claimHandler(token, claimData)
+      props.toggleModal()
+    }
   }
 
   return (
     <Modal
-      title='Manual Data Claim'
+      title={sampleManager ? 'Sample Manager Dataset Claim' : 'Manual Data Claim'}
       open={open}
-      onCancel={() => props.toggleModal()}
+      onCancel={() => {
+        props.resetClaim()
+        props.toggleModal()
+      }}
       onOk={() => form.submit()}
     >
       <Form onFinish={processForm} form={form} style={{ marginTop: '20px' }}>

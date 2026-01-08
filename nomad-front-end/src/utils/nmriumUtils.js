@@ -12,4 +12,4 @@ export const skimNMRiumdata = input => {
   return output
 }
 
-export const nmriumDataVersion = 9
+export const nmriumDataVersion = 13

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router'
-import { Card, Button, Tooltip, Popconfirm, Checkbox, Tag } from 'antd'
+import { Card, Button, Tooltip, Popconfirm, Checkbox, Row, Col, Popover } from 'antd'
 import {
   FolderOpenOutlined,
   DownloadOutlined,
@@ -22,6 +22,14 @@ const DatasetCard = props => {
   const navigate = useNavigate()
   const [svgIndex, setSvgIndex] = useState(0)
   const { data, user } = props
+
+  const expsInfoArray = data.expsInfo
+    .map(exp => {
+      if (exp.dataType !== 'sample') return `${exp.nucleus} (${exp.pulseSequence})`
+    })
+    .filter(i => i !== undefined)
+
+  const popoverContent = expsInfoArray.map((i, index) => <p key={index}>{i}</p>)
 
   const onCheckboxChange = e => {
     props.checkedDatasetsHandler({ selected: e.target.checked, key: data.key })
@@ -86,15 +94,25 @@ const DatasetCard = props => {
       bodyStyle={{ backgroundColor: '#f6ffed', width: 240, fontSize: '8 px' }}
       cover={
         <div className={classes.Cover}>
-          <div style={{ width: '220px' }}>
-            <DatasetTags
-              tags={data.tags}
-              inputDisabled={data.username !== user.username && user.accessLevel !== 'admin'}
-              patchDataset={props.updateTags}
-              datasetId={data.key}
-              authToken={props.token}
-            />
-          </div>
+          <Row style={{ width: '220px' }}>
+            <Col span={20}>
+              <div>
+                <DatasetTags
+                  tags={data.tags}
+                  inputDisabled={data.username !== user.username && user.accessLevel !== 'admin'}
+                  patchDataset={props.updateTags}
+                  datasetId={data.key}
+                  authToken={props.token}
+                />
+              </div>
+            </Col>
+            <Col span={4}>
+              <Popover title='Experiments Info' content={popoverContent} trigger='hover'>
+                <div className={classes.ExpsInfo}>{expsInfoArray.length}</div>
+              </Popover>
+            </Col>
+          </Row>
+
           {data.molSVGs.length > 0 ? (
             <div
               className={classes.Structure}

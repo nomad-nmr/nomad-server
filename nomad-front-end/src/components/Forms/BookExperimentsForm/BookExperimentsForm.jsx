@@ -48,7 +48,15 @@ const BookExperimentsForm = props => {
   const [totalExptState, setTotalExptState] = useState({})
   const [disableContinue, setDisableContinue] = useState(false)
 
-  const { inputData, allowanceData, fetchAllowance, token, accessLevel, formValues } = props
+  const {
+    inputData,
+    allowanceData,
+    fetchAllowance,
+    token,
+    accessLevel,
+    formValues,
+    newHolderData
+  } = props
 
   const priorityAccess = accessLevel === 'user-a' || accessLevel === 'admin'
   const resubmit = formValues
@@ -162,6 +170,16 @@ const BookExperimentsForm = props => {
       }
     }
   }, [totalExptState])
+
+  useEffect(() => {
+    if (newHolderData) {
+      form.setFieldsValue({
+        [newHolderData.key]: {
+          holder: newHolderData.holder
+        }
+      })
+    }
+  }, [newHolderData])
 
   const addExpHandler = e => {
     e.preventDefault()
@@ -452,15 +470,29 @@ const BookExperimentsForm = props => {
               <Input size='small' disabled style={disabledStyle} />
             </Form.Item>
           </Col>
-          <Col span={1}>
-            <Form.Item name={[key, 'holder']} initialValue={sample.holder}>
-              <Input size='small' disabled style={disabledStyle} />
-            </Form.Item>
+          <Col span={2}>
+            <Space>
+              <Form.Item name={[key, 'holder']} initialValue={sample.holder}>
+                <Input size='small' disabled style={disabledStyle} />
+              </Form.Item>
+              <Tooltip title='Skip this holder and proceed to the next one'>
+                <Button
+                  type='primary'
+                  style={{ marginBottom: '25px' }}
+                  onClick={() => props.getNewHolder(token, key)}
+                  disabled={!sample.skipHolder && !priorityAccess}
+                  loading={props.newHolderLoading && props.newHolderData?.key === key}
+                >
+                  Skip
+                </Button>
+              </Tooltip>
+            </Space>
           </Col>
+
           <Col span={2}>
             <SolventSelect nameKey={key} />
           </Col>
-          <Col span={priorityAccess ? 6 : 7}>
+          <Col span={priorityAccess ? 5 : 6}>
             <TitleInput nameKey={key} />
           </Col>
           <Col span={1}>
@@ -577,9 +609,9 @@ const BookExperimentsForm = props => {
     <div style={{ margin: '20px 40px' }}>
       <Row gutter={16} className={classes.Header}>
         <Col span={2}>Instrument</Col>
-        <Col span={1}>Holder</Col>
+        <Col span={2}>Holder</Col>
         <Col span={2}>Solvent</Col>
-        <Col span={priorityAccess ? 6 : 7}>Title</Col>
+        <Col span={priorityAccess ? 5 : 6}>Title</Col>
         <Col span={1}>
           <span style={{ marginLeft: 20 }}>ExpNo</span>
         </Col>

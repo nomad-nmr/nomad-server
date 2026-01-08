@@ -9,7 +9,8 @@ import {
   bookExperiments,
   resetResubmit,
   signOutHandler,
-  cancelBookedHolders
+  cancelBookedHolders,
+  getNewHolder
 } from '../../store/actions'
 
 const Resubmit = props => {
@@ -45,6 +46,8 @@ const Resubmit = props => {
           bookExpsHandler={props.bookExpsHandler}
           submittingUserId={userId}
           cancelHolders={props.cancelHolders}
+          getNewHolder={props.getNewHolder}
+          newHolderData={props.newHolder}
         />
       ) : null}
     </div>
@@ -57,7 +60,8 @@ const mapStateToProps = state => ({
   accessLvl: state.auth.accessLevel,
   authToken: state.auth.token,
   paramSets: state.paramSets.paramSetsData,
-  allowance: state.submit.allowance
+  allowance: state.submit.allowance,
+  newHolder: state.submit.newHolder
 })
 
 const mapDispatchToProps = dispatch => {
@@ -67,7 +71,8 @@ const mapDispatchToProps = dispatch => {
     bookExpsHandler: (token, data, user) => dispatch(bookExperiments(token, data, user)),
     resetState: () => dispatch(resetResubmit()),
     logoutHandler: token => dispatch(signOutHandler(token)),
-    cancelHolders: (token, keys) => dispatch(cancelBookedHolders(token, keys))
+    cancelHolders: (token, keys) => dispatch(cancelBookedHolders(token, keys)),
+    getNewHolder: (token, key) => dispatch(getNewHolder(token, key))
   }
 }
 
