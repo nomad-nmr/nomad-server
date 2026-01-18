@@ -1,6 +1,5 @@
-import { Drawer, Input, Empty, Typography, Form, Button } from "antd";
-import axios from "../../axios-instance";
-import { useEffect, useState } from "react";
+import { Drawer, Input, Empty, Form, Button } from "antd";
+import { useEffect } from "react";
 import CommentsList from "./CommentsList";
 export default function CommentsDrawer({
   open,
