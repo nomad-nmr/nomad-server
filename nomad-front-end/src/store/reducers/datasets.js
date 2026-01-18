@@ -4,8 +4,12 @@ import { Modal } from 'antd'
 
 const initialState = {
   loading: false,
-  commentsOpen: false,
-  commentsTarget: undefined,
+  comments: {
+    open: false,
+    loading: false,
+    data: {},
+    target: undefined
+  },
   data: [],
   total: undefined,
   //formFields (searchParams) values are stored in Redux state
@@ -43,10 +47,22 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, data: newData, loading: false }
 
     case actionTypes.OPEN_COMMENTS_FOR_DATASET:
-      return{ ...state, commentsOpen: true, commentsTarget: payload}  
+      return { ...state, comments: {...state.comments, open: true, target: payload}}  
+
+    case actionTypes.CLEAR_ALL_COMMENTS: 
+      return {...state, comments: initialState.comments} 
+      
+    case actionTypes.LOADING_COMMENTS_START: 
+      return {...state, comments: {...state.comments, loading: true}}  
+
+    case actionTypes.LOADING_COMMENTS_STOP: 
+      return {...state, comments: {...state.comments, loading: false}}    
 
     case actionTypes.CLOSE_COMMENTS:
-      return{...state, commentsOpen: false, commentsTarget: undefined}  
+      return {...state, comments: {...state.comments, open: false, target: undefined}}  
+
+    case actionTypes.COMMENTS_FETCH_SUCCESS:
+      return {...state, comments: {...state.comments, data: {...state.comments.data, [payload.target]: payload.data}}}  
 
     case actionTypes.TOGGLE_DATASET_DISPLAY:
       return { ...state, displayType: payload }
