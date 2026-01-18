@@ -110,6 +110,15 @@ export const stopLoadingComments = () => ({
   type: actionTypes.LOADING_COMMENTS_STOP
 })
 
+export const uploadingComment = () => ({
+  type: actionTypes.UPLOADING_COMMENT
+})
+
+export const uploadingCommentStop = () => ({
+  type: actionTypes.UPLOADING_COMMENT_STOP
+})
+
+
 export const fetchCommentsForDataset = (target, token) => {
   return dispatch => {
     dispatch(loadingComments())
@@ -126,6 +135,27 @@ export const fetchCommentsForDataset = (target, token) => {
         .finally(()=>{
           dispatch(stopLoadingComments())
         })
+  }
+}
+
+export const uploadCommentForDataset = (text, target, token) => {
+  return dispatch => {
+    dispatch(uploadingComment())
+    axios
+      .put(
+        "/datasets/comments/" + target,
+        {
+          text,
+        },
+        {
+          headers: { Authorization: "Bearer " + token },
+        },
+      )
+      .then(
+        dispatch(fetchCommentsForDataset(target, token))
+      )
+      .catch((err) => dispatch(errorHandler(err)))
+      .finally(() => dispatch(uploadingCommentStop()));
   }
 }
 

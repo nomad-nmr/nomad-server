@@ -11,6 +11,8 @@ export default function CommentsDrawer({
   target,
   token,
   fetchComments,
+  uploadComment,
+  uploadingComment
 }) {
   //todo: support persistent drafts ?
 
@@ -34,14 +36,14 @@ export default function CommentsDrawer({
       open={open}
       onClose={onClose}
       loading={loading}
-      // footer={
-      //   <CommentBox
-      //     errorHandler={errorHandler}
-      //     target={target}
-      //     fetchComments={fetchComments}
-      //     token={token}
-      //   />
-      // }
+      footer={
+        <CommentBox
+          target={target}
+          uploadComment={uploadComment}
+          uploadingComment={uploadingComment}
+          token={token}
+        />
+      }
     >
       {(!data[target] || data[target].length === 0) && !loading ? (
         <>
@@ -58,38 +60,20 @@ export default function CommentsDrawer({
   );
 }
 
-const CommentBox = ({ token, errorHandler, fetchComments, target }) => {
+const CommentBox = ({ token, uploadComment, uploadingComment, target }) => {
   const [form] = Form.useForm();
-  const [uploadingComment, setUploadingComment] = useState(false);
 
   useEffect(() => {
     form.resetFields();
   }, [target]);
 
-  const onSubmit = (comment) => {
-    setUploadingComment(true);
-    axios
-      .put(
-        "/datasets/comments/" + target,
-        {
-          text: comment,
-        },
-        {
-          headers: { Authorization: "Bearer " + token },
-        },
-      )
-      .then(async () => {
-        await fetchComments(target);
-        form.resetFields();
-      })
-      .catch((err) => errorHandler(err))
-      .finally(() => setUploadingComment(false));
-  };
+
 
   const handleFinish = ({ comment }) => {
     const trimmed = comment.trim();
     if (!trimmed) return;
-    onSubmit(trimmed);
+    uploadComment(trimmed, target, token);
+    form.resetFields()
   };
 
   return (

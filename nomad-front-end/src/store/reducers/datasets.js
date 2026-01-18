@@ -8,7 +8,8 @@ const initialState = {
     open: false,
     loading: false,
     data: {},
-    target: undefined
+    target: undefined,
+    uploadingComment: false
   },
   data: [],
   total: undefined,
@@ -63,6 +64,12 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.COMMENTS_FETCH_SUCCESS:
       return {...state, comments: {...state.comments, data: {...state.comments.data, [payload.target]: payload.data}}}  
+
+    case actionTypes.UPLOADING_COMMENT:
+      return {...state, comments: {...state.comments, uploadingComment: true}}  
+
+    case actionTypes.UPLOADING_COMMENT_STOP:
+      return {...state, comments: {...state.comments, uploadingComment: false}}  
 
     case actionTypes.TOGGLE_DATASET_DISPLAY:
       return { ...state, displayType: payload }
