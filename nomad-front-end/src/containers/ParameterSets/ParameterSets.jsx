@@ -99,6 +99,11 @@ const ParamSets = props => {
       render: record => record && renderParams(record)
     },
     {
+      title: 'Add ExpNo',
+      dataIndex: 'addExpNo',
+      align: 'center'
+    },
+    {
       title: 'Usage Count',
       dataIndex: 'count',
       align: 'center'

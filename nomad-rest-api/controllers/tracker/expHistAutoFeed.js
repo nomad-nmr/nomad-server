@@ -111,6 +111,7 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
         ) {
           console.log('AUTO-FEED - sending upload command')
           const { datasetName, expNo, group } = histItem
+
           //upload could get be sent twice if submission is on and experiment is missing in history
           sendUploadCmd(instrument.id.toString(), { datasetName, expNo, group }, 'upload-auto')
         }

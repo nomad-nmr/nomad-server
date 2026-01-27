@@ -103,6 +103,14 @@ const ParamSetForm = props => {
           <Checkbox />
         </Form.Item>
 
+        <Form.Item
+          name='addExpNo'
+          label='Add ExpNo'
+          tooltip='Count of additional experimental numbers  added by processing au-program'
+          rules={[{ type: 'integer', message: 'Add Expno has to be integer' }]}
+        >
+          <InputNumber min={0} style={{ width: '15%' }} defaultValue={0} />
+        </Form.Item>
         <Divider>
           Default Parameters
           <Tooltip title='Parameters required for submission traffic control. The values have to match those defined in TopSpin parameter of the same name'>
