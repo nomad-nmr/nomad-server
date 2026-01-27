@@ -48,7 +48,7 @@ export async function addGroup(req, res) {
       return res.status(422).send(errors)
     }
     const group = new Group({
-      groupName: groupName.toLowerCase(),
+      groupName,
       description,
       isBatch,
       dataAccess,
