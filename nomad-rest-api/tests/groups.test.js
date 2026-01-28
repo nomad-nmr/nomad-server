@@ -28,7 +28,7 @@ describe('POST /api/admin/groups/', () => {
 
     // Asserting that the database was changed correctly
     const newGrp = await Group.findById(body._id)
-    expect(newGrp.groupName).toBe('new-grp')
+    expect(newGrp.groupName).toBe('New-grp')
   })
 
   it('should fail with status code 403 if authorised user does not have admin access level', async () => {
