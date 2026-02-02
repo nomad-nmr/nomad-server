@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.6.3",
+  "version": "3.6.4-beta",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",
@@ -17,7 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@zakodium/nmrium-core-plugins": "0.6.21",
+    "@zakodium/nmrium-core-plugins": "^0.6.32",
     "bcrypt-salt": "^2.0.0",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",

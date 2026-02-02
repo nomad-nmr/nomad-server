@@ -1,4 +1,5 @@
 import Experiment from '../../models/experiment.js'
+import parameterSet from '../../models/parameterSet.js'
 import expHistAutoFeed from './expHistAutoFeed.js'
 import sendUploadCmd from './sendUploadCmd.js'
 import sendStatusEmail from './sendStatusEmail.js'
@@ -63,6 +64,43 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
                     { datasetName, expNo, group },
                     'upload-auto'
                   )
+
+                  // Uploading additional experiments created by processing au-program
+                  // if addExpNo > 0, create new experiment entries and trigger data upload for them
+                  const { addExpNo } = await parameterSet.findOne({ name: entry.parameterSet })
+
+                  if (addExpNo > 0) {
+                    const existingExp = await Experiment.findOne({
+                      expId: datasetName + '-' + expNo
+                    })
+
+                    for (let i = 0; i < addExpNo; i++) {
+                      const newExpNo = expNo * 1000 + i + 1
+
+                      const newExp = new Experiment({
+                        expId: datasetName + '-' + newExpNo,
+                        instrument: existingExp.instrument,
+                        user: existingExp.user,
+                        group: existingExp.group,
+                        datasetName,
+                        holder: existingExp.holder,
+                        expNo: newExpNo.toString(),
+                        parameterSet: existingExp.parameterSet,
+                        title: existingExp.title,
+                        status: 'Completed',
+                        dataPath: existingExp.dataPath,
+                        solvent: existingExp.solvent
+                      })
+
+                      await newExp.save()
+
+                      sendUploadCmd(
+                        instrument._id.toString(),
+                        { datasetName, expNo: newExpNo.toString(), group },
+                        'upload-auto'
+                      )
+                    }
+                  }
                 }
               }
 

@@ -12,6 +12,11 @@ const parameterSetSchema = new Schema({
     required: true,
     default: false
   },
+  addExpNo: {
+    type: Number,
+    required: true,
+    default: 0
+  },
   count: {
     type: Number,
     required: true,
