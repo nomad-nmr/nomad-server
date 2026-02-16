@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.6.4-beta",
+  "version": "3.6.4-beta (build 2)",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",

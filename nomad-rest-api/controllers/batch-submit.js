@@ -267,7 +267,7 @@ export const bookSamples = async (req, res) => {
           .status(400)
           .json(`Instrument ${instrument.name} does not have enough available holders`)
       }
-      submitter.updateBookedHolders(instrId, availableHolders)
+      // submitter.updateBookedHolders(instrId, availableHolders)
       //Cancelling bookedHolders from submitter  after 2 mins once they get registered in usedHolders from status table
       setTimeout(() => {
         availableHolders.forEach(holder => {

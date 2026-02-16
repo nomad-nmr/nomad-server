@@ -80,16 +80,18 @@ class Submitter {
     //adding bookedHolders to usedHolders
     const { usedHolders, bookedHolders } = this.state.get(instrId)
 
-    const currentUsedHolders = new Set([...usedHolders, ...bookedHolders])
+    const currentUsedHolders = new Set([...usedHolders, ...bookedHolders].map(i => +i))
 
     for (let i = 1; i <= capacity; i++) {
       if (!currentUsedHolders.has(i)) {
         holders.push(i)
       }
       if (holders.length === +count) {
+        this.updateBookedHolders(instrId, holders)
         return holders
       }
     }
+    this.updateBookedHolders(instrId, holders)
     return holders
   }
 }

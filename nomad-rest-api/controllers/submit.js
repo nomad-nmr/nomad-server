@@ -139,7 +139,8 @@ export const postBookHolders = async (req, res) => {
 
     const availableHolders = submitter.findAvailableHolders(instrumentId, capacity, count)
 
-    submitter.updateBookedHolders(instrumentId, availableHolders)
+    //handled by findAvailableHolders function
+    // submitter.updateBookedHolders(instrumentId, availableHolders)
 
     //If there are no available holders then queue gets shut down and e-mail to admins is sent.
     if (availableHolders.length === 0) {
@@ -444,8 +445,8 @@ export async function getNewHolder(req, res) {
     if (!newHolder) {
       return res.status(406).send({ message: 'No holders available' })
     }
-
-    submitter.updateBookedHolders(instrumentId, [newHolder])
+    //handled by findAvailableHolders function
+    // submitter.updateBookedHolders(instrumentId, [newHolder])
 
     //skipped holder gets freed after 5 mins
     setTimeout(() => {
