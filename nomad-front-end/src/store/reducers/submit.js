@@ -25,9 +25,10 @@ const reducer = (state = initialState, { type, payload }) => {
           paramsEditing: payload.paramsEditing,
           skipHolder: payload.skipHolder
         }))
+        const bookedHolders = state.bookedHolders.concat(newHolders)
         return {
           ...state,
-          bookedHolders: state.bookedHolders.concat(newHolders),
+          bookedHolders,
           loading: false
         }
       } else {
@@ -47,6 +48,7 @@ const reducer = (state = initialState, { type, payload }) => {
       return {
         ...state,
         bookedHolders: [],
+        newHolder: null,
         loading: false,
         newHolderLoading: false
       }
@@ -55,7 +57,8 @@ const reducer = (state = initialState, { type, payload }) => {
       message.success('Success!')
       return {
         ...state,
-        bookedHolders: []
+        bookedHolders: [],
+        newHolder: null
       }
 
     case actionTypes.FETCH_ALLOWANCE_SUCCESS:

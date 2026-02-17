@@ -134,7 +134,7 @@ export const postBookHolders = async (req, res) => {
     if (!usedHolders || !bookedHolders) {
       throw new Error('Submitter error')
     }
-    const instrument = await Instrument.findByIdAndUpdate(instrumentId)
+    const instrument = await Instrument.findById(instrumentId)
     const { capacity, paramsEditing, skipHolder, autoReset } = instrument
 
     const availableHolders = submitter.findAvailableHolders(instrumentId, capacity, count)
