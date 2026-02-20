@@ -86,7 +86,7 @@ const MainMenu = props => {
       icon: <FormOutlined style={{ fontSize: 20 }} />,
       label: (
         <a
-          href='https://waudbylab.org/nmr-samples/'
+          href='https://nmr-samples.github.io/online/'
           target='_blank'
           rel='noopener noreferrer'
           style={{ fontSize: '16px', fontWeight: 500, color: 'inherit' }}
