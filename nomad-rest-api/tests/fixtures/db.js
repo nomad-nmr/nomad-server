@@ -37,7 +37,7 @@ let mongo = null
 export const connectDB = async () => {
   mongo = await MongoMemoryServer.create()
   const uri = mongo.getUri()
-  mongoose.set('returnOriginal', false)
+  mongoose.set('returnDocument', 'after')
   mongoose.set('strictQuery', true)
   await mongoose.connect(uri)
 }

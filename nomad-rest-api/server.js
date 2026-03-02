@@ -13,7 +13,7 @@ import Group from './models/group.js'
 import Submitter from './submitter.js'
 import { initSocket } from './socket.js'
 
-mongoose.set('returnOriginal', false)
+mongoose.set('returnDocument', 'after')
 mongoose.set('strictQuery', true)
 
 if (process.env.NODE_ENV !== 'test') {
