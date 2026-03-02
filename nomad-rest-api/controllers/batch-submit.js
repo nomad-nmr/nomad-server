@@ -24,6 +24,7 @@ export const getRacks = async (req, res) => {
             rack.samples.map(async (sample, sampleIndex) => {
               //If sample status in the rack as stored in DB is 'Submitted'
               //the current status gets updated from History table
+              console.log(sample)
               if (sample.status === 'Submitted') {
                 let newStatus = 'Submitted'
                 for (let i = 0; i < sample.exps.length; i++) {
