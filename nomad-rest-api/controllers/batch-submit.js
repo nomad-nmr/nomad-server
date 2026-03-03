@@ -451,8 +451,8 @@ export const cancelBookedSamples = async (req, res) => {
           updatedSamplesArr[index].status = undefined
           updatedSamplesArr[index].instrument = undefined
           updatedSamplesArr[index].holder = undefined
+          await Experiment.deleteOne({ datasetName: sample.dataSetName }) //deleting booked experiments from history
         }
-        await Experiment.deleteMany({ datasetName: sample.dataSetName }) //deleting booked experiments from history
       })
     )
 
