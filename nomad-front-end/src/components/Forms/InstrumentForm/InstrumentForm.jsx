@@ -54,8 +54,8 @@ const InstrumentsForm = props => {
         name='instruments-settings'
         onFinish={onFinish}
         initialValues={{
-          nightStart: moment('09:00', 'HH:mm'),
-          nightEnd: moment('19:00', 'HH:mm'),
+          nightStart: moment('19:00', 'HH:mm'),
+          nightEnd: moment('09:00', 'HH:mm'),
           dayAllowance: 20,
           nightAllowance: 120,
           paramsEditing: true
