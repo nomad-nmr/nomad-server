@@ -58,7 +58,8 @@ const InstrumentsForm = props => {
           nightEnd: moment('09:00', 'HH:mm'),
           dayAllowance: 20,
           nightAllowance: 120,
-          paramsEditing: true
+          paramsEditing: true,
+          overheadTime: 200
         }}
       >
         <Row>
