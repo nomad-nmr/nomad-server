@@ -7,7 +7,7 @@ const CommentItem = forwardRef(({ accessLevel, comment, onClose }, ref) => {
   const navigate = useNavigate()
   return (
     <Comment
-    ref={ref}
+      ref={ref}
       author={
         accessLevel === 'admin' ? (
           <Button
@@ -49,15 +49,20 @@ const Comment = forwardRef(({ author, time, text }, ref) => {
 })
 
 export default function CommentsList({ comments, accessLevel, onClose }) {
-  const lastItemRef = useRef(null);
-  useEffect(()=>{
-    if (comments.length === 0 || !lastItemRef || !lastItemRef.current){
-      return;
+  const lastItemRef = useRef(null)
+  useEffect(() => {
+    if (comments.length === 0 || !lastItemRef || !lastItemRef.current) {
+      return
     }
     lastItemRef.current.scrollIntoView()
-
   }, [comments])
   return comments.map((comment, index) => (
-    <CommentItem ref={index === comments.length - 1 ? lastItemRef : null} onClose={onClose} comment={comment} accessLevel={accessLevel} />
+    <CommentItem
+      key={index}
+      ref={index === comments.length - 1 ? lastItemRef : null}
+      onClose={onClose}
+      comment={comment}
+      accessLevel={accessLevel}
+    />
   ))
 }

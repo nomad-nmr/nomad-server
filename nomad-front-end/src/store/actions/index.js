@@ -200,7 +200,10 @@ export {
   toggleCollectionModal,
   addDatasetsToCollection,
   getCollectionsList,
-  openCommentsDrawer
+  openCommentsDrawer,
+  closeCommentsDrawer,
+  fetchCommentsForDataset,
+  uploadCommentForDataset
 } from './datasets'
 
 export {
