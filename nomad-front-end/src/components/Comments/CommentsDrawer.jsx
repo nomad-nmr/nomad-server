@@ -1,88 +1,50 @@
-import { Drawer, Input, Empty, Typography, Form, Button } from 'antd'
-import axios from '../../axios-instance'
-import { useCallback, useEffect, useState } from 'react'
-import CommentsList from './CommentsList'
+import { Drawer, Input, Empty, Form, Button } from "antd";
+import { useEffect } from "react";
+import CommentsList from "./CommentsList";
 export default function CommentsDrawer({
-  visible,
+  open,
   onClose,
   accessLevel,
+  data,
+  loading,
   target,
   token,
-  errorHandler
+  fetchComments,
+  uploadComment,
+  uploadingComment
 }) {
-  const [fetchedComments, setFetchedComments] = useState({})
-  const [loading, setLoading] = useState(false)
-  const [newCommentDraft, setNewCommentDraft] = useState('')
+  //todo: support persistent drafts ?
 
   useEffect(() => {
-    if (!target || fetchedComments[target]) {
-      return
+    if (!target || data[target] || !open) {
+      return;
     }
-    fetchComments(target)
-  }, [target])
-
-  useEffect(() => {
-    const handleClear = e => {
-      let { dataset } = e.detail
-      if (dataset === 'all') {
-        setFetchedComments({})
-      } else {
-        setFetchedComments(fetchedComments => ({ ...fetchedComments, [dataset]: undefined }))
-      }
-    }
-
-    window.addEventListener('clear-comments', handleClear)
-    return () => window.removeEventListener('clear-comments', handleClear)
-  }, [fetchedComments])
-
-  const fetchComments = useCallback(
-    async target => {
-      setLoading(true)
-      axios
-        .get('/datasets/comments/' + target, {
-          headers: { Authorization: 'Bearer ' + token }
-        })
-        .then(result => {
-          let currentFetchedComments = result.data.comments
-          setFetchedComments(fetchedComments => ({
-            ...fetchedComments,
-            [target]: currentFetchedComments
-          }))
-        })
-        .catch(err => {
-          errorHandler(err)
-        })
-        .finally(() => setLoading(false))
-    },
-    [fetchedComments, token]
-  )
+    fetchComments(target, token);
+  }, [target, open]);
 
   return (
     <Drawer
       width={600}
-      title='Comments'
-      placement='right'
+      title="Comments"
+      placement="right"
       extra={
-        <Button disabled={loading} onClick={() => fetchComments(target)}>
+        <Button disabled={loading} onClick={() => fetchComments(target, token)}>
           Refresh
         </Button>
       }
-      open={visible}
+      open={open}
       onClose={onClose}
       loading={loading}
       footer={
         <CommentBox
-          errorHandler={errorHandler}
-          setFetchedComments={setFetchedComments}
           target={target}
-          fetchComments={fetchComments}
+          uploadComment={uploadComment}
+          uploadingComment={uploadingComment}
           token={token}
-          newCommentDraft={newCommentDraft}
-          setNewCommentDraft={setNewCommentDraft}
         />
       }
     >
-      {(!fetchedComments[target] || fetchedComments[target].length === 0) && !loading ? (
+      {(!data[target] || data[target].length === 0) && !loading ? (
         <>
           <Empty />
         </>
@@ -90,86 +52,72 @@ export default function CommentsDrawer({
         <CommentsList
           onClose={onClose}
           accessLevel={accessLevel}
-          comments={fetchedComments[target]}
+          comments={data[target]}
         />
       )}
     </Drawer>
-  )
+  );
 }
 
-const CommentBox = ({ token, errorHandler, fetchComments, target }) => {
-  const [form] = Form.useForm()
-  const [uploadingComment, setUploadingComment] = useState(false)
+const CommentBox = ({ token, uploadComment, uploadingComment, target }) => {
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    form.resetFields()
-  }, [target])
+    form.resetFields();
+  }, [target]);
 
-  const onSubmit = comment => {
-    setUploadingComment(true)
-    axios
-      .put(
-        '/datasets/comments/' + target,
-        {
-          text: comment
-        },
-        {
-          headers: { Authorization: 'Bearer ' + token }
-        }
-      )
-      .then(async () => {
-        await fetchComments(target)
-        form.resetFields()
-      })
-      .catch(err => errorHandler(err))
-      .finally(() => setUploadingComment(false))
-  }
+
 
   const handleFinish = ({ comment }) => {
-    const trimmed = comment.trim()
-    if (!trimmed) return
-    onSubmit(trimmed)
-  }
+    const trimmed = comment.trim();
+    if (!trimmed) return;
+    uploadComment(trimmed, target, token);
+    form.resetFields()
+  };
 
   return (
     <Form
       form={form}
       onFinish={handleFinish}
-      layout='vertical'
+      layout="vertical"
       style={{
-        background: '#fff',
-        padding: '1rem',
-        borderRadius: '8px',
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+        background: "#fff",
+        padding: "1rem",
+        borderRadius: "8px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
       }}
     >
       <Form.Item
-        name='comment'
+        name="comment"
         rules={[
-          { required: true, message: 'Please enter your comment!' },
-          { max: 1000, message: 'Comment cannot exceed 1000 characters!' }
+          { required: true, message: "Please enter your comment!" },
+          { max: 1000, message: "Comment cannot exceed 1000 characters!" },
         ]}
-        style={{ marginBottom: '0.5rem' }}
+        style={{ marginBottom: "0.5rem" }}
       >
-        <Input disabled={uploadingComment} placeholder='Write a comment...' maxLength={1000} />
+        <Input
+          disabled={uploadingComment}
+          placeholder="Write a comment..."
+          maxLength={1000}
+        />
       </Form.Item>
 
       <div
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
         <Form.Item noStyle shouldUpdate>
           {() => (
             <Button
-              type='primary'
-              htmlType='submit'
+              type="primary"
+              htmlType="submit"
               loading={uploadingComment}
               disabled={
-                !form.getFieldValue('comment') ||
-                !form.getFieldValue('comment').trim() ||
+                !form.getFieldValue("comment") ||
+                !form.getFieldValue("comment").trim() ||
                 uploadingComment
               }
             >
@@ -179,5 +127,5 @@ const CommentBox = ({ token, errorHandler, fetchComments, target }) => {
         </Form.Item>
       </div>
     </Form>
-  )
-}
+  );
+};

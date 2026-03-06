@@ -23,7 +23,6 @@ import Error403 from './components/Errors/Error403'
 import Credits from './components/Credits/Credits'
 import Reset from './containers/Reset/Reset'
 import Resubmit from './containers/Resubmit/Resubmit'
-import CommentsDrawerContainer from './components/Comments/CommentsDrawerContainer'
 
 const { Header, Sider, Content, Footer } = Layout
 
@@ -121,7 +120,6 @@ const App = props => {
 
   return (
     <Layout>
-       <CommentsDrawerContainer  />
       {accessLevel === 'admin' &&
       (location.pathname === '/dashboard' || location.pathname.includes('admin')) ? (
         <Affix className={classes.AdminMenu}>

@@ -21,6 +21,8 @@ import {
   getCollectionsList,
   openCommentsDrawer
 } from '../../store/actions'
+import CommentsDrawer from '../../components/Comments/CommentsDrawer'
+import { closeCommentsDrawer, fetchCommentsForDataset, uploadCommentForDataset, uploadingComment } from '../../store/actions/datasets'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -99,6 +101,7 @@ const SearchDataset = props => {
   }
 
   return (
+ <>
     <div className={classes.Container}>
       <SearchForm submitHandler={values => onFormSubmit(values)} />
       {props.displayType === 'table' ? (
@@ -162,11 +165,15 @@ const SearchDataset = props => {
         collectionList={props.collectionList}
       />
     </div>
+    <CommentsDrawer uploadComment={props.uploadComment} uploadingComment={props.uploadingComment} token={props.authToken} onClose={props.closeCommentsDrawer} accessLevel={props.accessLvl} {...props.comments} fetchComments={props.fetchComments} />
+ </>
   )
 }
 
 const mapStateToProps = state => ({
+  uploadingComment: state.datasets.comments.uploadingComment,
   authToken: state.auth.token,
+  comments: state.datasets.comments,
   loading: state.datasets.loading,
   data: state.datasets.data,
   total: state.datasets.total,
@@ -181,7 +188,10 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
+  uploadComment: (text, target, token) => dispatch(uploadCommentForDataset(text, target, token)),
   openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
+  fetchComments: (target, token) => dispatch(fetchCommentsForDataset(target, token)),
+  closeCommentsDrawer: ()=> dispatch(closeCommentsDrawer()),
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
   downloadDataset: (datasetId, fileName, token) =>

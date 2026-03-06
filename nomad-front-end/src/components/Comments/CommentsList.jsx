@@ -1,11 +1,13 @@
 import { Button } from 'antd'
 import { useNavigate } from 'react-router'
 import moment from 'moment'
+import { forwardRef, useEffect, useRef } from 'react'
 
-const CommentItem = ({ accessLevel, comment, onClose }) => {
+const CommentItem = forwardRef(({ accessLevel, comment, onClose }, ref) => {
   const navigate = useNavigate()
   return (
     <Comment
+    ref={ref}
       author={
         accessLevel === 'admin' ? (
           <Button
@@ -25,11 +27,12 @@ const CommentItem = ({ accessLevel, comment, onClose }) => {
       time={moment(comment.createdAt).fromNow()}
     />
   )
-}
+})
 
-const Comment = ({ author, time, text }) => {
+const Comment = forwardRef(({ author, time, text }, ref) => {
   return (
     <div
+      ref={ref}
       style={{
         marginBottom: '1rem',
         padding: '0.75rem 1rem',
@@ -43,10 +46,18 @@ const Comment = ({ author, time, text }) => {
       <div style={{ fontSize: '14px', lineHeight: '1.5' }}>{text}</div>
     </div>
   )
-}
+})
 
 export default function CommentsList({ comments, accessLevel, onClose }) {
-  return comments.map(comment => (
-    <CommentItem onClose={onClose} comment={comment} accessLevel={accessLevel} />
+  const lastItemRef = useRef(null);
+  useEffect(()=>{
+    if (comments.length === 0 || !lastItemRef || !lastItemRef.current){
+      return;
+    }
+    lastItemRef.current.scrollIntoView()
+
+  }, [comments])
+  return comments.map((comment, index) => (
+    <CommentItem ref={index === comments.length - 1 ? lastItemRef : null} onClose={onClose} comment={comment} accessLevel={accessLevel} />
   ))
 }
