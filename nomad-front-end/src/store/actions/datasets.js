@@ -61,8 +61,6 @@ export const getDatasets = (searchParams, token) => {
       })
       .catch(err => {
         dispatch(errorHandler(err))
-      }).finally(()=>{
-        dispatch(clearAllComments())
       })
   }
 }
@@ -93,15 +91,11 @@ export const openCommentsDrawer = payload => ({
   payload
 })
 
-export const clearAllComments = () => ({
-  type: actionTypes.CLEAR_ALL_COMMENTS
-})  
-
 export const loadingComments = () => ({
   type: actionTypes.LOADING_COMMENTS_START
 })
 
-export const commentsFetchSuccess = (payload) => ({
+export const commentsFetchSuccess = payload => ({
   type: actionTypes.COMMENTS_FETCH_SUCCESS,
   payload
 })
@@ -118,23 +112,22 @@ export const uploadingCommentStop = () => ({
   type: actionTypes.UPLOADING_COMMENT_STOP
 })
 
-
 export const fetchCommentsForDataset = (target, token) => {
   return dispatch => {
     dispatch(loadingComments())
     axios
-        .get('/datasets/comments/' + target, {
-          headers: { Authorization: 'Bearer ' + token }
-        })
-        .then(res => {
-          dispatch(commentsFetchSuccess({target, data: res.data.comments}))
-        })
-        .catch(err => {
-          dispatch(errorHandler(err))
-        })
-        .finally(()=>{
-          dispatch(stopLoadingComments())
-        })
+      .get('/datasets/comments/' + target, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(commentsFetchSuccess({ target, data: res.data.comments }))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+      .finally(() => {
+        dispatch(stopLoadingComments())
+      })
   }
 }
 
@@ -143,19 +136,17 @@ export const uploadCommentForDataset = (text, target, token) => {
     dispatch(uploadingComment())
     axios
       .put(
-        "/datasets/comments/" + target,
+        '/datasets/comments/' + target,
         {
-          text,
+          text
         },
         {
-          headers: { Authorization: "Bearer " + token },
-        },
+          headers: { Authorization: 'Bearer ' + token }
+        }
       )
-      .then(
-        dispatch(fetchCommentsForDataset(target, token))
-      )
-      .catch((err) => dispatch(errorHandler(err)))
-      .finally(() => dispatch(uploadingCommentStop()));
+      .then(dispatch(fetchCommentsForDataset(target, token)))
+      .catch(err => dispatch(errorHandler(err)))
+      .finally(() => dispatch(uploadingCommentStop()))
   }
 }
 
