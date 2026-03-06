@@ -54,7 +54,6 @@ const NMRiumControls = props => {
     }
     props.toggleDatasetModal()
   }
-  console.log(dataset)
 
   return (
     <div className={classes.ExtraContainer}>
@@ -89,11 +88,8 @@ const NMRiumControls = props => {
             Add
           </Button>
         </Tooltip>
-          <Tooltip title='Comments'>
-          <Button
-            icon={<CommentOutlined />}
-            onClick={() => props.openCommentsDrawer(dataset.id)}
-          >
+        <Tooltip title='Comments'>
+          <Button icon={<CommentOutlined />} onClick={() => props.openCommentsDrawer(dataset.id)}>
             Comments
           </Button>
         </Tooltip>
