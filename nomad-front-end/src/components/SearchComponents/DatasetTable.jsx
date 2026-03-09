@@ -6,7 +6,8 @@ import Icon, {
   FolderOpenOutlined,
   DownloadOutlined,
   DeleteOutlined,
-  ShareAltOutlined
+  ShareAltOutlined,
+  CommentOutlined
 } from '@ant-design/icons'
 import { useNavigate } from 'react-router'
 
@@ -112,17 +113,31 @@ const DatasetTable = props => {
               <FolderOpenOutlined />
             </Button>
           </Tooltip>
+          <Tooltip title='Download dataset' placement='left'>
+            <Button onClick={() => props.onDownloadDataset(record.key, record.title, props.token)}>
+              <DownloadOutlined />
+            </Button>
+          </Tooltip>
+          <Tooltip title='Comments' placement='left'>
+            <Button
+              onClick={() => {
+                props.openCommentsDrawer(record.key)
+              }}
+              icon={
+                <Icon
+                  component={CommentOutlined}
+                  style={{ color: record.commentsCount > 0 ? '#1890ff' : 'inherit' }}
+                />
+              }
+            />
+          </Tooltip>
+
           <CopyLinkToClipboard id={record.key} path='nmrium'>
             <Tooltip title='Copy Dataset Link' placement='left'>
               <Button icon={<ShareAltOutlined />} />
             </Tooltip>
           </CopyLinkToClipboard>
 
-          <Tooltip title='Download dataset' placement='left'>
-            <Button onClick={() => props.onDownloadDataset(record.key, record.title, props.token)}>
-              <DownloadOutlined />
-            </Button>
-          </Tooltip>
           <Tooltip title='Delete dataset' placement='left'>
             <Popconfirm
               placement='left'

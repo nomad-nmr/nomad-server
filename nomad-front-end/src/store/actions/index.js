@@ -199,7 +199,11 @@ export {
   updateTagsDatasets,
   toggleCollectionModal,
   addDatasetsToCollection,
-  getCollectionsList
+  getCollectionsList,
+  openCommentsDrawer,
+  closeCommentsDrawer,
+  fetchCommentsForDataset,
+  uploadCommentForDataset
 } from './datasets'
 
 export {
