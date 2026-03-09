@@ -98,7 +98,8 @@ export const getDataset = async (req, res) => {
         title: dataset.title,
         user: dataset.user,
         group: dataset.group,
-        tags: dataset.tags
+        tags: dataset.tags,
+        commentsCount: dataset.comments.length
       },
       nmriumData: dataset.nmriumData
     }

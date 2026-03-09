@@ -1,6 +1,6 @@
-import { Drawer, Input, Empty, Form, Button } from "antd";
-import { useEffect } from "react";
-import CommentsList from "./CommentsList";
+import { Drawer, Input, Empty, Form, Button } from 'antd'
+import { useEffect } from 'react'
+import CommentsList from './CommentsList'
 export default function CommentsDrawer({
   open,
   onClose,
@@ -17,16 +17,16 @@ export default function CommentsDrawer({
 
   useEffect(() => {
     if (!target || data[target] || !open) {
-      return;
+      return
     }
-    fetchComments(target, token);
-  }, [target, open]);
+    fetchComments(target, token)
+  }, [target, open])
 
   return (
     <Drawer
       width={600}
-      title="Comments"
-      placement="right"
+      title='Comments'
+      placement='right'
       extra={
         <Button disabled={loading} onClick={() => fetchComments(target, token)}>
           Refresh
@@ -49,75 +49,70 @@ export default function CommentsDrawer({
           <Empty />
         </>
       ) : (
-        <CommentsList
-          onClose={onClose}
-          accessLevel={accessLevel}
-          comments={data[target]}
-        />
+        <CommentsList onClose={onClose} accessLevel={accessLevel} comments={data[target]} />
       )}
     </Drawer>
-  );
+  )
 }
 
 const CommentBox = ({ token, uploadComment, uploadingComment, target }) => {
-  const [form] = Form.useForm();
+  const [form] = Form.useForm()
 
   useEffect(() => {
-    form.resetFields();
-  }, [target]);
-
-
+    form.resetFields()
+  }, [target])
 
   const handleFinish = ({ comment }) => {
-    const trimmed = comment.trim();
-    if (!trimmed) return;
-    uploadComment(trimmed, target, token);
+    const trimmed = comment.trim()
+    if (!trimmed) return
+    uploadComment(trimmed, target, token)
     form.resetFields()
-  };
+  }
 
   return (
     <Form
       form={form}
       onFinish={handleFinish}
-      layout="vertical"
+      layout='vertical'
       style={{
-        background: "#fff",
-        padding: "1rem",
-        borderRadius: "8px",
-        boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+        background: '#fff',
+        padding: '1rem',
+        borderRadius: '8px',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
       }}
     >
       <Form.Item
-        name="comment"
+        name='comment'
         rules={[
-          { required: true, message: "Please enter your comment!" },
-          { max: 1000, message: "Comment cannot exceed 1000 characters!" },
+          { required: true, message: 'Please enter your comment!' },
+          { max: 1000, message: 'Comment cannot exceed 1000 characters!' }
         ]}
-        style={{ marginBottom: "0.5rem" }}
+        style={{ marginBottom: '0.5rem' }}
       >
-        <Input
+        <Input.TextArea
+          rows={3}
           disabled={uploadingComment}
-          placeholder="Write a comment..."
+          placeholder='Write a comment...'
           maxLength={1000}
         />
       </Form.Item>
 
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}
       >
         <Form.Item noStyle shouldUpdate>
           {() => (
             <Button
-              type="primary"
-              htmlType="submit"
+              type='primary'
+              htmlType='submit'
               loading={uploadingComment}
               disabled={
-                !form.getFieldValue("comment") ||
-                !form.getFieldValue("comment").trim() ||
+                !form.getFieldValue('comment') ||
+                !form.getFieldValue('comment').trim() ||
                 uploadingComment
               }
             >
@@ -127,5 +122,5 @@ const CommentBox = ({ token, uploadComment, uploadingComment, target }) => {
         </Form.Item>
       </div>
     </Form>
-  );
-};
+  )
+}
