@@ -2,6 +2,7 @@ import moment from 'moment'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
+import experiment from '../models/experiment.js'
 
 export async function fetchExperiments(req, res) {
   //For manual data we can expect large datasets which makes using pagination as used for auto experiments difficult
@@ -202,6 +203,13 @@ export async function fetchExperiments(req, res) {
               createdAt: exp.dateCreated
             }
       if (datasetIndex < 0) {
+        //submittedAt could be missing for experiments created by processing au-program
+        //in that case we try to find submittedAt date from other experiments in the same dataset
+        let submittedExp
+        if (!exp.submittedAt) {
+          submittedExp = experiments.find(i => i.datasetName === exp.datasetName && i.submittedAt)
+        }
+
         const newDataSet =
           dataType === 'auto'
             ? {
@@ -212,7 +220,11 @@ export async function fetchExperiments(req, res) {
                 key: exp.datasetName,
                 solvent: exp.solvent,
                 title: exp.title,
-                submittedAt: exp.submittedAt,
+                submittedAt: exp.submittedAt
+                  ? exp.submittedAt
+                  : submittedExp
+                    ? submittedExp.submittedAt
+                    : undefined,
                 exps: [expObj]
               }
             : {
