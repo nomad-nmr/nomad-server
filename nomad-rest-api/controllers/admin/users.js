@@ -41,8 +41,8 @@ export async function getUsers(req, res) {
     lastLoginOrder === 'ascend'
       ? { lastLogin: 'ascending' }
       : lastLoginOrder === 'descend'
-      ? { lastLogin: 'descending' }
-      : { username: 'ascending' }
+        ? { lastLogin: 'descending' }
+        : { username: 'ascending' }
 
   try {
     //Generating user list for drop down select
@@ -212,7 +212,7 @@ export async function updateUser(req, res) {
     //having username in update object was causing problems
     //some browsers were sending invalid value
     const oldUser = await User.findByIdAndUpdate(req.body._id, updatedUser, {
-      new: false
+      returnDocument: 'before'
     })
 
     if (!oldUser) {

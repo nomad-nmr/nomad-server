@@ -102,9 +102,12 @@ userSchema.methods.generateAuthToken = async function () {
 
 userSchema.methods.removeAuthTokens = async function (token) {
   const user = this
-  const tokens = user.tokens.filter(t => t.token !== token)
-  user.tokens = tokens
-  await user.save()
+
+  await user.constructor.findByIdAndUpdate(
+    user._id,
+    { $pull: { tokens: { token } } },
+    { returnDocument: 'after' }
+  )
 }
 
 userSchema.methods.generateResetToken = async function () {
