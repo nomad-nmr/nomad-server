@@ -9,7 +9,7 @@ const dataAccessOptions = [
   <Option key='group' value='group'>
     group
   </Option>,
-  <Option key='admin' value='admin-b'>
+  <Option key='admin-b' value='admin-b'>
     admin-b
   </Option>,
   <Option key='admin' value='admin'>
