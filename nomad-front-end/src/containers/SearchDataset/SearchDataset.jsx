@@ -18,13 +18,8 @@ import {
   updateTagsDatasets,
   toggleCollectionModal,
   addDatasetsToCollection,
-  getCollectionsList,
-  openCommentsDrawer,
-  closeCommentsDrawer,
-  fetchCommentsForDataset,
-  uploadCommentForDataset
+  getCollectionsList
 } from '../../store/actions'
-import CommentsDrawer from '../../components/Comments/CommentsDrawer'
 
 const SearchDataset = props => {
   const [pageSize, setPageSize] = useState(20)
@@ -103,87 +98,72 @@ const SearchDataset = props => {
   }
 
   return (
-    <>
-      <div className={classes.Container}>
-        <SearchForm submitHandler={values => onFormSubmit(values)} />
-        {props.displayType === 'table' ? (
-          <DatasetTable
-            loading={props.loading}
-            dataSource={props.data}
-            token={props.authToken}
-            onDownloadDataset={props.downloadDataset}
-            onDeleteDataset={props.deleteDataset}
-            onSorterChange={onSorterChange}
-            user={user}
-            openCommentsDrawer={props.openCommentsDrawer}
-            checkedExpsHandler={props.updateCheckedExps}
-            checkedDatasetsHandler={props.updateCheckedDatasets}
-            checkedExps={props.checkedExps}
-            checkedDatasets={props.checkedDatasets}
-            updateTags={props.updateDatasetTags}
-          />
-        ) : (
-          <div className={classes.Cards}>
-            {props.data.map(i => {
-              const checked = props.checkedDatasets.find(id => id === i.key)
-              return (
-                <DatasetCard
-                  key={i.key}
-                  checked={checked}
-                  data={i}
-                  openCommentsDrawer={props.openCommentsDrawer}
-                  onDeleteDataset={props.deleteDataset}
-                  onDownloadDataset={props.downloadDataset}
-                  checkedDatasetsHandler={props.updateCheckedDatasets}
-                  token={props.authToken}
-                  user={user}
-                  updateTags={props.updateDatasetTags}
-                />
-              )
-            })}
-          </div>
-        )}
-        {props.total !== null && (
-          <Pagination
-            style={{ marginTop: '20px', textAlign: 'right' }}
-            current={currentPage}
-            pageSize={pageSize}
-            onChange={(page, size) => onPageChange(page, size)}
-            showSizeChanger
-            onShowSizeChange={(current, size) => {
-              setCurrentPage(current)
-              setPageSize(size)
-            }}
-            total={props.total}
-            showTotal={total => `Total ${total} datasets`}
-          />
-        )}
-        <CollectionModal
-          open={props.modalOpen}
-          cancelHandler={modalCancelHandler}
-          data={props.checkedDatasets}
+    <div className={classes.Container}>
+      <SearchForm submitHandler={values => onFormSubmit(values)} />
+      {props.displayType === 'table' ? (
+        <DatasetTable
+          loading={props.loading}
+          dataSource={props.data}
           token={props.authToken}
-          requestHandler={props.addToCollection}
-          collectionList={props.collectionList}
+          onDownloadDataset={props.downloadDataset}
+          onDeleteDataset={props.deleteDataset}
+          onSorterChange={onSorterChange}
+          user={user}
+          checkedExpsHandler={props.updateCheckedExps}
+          checkedDatasetsHandler={props.updateCheckedDatasets}
+          checkedExps={props.checkedExps}
+          checkedDatasets={props.checkedDatasets}
+          updateTags={props.updateDatasetTags}
         />
-      </div>
-      <CommentsDrawer
-        uploadComment={props.uploadComment}
-        uploadingComment={props.uploadingComment}
+      ) : (
+        <div className={classes.Cards}>
+          {props.data.map(i => {
+            const checked = props.checkedDatasets.find(id => id === i.key)
+            return (
+              <DatasetCard
+                key={i.key}
+                checked={checked}
+                data={i}
+                onDeleteDataset={props.deleteDataset}
+                onDownloadDataset={props.downloadDataset}
+                checkedDatasetsHandler={props.updateCheckedDatasets}
+                token={props.authToken}
+                user={user}
+                updateTags={props.updateDatasetTags}
+              />
+            )
+          })}
+        </div>
+      )}
+      {props.total !== null && (
+        <Pagination
+          style={{ marginTop: '20px', textAlign: 'right' }}
+          current={currentPage}
+          pageSize={pageSize}
+          onChange={(page, size) => onPageChange(page, size)}
+          showSizeChanger
+          onShowSizeChange={(current, size) => {
+            setCurrentPage(current)
+            setPageSize(size)
+          }}
+          total={props.total}
+          showTotal={total => `Total ${total} datasets`}
+        />
+      )}
+      <CollectionModal
+        open={props.modalOpen}
+        cancelHandler={modalCancelHandler}
+        data={props.checkedDatasets}
         token={props.authToken}
-        onClose={props.closeCommentsDrawer}
-        accessLevel={props.accessLvl}
-        {...props.comments}
-        fetchComments={props.fetchComments}
+        requestHandler={props.addToCollection}
+        collectionList={props.collectionList}
       />
-    </>
+    </div>
   )
 }
 
 const mapStateToProps = state => ({
-  uploadingComment: state.datasets.comments.uploadingComment,
   authToken: state.auth.token,
-  comments: state.datasets.comments,
   loading: state.datasets.loading,
   data: state.datasets.data,
   total: state.datasets.total,
@@ -198,10 +178,6 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  uploadComment: (text, target, token) => dispatch(uploadCommentForDataset(text, target, token)),
-  openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
-  fetchComments: (target, token) => dispatch(fetchCommentsForDataset(target, token)),
-  closeCommentsDrawer: () => dispatch(closeCommentsDrawer()),
   getDatasets: (searchParams, token) => dispatch(getDatasets(searchParams, token)),
   deleteDataset: (datasetId, token) => dispatch(deleteDataset(datasetId, token)),
   downloadDataset: (datasetId, fileName, token) =>

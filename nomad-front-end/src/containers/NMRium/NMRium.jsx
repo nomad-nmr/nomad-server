@@ -9,7 +9,6 @@ import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
 import CollectionModal from '../../components/Modals/CollectionModal/CollectionModal'
 import DatasetTags from '../../components/DatasetTags/DatasetTags'
-import CommentsDrawer from '../../components/Comments/CommentsDrawer'
 import {
   keepNMRiumChanges,
   setChangedData,
@@ -26,11 +25,7 @@ import {
   updateTags,
   getCollectionsList,
   addDatasetsToCollection,
-  toggleCollectionModal,
-  openCommentsDrawer,
-  closeCommentsDrawer,
-  fetchCommentsForDataset,
-  uploadCommentForDataset
+  toggleCollectionModal
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -188,15 +183,6 @@ const NMRiumContainer = props => {
         requestHandler={props.addToCollection}
         collectionList={props.collectionList}
       />
-      <CommentsDrawer
-        uploadComment={props.uploadComment}
-        uploadingComment={props.uploadingComment}
-        token={props.authToken}
-        onClose={props.closeCommentsDrawer}
-        accessLevel={props.accessLvl}
-        {...props.comments}
-        fetchComments={props.fetchComments}
-      />
     </Fragment>
   )
 }
@@ -216,8 +202,7 @@ const mapStateToProps = state => ({
   datasetMeta: state.nmrium.datasetMeta,
   editing: state.nmrium.editing,
   collectionList: state.datasets.collectionList,
-  colModalOpen: state.datasets.showModal,
-  comments: state.datasets.comments
+  colModalOpen: state.datasets.showModal
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -237,11 +222,7 @@ const mapDispatchToProps = dispatch => ({
   updateTags: (datasetId, tagValue, token) => dispatch(updateTags(datasetId, tagValue, token)),
   fetchCollectionsList: token => dispatch(getCollectionsList(token)),
   addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
-  tglColModal: () => dispatch(toggleCollectionModal()),
-  uploadComment: (text, target, token) => dispatch(uploadCommentForDataset(text, target, token)),
-  openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
-  fetchComments: (target, token) => dispatch(fetchCommentsForDataset(target, token)),
-  closeCommentsDrawer: () => dispatch(closeCommentsDrawer())
+  tglColModal: () => dispatch(toggleCollectionModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)

@@ -54,8 +54,7 @@ import {
   bookSamples,
   toggleSampleJetModal,
   searchDescription,
-  fetchUserList,
-  openCommentsDrawer
+  fetchUserList
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -331,7 +330,6 @@ const PageHeaderEl = props => {
     case location.pathname.includes('/nmrium'):
       extra = (
         <NMRiumControls
-          openCommentsDrawer={props.openCommentsDrawer}
           token={props.authToken}
           addExpsHandler={props.setAddExps}
           data={props.nmriumData}
@@ -436,7 +434,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    openCommentsDrawer: datasetId => dispatch(openCommentsDrawer(datasetId)),
     toggleCards: () => dispatch(toggleCards()),
     statusButtonClicked: id => dispatch(openDashDrawer(id)),
     toggleInstForm: editing => dispatch(toggleShowForm(editing)),
