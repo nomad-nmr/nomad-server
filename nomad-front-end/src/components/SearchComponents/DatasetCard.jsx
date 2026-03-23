@@ -8,8 +8,7 @@ import {
   RightOutlined,
   LeftOutlined,
   CloseOutlined,
-  ShareAltOutlined,
-  CommentOutlined
+  ShareAltOutlined
 } from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../CopyLinkToClipboard/CopyLinkToClipboard'
@@ -40,24 +39,16 @@ const DatasetCard = props => {
     <Tooltip title='Open dataset in NMRium'>
       <FolderOpenOutlined onClick={() => navigate('/nmrium/' + data.key)} />
     </Tooltip>,
-    <Tooltip title='Download dataset'>
-      <DownloadOutlined
-        onClick={() => props.onDownloadDataset(data.key, data.title, props.token)}
-      />
-    </Tooltip>,
-    <Tooltip title='Comments'>
-      <CommentOutlined
-        onClick={() => {
-          props.openCommentsDrawer(data.key)
-        }}
-        style={{ color: data.commentsCount > 0 ? '#1890ff' : 'inherit' }}
-      />
-    </Tooltip>,
     <CopyLinkToClipboard id={data.key} path='nmrium'>
       <Tooltip title='Copy dataset link'>
         <ShareAltOutlined />
       </Tooltip>
-    </CopyLinkToClipboard>
+    </CopyLinkToClipboard>,
+    <Tooltip title='Download dataset'>
+      <DownloadOutlined
+        onClick={() => props.onDownloadDataset(data.key, data.title, props.token)}
+      />
+    </Tooltip>
   ]
 
   if (user.username === data.username || user.accessLevel === 'admin') {

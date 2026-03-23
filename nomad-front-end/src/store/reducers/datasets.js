@@ -4,13 +4,6 @@ import { Modal } from 'antd'
 
 const initialState = {
   loading: false,
-  comments: {
-    open: false,
-    loading: false,
-    data: {},
-    target: undefined,
-    uploadingComment: false
-  },
   data: [],
   total: undefined,
   //formFields (searchParams) values are stored in Redux state
@@ -37,8 +30,7 @@ const reducer = (state = initialState, { type, payload }) => {
         loading: false,
         data: payload.searchData.datasets,
         total: payload.searchData.total,
-        searchParams,
-        comments: initialState.comments
+        searchParams
       }
 
     case actionTypes.RESET_DATASET_SEARCH:
@@ -47,33 +39,6 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.DELETE_DATASET_SUCCESS:
       const newData = state.data.filter(i => i.key !== payload.datasetId)
       return { ...state, data: newData, loading: false }
-
-    case actionTypes.OPEN_COMMENTS_FOR_DATASET:
-      return { ...state, comments: { ...state.comments, open: true, target: payload } }
-
-    case actionTypes.LOADING_COMMENTS_START:
-      return { ...state, comments: { ...state.comments, loading: true } }
-
-    case actionTypes.LOADING_COMMENTS_STOP:
-      return { ...state, comments: { ...state.comments, loading: false } }
-
-    case actionTypes.CLOSE_COMMENTS:
-      return { ...state, comments: { ...state.comments, open: false, target: undefined } }
-
-    case actionTypes.COMMENTS_FETCH_SUCCESS:
-      return {
-        ...state,
-        comments: {
-          ...state.comments,
-          data: { ...state.comments.data, [payload.target]: payload.data }
-        }
-      }
-
-    case actionTypes.UPLOADING_COMMENT:
-      return { ...state, comments: { ...state.comments, uploadingComment: true } }
-
-    case actionTypes.UPLOADING_COMMENT_STOP:
-      return { ...state, comments: { ...state.comments, uploadingComment: false } }
 
     case actionTypes.TOGGLE_DATASET_DISPLAY:
       return { ...state, displayType: payload }

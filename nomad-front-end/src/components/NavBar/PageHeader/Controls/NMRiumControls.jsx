@@ -5,8 +5,7 @@ import {
   DownloadOutlined,
   ShareAltOutlined,
   SaveOutlined,
-  FolderAddOutlined,
-  CommentOutlined
+  FolderAddOutlined
 } from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../../../CopyLinkToClipboard/CopyLinkToClipboard'
@@ -21,7 +20,7 @@ const NMRiumControls = props => {
     props.addExpsHandler()
     navigate('/search-experiment/null')
   }
-  const { dataset, token, saveHandler, username } = props
+  const { dataset, token, saveHandler, accessLevel, username } = props
   const { molecules, spectra, correlations } = props.data.data
   const saveAsDisabled = props.data.data.spectra.length === 0
   const saveDisabled = !dataset.id || username !== dataset.user.username
@@ -86,15 +85,6 @@ const NMRiumControls = props => {
             onClick={() => props.toggleColModal()}
           >
             Add
-          </Button>
-        </Tooltip>
-        <Tooltip title='Comments'>
-          <Button
-            icon={<CommentOutlined />}
-            onClick={() => props.openCommentsDrawer(dataset.id)}
-            style={{ color: dataset.commentsCount > 0 ? '#1890ff' : 'inherit' }}
-          >
-            Comments
           </Button>
         </Tooltip>
         <Divider type='vertical' />
