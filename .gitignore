@@ -1,5 +1,6 @@
 /datastore
 /downloads
 /envs/dev
+/.vscode
 *.dump
 
