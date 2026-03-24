@@ -1,5 +1,5 @@
 import React from 'react'
-import { Modal, Form, Input, Button, Space } from 'antd'
+import { Modal, Form, Input, Button, Space, Checkbox } from 'antd'
 import moment from 'moment'
 
 const DownloadModal = props => {
@@ -10,7 +10,7 @@ const DownloadModal = props => {
     props.checkedExps.forEach(entry => {
       expsArr = [...expsArr, ...entry.exps]
     })
-    props.downloadHandler(expsArr, values.zipFileName, props.dataType, props.token)
+    props.downloadHandler(expsArr, values.zipFileName, props.dataType, values.useTitle, props.token)
   }
 
   return (
@@ -32,7 +32,15 @@ const DownloadModal = props => {
             }
           ]}
         >
-          <Input addonAfter='.zip' />
+          <Input suffix='.zip' />
+        </Form.Item>
+        <Form.Item
+          label='Use title'
+          name='useTitle'
+          valuePropName='checked'
+          tooltip='If checked, experiment titles will be used as dataset names.'
+        >
+          <Checkbox />
         </Form.Item>
         <Form.Item style={{ textAlign: 'center', display: 'flex', justifyContent: 'center' }}>
           <Space size='large'>

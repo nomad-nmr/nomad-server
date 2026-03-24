@@ -89,7 +89,7 @@ export const postData = async (req, res) => {
 export const getExps = async (req, res) => {
   try {
     const expIds = req.query.exps.split(',')
-    const { dataType } = req.query
+    const { dataType, useTitle } = req.query
 
     const mainZip = new JSZip()
 
@@ -101,9 +101,19 @@ export const getExps = async (req, res) => {
             : await ManualExperiment.findById(expId)
 
         const zipFilePath = path.join(datastorePath, experiment.dataPath, experiment.expId + '.zip')
-
         const zipFile = await fs.readFile(zipFilePath)
         const zipObject = await JSZip.loadAsync(zipFile)
+
+        if (useTitle === 'true') {
+          const sanitisedTitle = experiment.title.split('||')[0].replace(/[\/\\]/, '_')
+
+          Object.keys(zipObject.files).forEach(key => {
+            const newKey = key.replace(experiment.datasetName, sanitisedTitle)
+            zipObject.files[newKey] = zipObject.files[key]
+            delete zipObject.files[key]
+          })
+        }
+
         const zipContent = await zipObject.generateAsync({ type: 'nodebuffer' })
         await mainZip.loadAsync(zipContent, { createFolders: true })
       })

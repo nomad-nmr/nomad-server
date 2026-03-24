@@ -126,8 +126,8 @@ const mapDispatchToProps = dispatch => ({
   updCheckedExps: payload => dispatch(updateCheckedExps(payload)),
   resetChecked: () => dispatch(resetChecked()),
   tglModal: () => dispatch(toggleDownloadModal()),
-  downloadExps: (expIds, fileName, dataType, token) =>
-    dispatch(downloadExps(expIds, fileName, dataType, token)),
+  downloadExps: (expIds, fileName, dataType, useTitle, token) =>
+    dispatch(downloadExps(expIds, fileName, dataType, useTitle, token)),
   fetchPDF: (expIds, fileName, token) => dispatch(getPDF(expIds, fileName, token))
 })
 

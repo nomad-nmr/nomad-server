@@ -47,11 +47,12 @@ export const downloadExpsSuccess = () => ({
   type: actionTypes.DOWNLOAD_EXPS_SUCCESS
 })
 
-export const downloadExps = (expIds, fileName, dataType, token) => {
+export const downloadExps = (expIds, fileName, dataType, useTitle, token) => {
   return dispatch => {
     dispatch(fetchExperimentsStart())
+    console.log(useTitle)
     axios
-      .get('/data/exps/?' + new URLSearchParams({ exps: expIds, dataType }).toString(), {
+      .get('/data/exps/?' + new URLSearchParams({ exps: expIds, dataType, useTitle }).toString(), {
         responseType: 'blob',
         headers: { Authorization: 'Bearer ' + token }
       })
