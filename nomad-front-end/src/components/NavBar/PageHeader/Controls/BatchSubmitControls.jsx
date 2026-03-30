@@ -168,7 +168,7 @@ const BatchSubmitControls = props => {
         </Button>
       ) : null}
 
-      {(accessLevel === 'admin' || accessLevel === 'admin-b') && !activeRackOpen ? (
+      {accessLevel === 'admin' && !activeRackOpen ? (
         <>
           <Tooltip placement='bottom' title='Book selected samples/slots'>
             <Button className={classes.Button} onClick={() => bookHandler()}>
