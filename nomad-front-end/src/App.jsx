@@ -17,6 +17,7 @@ import NavBar from './components/NavBar/NavBar'
 import LoginModal from './components/Modals/LoginModal/LoginModal'
 import LogoutModal from './components/Modals/LogoutModal/LogoutModal'
 import Dashboard from './containers/Dashboard/Dashboard'
+import Root from './containers/Root/Root'
 import Error500 from './components/Errors/Error500'
 import Error404 from './components/Errors/Error404'
 import Error403 from './components/Errors/Error403'
@@ -58,12 +59,11 @@ const App = props => {
 
   //Higher level component that allows to wrap all the lazy loaded components in a Suspense component
   //This is required by React Router 7.5
-  const Loadable = Component => props =>
-    (
-      <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
-        <Component {...props} />
-      </Suspense>
-    )
+  const Loadable = Component => props => (
+    <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
+      <Component {...props} />
+    </Suspense>
+  )
 
   //Lazy loading, does not work with React Router v7.5.1
   const Users = Loadable(React.lazy(() => import('./containers/Users/Users')))
@@ -280,7 +280,7 @@ const App = props => {
             <Route path='/404' element={<Error404 />} />
             <Route path='/403' element={<Error403 />} />
             <Route path='/admin/dashboard' element={<Navigate to='/dashboard' />} />
-            <Route path='/' element={<Navigate to='/dashboard' />} />
+            <Route path='/' element={<Root />} />
             <Route path='*' element={<Error404 />} />
           </Routes>
           {authModal}
