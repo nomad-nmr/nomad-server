@@ -21,17 +21,8 @@ const NavBar = props => {
 
   const [modalVisible, setModalVisible] = useState(false)
 
-  // Setting up components for left side of NavBar. Components dynamically change with state of admin sider menu.
-  const toggleButton = props.collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />
-  const navLeft =
-    props.accessLevel === 'admin' &&
-    (location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin') ? (
-      <Tooltip placement='bottomLeft' title='Admin Menu Toggle'>
-        <div className={classes.Toggle} onClick={props.toggleClicked}>
-          {toggleButton}
-        </div>
-      </Tooltip>
-    ) : (
+  return (
+    <nav className={classes.NavBar}>
       <div>
         <img
           src={logoWideLight}
@@ -40,13 +31,6 @@ const NavBar = props => {
           onClick={() => navigate('/')}
         />
       </div>
-    )
-
-  let menuElement = null
-
-  return (
-    <nav className={classes.NavBar}>
-      {navLeft}
       <PageHeader />
       <div className={classes.MainMenu}>
         {location.pathname !== '/submit' && location.pathname !== '/batch-submit' ? (

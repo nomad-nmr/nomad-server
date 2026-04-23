@@ -42,7 +42,11 @@ const MainMenu = props => {
     })
   }
 
-  if (import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d') {
+  if (
+    import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
+    accessLevel !== 'user-d' &&
+    (location.pathname === '/' || location.pathname === '/dashboard')
+  ) {
     items.push({
       key: '/batch-submit/null',
       label: <span className={classes.MenuItem}>Batch Submit</span>,
