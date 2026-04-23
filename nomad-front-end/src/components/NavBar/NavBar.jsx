@@ -37,31 +37,25 @@ const NavBar = props => {
           src={logoWideLight}
           alt='NOMAD logo wide'
           className={classes.Logo}
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate('/')}
         />
       </div>
     )
 
   let menuElement = null
 
-  if (props.username) {
-    menuElement = (
-      <MainMenu
-        username={props.username}
-        accessLevel={props.accessLevel}
-        manualAccess={props.manualAccess}
-      />
-    )
-  }
-
   return (
     <nav className={classes.NavBar}>
       {navLeft}
       <PageHeader />
       <div className={classes.MainMenu}>
-        {location.pathname !== '/submit' && location.pathname !== '/batch-submit'
-          ? menuElement
-          : null}
+        {location.pathname !== '/submit' && location.pathname !== '/batch-submit' ? (
+          <MainMenu
+            username={props.username}
+            accessLevel={props.accessLevel}
+            manualAccess={props.manualAccess}
+          />
+        ) : null}
         <div className={classes.Avatar}>
           <AuthAvatar
             onClick={props.openModalHandler}

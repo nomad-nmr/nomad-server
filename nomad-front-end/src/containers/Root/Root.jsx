@@ -1,6 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router'
-import { Button, Row, Col, Typography } from 'antd'
+import { Row, Col, Typography } from 'antd'
 import classes from './Root.module.css'
 
 const { Title, Paragraph } = Typography
@@ -13,13 +12,7 @@ const Root = () => {
           <div className={classes.Content}>
             <Title level={1}>Welcome to Nomad</Title>
             <Paragraph>This is a placeholder for the landing page under development.</Paragraph>
-            <div className={classes.ButtonGroup}>
-              <Link to='/dashboard'>
-                <Button type='primary' size='large'>
-                  Go to Dashboard
-                </Button>
-              </Link>
-            </div>
+            <div className={classes.ButtonGroup}></div>
           </div>
         </Col>
       </Row>

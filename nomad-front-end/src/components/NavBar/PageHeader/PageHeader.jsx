@@ -118,6 +118,7 @@ const PageHeaderEl = props => {
           onButtonClick={statusButtonClicked}
           switchOn={cardSwitchOn}
           toggleCards={toggleCards}
+          accessLevel={accessLevel}
         />
       )
       break

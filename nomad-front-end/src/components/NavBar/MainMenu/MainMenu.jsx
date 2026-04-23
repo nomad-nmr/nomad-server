@@ -3,16 +3,26 @@ import { useNavigate, useLocation } from 'react-router'
 import { Menu } from 'antd'
 
 import Icon, {
-  DownloadOutlined,
+  SettingOutlined,
   SearchOutlined,
   LineChartOutlined,
   UploadOutlined,
   DatabaseOutlined,
   FolderOutlined,
-  FormOutlined
+  FormOutlined,
+  DashboardOutlined,
+  TeamOutlined,
+  UserOutlined,
+  MailOutlined,
+  HistoryOutlined,
+  PoundOutlined,
+  ExperimentOutlined,
+  DeploymentUnitOutlined,
+  BarChartOutlined,
+  DownCircleOutlined
 } from '@ant-design/icons'
-import batchIconSvg from './BatchSubmitIcon'
 
+import batchIconSvg from './BatchSubmitIcon'
 import classes from './MainMenu.module.css'
 
 const MainMenu = props => {
@@ -24,25 +34,15 @@ const MainMenu = props => {
 
   const items = []
 
-  if (
-    (import.meta.env.VITE_SUBMIT_ON === 'true' &&
-      props.username &&
-      accessLevel !== 'user-d' &&
-      location.pathname === '/dashboard') ||
-    location.pathname.split('/')[1] === 'admin'
-  ) {
+  if (location.pathname !== '/dashboard' && accessLevel !== 'user-b') {
     items.push({
-      key: '/submit',
-      label: <span className={classes.MenuItem}>Book New Job</span>,
-      icon: <DownloadOutlined style={{ fontSize: 20 }} />
+      key: '/dashboard',
+      label: <span className={classes.MenuItem}>Dashboard</span>,
+      icon: <DashboardOutlined style={{ fontSize: 20 }} />
     })
   }
 
-  if (
-    import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' &&
-    accessLevel !== 'user-d' &&
-    (location.pathname === '/dashboard' || location.pathname.split('/')[1] === 'admin')
-  ) {
+  if (import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d') {
     items.push({
       key: '/batch-submit/null',
       label: <span className={classes.MenuItem}>Batch Submit</span>,
@@ -50,10 +50,9 @@ const MainMenu = props => {
     })
   }
 
-  const subChildren = [
+  const datastoreChildren = [
     {
       type: 'group',
-      icon: <SearchOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>Search</span>,
       children: [
         {
@@ -81,7 +80,7 @@ const MainMenu = props => {
   ]
 
   if (manualAccess || accessLevel === 'admin') {
-    subChildren.unshift({
+    datastoreChildren.unshift({
       key: 'sample-manager',
       icon: <FormOutlined style={{ fontSize: 20 }} />,
       label: (
@@ -96,7 +95,7 @@ const MainMenu = props => {
         </a>
       )
     })
-    subChildren.unshift({
+    datastoreChildren.unshift({
       key: '/claim',
       icon: <UploadOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>Manual Claim</span>
@@ -108,7 +107,77 @@ const MainMenu = props => {
       key: 'SubMenu',
       icon: <DatabaseOutlined style={{ fontSize: 20 }} />,
       label: <span className={classes.MenuItem}>Datastore</span>,
-      children: subChildren
+      children: datastoreChildren
+    })
+  }
+
+  const adminMenuItems = [
+    {
+      type: 'group',
+      label: <span className={classes.MenuItem}>User Management</span>,
+      children: [
+        {
+          key: '/admin/users',
+          icon: <UserOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Manage Users</span>
+        },
+        {
+          key: '/admin/groups',
+          icon: <TeamOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Manage Groups</span>
+        },
+        {
+          key: '/admin/message',
+          icon: <MailOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Send Message</span>
+        }
+      ]
+    },
+    {
+      type: 'group',
+      label: <span className={classes.MenuItem}>Usage Statistics</span>,
+      children: [
+        {
+          key: '/admin/history',
+          icon: <HistoryOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Experiment History</span>
+        },
+        {
+          key: '/admin/accounts',
+          icon: <PoundOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Costs Accounting</span>
+        },
+        {
+          key: '/admin/claims-history',
+          icon: <DownCircleOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Manual Claims History</span>
+        }
+      ]
+    },
+    {
+      type: 'group',
+      label: <span className={classes.MenuItem}>Settings</span>,
+      children: [
+        {
+          key: '/admin/instruments',
+          icon: <DeploymentUnitOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Instruments</span>
+        },
+        {
+          key: '/admin/parameter-sets',
+          icon: <ExperimentOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Parameter Sets</span>
+        }
+      ]
+    }
+  ]
+
+  if (accessLevel === 'admin') {
+    items.push({
+      key: 'SubMenu2',
+      icon: <SettingOutlined style={{ fontSize: 20 }} />,
+      label: <span className={classes.MenuItem}>Administration</span>,
+      children: adminMenuItems
     })
   }
 
