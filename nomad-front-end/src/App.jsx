@@ -189,7 +189,7 @@ const App = props => {
               import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
                 <BatchSubmit />
               ) : (
-                <Navigate to='/dashboard' />
+                <Navigate to='/' />
               )
             }
           />
@@ -206,31 +206,27 @@ const App = props => {
           <Route
             path='/search-experiment/:datasetName'
             element={
-              import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
                 <SearchExperiment />
               ) : (
-                <Navigate to='/dashboard' />
+                <Navigate to='/' />
               )
             }
           />
           <Route
             path='/search-dataset'
             element={
-              import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
                 <SearchDataset />
               ) : (
-                <Navigate to='/dashboard' />
+                <Navigate to='/' />
               )
             }
           />
           <Route
             path='/nmrium/:datasetId'
             element={
-              import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                <NMRium />
-              ) : (
-                <Navigate to='/dashboard' />
-              )
+              import.meta.env.VITE_DATASTORE_ON === 'true' ? <NMRium /> : <Navigate to='/' />
             }
           />
           <Route
@@ -240,17 +236,17 @@ const App = props => {
               (accessLevel === 'admin' || manualAccess) ? (
                 <Claim />
               ) : (
-                <Navigate to='/dashboard' />
+                <Navigate to='/' />
               )
             }
           />
           <Route
             path='/collections/:collectionId'
             element={
-              import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
                 <Collections />
               ) : (
-                <Navigate to='/dashboard' />
+                <Navigate to='/' />
               )
             }
           />

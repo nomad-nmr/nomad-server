@@ -176,7 +176,7 @@ const MainMenu = props => {
     }
   ]
 
-  if (accessLevel === 'admin') {
+  if (accessLevel === 'admin' && !location.pathname.includes('nmrium')) {
     items.push({
       key: 'SubMenu2',
       icon: <SettingOutlined style={{ fontSize: 20 }} />,
