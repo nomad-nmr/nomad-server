@@ -1,21 +1,21 @@
 .RootContainer {
   width: 100%;
-  padding: 20px;
+  /* padding: 20px; */
 }
 
-.Content {
+.TitleHeader {
+  background-color: rgba(105, 177, 255, 0.31);
+}
+
+.Divider {
+  border-color: blue;
+}
+
+.Title {
   text-align: center;
   padding: 40px 20px;
 }
 
-.ButtonGroup {
-  margin-top: 30px;
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.ButtonGroup a {
-  text-decoration: none;
+.Content {
+  padding: 0px 30px;
 }
