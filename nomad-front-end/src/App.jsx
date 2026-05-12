@@ -12,11 +12,11 @@ import {
 import { Layout, Spin, Affix, FloatButton } from 'antd'
 import classes from './App.module.css'
 
-import AdminMenu from './components/AdminMenu/AdminMenu'
 import NavBar from './components/NavBar/NavBar'
 import LoginModal from './components/Modals/LoginModal/LoginModal'
 import LogoutModal from './components/Modals/LogoutModal/LogoutModal'
 import Dashboard from './containers/Dashboard/Dashboard'
+import Root from './containers/Root/Root'
 import Error500 from './components/Errors/Error500'
 import Error404 from './components/Errors/Error404'
 import Error403 from './components/Errors/Error403'
@@ -27,13 +27,8 @@ import Resubmit from './containers/Resubmit/Resubmit'
 const { Header, Sider, Content, Footer } = Layout
 
 const App = props => {
-  const [adminMenuCollapsed, setAdminMenuCollapsed] = useState(true)
   const navigate = useNavigate()
   const location = useLocation()
-
-  const toggleAdminMenu = () => {
-    setAdminMenuCollapsed(!adminMenuCollapsed)
-  }
 
   const {
     username,
@@ -58,12 +53,11 @@ const App = props => {
 
   //Higher level component that allows to wrap all the lazy loaded components in a Suspense component
   //This is required by React Router 7.5
-  const Loadable = Component => props =>
-    (
-      <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
-        <Component {...props} />
-      </Suspense>
-    )
+  const Loadable = Component => props => (
+    <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
+      <Component {...props} />
+    </Suspense>
+  )
 
   //Lazy loading, does not work with React Router v7.5.1
   const Users = Loadable(React.lazy(() => import('./containers/Users/Users')))
@@ -120,176 +114,156 @@ const App = props => {
 
   return (
     <Layout>
-      {accessLevel === 'admin' &&
-      (location.pathname === '/dashboard' || location.pathname.includes('admin')) ? (
-        <Affix className={classes.AdminMenu}>
-          <Sider
-            trigger={null}
-            className={classes.Sider}
-            collapsible
-            collapsed={adminMenuCollapsed}
-          >
-            <AdminMenu collapsed={adminMenuCollapsed} />
-          </Sider>
-        </Affix>
-      ) : null}
+      <Affix>
+        <Header
+          className={classes.Header}
+          style={{
+            background: '#ffffff',
+            paddingLeft: 0,
+            paddingRight: 30,
+            height: 'fit-content'
+          }}
+        >
+          <NavBar />
+        </Header>
+      </Affix>
+      <Content className={classes.Content}>
+        <Routes>
+          <Route
+            path='/admin/users'
+            element={accessLevel === 'admin' ? <Users /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/groups'
+            element={accessLevel === 'admin' ? <Groups /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/message'
+            element={accessLevel === 'admin' ? <Message /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/instruments'
+            element={accessLevel === 'admin' ? <Instruments /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/history'
+            element={accessLevel === 'admin' ? <ExpHistory /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/claims-history'
+            element={accessLevel === 'admin' ? <ClaimsHistory /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/accounts'
+            element={accessLevel === 'admin' ? <Accounts /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/parameter-sets'
+            element={accessLevel === 'admin' ? <ParameterSets /> : <Navigate to='/dashboard' />}
+          />
 
-      <Layout>
-        <Affix>
-          <Header
-            className={classes.Header}
-            style={{
-              background: '#ffffff',
-              paddingLeft: 0,
-              paddingRight: 30,
-              height: 'fit-content'
-            }}
-          >
-            <NavBar collapsed={adminMenuCollapsed} toggleClicked={toggleAdminMenu} />
-          </Header>
-        </Affix>
-        <Content className={classes.Content}>
-          <Routes>
-            <Route
-              path='/admin/users'
-              element={accessLevel === 'admin' ? <Users /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/groups'
-              element={accessLevel === 'admin' ? <Groups /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/message'
-              element={accessLevel === 'admin' ? <Message /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/instruments'
-              element={accessLevel === 'admin' ? <Instruments /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/history'
-              element={accessLevel === 'admin' ? <ExpHistory /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/claims-history'
-              element={accessLevel === 'admin' ? <ClaimsHistory /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/accounts'
-              element={accessLevel === 'admin' ? <Accounts /> : <Navigate to='/dashboard' />}
-            />
-            <Route
-              path='/admin/parameter-sets'
-              element={accessLevel === 'admin' ? <ParameterSets /> : <Navigate to='/dashboard' />}
-            />
+          <Route path='/dashboard' element={<Dashboard />} />
 
-            <Route path='/dashboard' element={<Dashboard />} />
+          <Route
+            path='/group-accounts'
+            element={accountsAccess ? <GroupAccounts /> : <Navigate to='/dashboard' />}
+          />
 
-            <Route
-              path='/group-accounts'
-              element={accountsAccess ? <GroupAccounts /> : <Navigate to='/dashboard' />}
-            />
+          <Route path='/reset/:token' element={<Reset />} />
+          <Route
+            path='/submit'
+            element={
+              username &&
+              import.meta.env.VITE_SUBMIT_ON === 'true' &&
+              accessLevel !== 'user-b' &&
+              accessLevel !== 'user-d' ? (
+                <Submit />
+              ) : (
+                <Navigate to='/dashboard' />
+              )
+            }
+          />
+          <Route
+            path='/batch-submit/:instrumentId'
+            element={
+              import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
+                <BatchSubmit />
+              ) : (
+                <Navigate to='/' />
+              )
+            }
+          />
+          <Route
+            path='/resubmit'
+            element={
+              import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
+                <Resubmit />
+              ) : (
+                <Navigate to='/dashboard' />
+              )
+            }
+          />
+          <Route
+            path='/search-experiment/:datasetName'
+            element={
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
+                <SearchExperiment />
+              ) : (
+                <Navigate to='/' />
+              )
+            }
+          />
+          <Route
+            path='/search-dataset'
+            element={
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
+                <SearchDataset />
+              ) : (
+                <Navigate to='/' />
+              )
+            }
+          />
+          <Route
+            path='/nmrium/:datasetId'
+            element={
+              import.meta.env.VITE_DATASTORE_ON === 'true' ? <NMRium /> : <Navigate to='/' />
+            }
+          />
+          <Route
+            path='/claim'
+            element={
+              import.meta.env.VITE_DATASTORE_ON === 'true' &&
+              (accessLevel === 'admin' || manualAccess) ? (
+                <Claim />
+              ) : (
+                <Navigate to='/' />
+              )
+            }
+          />
+          <Route
+            path='/collections/:collectionId'
+            element={
+              import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
+                <Collections />
+              ) : (
+                <Navigate to='/' />
+              )
+            }
+          />
 
-            <Route path='/reset/:token' element={<Reset />} />
-            <Route
-              path='/submit'
-              element={
-                username &&
-                import.meta.env.VITE_SUBMIT_ON === 'true' &&
-                accessLevel !== 'user-b' &&
-                accessLevel !== 'user-d' ? (
-                  <Submit />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/batch-submit/:instrumentId'
-              element={
-                import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
-                  <BatchSubmit />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/resubmit'
-              element={
-                import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' ? (
-                  <Resubmit />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/search-experiment/:datasetName'
-              element={
-                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                  <SearchExperiment />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/search-dataset'
-              element={
-                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                  <SearchDataset />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/nmrium/:datasetId'
-              element={
-                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                  <NMRium />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/claim'
-              element={
-                import.meta.env.VITE_DATASTORE_ON === 'true' &&
-                (accessLevel === 'admin' || manualAccess) ? (
-                  <Claim />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-            <Route
-              path='/collections/:collectionId'
-              element={
-                import.meta.env.VITE_DATASTORE_ON === 'true' ? (
-                  <Collections />
-                ) : (
-                  <Navigate to='/dashboard' />
-                )
-              }
-            />
-
-            <Route path='/500' element={<Error500 />} />
-            <Route path='/404' element={<Error404 />} />
-            <Route path='/403' element={<Error403 />} />
-            <Route path='/admin/dashboard' element={<Navigate to='/dashboard' />} />
-            <Route path='/' element={<Navigate to='/dashboard' />} />
-            <Route path='*' element={<Error404 />} />
-          </Routes>
-          {authModal}
-          <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
-        </Content>
-        <Footer>
-          <Credits />
-        </Footer>
-      </Layout>
+          <Route path='/500' element={<Error500 />} />
+          <Route path='/404' element={<Error404 />} />
+          <Route path='/403' element={<Error403 />} />
+          <Route path='/admin/dashboard' element={<Navigate to='/dashboard' />} />
+          <Route path='/' element={<Root />} />
+          <Route path='*' element={<Error404 />} />
+        </Routes>
+        {authModal}
+        <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
+      </Content>
+      <Footer>
+        <Credits />
+      </Footer>
     </Layout>
   )
 }

@@ -347,7 +347,7 @@ const BookExperimentsForm = props => {
           { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
           props.submittingUserId
         )
-        navigate('/')
+        navigate('/dashboard')
       }
     }
 
@@ -411,7 +411,7 @@ const BookExperimentsForm = props => {
       { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
       props.submittingUserId
     )
-    navigate('/')
+    navigate('/dashboard')
   }
 
   //Generating form items from input data. inputData is array of objects.

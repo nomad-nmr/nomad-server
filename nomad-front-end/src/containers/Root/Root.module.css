@@ -1,0 +1,21 @@
+.RootContainer {
+  width: 100%;
+  /* padding: 20px; */
+}
+
+.TitleHeader {
+  background-color: rgba(105, 177, 255, 0.31);
+}
+
+.Divider {
+  border-color: blue;
+}
+
+.Title {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.Content {
+  padding: 0px 30px;
+}

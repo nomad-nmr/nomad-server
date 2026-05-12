@@ -24,7 +24,7 @@ import dataRoutes from './routes/data.js'
 import searchRoutes from './routes/search.js'
 import claimRoutes from './routes/claims.js'
 import datasetsRoutes from './routes/datasets.js'
-import statsRoutes from './routes/admin/stats.js'
+import statsRoutes from './routes/stats.js'
 import collectionRoutes from './routes/collections.js'
 import userAccountRoutes from './routes/user-account.js'
 

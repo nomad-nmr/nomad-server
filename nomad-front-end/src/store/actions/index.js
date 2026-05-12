@@ -215,3 +215,11 @@ export {
 } from './collections'
 
 export { getAccountSettings, saveUserSettings } from './user-account'
+
+export {
+  getPublicStats,
+  getPublicStatsUpdate,
+  setSelectedInput,
+  setSelectedRadioButton,
+  setDateRangeForStats
+} from './stats'
