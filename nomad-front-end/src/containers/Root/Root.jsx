@@ -1,19 +1,22 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Typography, Statistic, Divider, Spin } from 'antd'
+import { Row, Col, Typography, Statistic, Divider, Spin, Tabs } from 'antd'
 import dayjs from 'dayjs'
 
 import Logo from '../../components/RootComponents/RoundLogo'
 import UserStats from '../../components/RootComponents/UserStats'
 import TrafficDataStats from '../../components/RootComponents/TrafficDataStats'
 import DateRangeSwitch from '../../components/RootComponents/DateRangeSwitch'
+import Leaderboards from '../../components/RootComponents/Leaderboards'
 
 import {
   getPublicStats,
   setSelectedInput,
   getPublicStatsUpdate,
   setSelectedRadioButton,
-  setDateRangeForStats
+  setDateRangeForStats,
+  setLeaderboardsSelectedInput,
+  getLeaderboardsUpdate
 } from '../../store/actions'
 
 import classes from './Root.module.css'
@@ -78,6 +81,11 @@ const Root = props => {
     props.setDateRangeForStats(payload.dateRange)
   }
 
+  const leaderboardsSelectHandler = value => {
+    props.setLeaderboardsSelectedInput(value)
+    props.getLeaderboardsUpdate(value)
+  }
+
   return (
     <div className={classes.RootContainer}>
       <Row justify='center' align='top' className={classes.TitleHeader}>
@@ -100,13 +108,7 @@ const Root = props => {
         <Divider style={dividerStyle} size='medium'>
           Users Stats
         </Divider>
-        {props.loading ? (
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Spin size='large' description='Loading ...' />
-          </div>
-        ) : (
-          <UserStats data={props.userStats} loading={props.usersLoading} />
-        )}
+        <UserStats data={props.userStats} loading={props.usersLoading} />
         <Divider style={dividerStyle} size='medium'>
           Traffic & Datastore Stats
         </Divider>
@@ -118,14 +120,35 @@ const Root = props => {
           dateRangeHandler={dateRangeHandler}
           dateRangeValue={props.dateRange}
         />
-        {props.datastoreLoading ? (
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Spin size='large' description='Loading' />
-          </div>
-        ) : (
-          <TrafficDataStats data={props.trafficData} />
-        )}
+        <TrafficDataStats data={props.trafficData} loading={props.datastoreLoading} />
         <Divider style={dividerStyle}></Divider>
+        <Tabs
+          centered
+          items={[
+            {
+              label: <div className={classes.TabLabel}>Leaderboards</div>,
+              key: 'leaderboards',
+              children: (
+                <Leaderboards
+                  data={props.leaderboardsData}
+                  loading={props.tabsLoading}
+                  selectedInput={props.leaderboardsSelectedInput}
+                  onSelectInputChange={leaderboardsSelectHandler}
+                />
+              )
+            },
+            {
+              label: <div className={classes.TabLabel}>Heatmap</div>,
+              key: 'heatmap',
+              children: 'Tab 2'
+            },
+            {
+              label: <div className={classes.TabLabel}>Instrument Utilisation</div>,
+              key: 'utilisation',
+              children: 'Tab 3'
+            }
+          ]}
+        />
       </div>
     </div>
   )
@@ -135,12 +158,15 @@ const mapStateToProps = state => {
   return {
     usersLoading: state.stats.usersLoading,
     datastoreLoading: state.stats.datastoreLoading,
+    tabsLoading: state.stats.tabsLoading,
     hostName: state.stats.hostName,
     userStats: state.stats.userStats,
     trafficData: state.stats.datastoreStats,
+    leaderboardsData: state.stats.leaderboardsData,
     selectedInput: state.stats.selectedInput,
     selectedRadioButton: state.stats.selectedRadioButton,
-    dateRange: state.stats.dateRange
+    dateRange: state.stats.dateRange,
+    leaderboardsSelectedInput: state.stats.leaderboardsSelectedInput
   }
 }
 
@@ -149,7 +175,9 @@ const mapDispatchToProps = dispatch => ({
   setSelectedInput: value => dispatch(setSelectedInput(value)),
   getPublicStatsUpdate: payload => dispatch(getPublicStatsUpdate(payload)),
   setSelectedRadioButton: value => dispatch(setSelectedRadioButton(value)),
-  setDateRangeForStats: value => dispatch(setDateRangeForStats(value))
+  setDateRangeForStats: value => dispatch(setDateRangeForStats(value)),
+  setLeaderboardsSelectedInput: value => dispatch(setLeaderboardsSelectedInput(value)),
+  getLeaderboardsUpdate: type => dispatch(getLeaderboardsUpdate(type))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Root)

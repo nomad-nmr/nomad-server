@@ -43,7 +43,7 @@ export const getPublicStatsUpdate = payload => {
   return dispatch => {
     dispatch(loadingDatastoreStatsStarts())
     axios
-      .get('/stats/update/?' + new URLSearchParams(payload).toString())
+      .get('/stats/update/datastore/?' + new URLSearchParams(payload).toString())
       .then(res => {
         dispatch(getPublicStatsUpdateSuccess(res.data))
       })
@@ -62,3 +62,31 @@ export const setDateRangeForStats = payload => ({
   type: actionTypes.SET_DATE_RANGE_FOR_STATS,
   payload
 })
+
+export const setLeaderboardsSelectedInput = payload => ({
+  type: actionTypes.SET_LEADERBOARDS_SELECTED_INPUT,
+  payload
+})
+
+export const loadingLeaderboardsStarts = () => ({
+  type: actionTypes.LOADING_LEADERBOARDS_STATS_START
+})
+
+export const getLeaderboardsUpdateSuccess = payload => ({
+  type: actionTypes.GET_LEADERBOARDS_UPDATE_SUCCESS,
+  payload
+})
+
+export const getLeaderboardsUpdate = payload => {
+  return dispatch => {
+    dispatch(loadingLeaderboardsStarts())
+    axios
+      .get('/stats/update/leaderboards/?type=' + payload)
+      .then(res => {
+        dispatch(getLeaderboardsUpdateSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}

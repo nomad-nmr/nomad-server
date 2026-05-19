@@ -19,3 +19,8 @@
 .Content {
   padding: 0px 30px;
 }
+
+.TabLabel {
+  font-size: 1rem;
+  font-weight: 400;
+}
