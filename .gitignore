@@ -4,3 +4,4 @@
 /.vscode
 *.dump
 
+.github/agents/nomad.agent.md

@@ -19,7 +19,8 @@ import Icon, {
   ExperimentOutlined,
   DeploymentUnitOutlined,
   BarChartOutlined,
-  DownCircleOutlined
+  DownCircleOutlined,
+  NotificationOutlined
 } from '@ant-design/icons'
 
 import batchIconSvg from './BatchSubmitIcon'
@@ -134,6 +135,11 @@ const MainMenu = props => {
           key: '/admin/message',
           icon: <MailOutlined style={{ fontSize: 20 }} />,
           label: <span className={classes.MenuItem}>Send Message</span>
+        },
+        {
+          key: '/admin/announcement',
+          icon: <NotificationOutlined style={{ fontSize: 20 }} />,
+          label: <span className={classes.MenuItem}>Display Announcement</span>
         }
       ]
     },
