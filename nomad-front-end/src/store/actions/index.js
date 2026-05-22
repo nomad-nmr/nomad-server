@@ -102,6 +102,8 @@ export {
 
 export { sendMessage } from './message'
 
+export { fetchAnnouncement, saveAnnouncement, clearAnnouncement } from './announcement'
+
 export {
   toggleAddRack,
   toggleAddSample,

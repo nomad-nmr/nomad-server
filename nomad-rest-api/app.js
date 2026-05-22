@@ -19,6 +19,7 @@ import paramSetsRoutes from './routes/admin/parameterSets.js'
 import accountsRoutes from './routes/admin/accounts.js'
 import submitRoutes from './routes/submit.js'
 import messageRoutes from './routes/admin/message.js'
+import announcementRoutes from './routes/admin/announcement.js'
 import batchSubmitRoutes from './routes/batch-submit.js'
 import dataRoutes from './routes/data.js'
 import searchRoutes from './routes/search.js'
@@ -64,6 +65,7 @@ app.use('/api/admin/history', historyRoutes)
 app.use('/api/admin/param-sets', paramSetsRoutes)
 app.use('/api/admin/accounts', accountsRoutes)
 app.use('/api/admin/message', messageRoutes)
+app.use('/api/admin/announcement', announcementRoutes)
 app.use('/api/batch-submit', batchSubmitRoutes)
 app.use('/api/data', dataRoutes)
 app.use('/api/search', searchRoutes)

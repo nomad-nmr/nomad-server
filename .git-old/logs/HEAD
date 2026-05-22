@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 98cf11b7dae7dc5acd0c3a6b96fa644cbe1208dd brianodonovan <brianodonovan@ENG-9076.see.ed.ac.uk> 1778784326 +0100	clone: from https://github.com/nomad-nmr/nomad-server.git
+98cf11b7dae7dc5acd0c3a6b96fa644cbe1208dd 98cf11b7dae7dc5acd0c3a6b96fa644cbe1208dd brianodonovan <brianodonovan@ENG-9076.see.ed.ac.uk> 1778784342 +0100	checkout: moving from main to update_webpage
+98cf11b7dae7dc5acd0c3a6b96fa644cbe1208dd 667cda61527a6e87bb6cbae8e437d097c785dbfa brianod414 <brianodonovan2@gmail.com> 1779286728 +0100	commit: added announcement functionality
+667cda61527a6e87bb6cbae8e437d097c785dbfa 3916ccd7e75393a64c6cd60df5d1562219b73df5 brianod414 <brianodonovan2@gmail.com> 1779293245 +0100	commit: added rich text to announcement
