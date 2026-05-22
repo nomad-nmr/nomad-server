@@ -7,7 +7,8 @@ import {
   closeDashDrawer,
   statusUpdate,
   toggleAvailableSwitchSuccess,
-  resetCheckedHolders
+  resetCheckedHolders,
+  fetchAnnouncement
 } from '../../store/actions'
 import socket from '../../socketConnection'
 
@@ -15,6 +16,7 @@ import Animate from 'rc-animate'
 import InfoCards from '../../components/InfoCards/InfoCards'
 import StatusTabs from '../../components/StatusTabs/StatusTabs'
 import StatusDrawer from '../../components/StatusDrawer/StatusDrawer'
+import Announcement from '../../components/Announcement/Announcement'
 import './Dashboard.css'
 
 const Dashboard = props => {
@@ -75,6 +77,8 @@ const Dashboard = props => {
 
   return (
     <Fragment>
+      <Announcement announcement={props.announcement} />
+      
       <Animate transitionName='fade-cards'>
         {props.showCards ? (
           <InfoCards cardsData={props.statusSummary} clicked={tabChangeHandler} />
@@ -102,7 +106,8 @@ const mapStateToProps = state => {
     tableLoading: state.dash.tableLoading,
     drawerState: state.dash.drawerState,
     accessLevel: state.auth.accessLevel,
-    authToken: state.auth.token,
+    authToken: state.auth.token,    
+    announcement: state.announcement.announcement,
     username: state.auth.username
   }
 }
@@ -114,7 +119,8 @@ const mapDispatchToProps = dispatch => {
     fetchStatusTable: key => dispatch(fetchStatusTable(key)),
     statUpdate: data => dispatch(statusUpdate(data)),
     toggleAvailableSuccess: payload => dispatch(toggleAvailableSwitchSuccess(payload)),
-    resetChecked: () => dispatch(resetCheckedHolders())
+    resetChecked: () => dispatch(resetCheckedHolders()),
+    fetchAnnounce: token => dispatch(fetchAnnouncement(token))
   }
 }
 

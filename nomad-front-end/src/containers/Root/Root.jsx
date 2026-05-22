@@ -21,7 +21,7 @@ import classes from './Root.module.css'
 const { Title, Paragraph } = Typography
 
 const Root = props => {
-  const { getPublicStats, userStats, setSelectedInput, selectedInput } = props
+  const { getPublicStats, userStats, setSelectedInput, selectedInput, username, authToken } = props
 
   useEffect(() => {
     if (userStats.length === 0) {
