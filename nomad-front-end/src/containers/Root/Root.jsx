@@ -8,6 +8,7 @@ import UserStats from '../../components/RootComponents/UserStats'
 import TrafficDataStats from '../../components/RootComponents/TrafficDataStats'
 import DateRangeSwitch from '../../components/RootComponents/DateRangeSwitch'
 import Leaderboards from '../../components/RootComponents/Leaderboards'
+import Heatmaps from '../../components/RootComponents/Heatmaps'
 
 import {
   getPublicStats,
@@ -138,9 +139,9 @@ const Root = props => {
               )
             },
             {
-              label: <div className={classes.TabLabel}>Heatmap</div>,
-              key: 'heatmap',
-              children: 'Tab 2'
+              label: <div className={classes.TabLabel}>Heatmaps</div>,
+              key: 'heatmaps',
+              children: <Heatmaps />
             },
             {
               label: <div className={classes.TabLabel}>Instrument Utilisation</div>,

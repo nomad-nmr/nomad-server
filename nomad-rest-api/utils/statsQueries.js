@@ -216,15 +216,21 @@ const getLeaderboardsData = async type => {
     ])
 
     const leaderboardsData = [
-      { title: 'Automation Experiments Archived', dataArray: leaderboardsData1 },
-      { title: 'Automation Samples Processed', dataArray: leaderboardsData2 },
+      {
+        title: 'Automation Experiments Archived',
+        dataArray: leaderboardsData1.map((i, index) => ({ ...i, key: index }))
+      },
+      {
+        title: 'Automation Samples Processed',
+        dataArray: leaderboardsData2.map((i, index) => ({ ...i, key: index }))
+      },
       {
         title: 'Datasets Created',
         dataArray: await Promise.all(
-          leaderboardsData3.map(async i => {
+          leaderboardsData3.map(async (i, index) => {
             const user = await User.findOne({ username: i.username })
             const group = await Group.findById(user.group)
-            return { ...i, groupName: group.groupName }
+            return { ...i, groupName: group.groupName, key: index }
           })
         )
       }
