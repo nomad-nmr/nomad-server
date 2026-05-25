@@ -64,6 +64,7 @@ const App = props => {
   const Instruments = Loadable(React.lazy(() => import('./containers/Instruments/Instruments')))
   const Groups = Loadable(React.lazy(() => import('./containers/Groups/Groups')))
   const Message = Loadable(React.lazy(() => import('./containers/Message/Message')))
+  const Announcement = Loadable(React.lazy(() => import('./containers/Announcement/Announcement')))
   const ExpHistory = Loadable(React.lazy(() => import('./containers/ExpHistory/ExpHistory')))
   const ParameterSets = Loadable(
     React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
@@ -140,6 +141,10 @@ const App = props => {
           <Route
             path='/admin/message'
             element={accessLevel === 'admin' ? <Message /> : <Navigate to='/dashboard' />}
+          />
+          <Route
+            path='/admin/announcement'
+            element={accessLevel === 'admin' ? <Announcement /> : <Navigate to='/dashboard' />}
           />
           <Route
             path='/admin/instruments'
