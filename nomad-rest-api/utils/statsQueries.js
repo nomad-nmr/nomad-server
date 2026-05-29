@@ -242,64 +242,165 @@ const getLeaderboardsData = async type => {
   }
 }
 
-const fetchHeatmapData = async () => {
+const fetchHeatmapData = async (type = 'days') => {
   try {
     const today = moment()
-    const startDate = moment(today).subtract(365, 'days').toDate()
-    const endDate = moment(today).add(1, 'day').toDate()
 
-    // Get archived automated experiments grouped by date
-    const autoExpsData = await Experiment.aggregate([
-      { $match: { status: 'Archived', updatedAt: { $gte: startDate, $lt: endDate } } },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
-          count: { $sum: 1 }
+    if (type === 'days') {
+      const startDate = moment(today).subtract(365, 'days').toDate()
+      const endDate = moment(today).add(1, 'day').toDate()
+
+      // Get archived automated experiments grouped by date
+      const autoExpsData = await Experiment.aggregate([
+        { $match: { status: 'Archived', updatedAt: { $gte: startDate, $lt: endDate } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
         }
-      }
-    ])
+      ])
 
-    // Get archived manual experiments grouped by date
-    const manualExpsData = await ManualExperiment.aggregate([
-      { $match: { updatedAt: { $gte: startDate, $lt: endDate } } },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
-          count: { $sum: 1 }
+      // Get archived manual experiments grouped by date
+      const manualExpsData = await ManualExperiment.aggregate([
+        { $match: { updatedAt: { $gte: startDate, $lt: endDate } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
         }
-      }
-    ])
+      ])
 
-    // Combine the data from both automated and manual experiments
-    const dateCountMap = new Map()
+      // Combine the data from both automated and manual experiments
+      const dateCountMap = new Map()
 
-    autoExpsData.forEach(item => {
-      const date = item._id
-      dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
-    })
-
-    manualExpsData.forEach(item => {
-      const date = item._id
-      dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
-    })
-
-    // Generate all 365 dates and create array with counts (0 for dates with no data)
-    const heatmapData = []
-    for (let i = 0; i < 365; i++) {
-      const date = moment(today).subtract(i, 'days')
-      const dateStr = date.format('YYYY/MM/DD')
-      heatmapData.push({
-        date: dateStr,
-        count: dateCountMap.get(dateStr) || 0
+      autoExpsData.forEach(item => {
+        const date = item._id
+        dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
       })
+
+      manualExpsData.forEach(item => {
+        const date = item._id
+        dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
+      })
+
+      // Generate all 365 dates and create array with counts (0 for dates with no data)
+      const heatmapData = []
+      for (let i = 0; i < 365; i++) {
+        const date = moment(today).subtract(i, 'days')
+        const dateStr = date.format('YYYY/MM/DD')
+        heatmapData.push({
+          date: dateStr,
+          count: dateCountMap.get(dateStr) || 0
+        })
+      }
+
+      // Sort by date in ascending order
+      heatmapData.sort(
+        (a, b) => new Date(a.date.replace(/\//g, '-')) - new Date(b.date.replace(/\//g, '-'))
+      )
+
+      return Promise.resolve(heatmapData)
+    } else if (type === 'months') {
+      const startDate = moment(today).subtract(12, 'months').toDate()
+      const endDate = moment(today).add(1, 'day').toDate()
+
+      // Get archived automated experiments grouped by month
+      const autoExpsData = await Experiment.aggregate([
+        { $match: { status: 'Archived', updatedAt: { $gte: startDate, $lt: endDate } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y/%m', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
+        }
+      ])
+
+      // Get archived manual experiments grouped by month
+      const manualExpsData = await ManualExperiment.aggregate([
+        { $match: { updatedAt: { $gte: startDate, $lt: endDate } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y/%m', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
+        }
+      ])
+
+      // Combine the data from both automated and manual experiments
+      const monthCountMap = new Map()
+
+      autoExpsData.forEach(item => {
+        const month = item._id
+        monthCountMap.set(month, (monthCountMap.get(month) || 0) + item.count)
+      })
+
+      manualExpsData.forEach(item => {
+        const month = item._id
+        monthCountMap.set(month, (monthCountMap.get(month) || 0) + item.count)
+      })
+
+      // Generate all 12 months and create array with counts (0 for months with no data)
+      const heatmapData = []
+      for (let i = 0; i < 12; i++) {
+        const month = moment(today).subtract(i, 'months')
+        const monthStr = month.format('YYYY/MM')
+        heatmapData.push({
+          month: monthStr,
+          count: monthCountMap.get(monthStr) || 0
+        })
+      }
+
+      // Sort by month in ascending order
+      heatmapData.sort((a, b) => new Date(a.month + '/01') - new Date(b.month + '/01'))
+
+      return Promise.resolve(heatmapData)
+    } else if (type === 'years') {
+      // Get archived automated experiments grouped by year (no date range)
+      const autoExpsData = await Experiment.aggregate([
+        { $match: { status: 'Archived' } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
+        }
+      ])
+
+      // Get archived manual experiments grouped by year
+      const manualExpsData = await ManualExperiment.aggregate([
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y', date: '$updatedAt' } },
+            count: { $sum: 1 }
+          }
+        }
+      ])
+
+      // Combine the data from both automated and manual experiments
+      const yearCountMap = new Map()
+
+      autoExpsData.forEach(item => {
+        const year = item._id
+        yearCountMap.set(year, (yearCountMap.get(year) || 0) + item.count)
+      })
+
+      manualExpsData.forEach(item => {
+        const year = item._id
+        yearCountMap.set(year, (yearCountMap.get(year) || 0) + item.count)
+      })
+
+      // Create array from map and sort by year
+      const heatmapData = Array.from(yearCountMap, ([year, count]) => ({
+        year,
+        count
+      })).sort((a, b) => a.year.localeCompare(b.year))
+
+      return Promise.resolve(heatmapData)
+    } else {
+      throw new Error(`Invalid type: ${type}. Must be 'days', 'months', or 'years'.`)
     }
-
-    // Sort by date in ascending order
-    heatmapData.sort(
-      (a, b) => new Date(a.date.replace(/\//g, '-')) - new Date(b.date.replace(/\//g, '-'))
-    )
-
-    return Promise.resolve(heatmapData)
   } catch (error) {
     return Promise.reject(error)
   }
