@@ -242,4 +242,67 @@ const getLeaderboardsData = async type => {
   }
 }
 
-export { getDatastoreStats, getLeaderboardsData }
+const fetchHeatmapData = async () => {
+  try {
+    const today = moment()
+    const startDate = moment(today).subtract(365, 'days').toDate()
+    const endDate = moment(today).add(1, 'day').toDate()
+
+    // Get archived automated experiments grouped by date
+    const autoExpsData = await Experiment.aggregate([
+      { $match: { status: 'Archived', updatedAt: { $gte: startDate, $lt: endDate } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
+          count: { $sum: 1 }
+        }
+      }
+    ])
+
+    // Get archived manual experiments grouped by date
+    const manualExpsData = await ManualExperiment.aggregate([
+      { $match: { updatedAt: { $gte: startDate, $lt: endDate } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y/%m/%d', date: '$updatedAt' } },
+          count: { $sum: 1 }
+        }
+      }
+    ])
+
+    // Combine the data from both automated and manual experiments
+    const dateCountMap = new Map()
+
+    autoExpsData.forEach(item => {
+      const date = item._id
+      dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
+    })
+
+    manualExpsData.forEach(item => {
+      const date = item._id
+      dateCountMap.set(date, (dateCountMap.get(date) || 0) + item.count)
+    })
+
+    // Generate all 365 dates and create array with counts (0 for dates with no data)
+    const heatmapData = []
+    for (let i = 0; i < 365; i++) {
+      const date = moment(today).subtract(i, 'days')
+      const dateStr = date.format('YYYY/MM/DD')
+      heatmapData.push({
+        date: dateStr,
+        count: dateCountMap.get(dateStr) || 0
+      })
+    }
+
+    // Sort by date in ascending order
+    heatmapData.sort(
+      (a, b) => new Date(a.date.replace(/\//g, '-')) - new Date(b.date.replace(/\//g, '-'))
+    )
+
+    return Promise.resolve(heatmapData)
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getDatastoreStats, getLeaderboardsData, fetchHeatmapData }

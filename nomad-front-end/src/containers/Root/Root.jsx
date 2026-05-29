@@ -17,7 +17,9 @@ import {
   setSelectedRadioButton,
   setDateRangeForStats,
   setLeaderboardsSelectedInput,
-  getLeaderboardsUpdate
+  getLeaderboardsUpdate,
+  getHeatmapData,
+  setSelectedHeatmapInput
 } from '../../store/actions'
 
 import classes from './Root.module.css'
@@ -25,7 +27,14 @@ import classes from './Root.module.css'
 const { Title, Paragraph } = Typography
 
 const Root = props => {
-  const { getPublicStats, userStats, setSelectedInput, selectedInput } = props
+  const {
+    getPublicStats,
+    userStats,
+    setSelectedInput,
+    selectedInput,
+    selectedHeatmapInput,
+    heatmapData
+  } = props
 
   useEffect(() => {
     if (userStats.length === 0) {
@@ -87,6 +96,17 @@ const Root = props => {
     props.getLeaderboardsUpdate(value)
   }
 
+  const heatmapSelectHandler = value => {
+    props.setSelectedHeatmapInput(value)
+    props.getHeatmapData(value)
+  }
+
+  const tabsChangeHandler = key => {
+    if (key === 'heatmaps' && heatmapData.length === 0) {
+      props.getHeatmapData('days')
+      console.log('HUUUUUUUUUU')
+    }
+  }
   return (
     <div className={classes.RootContainer}>
       <Row justify='center' align='top' className={classes.TitleHeader}>
@@ -125,6 +145,7 @@ const Root = props => {
         <Divider style={dividerStyle}></Divider>
         <Tabs
           centered
+          onChange={key => tabsChangeHandler(key)}
           items={[
             {
               label: <div className={classes.TabLabel}>Leaderboards</div>,
@@ -141,7 +162,14 @@ const Root = props => {
             {
               label: <div className={classes.TabLabel}>Heatmaps</div>,
               key: 'heatmaps',
-              children: <Heatmaps />
+              children: (
+                <Heatmaps
+                  selectedInput={selectedHeatmapInput}
+                  onSelectInputChange={heatmapSelectHandler}
+                  loading={props.tabsLoading}
+                  data={props.heatmapData}
+                />
+              )
             },
             {
               label: <div className={classes.TabLabel}>Instrument Utilisation</div>,
@@ -167,7 +195,9 @@ const mapStateToProps = state => {
     selectedInput: state.stats.selectedInput,
     selectedRadioButton: state.stats.selectedRadioButton,
     dateRange: state.stats.dateRange,
-    leaderboardsSelectedInput: state.stats.leaderboardsSelectedInput
+    leaderboardsSelectedInput: state.stats.leaderboardsSelectedInput,
+    selectedHeatmapInput: state.stats.selectedHeatmapInput,
+    heatmapData: state.stats.heatmapData
   }
 }
 
@@ -178,7 +208,9 @@ const mapDispatchToProps = dispatch => ({
   setSelectedRadioButton: value => dispatch(setSelectedRadioButton(value)),
   setDateRangeForStats: value => dispatch(setDateRangeForStats(value)),
   setLeaderboardsSelectedInput: value => dispatch(setLeaderboardsSelectedInput(value)),
-  getLeaderboardsUpdate: type => dispatch(getLeaderboardsUpdate(type))
+  getLeaderboardsUpdate: type => dispatch(getLeaderboardsUpdate(type)),
+  getHeatmapData: payload => dispatch(getHeatmapData(payload)),
+  setSelectedHeatmapInput: value => dispatch(setSelectedHeatmapInput(value))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Root)

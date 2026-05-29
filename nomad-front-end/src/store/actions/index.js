@@ -225,5 +225,7 @@ export {
   setSelectedRadioButton,
   setDateRangeForStats,
   setLeaderboardsSelectedInput,
-  getLeaderboardsUpdate
+  getLeaderboardsUpdate,
+  getHeatmapData,
+  setSelectedHeatmapInput
 } from './stats'

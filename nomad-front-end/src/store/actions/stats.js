@@ -43,7 +43,7 @@ export const getPublicStatsUpdate = payload => {
   return dispatch => {
     dispatch(loadingDatastoreStatsStarts())
     axios
-      .get('/stats/update/datastore/?' + new URLSearchParams(payload).toString())
+      .get('/stats/datastore/?' + new URLSearchParams(payload).toString())
       .then(res => {
         dispatch(getPublicStatsUpdateSuccess(res.data))
       })
@@ -68,8 +68,8 @@ export const setLeaderboardsSelectedInput = payload => ({
   payload
 })
 
-export const loadingLeaderboardsStarts = () => ({
-  type: actionTypes.LOADING_LEADERBOARDS_STATS_START
+export const loadingTabsStarts = () => ({
+  type: actionTypes.LOADING_TABS_STATS_START
 })
 
 export const getLeaderboardsUpdateSuccess = payload => ({
@@ -79,11 +79,35 @@ export const getLeaderboardsUpdateSuccess = payload => ({
 
 export const getLeaderboardsUpdate = payload => {
   return dispatch => {
-    dispatch(loadingLeaderboardsStarts())
+    dispatch(loadingTabsStarts())
     axios
-      .get('/stats/update/leaderboards/?type=' + payload)
+      .get('/stats/leaderboards/?type=' + payload)
       .then(res => {
         dispatch(getLeaderboardsUpdateSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const setSelectedHeatmapInput = payload => ({
+  type: actionTypes.SET_SELECTED_HEATMAP_INPUT,
+  payload
+})
+
+export const getHeatmapDataSuccess = payload => ({
+  type: actionTypes.GET_HEATMAP_DATA_SUCCESS,
+  payload
+})
+
+export const getHeatmapData = payload => {
+  return dispatch => {
+    dispatch(loadingTabsStarts())
+    axios
+      .get('/stats/heatmaps/?type=' + payload)
+      .then(res => {
+        dispatch(getHeatmapDataSuccess(res.data))
       })
       .catch(err => {
         dispatch(errorHandler(err))

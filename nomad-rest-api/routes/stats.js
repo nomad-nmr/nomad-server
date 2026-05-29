@@ -4,14 +4,16 @@ import {
   getPublicStatsUpdate,
   getPublicStats,
   nmriumStats,
-  getLeaderboardsUpdate
+  getLeaderboardsUpdate,
+  getHeatmapData
 } from '../controllers/stats.js'
 
 const router = Router()
 
 router.get('/landing', getPublicStats)
-router.get('/update/datastore', getPublicStatsUpdate)
-router.get('/update/leaderboards', getLeaderboardsUpdate)
+router.get('/datastore', getPublicStatsUpdate)
+router.get('/leaderboards', getLeaderboardsUpdate)
+router.get('/heatmaps', getHeatmapData)
 
 router.get('/nmriumStats', nmriumStats)
 

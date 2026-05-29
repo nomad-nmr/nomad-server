@@ -12,7 +12,9 @@ const initialState = {
   selectedInput: 'total',
   selectedRadioButton: 1,
   dateRange: [],
-  leaderboardsSelectedInput: 'last_30_days'
+  leaderboardsSelectedInput: 'last_30_days',
+  selectedHeatmapInput: 'days',
+  heatmapData: []
 }
 
 const reducer = (state = initialState, action) => {
@@ -49,11 +51,17 @@ const reducer = (state = initialState, action) => {
     case actionTypes.SET_LEADERBOARDS_SELECTED_INPUT:
       return { ...state, leaderboardsSelectedInput: action.payload }
 
-    case actionTypes.LOADING_LEADERBOARDS_STATS_START:
+    case actionTypes.LOADING_TABS_STATS_START:
       return { ...state, tabsLoading: true }
 
     case actionTypes.GET_LEADERBOARDS_UPDATE_SUCCESS:
       return { ...state, leaderboardsData: action.payload, tabsLoading: false }
+
+    case actionTypes.SET_SELECTED_HEATMAP_INPUT:
+      return { ...state, selectedHeatmapInput: action.payload }
+
+    case actionTypes.GET_HEATMAP_DATA_SUCCESS:
+      return { ...state, heatmapData: action.payload, tabsLoading: false }
 
     default:
       return state
