@@ -31,6 +31,10 @@ const Dashboard = props => {
     fetchStatusTable('0')
   }, [fetchStatusSum, fetchStatusTable])
 
+  useEffect(() => {
+    props.fetchAnnounce()
+  }, [props.fetchAnnounce])
+
   //Hook sets active tab to 1st instrument in the array when the page get reloaded
   useEffect(() => {
     if (activeTab === '0' && statusSummary.length > 0) {

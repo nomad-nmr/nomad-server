@@ -28,13 +28,14 @@ export const saveAnnouncementStart = () => ({
 })
 
 
-export const fetchAnnouncement = (token) => {
+export const fetchAnnouncement = token => {
 	return dispatch => {
 		dispatch(fetchAnnouncementStart())
+		const requestConfig = token
+			? { headers: { Authorization: 'Bearer ' + token } }
+			: undefined
 		axios
-			.get('/admin/announcement', {
-				headers: { Authorization: 'Bearer ' + token }
-			})
+			.get('/admin/announcement', requestConfig)
 			.then(res => {
 				dispatch(fetchAnnouncementSuccess(res.data))
 			})
