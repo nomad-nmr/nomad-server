@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react'
 import HeatMap from '@uiw/react-heat-map'
-import Tooltip from '@uiw/react-tooltip'
+import TooltipHeat from '@uiw/react-tooltip'
 import { Flex, Select, Spin } from 'antd'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
 
 const Heatmaps = props => {
   const { selectedInput, onSelectInputChange, data, loading } = props
@@ -25,12 +26,12 @@ const Heatmaps = props => {
           }}
           rectRender={(props, valueObj) => {
             return (
-              <Tooltip
+              <TooltipHeat
                 placement='top'
                 content={`date: ${valueObj.date.slice(2)}, count: ${valueObj.count || 0}`}
               >
                 <rect {...props} />
-              </Tooltip>
+              </TooltipHeat>
             )
           }}
         />
@@ -44,13 +45,33 @@ const Heatmaps = props => {
 
   if (selectedInput !== 'days') {
     console.log(data)
-    heatmapElement = <div>Bar Chart</div>
+    const xKey = selectedInput === 'months' ? 'month' : 'year'
+    heatmapElement = (
+      <Flex justify='space-around'>
+        <BarChart
+          style={{ width: '100%', maxWidth: '1000px', maxHeight: '200px', aspectRatio: 1.618 }}
+          responsive
+          data={data}
+        >
+          <Bar
+            dataKey='count'
+            fill='#2f54eb'
+            activeBar={{ fill: '#faad14', stroke: '#237804' }}
+            radius={[10, 10, 0, 0]}
+          />
+          <XAxis dataKey={xKey} />
+          <YAxis width='auto' />
+          <Tooltip />
+          <CartesianGrid strokeDasharray='3 3' />
+        </BarChart>
+      </Flex>
+    )
   }
 
   return (
     <div style={{ marginTop: 10 }}>
       <Select
-        style={{ width: 180, marginBottom: 10 }}
+        style={{ width: 180, marginBottom: 20 }}
         value={selectedInput}
         onChange={value => onSelectInputChange(value)}
       >
