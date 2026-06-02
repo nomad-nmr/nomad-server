@@ -531,13 +531,15 @@ const getInstrumentUtilisationData = async type => {
         Math.round(((item.totalExpTime + item.manualExpTime * 3600) / totalTime) * 100 * 100) / 100,
       totalExpTime: moment
         .duration(item.totalExpTime + item.manualExpTime * 3600, 'seconds')
-        .format('HH:mm:ss')
+        .format('HH:mm')
     }))
 
     const totalUsedTime = instrumentData.reduce(
       (acc, item) => acc + item.totalExpTime + item.manualExpTime * 3600,
       0
     )
+
+    console.log(barChartData)
 
     const pieChartData = instrumentData.map(item => ({
       instrumentName: item.instrumentName,
