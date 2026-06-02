@@ -13,6 +13,8 @@
         "@ant-design/icons": "^6.0.0",
         "@ant-design/pro-card": "^2.3.0",
         "@ant-design/pro-layout": "^7.4.0",
+        "@uiw/react-heat-map": "^2.3.4",
+        "@uiw/react-tooltip": "^4.22.3",
         "antd": "^5.29.3",
         "axios": "^1.2.1",
         "cheminfo-font": "^1.13.1",
