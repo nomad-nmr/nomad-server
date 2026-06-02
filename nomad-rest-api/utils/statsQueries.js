@@ -539,8 +539,6 @@ const getInstrumentUtilisationData = async type => {
       0
     )
 
-    console.log(barChartData)
-
     const pieChartData = instrumentData.map(item => ({
       instrumentName: item.instrumentName,
       value:
