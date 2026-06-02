@@ -6,6 +6,7 @@ import ManualExperiment from '../models/manualExperiment.js'
 import Dataset from '../models/dataset.js'
 import Collection from '../models/collection.js'
 import Claim from '../models/claim.js'
+import Instrument from '../models/instrument.js'
 
 const getDatastoreStats = async dateRange => {
   try {
@@ -510,41 +511,40 @@ const getInstrumentUtilisationData = async type => {
       }
     })
 
-    console.log('Auto Experiments Data:', autoExpsData)
+    const instrumentsArray = await Instrument.find({ isActive: true }, 'name').lean()
 
     // Convert to array of objects
-    const instrumentData = autoExpsData.map(item => ({
-      instrumentName: item._id,
-      totalExpTime: item.totalExpTime,
-      manualExpTime: claimsMap.get(item._id) || 0
-    }))
+    const instrumentData = instrumentsArray
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(instrument => {
+        const dataObj = autoExpsData.find(i => i._id === instrument.name)
+        return {
+          instrumentName: instrument.name,
+          totalExpTime: dataObj ? dataObj.totalExpTime : 0,
+          manualExpTime: claimsMap.get(instrument.name) || 0
+        }
+      })
 
-    const barChartData = instrumentData
-      .map(item => ({
-        instrumentName: item.instrumentName,
-        utilisation:
-          Math.round(((item.totalExpTime + item.manualExpTime * 3600) / totalTime) * 100 * 100) /
-          100,
-        totalExpTime: moment
-          .duration(item.totalExpTime + item.manualExpTime * 3600, 'seconds')
-          .format('HH:mm:ss')
-      }))
-      .sort((a, b) => a.instrumentName.localeCompare(b.instrumentName))
+    const barChartData = instrumentData.map(item => ({
+      instrumentName: item.instrumentName,
+      utilisation:
+        Math.round(((item.totalExpTime + item.manualExpTime * 3600) / totalTime) * 100 * 100) / 100,
+      totalExpTime: moment
+        .duration(item.totalExpTime + item.manualExpTime * 3600, 'seconds')
+        .format('HH:mm:ss')
+    }))
 
     const totalUsedTime = instrumentData.reduce(
       (acc, item) => acc + item.totalExpTime + item.manualExpTime * 3600,
       0
     )
 
-    const pieChartData = instrumentData
-      .map(item => ({
-        instrumentName: item.instrumentName,
-        value:
-          Math.round(
-            ((item.totalExpTime + item.manualExpTime * 3600) / totalUsedTime) * 100 * 100
-          ) / 100
-      }))
-      .sort((a, b) => a.instrumentName.localeCompare(b.instrumentName))
+    const pieChartData = instrumentData.map(item => ({
+      instrumentName: item.instrumentName,
+      value:
+        Math.round(((item.totalExpTime + item.manualExpTime * 3600) / totalUsedTime) * 100 * 100) /
+        100
+    }))
 
     return Promise.resolve({
       barChartData,
