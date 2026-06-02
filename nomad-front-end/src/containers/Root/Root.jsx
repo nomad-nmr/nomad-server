@@ -1,19 +1,28 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Typography, Statistic, Divider, Spin } from 'antd'
+import { Row, Col, Typography, Statistic, Divider, Spin, Tabs } from 'antd'
 import dayjs from 'dayjs'
 
 import Logo from '../../components/RootComponents/RoundLogo'
 import UserStats from '../../components/RootComponents/UserStats'
 import TrafficDataStats from '../../components/RootComponents/TrafficDataStats'
 import DateRangeSwitch from '../../components/RootComponents/DateRangeSwitch'
+import Leaderboards from '../../components/RootComponents/Leaderboards'
+import Heatmaps from '../../components/RootComponents/Heatmaps'
+import Utilisation from '../../components/RootComponents/Utilisation'
 
 import {
   getPublicStats,
   setSelectedInput,
   getPublicStatsUpdate,
   setSelectedRadioButton,
-  setDateRangeForStats
+  setDateRangeForStats,
+  setLeaderboardsSelectedInput,
+  getLeaderboardsUpdate,
+  getHeatmapData,
+  setSelectedHeatmapInput,
+  getUtilisationData,
+  setSelectUtilisationInput
 } from '../../store/actions'
 
 import classes from './Root.module.css'
@@ -21,7 +30,15 @@ import classes from './Root.module.css'
 const { Title, Paragraph } = Typography
 
 const Root = props => {
-  const { getPublicStats, userStats, setSelectedInput, selectedInput, username, authToken } = props
+  const {
+    getPublicStats,
+    userStats,
+    setSelectedInput,
+    selectedInput,
+    selectedHeatmapInput,
+    heatmapData,
+    utilisationData
+  } = props
 
   useEffect(() => {
     if (userStats.length === 0) {
@@ -78,6 +95,30 @@ const Root = props => {
     props.setDateRangeForStats(payload.dateRange)
   }
 
+  const leaderboardsSelectHandler = value => {
+    props.setLeaderboardsSelectedInput(value)
+    props.getLeaderboardsUpdate(value)
+  }
+
+  const heatmapSelectHandler = value => {
+    props.setSelectedHeatmapInput(value)
+    props.getHeatmapData(value)
+  }
+
+  const tabsChangeHandler = key => {
+    if (key === 'heatmaps' && heatmapData.length === 0) {
+      props.getHeatmapData('days')
+    }
+    if (key === 'utilisation' && utilisationData.length === 0) {
+      props.getUtilisationData('last_30_days')
+    }
+  }
+
+  const utilisationSelectHandler = value => {
+    props.setSelectedUtilisationInput(value)
+    props.getUtilisationData(value)
+  }
+
   return (
     <div className={classes.RootContainer}>
       <Row justify='center' align='top' className={classes.TitleHeader}>
@@ -100,13 +141,7 @@ const Root = props => {
         <Divider style={dividerStyle} size='medium'>
           Users Stats
         </Divider>
-        {props.loading ? (
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Spin size='large' description='Loading ...' />
-          </div>
-        ) : (
-          <UserStats data={props.userStats} loading={props.usersLoading} />
-        )}
+        <UserStats data={props.userStats} loading={props.usersLoading} />
         <Divider style={dividerStyle} size='medium'>
           Traffic & Datastore Stats
         </Divider>
@@ -118,14 +153,50 @@ const Root = props => {
           dateRangeHandler={dateRangeHandler}
           dateRangeValue={props.dateRange}
         />
-        {props.datastoreLoading ? (
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <Spin size='large' description='Loading' />
-          </div>
-        ) : (
-          <TrafficDataStats data={props.trafficData} />
-        )}
+        <TrafficDataStats data={props.trafficData} loading={props.datastoreLoading} />
         <Divider style={dividerStyle}></Divider>
+        <Tabs
+          centered
+          onChange={key => tabsChangeHandler(key)}
+          items={[
+            {
+              label: <div className={classes.TabLabel}>Leaderboards</div>,
+              key: 'leaderboards',
+              children: (
+                <Leaderboards
+                  data={props.leaderboardsData}
+                  loading={props.tabsLoading}
+                  selectedInput={props.leaderboardsSelectedInput}
+                  onSelectInputChange={leaderboardsSelectHandler}
+                />
+              )
+            },
+            {
+              label: <div className={classes.TabLabel}>Heatmaps</div>,
+              key: 'heatmaps',
+              children: (
+                <Heatmaps
+                  selectedInput={selectedHeatmapInput}
+                  onSelectInputChange={heatmapSelectHandler}
+                  loading={props.tabsLoading}
+                  data={props.heatmapData}
+                />
+              )
+            },
+            {
+              label: <div className={classes.TabLabel}>Instrument Utilisation</div>,
+              key: 'utilisation',
+              children: (
+                <Utilisation
+                  loading={props.tabsLoading}
+                  data={props.utilisationData}
+                  selectedInput={props.selectedUtilisationInput}
+                  onSelectInputChange={utilisationSelectHandler}
+                />
+              )
+            }
+          ]}
+        />
       </div>
     </div>
   )
@@ -135,12 +206,19 @@ const mapStateToProps = state => {
   return {
     usersLoading: state.stats.usersLoading,
     datastoreLoading: state.stats.datastoreLoading,
+    tabsLoading: state.stats.tabsLoading,
     hostName: state.stats.hostName,
     userStats: state.stats.userStats,
     trafficData: state.stats.datastoreStats,
+    leaderboardsData: state.stats.leaderboardsData,
     selectedInput: state.stats.selectedInput,
     selectedRadioButton: state.stats.selectedRadioButton,
-    dateRange: state.stats.dateRange
+    dateRange: state.stats.dateRange,
+    leaderboardsSelectedInput: state.stats.leaderboardsSelectedInput,
+    selectedHeatmapInput: state.stats.selectedHeatmapInput,
+    heatmapData: state.stats.heatmapData,
+    utilisationData: state.stats.utilisationData,
+    selectedUtilisationInput: state.stats.selectedUtilisationInput
   }
 }
 
@@ -149,7 +227,13 @@ const mapDispatchToProps = dispatch => ({
   setSelectedInput: value => dispatch(setSelectedInput(value)),
   getPublicStatsUpdate: payload => dispatch(getPublicStatsUpdate(payload)),
   setSelectedRadioButton: value => dispatch(setSelectedRadioButton(value)),
-  setDateRangeForStats: value => dispatch(setDateRangeForStats(value))
+  setDateRangeForStats: value => dispatch(setDateRangeForStats(value)),
+  setLeaderboardsSelectedInput: value => dispatch(setLeaderboardsSelectedInput(value)),
+  getLeaderboardsUpdate: type => dispatch(getLeaderboardsUpdate(type)),
+  getHeatmapData: payload => dispatch(getHeatmapData(payload)),
+  setSelectedHeatmapInput: value => dispatch(setSelectedHeatmapInput(value)),
+  getUtilisationData: payload => dispatch(getUtilisationData(payload)),
+  setSelectedUtilisationInput: value => dispatch(setSelectUtilisationInput(value))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Root)

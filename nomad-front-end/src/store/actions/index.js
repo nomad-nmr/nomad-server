@@ -223,5 +223,11 @@ export {
   getPublicStatsUpdate,
   setSelectedInput,
   setSelectedRadioButton,
-  setDateRangeForStats
+  setDateRangeForStats,
+  setLeaderboardsSelectedInput,
+  getLeaderboardsUpdate,
+  getHeatmapData,
+  setSelectedHeatmapInput,
+  getUtilisationData,
+  setSelectUtilisationInput
 } from './stats'

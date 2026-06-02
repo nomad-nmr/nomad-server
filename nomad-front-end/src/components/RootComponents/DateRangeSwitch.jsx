@@ -11,7 +11,7 @@ const DateRangeSwitch = props => {
   return (
     <Space size='large'>
       <Select
-        style={{ width: 150, marginLeft: '160px' }}
+        style={{ width: 150, marginLeft: '140px' }}
         disabled={selectedRadioButton !== 1}
         value={selectedInputValue}
         onChange={value => props.selectInputHandler(value)}

@@ -7,6 +7,13 @@ import ManualExperiment from '../models/manualExperiment.js'
 import Dataset from '../models/dataset.js'
 import Collection from '../models/collection.js'
 
+import {
+  getDatastoreStats,
+  getLeaderboardsData,
+  fetchHeatmapData,
+  getInstrumentUtilisationData
+} from '../utils/statsQueries.js'
+
 export async function nmriumStats(req, res) {
   const { user, group } = req.query
   let searchParams = {}
@@ -72,7 +79,8 @@ export async function getPublicStats(req, res) {
           value: Math.round((activeUsersCounts.nmriumUsersCount / activeUsersCount) * 100)
         }
       ],
-      datastoreStats: await getDatastoreStats()
+      datastoreStats: await getDatastoreStats(),
+      leaderboardsData: await getLeaderboardsData('last_30_days')
     }
 
     res.status(200).json(respObject)
@@ -92,71 +100,34 @@ export async function getPublicStatsUpdate(req, res) {
   }
 }
 
-// Helper function to get datastore stats the function is used in both getPublicStats and getPublicStatsUpdate to avoid code duplication
-const getDatastoreStats = async dateRange => {
+export async function getLeaderboardsUpdate(req, res) {
   try {
-    const autoSearchParams = { $and: [{ status: 'Archived' }] }
-    const manualSearchParams = { $and: [{ status: 'Archived' }] }
-    const datasetsSearchParams = { $and: [] }
-
-    if (dateRange && dateRange !== 'undefined') {
-      const datesArr = dateRange.split(',')
-      autoSearchParams.$and.push({
-        submittedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-
-      manualSearchParams.$and.push({
-        updatedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-
-      datasetsSearchParams.$and.push({
-        createdAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-    }
-
-    const autoExpsArchivedCount = await Experiment.countDocuments({ ...autoSearchParams })
-    const manualExpsArchivedCount = await ManualExperiment.countDocuments({ ...manualSearchParams })
-
-    const uniqueDatasetCount = await Experiment.aggregate([
-      { $match: { ...autoSearchParams } },
-      { $group: { _id: '$datasetName' } },
-      { $count: 'uniqueDatasets' }
-    ])
-
-    const datastoreStats = [
-      { title: 'Experiments Archived', value: autoExpsArchivedCount + manualExpsArchivedCount },
-      {
-        title: 'Automation Experiments Archived',
-        value: autoExpsArchivedCount
-      },
-      {
-        title: 'Manual Experiments Archived',
-        value: manualExpsArchivedCount
-      },
-      {
-        title: 'Automation Processed Samples',
-        value: uniqueDatasetCount[0] ? uniqueDatasetCount[0].uniqueDatasets : 0
-      },
-      {
-        title: 'Created Datasets',
-        value: await Dataset.countDocuments({ ...datasetsSearchParams })
-      },
-      {
-        title: 'Created Collections',
-        value: await Collection.countDocuments({ ...datasetsSearchParams })
-      }
-    ]
-    return Promise.resolve(datastoreStats)
+    const leaderboardsData = await getLeaderboardsData(req.query.type)
+    res.status(200).json(leaderboardsData)
   } catch (error) {
-    return Promise.reject(error)
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getHeatmapData(req, res) {
+  const { type } = req.query
+  try {
+    const heatmapData = await fetchHeatmapData(type)
+    res.status(200).json(heatmapData)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getUtilisationData(req, res) {
+  const { type } = req.query
+  try {
+    const utilisationData = await getInstrumentUtilisationData(type)
+    res.status(200).json(utilisationData)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
   }
 }
