@@ -5,6 +5,7 @@ import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
 import Dataset from '../models/dataset.js'
 import Collection from '../models/collection.js'
+import Claim from '../models/claim.js'
 
 const getDatastoreStats = async dateRange => {
   try {
@@ -406,4 +407,152 @@ const fetchHeatmapData = async (type = 'days') => {
   }
 }
 
-export { getDatastoreStats, getLeaderboardsData, fetchHeatmapData }
+const getInstrumentUtilisationData = async type => {
+  try {
+    const autoSearchParams = { $and: [{ status: 'Archived' }] }
+    const manualSearchParams = { $and: [{}] }
+    let totalTime = 0
+
+    switch (type) {
+      case 'last_30_days':
+        const daysSearchParams = {
+          $gte: new Date(moment().subtract(30, 'days').format('YYYY-MM-DD')),
+          $lt: new Date(moment().add(1, 'd').format('YYYY-MM-DD'))
+        }
+
+        autoSearchParams.$and.push({ updatedAt: daysSearchParams })
+        manualSearchParams.$and.push({ updatedAt: daysSearchParams })
+        totalTime = 30 * 24 * 60 * 60
+        break
+
+      case 'today':
+        const todaySearchParams = {
+          $gte: new Date(moment().format('YYYY-MM-DD')),
+          $lt: new Date(moment().add(1, 'd').format('YYYY-MM-DD'))
+        }
+
+        autoSearchParams.$and.push({ updatedAt: todaySearchParams })
+        manualSearchParams.$and.push({ updatedAt: todaySearchParams })
+        totalTime = 24 * 60 * 60
+        break
+
+      case '12_months':
+      default:
+        const trailingSearchParams = {
+          $gte: new Date(moment().subtract(12, 'months').format('YYYY-MM-DD')),
+          $lt: new Date(moment().add(1, 'd').format('YYYY-MM-DD'))
+        }
+
+        autoSearchParams.$and.push({ updatedAt: trailingSearchParams })
+        manualSearchParams.$and.push({ updatedAt: trailingSearchParams })
+        totalTime = 365 * 24 * 60 * 60
+        break
+    }
+
+    // Get automation experiments grouped by instrument
+    const autoExpsData = await Experiment.aggregate([
+      { $match: { ...autoSearchParams } },
+      {
+        $group: {
+          _id: '$instrument.name',
+          totalExpTime: {
+            $sum: {
+              $let: {
+                vars: {
+                  parts: { $split: [{ $ifNull: ['$totalExpTime', '$expTime'] }, ':'] }
+                },
+                in: {
+                  $add: [
+                    { $multiply: [{ $toInt: { $arrayElemAt: ['$$parts', 0] } }, 3600] },
+                    { $multiply: [{ $toInt: { $arrayElemAt: ['$$parts', 1] } }, 60] },
+                    { $toInt: { $arrayElemAt: ['$$parts', 2] } }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    ])
+
+    // Extract date range from manualSearchParams for claims
+    let claimsDateMatch = { status: 'Approved' }
+    const dateRangeFromParams = manualSearchParams.$and.find(param => param.updatedAt)
+    if (dateRangeFromParams) {
+      claimsDateMatch.createdAt = dateRangeFromParams.updatedAt
+    }
+
+    // Get claims grouped by instrument and sum expTime
+    const claimsData = await Claim.aggregate([
+      { $match: claimsDateMatch },
+      {
+        $lookup: {
+          from: 'instruments',
+          localField: 'instrument',
+          foreignField: '_id',
+          as: 'instrumentDetails'
+        }
+      },
+      { $unwind: '$instrumentDetails' },
+      {
+        $group: {
+          _id: '$instrumentDetails.name',
+          totalManualExpTime: { $sum: { $toDouble: '$expTime' } }
+        }
+      }
+    ])
+
+    // Create a map of claims data for easy lookup
+    const claimsMap = new Map()
+    claimsData.forEach(item => {
+      if (item._id) {
+        claimsMap.set(item._id, item.totalManualExpTime)
+      }
+    })
+
+    console.log('Auto Experiments Data:', autoExpsData)
+
+    // Convert to array of objects
+    const instrumentData = autoExpsData.map(item => ({
+      instrumentName: item._id,
+      totalExpTime: item.totalExpTime,
+      manualExpTime: claimsMap.get(item._id) || 0
+    }))
+
+    const barChartData = instrumentData
+      .map(item => ({
+        instrumentName: item.instrumentName,
+        utilisation:
+          Math.round(((item.totalExpTime + item.manualExpTime * 3600) / totalTime) * 100 * 100) /
+          100,
+        totalExpTime: moment
+          .duration(item.totalExpTime + item.manualExpTime * 3600, 'seconds')
+          .format('HH:mm:ss')
+      }))
+      .sort((a, b) => a.instrumentName.localeCompare(b.instrumentName))
+
+    const totalUsedTime = instrumentData.reduce(
+      (acc, item) => acc + item.totalExpTime + item.manualExpTime * 3600,
+      0
+    )
+
+    const pieChartData = instrumentData
+      .map(item => ({
+        instrumentName: item.instrumentName,
+        value:
+          Math.round(
+            ((item.totalExpTime + item.manualExpTime * 3600) / totalUsedTime) * 100 * 100
+          ) / 100
+      }))
+      .sort((a, b) => a.instrumentName.localeCompare(b.instrumentName))
+
+    return Promise.resolve({
+      barChartData,
+      pieChartData
+    })
+  } catch (error) {
+    return Promise.reject(error)
+  }
+}
+
+export { getDatastoreStats, getLeaderboardsData, fetchHeatmapData, getInstrumentUtilisationData }

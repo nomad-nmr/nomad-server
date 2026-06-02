@@ -114,3 +114,26 @@ export const getHeatmapData = payload => {
       })
   }
 }
+export const getUtilisationDataSuccess = payload => ({
+  type: actionTypes.GET_UTILISATION_DATA_SUCCESS,
+  payload
+})
+
+export const getUtilisationData = payload => {
+  return dispatch => {
+    dispatch(loadingTabsStarts())
+    axios
+      .get('/stats/utilisation/?type=' + payload)
+      .then(res => {
+        dispatch(getUtilisationDataSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
+export const setSelectUtilisationInput = payload => ({
+  type: actionTypes.SET_SELECTED_UTILISATION_INPUT,
+  payload
+})

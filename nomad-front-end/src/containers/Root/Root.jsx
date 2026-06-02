@@ -9,6 +9,7 @@ import TrafficDataStats from '../../components/RootComponents/TrafficDataStats'
 import DateRangeSwitch from '../../components/RootComponents/DateRangeSwitch'
 import Leaderboards from '../../components/RootComponents/Leaderboards'
 import Heatmaps from '../../components/RootComponents/Heatmaps'
+import Utilisation from '../../components/RootComponents/Utilisation'
 
 import {
   getPublicStats,
@@ -19,7 +20,9 @@ import {
   setLeaderboardsSelectedInput,
   getLeaderboardsUpdate,
   getHeatmapData,
-  setSelectedHeatmapInput
+  setSelectedHeatmapInput,
+  getUtilisationData,
+  setSelectUtilisationInput
 } from '../../store/actions'
 
 import classes from './Root.module.css'
@@ -33,7 +36,8 @@ const Root = props => {
     setSelectedInput,
     selectedInput,
     selectedHeatmapInput,
-    heatmapData
+    heatmapData,
+    utilisationData
   } = props
 
   useEffect(() => {
@@ -104,9 +108,17 @@ const Root = props => {
   const tabsChangeHandler = key => {
     if (key === 'heatmaps' && heatmapData.length === 0) {
       props.getHeatmapData('days')
-      console.log('HUUUUUUUUUU')
+    }
+    if (key === 'utilisation' && utilisationData.length === 0) {
+      props.getUtilisationData('last_30_days')
     }
   }
+
+  const utilisationSelectHandler = value => {
+    props.setSelectedUtilisationInput(value)
+    props.getUtilisationData(value)
+  }
+
   return (
     <div className={classes.RootContainer}>
       <Row justify='center' align='top' className={classes.TitleHeader}>
@@ -174,7 +186,14 @@ const Root = props => {
             {
               label: <div className={classes.TabLabel}>Instrument Utilisation</div>,
               key: 'utilisation',
-              children: 'Tab 3'
+              children: (
+                <Utilisation
+                  loading={props.tabsLoading}
+                  data={props.utilisationData}
+                  selectedInput={props.selectedUtilisationInput}
+                  onSelectInputChange={utilisationSelectHandler}
+                />
+              )
             }
           ]}
         />
@@ -197,7 +216,9 @@ const mapStateToProps = state => {
     dateRange: state.stats.dateRange,
     leaderboardsSelectedInput: state.stats.leaderboardsSelectedInput,
     selectedHeatmapInput: state.stats.selectedHeatmapInput,
-    heatmapData: state.stats.heatmapData
+    heatmapData: state.stats.heatmapData,
+    utilisationData: state.stats.utilisationData,
+    selectedUtilisationInput: state.stats.selectedUtilisationInput
   }
 }
 
@@ -210,7 +231,9 @@ const mapDispatchToProps = dispatch => ({
   setLeaderboardsSelectedInput: value => dispatch(setLeaderboardsSelectedInput(value)),
   getLeaderboardsUpdate: type => dispatch(getLeaderboardsUpdate(type)),
   getHeatmapData: payload => dispatch(getHeatmapData(payload)),
-  setSelectedHeatmapInput: value => dispatch(setSelectedHeatmapInput(value))
+  setSelectedHeatmapInput: value => dispatch(setSelectedHeatmapInput(value)),
+  getUtilisationData: payload => dispatch(getUtilisationData(payload)),
+  setSelectedUtilisationInput: value => dispatch(setSelectUtilisationInput(value))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Root)

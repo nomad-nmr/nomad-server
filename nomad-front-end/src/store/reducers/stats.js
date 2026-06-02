@@ -14,7 +14,9 @@ const initialState = {
   dateRange: [],
   leaderboardsSelectedInput: 'last_30_days',
   selectedHeatmapInput: 'days',
-  heatmapData: []
+  heatmapData: [],
+  utilisationData: [],
+  selectedUtilisationInput: 'last_30_days'
 }
 
 const reducer = (state = initialState, action) => {
@@ -62,6 +64,11 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.GET_HEATMAP_DATA_SUCCESS:
       return { ...state, heatmapData: action.payload, tabsLoading: false }
+
+    case actionTypes.GET_UTILISATION_DATA_SUCCESS:
+      return { ...state, utilisationData: action.payload, tabsLoading: false }
+    case actionTypes.SET_SELECTED_UTILISATION_INPUT:
+      return { ...state, selectedUtilisationInput: action.payload }
 
     default:
       return state

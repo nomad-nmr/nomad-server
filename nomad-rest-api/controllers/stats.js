@@ -7,7 +7,12 @@ import ManualExperiment from '../models/manualExperiment.js'
 import Dataset from '../models/dataset.js'
 import Collection from '../models/collection.js'
 
-import { getDatastoreStats, getLeaderboardsData, fetchHeatmapData } from '../utils/statsQueries.js'
+import {
+  getDatastoreStats,
+  getLeaderboardsData,
+  fetchHeatmapData,
+  getInstrumentUtilisationData
+} from '../utils/statsQueries.js'
 
 export async function nmriumStats(req, res) {
   const { user, group } = req.query
@@ -110,6 +115,17 @@ export async function getHeatmapData(req, res) {
   try {
     const heatmapData = await fetchHeatmapData(type)
     res.status(200).json(heatmapData)
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
+export async function getUtilisationData(req, res) {
+  const { type } = req.query
+  try {
+    const utilisationData = await getInstrumentUtilisationData(type)
+    res.status(200).json(utilisationData)
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

@@ -44,7 +44,6 @@ const Heatmaps = props => {
   )
 
   if (selectedInput !== 'days') {
-    console.log(data)
     const xKey = selectedInput === 'months' ? 'month' : 'year'
     heatmapElement = (
       <Flex justify='space-around'>

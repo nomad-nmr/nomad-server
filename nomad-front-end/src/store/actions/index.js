@@ -227,5 +227,7 @@ export {
   setLeaderboardsSelectedInput,
   getLeaderboardsUpdate,
   getHeatmapData,
-  setSelectedHeatmapInput
+  setSelectedHeatmapInput,
+  getUtilisationData,
+  setSelectUtilisationInput
 } from './stats'
