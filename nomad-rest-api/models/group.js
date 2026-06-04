@@ -17,6 +17,11 @@ const groupSchema = new Schema(
       default: false
     },
 
+    addCustomList: {
+      type: Boolean,
+      default: false
+    },
+
     isActive: {
       type: Boolean,
       required: true,
