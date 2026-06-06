@@ -23,7 +23,8 @@ import {
   deleteGrant,
   updateGrant,
   fetchGrantsCosts,
-  toggleAddGrantModal
+  toggleAddGrantModal,
+  toggleShowZeroValues
 } from '../../store/actions'
 
 import classes from './Accounts.module.css'
@@ -37,7 +38,9 @@ const Accounts = props => {
     tableData,
     resetTable,
     fetchCosting,
-    accountsType
+    accountsType,
+    showZeroValues,
+    tglShowZeroValues
   } = props
 
   const [usrGrpTags, setUsrGrpTags] = useState([])
@@ -59,13 +62,22 @@ const Accounts = props => {
     window.scrollTo(0, 0)
   })
 
+  const getFilteredTableData = () => {
+    if (showZeroValues || tableData.length === 0) {
+      return tableData
+    }
+    return tableData.filter(row => row.totalCost !== 0)
+  }
+  const filteredTableData = getFilteredTableData()
+
+
   const tableElement =
-    tableData.length === 0 ? (
+    filteredTableData.length === 0 ? (
       <Empty />
     ) : accountsType === 'Grants' ? (
-      <GrantsCostsTable data={tableData} alertData={props.noGrantsData} />
+      <GrantsCostsTable data={filteredTableData} alertData={props.noGrantsData} />
     ) : (
-      <AccountsTable data={tableData} header={props.tblHeader} />
+      <AccountsTable data={filteredTableData} header={props.tblHeader} />
     )
 
   const grantFormElement = (
@@ -169,7 +181,8 @@ const mapStateToProps = state => ({
   descriptionSearchValue: state.accounts.descriptionSearchValue,
   setGrantsVisible: state.accounts.showSetGrants,
   grantFormVisible: state.accounts.showAddGrant,
-  noGrantsData: state.accounts.noGrantsAlert
+  noGrantsData: state.accounts.noGrantsAlert,
+  showZeroValues: state.accounts.showZeroValues
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -187,7 +200,8 @@ const mapDispatchToProps = dispatch => ({
   delGrant: (token, id) => dispatch(deleteGrant(token, id)),
   updateGrant: (token, data) => dispatch(updateGrant(token, data)),
   fetchGrantsCosts: (token, data) => dispatch(fetchGrantsCosts(token, data)),
-  tglGrantForm: () => dispatch(toggleAddGrantModal())
+  tglGrantForm: () => dispatch(toggleAddGrantModal()),
+  tglShowZeroValues: () => dispatch(toggleShowZeroValues())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

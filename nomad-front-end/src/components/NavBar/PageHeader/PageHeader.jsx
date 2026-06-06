@@ -54,7 +54,8 @@ import {
   bookSamples,
   toggleSampleJetModal,
   searchDescription,
-  fetchUserList
+  fetchUserList,
+  toggleShowZeroValues
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -289,6 +290,8 @@ const PageHeaderEl = props => {
           searchHandler={props.descriptionSearchHandler}
           searchDefValue={props.descriptionSearchValue}
           groupName={props.accountsGroupName}
+          showZeroValues={props.showZeroValues}
+          onShowZeroValuesChange={props.tglShowZeroValues}
         />
       )
 
@@ -386,6 +389,7 @@ const mapStateToProps = state => {
     accountingTableData: state.accounts.costsTableData,
     accountingLoading: state.accounts.loading,
     accountingTableHeader: state.accounts.tableHeader,
+    showZeroValues: state.accounts.showZeroValues,
     cardSwitchOn: state.dash.showCards,
     statusButtonsData: state.dash.statusButtonsData,
     instFormVisible: state.instruments.showForm,
@@ -488,7 +492,8 @@ const mapDispatchToProps = dispatch => {
     tglAddGrant: () => dispatch(toggleAddGrantModal()),
     deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token)),
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
-    toggleSampleJetModal: () => dispatch(toggleSampleJetModal())
+    toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
+    tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
   }
 }
 
