@@ -32,11 +32,17 @@ export async function getParamSets(req, res) {
       await group.populate('expList')
 
       if (group.addCustomList) {
-        paramSets = defaultParamSets.concat(group.expList)
+        const merged = defaultParamSets.concat(group.expList)
+
+        paramSets = Array.from(
+          new Map(merged.map(paramSet => [String(paramSet._id), paramSet]))
+            .values()
+        )
       } else {
         paramSets = group.expList
       }
     }
+
     if (list === 'true') {
       const paramSetsList = paramSets.map(paramSet => ({
         name: paramSet.name,
