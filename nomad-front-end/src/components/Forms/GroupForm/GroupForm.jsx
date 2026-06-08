@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 
-import { Form, Input, Select, Button, Space, Col, Row, Checkbox, Modal } from 'antd'
+import { Form, Input, Select, Button, Space, Col, Row, Checkbox, Switch, Modal } from 'antd'
 
 import { ExclamationCircleOutlined } from '@ant-design/icons'
 import dataAccessOptions from '../dataAccessOptions'
@@ -94,14 +94,24 @@ const GroupForm = props => {
         </Row>
 
         <Row gutter={24}>
-          <Col span={14}>
+          <Col span={12}>
             <Form.Item name='expList' label='Custom experiment list'>
-              <Select mode='multiple' allowClear style={{ marginRight: '40px' }}>
+              <Select mode='multiple' allowClear style={{ marginRight: '40px' }}>  
                 {options}
               </Select>
             </Form.Item>
           </Col>
           <Col span={3}>
+            <Form.Item
+              name='addCustomList'
+              label='Append custom list'
+              valuePropName='checked'
+              tooltip='Append the custom experiment list to the default list instead of replacing it'
+            >
+              <Switch />
+            </Form.Item>
+          </Col>
+          <Col span={4}>
             <Form.Item
               name='dataAccess'
               label='Data Access'
