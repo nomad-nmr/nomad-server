@@ -165,7 +165,8 @@ export {
   fetchDataset,
   editDatasetMeta,
   fetchExpsFromDatasets,
-  updateTags
+  updateTags,
+  toggleRecentDataModal
 } from './nmrium'
 
 export {

@@ -5,7 +5,8 @@ import {
   DownloadOutlined,
   ShareAltOutlined,
   SaveOutlined,
-  FolderAddOutlined
+  FolderAddOutlined,
+  FolderOpenOutlined
 } from '@ant-design/icons'
 
 import CopyLinkToClipboard from '../../../CopyLinkToClipboard/CopyLinkToClipboard'
@@ -59,13 +60,23 @@ const NMRiumControls = props => {
       <img src={nmriumLogo} alt='NMRium logo' />
       <Space>
         <span className={classes.Text}>Add : </span>
-        <Button type='primary' onClick={() => addExperiments()}>
+        <Button size='small' type='primary' onClick={() => addExperiments()}>
           Experiments
         </Button>
-        <Button onClick={() => props.toggleFidsModal()}>FIDs</Button>
+        <Button size='small' onClick={() => props.toggleFidsModal()}>
+          FIDs
+        </Button>
         <Divider type='vertical' />
         <Button
+          size='small'
+          icon={<FolderOpenOutlined />}
+          onClick={() => props.toggleRecentDataModal()}
+        >
+          Open Recent
+        </Button>
+        <Button
           type='primary'
+          size='small'
           disabled={saveDisabled}
           icon={<SaveOutlined />}
           onClick={() => {
@@ -75,11 +86,18 @@ const NMRiumControls = props => {
         >
           Save
         </Button>
-        <Button icon={<SaveOutlined />} disabled={saveAsDisabled} onClick={() => onSaveAs()}>
+        <Button
+          size='small'
+          icon={<SaveOutlined />}
+          disabled={saveAsDisabled}
+          onClick={() => onSaveAs()}
+        >
           Save As
         </Button>
+        <Divider type='vertical' />
         <Tooltip title='Add dataset to collection'>
           <Button
+            size='small'
             icon={<FolderAddOutlined />}
             disabled={saveDisabled}
             onClick={() => props.toggleColModal()}
@@ -87,15 +105,14 @@ const NMRiumControls = props => {
             Add
           </Button>
         </Tooltip>
-        <Divider type='vertical' />
-
         <CopyLinkToClipboard>
-          <Button type='primary' icon={<ShareAltOutlined />} disabled={!dataset.id}>
+          <Button size='small' type='primary' icon={<ShareAltOutlined />} disabled={!dataset.id}>
             Share
           </Button>
         </CopyLinkToClipboard>
         <Tooltip title='Download dataset in Bruker format'>
           <Button
+            size='small'
             icon={<DownloadOutlined />}
             disabled={!dataset.id}
             onClick={() => props.downloadHandler(dataset.id, dataset.title, token)}

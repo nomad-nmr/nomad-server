@@ -54,7 +54,8 @@ import {
   bookSamples,
   toggleSampleJetModal,
   searchDescription,
-  fetchUserList
+  fetchUserList,
+  toggleRecentDataModal
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -342,6 +343,7 @@ const PageHeaderEl = props => {
           username={props.username}
           downloadHandler={props.downloadDataset}
           toggleColModal={props.tglColModal}
+          toggleRecentDataModal={props.toggleRecentDataModal}
         />
       )
       break
@@ -488,7 +490,8 @@ const mapDispatchToProps = dispatch => {
     tglAddGrant: () => dispatch(toggleAddGrantModal()),
     deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token)),
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
-    toggleSampleJetModal: () => dispatch(toggleSampleJetModal())
+    toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
+    toggleRecentDataModal: () => dispatch(toggleRecentDataModal())
   }
 }
 

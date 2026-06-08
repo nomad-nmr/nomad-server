@@ -178,3 +178,7 @@ export const updateTags = (datasetId, tags, token) => {
       })
   }
 }
+
+export const toggleRecentDataModal = () => ({
+  type: actionTypes.TOGGLE_RECENT_DATA_MODAL
+})

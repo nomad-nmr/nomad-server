@@ -8,6 +8,7 @@ import { EditOutlined } from '@ant-design/icons'
 import FidsModal from '../../components/Modals/FidsModal/FidsModal'
 import DataSetModal from '../../components/Modals/DataSetModal/DataSetModal'
 import CollectionModal from '../../components/Modals/CollectionModal/CollectionModal'
+import RecentDataModal from '../../components/Modals/RecentDataModal/RecentDataModal'
 import DatasetTags from '../../components/DatasetTags/DatasetTags'
 import {
   keepNMRiumChanges,
@@ -25,7 +26,8 @@ import {
   updateTags,
   getCollectionsList,
   addDatasetsToCollection,
-  toggleCollectionModal
+  toggleCollectionModal,
+  toggleRecentDataModal
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -183,6 +185,11 @@ const NMRiumContainer = props => {
         requestHandler={props.addToCollection}
         collectionList={props.collectionList}
       />
+      <RecentDataModal
+        open={props.showRecentModal}
+        cancelHandler={props.tglRecentDataModal}
+        open={props.showRecentModal}
+      />
     </Fragment>
   )
 }
@@ -202,7 +209,8 @@ const mapStateToProps = state => ({
   datasetMeta: state.nmrium.datasetMeta,
   editing: state.nmrium.editing,
   collectionList: state.datasets.collectionList,
-  colModalOpen: state.datasets.showModal
+  colModalOpen: state.datasets.showModal,
+  showRecentModal: state.nmrium.showRecentModal
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -222,7 +230,8 @@ const mapDispatchToProps = dispatch => ({
   updateTags: (datasetId, tagValue, token) => dispatch(updateTags(datasetId, tagValue, token)),
   fetchCollectionsList: token => dispatch(getCollectionsList(token)),
   addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
-  tglColModal: () => dispatch(toggleCollectionModal())
+  tglColModal: () => dispatch(toggleCollectionModal()),
+  tglRecentDataModal: () => dispatch(toggleRecentDataModal())
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)
