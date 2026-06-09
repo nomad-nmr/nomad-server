@@ -13,7 +13,8 @@ const initialState = {
   showAddGrant: false,
   noGrantsAlert: {},
   descriptionSearchValue: '',
-  groupName: undefined
+  groupName: undefined,
+  showZeroValues: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -92,6 +93,9 @@ const reducer = (state = initialState, { type, payload }) => {
         noGrantsAlert: payload.noGrantsData,
         loading: false
       }
+
+    case actionTypes.TOGGLE_SHOW_ZERO_VALUES:
+      return { ...state, showZeroValues: !state.showZeroValues }
 
     default:
       return state
