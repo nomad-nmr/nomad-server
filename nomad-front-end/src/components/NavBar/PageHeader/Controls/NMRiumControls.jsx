@@ -70,7 +70,10 @@ const NMRiumControls = props => {
         <Button
           size='small'
           icon={<FolderOpenOutlined />}
-          onClick={() => props.toggleRecentDataModal()}
+          onClick={() => {
+            props.fetchData(token)
+            props.toggleRecentDataModal()
+          }}
         >
           Open Recent
         </Button>

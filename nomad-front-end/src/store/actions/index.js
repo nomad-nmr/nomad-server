@@ -217,7 +217,7 @@ export {
   downloadCollection
 } from './collections'
 
-export { getAccountSettings, saveUserSettings } from './user-account'
+export { getAccountSettings, saveUserSettings, fetchRecentDatasets } from './user-account'
 
 export {
   getPublicStats,

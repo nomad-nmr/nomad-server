@@ -27,7 +27,8 @@ import {
   getCollectionsList,
   addDatasetsToCollection,
   toggleCollectionModal,
-  toggleRecentDataModal
+  toggleRecentDataModal,
+  fetchNMRiumData
 } from '../../store/actions'
 import history from '../../utils/history'
 
@@ -187,8 +188,11 @@ const NMRiumContainer = props => {
       />
       <RecentDataModal
         open={props.showRecentModal}
+        token={props.authToken}
         cancelHandler={props.tglRecentDataModal}
         open={props.showRecentModal}
+        data={props.recentData}
+        fetchExperiments={props.fetchNMRiumData}
       />
     </Fragment>
   )
@@ -210,7 +214,8 @@ const mapStateToProps = state => ({
   editing: state.nmrium.editing,
   collectionList: state.datasets.collectionList,
   colModalOpen: state.datasets.showModal,
-  showRecentModal: state.nmrium.showRecentModal
+  showRecentModal: state.nmrium.showRecentModal,
+  recentData: state.userAccount.recentData
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -231,7 +236,9 @@ const mapDispatchToProps = dispatch => ({
   fetchCollectionsList: token => dispatch(getCollectionsList(token)),
   addToCollection: (data, token) => dispatch(addDatasetsToCollection(data, token)),
   tglColModal: () => dispatch(toggleCollectionModal()),
-  tglRecentDataModal: () => dispatch(toggleRecentDataModal())
+  tglRecentDataModal: () => dispatch(toggleRecentDataModal()),
+  fetchNMRiumData: (expsArr, authToken, dataType) =>
+    dispatch(fetchNMRiumData(expsArr, authToken, dataType))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(NMRiumContainer)

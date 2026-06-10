@@ -42,3 +42,23 @@ export const saveUserSettings = (token, data) => {
       })
   }
 }
+
+export const fetchRecentDatasetsSuccess = payload => ({
+  type: actionTypes.FETCH_RECENT_DATA_SUCCESS,
+  payload
+})
+
+export const fetchRecentDatasets = token => {
+  return dispatch => {
+    axios
+      .get('/user-account/recent-datasets', {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(fetchRecentDatasetsSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
