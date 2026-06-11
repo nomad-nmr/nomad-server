@@ -2,7 +2,6 @@ import React from 'react'
 import { Flex, Statistic, Space, Popover } from 'antd'
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
-import { GroupSizeContext } from 'antd/es/button/button-group'
 
 const UserStats = props => {
   const titles = [

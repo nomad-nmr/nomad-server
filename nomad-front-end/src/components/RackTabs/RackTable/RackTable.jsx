@@ -224,7 +224,7 @@ was rejected for the following reason: ${form.getFieldValue('reason')}
   const expandElement = record => {
     const expElement = record.exps.map((exp, index) => (
       <div key={index}>
-        {index !== 0 && <Divider type='vertical' />}
+        {index !== 0 && <Divider vertical />}
         {exp.paramSet} [{exp.params}]
       </div>
     ))

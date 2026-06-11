@@ -31,7 +31,7 @@ const CollectionControls = props => {
               <Radio value='cards'>Cards</Radio>
             </Radio.Group>
 
-            <Divider type='vertical' />
+            <Divider vertical />
             <span className={classes.Text}>Add to: </span>
 
             <Tooltip title='Add selected experiments to NMRium'>
@@ -46,7 +46,7 @@ const CollectionControls = props => {
                 NMRium
               </Button>
             </Tooltip>
-            <Divider type='vertical' />
+            <Divider vertical />
 
             <Tooltip title='Add selected datasets to another collection'>
               <Button
@@ -68,14 +68,14 @@ const CollectionControls = props => {
               </Button>
             </Tooltip>
 
-            <Divider type='vertical' />
+            <Divider vertical />
             <Button
               icon={<DownloadOutlined />}
               onClick={() => props.downloadHandler(props.id, token)}
             >
               Download
             </Button>
-            <Divider type='vertical' />
+            <Divider vertical />
 
             <Tooltip title='Close and return to list of collections'>
               <Button

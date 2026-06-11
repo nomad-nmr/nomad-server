@@ -93,7 +93,9 @@ const AccountingControls = props => {
   }
 
   const filteredTableData =
-    showZeroValues || tableData.length === 0 ? tableData : tableData.filter(row => row.totalCost !== 0)
+    showZeroValues || tableData.length === 0
+      ? tableData
+      : tableData.filter(row => row.totalCost !== 0)
 
   let controlElements = (
     <Fragment>
@@ -118,7 +120,7 @@ const AccountingControls = props => {
         <Switch checked={showZeroValues} onChange={onShowZeroValuesChange} />
       </div>
 
-      <Divider type='vertical' />
+      <Divider vertical />
 
       <CSVLink
         aria-disabled={!filteredTableData[1]}
@@ -151,7 +153,7 @@ const AccountingControls = props => {
           style={{ width: 150, marginLeft: '10px' }}
           defaultValue={searchDefValue}
         />
-        <Divider type='vertical' />
+        <Divider vertical />
         <Button
           className={{ ...classes.Button, marginLeft: '10px' }}
           onClick={() => props.toggleSetGrants()}

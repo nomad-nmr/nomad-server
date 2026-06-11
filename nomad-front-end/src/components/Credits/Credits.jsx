@@ -20,48 +20,48 @@ const credits = () => {
   return (
     <div className={classes.Credits}>
       <span className={classes.Version}>{`Version: ${version}`}</span>
-      <Divider type='vertical' />
+      <Divider vertical />
       <span className={classes.Text}>Powered by</span>
       <a href='https://reactjs.org/'>
         <img src={reactLogo} alt='React Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://ant.design/'>
         <img src={antdLogo} alt='Ant Design Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://vitejs.dev/'>
         <img src={viteLogo} alt='Vite Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://www.nmrium.org/'>
         <img src={nmriumLogo} alt='NMRium Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://redux.js.org/'>
         <img src={reduxLogo} alt='Redux Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://nodejs.org/'>
         <img src={nodeLogo} alt='Node.js Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://socket.io/'>
         <img src={socketIO} alt='Socket.io Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://www.mongodb.com/'>
         <img src={mongoLogo} alt='Node.js Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://www.nginx.com/'>
         <img src={nginxLogo} alt='Nginx Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://www.docker.com'>
         <img src={dockerLogo} alt='Docker Logo' />
       </a>
-      <Divider type='vertical' />
+      <Divider vertical />
       <a href='https://github.com/nomad-nmr'>
         <img src={gitHubLogo} alt='GitHub Logo' />
       </a>
