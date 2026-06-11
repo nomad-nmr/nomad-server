@@ -25,13 +25,24 @@ export async function getParamSets(req, res) {
   }
 
   try {
-    let paramSets = []
+    const defaultParamSets = await ParameterSet.find(searchParams).sort({ count: 'desc' })
+    let paramSets = defaultParamSets
+
     if (group.expList.length > 0) {
       await group.populate('expList')
-      paramSets = group.expList
-    } else {
-      paramSets = await ParameterSet.find(searchParams).sort({ count: 'desc' })
+
+      if (group.addCustomList) {
+        const merged = defaultParamSets.concat(group.expList)
+
+        paramSets = Array.from(
+          new Map(merged.map(paramSet => [String(paramSet._id), paramSet]))
+            .values()
+        )
+      } else {
+        paramSets = group.expList
+      }
     }
+
     if (list === 'true') {
       const paramSetsList = paramSets.map(paramSet => ({
         name: paramSet.name,

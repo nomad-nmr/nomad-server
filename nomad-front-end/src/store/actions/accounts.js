@@ -200,3 +200,8 @@ export const toggleSetGrantsTable = () => {
 export const toggleAddGrantModal = () => ({
   type: actionTypes.TOGGLE_ADD_GRANT_MODAL
 })
+
+
+export const toggleShowZeroValues = () => ({
+  type: actionTypes.TOGGLE_SHOW_ZERO_VALUES
+})

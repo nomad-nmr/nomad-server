@@ -57,6 +57,7 @@ import {
   fetchUserList,
   toggleRecentDataModal,
   fetchRecentDatasets
+  toggleShowZeroValues
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -291,6 +292,8 @@ const PageHeaderEl = props => {
           searchHandler={props.descriptionSearchHandler}
           searchDefValue={props.descriptionSearchValue}
           groupName={props.accountsGroupName}
+          showZeroValues={props.showZeroValues}
+          onShowZeroValuesChange={props.tglShowZeroValues}
         />
       )
 
@@ -390,6 +393,7 @@ const mapStateToProps = state => {
     accountingTableData: state.accounts.costsTableData,
     accountingLoading: state.accounts.loading,
     accountingTableHeader: state.accounts.tableHeader,
+    showZeroValues: state.accounts.showZeroValues,
     cardSwitchOn: state.dash.showCards,
     statusButtonsData: state.dash.statusButtonsData,
     instFormVisible: state.instruments.showForm,
@@ -495,6 +499,7 @@ const mapDispatchToProps = dispatch => {
     toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
     toggleRecentDataModal: () => dispatch(toggleRecentDataModal()),
     fetchRecentDatasets: token => dispatch(fetchRecentDatasets(token))
+    tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
   }
 }
 

@@ -41,7 +41,7 @@ export async function getGroups(req, res) {
 }
 
 export async function addGroup(req, res) {
-  const { groupName, description, isBatch, dataAccess, expList } = req.body
+  const { groupName, description, isBatch, addCustomList, dataAccess, expList } = req.body
   const errors = validationResult(req)
   try {
     if (!errors.isEmpty()) {
@@ -52,6 +52,7 @@ export async function addGroup(req, res) {
       description,
       isBatch,
       dataAccess,
+      addCustomList,
       expList
     })
     const newGroup = await group.save()

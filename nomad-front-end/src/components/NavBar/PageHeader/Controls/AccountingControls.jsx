@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react'
-import { Button, Space, Divider, Input } from 'antd'
+import React, { Fragment, useState } from 'react'
+import { Button, Space, Divider, Input, Switch } from 'antd'
 import { CSVLink } from 'react-csv'
 import dayjs from 'dayjs'
 import { CloudDownloadOutlined } from '@ant-design/icons'
@@ -15,7 +15,9 @@ const AccountingControls = props => {
     accType,
     groupName,
     searchHandler,
-    searchDefValue
+    searchDefValue,
+    showZeroValues,
+    onShowZeroValuesChange
   } = props
   const standardColumns = {
     grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
@@ -90,6 +92,9 @@ const AccountingControls = props => {
     return rows
   }
 
+  const filteredTableData =
+    showZeroValues || tableData.length === 0 ? tableData : tableData.filter(row => row.totalCost !== 0)
+
   let controlElements = (
     <Fragment>
       <Button
@@ -107,16 +112,22 @@ const AccountingControls = props => {
       >
         Set Grants
       </Button>
+
+      <div style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '10px' }}>
+        <span style={{ marginRight: '8px' }}>Show Zero Values</span>
+        <Switch checked={showZeroValues} onChange={onShowZeroValuesChange} />
+      </div>
+
       <Divider type='vertical' />
 
       <CSVLink
-        aria-disabled={!tableData[1]}
-        data={dataParser(tableHeader, tableData, accType)}
+        aria-disabled={!filteredTableData[1]}
+        data={dataParser(tableHeader, filteredTableData, accType)}
         filename={`${accType} Accounting ${
           accType === 'Users' && groupName ? '[' + groupName + '] ' : ''
         }${dayjs().format('DD-MM-YY HH_mm')} .csv`}
       >
-        <Button disabled={!tableData[1]} icon={<CloudDownloadOutlined />}>
+        <Button disabled={!filteredTableData[1]} icon={<CloudDownloadOutlined />}>
           Download CSV
         </Button>
       </CSVLink>
