@@ -25,6 +25,7 @@ const DashControls = props => {
           checkedChildren='On'
           unCheckedChildren='Off'
           onChange={props.toggleCards}
+          style={{ padding: '0' }}
         />
       </div>
       <Space size='large'>

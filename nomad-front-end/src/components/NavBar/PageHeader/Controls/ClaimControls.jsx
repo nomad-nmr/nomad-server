@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Modal, Switch } from 'antd'
+import { Button, Modal, Switch, Space } from 'antd'
 
 import classes from '../PageHeader.module.css'
 
@@ -20,7 +20,7 @@ const ClaimControls = props => {
           onChange={() => props.showArchivedHandler()}
         />
       </div>
-      <div style={{ marginLeft: '30px' }}>
+      <Space size='large' style={{ marginLeft: '30px' }}>
         <Button
           disabled={checked.length === 0 || claimId ? true : false}
           type='primary'
@@ -36,7 +36,7 @@ const ClaimControls = props => {
         >
           Claim Selected
         </Button>
-      </div>
+      </Space>
     </div>
   )
 }

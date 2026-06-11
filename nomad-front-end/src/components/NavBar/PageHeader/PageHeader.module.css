@@ -1,13 +1,30 @@
 .PageHeader {
   border-right: 1px solid #f0f0f0;
-  padding-top: 12px;
   min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 65px;
+  padding-right: 20px;
+}
+
+.Avatar {
+  height: 35px;
+  margin: 10px 10px 10px 20px;
+}
+
+.PageHeader h1 {
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-right: 10px;
 }
 
 .ExtraContainer {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
+  margin-left: 20px;
+  margin-right: 15px;
 }
 
 .ExtraContainer .Text {
@@ -15,24 +32,17 @@
   font-size: 1rem;
 }
 
-.ExtraContainer img {
-  height: 35px;
-  margin: 0 20px 0 10px;
-}
-
 .SwitchElement {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-left: 20px;
-  padding-bottom: 5px;
+  margin-bottom: 25px;
 }
 
 .SwitchElement label {
   font-weight: 600;
   font-size: 0.9rem;
-  margin-top: -5px;
-  padding-bottom: 2px;
+  height: 50px;
 }
 
 .Button {
@@ -40,7 +50,15 @@
 }
 
 .RadioContainer {
-  /* margin-top: 6px; */
   margin-left: 15px;
   margin-right: 25px;
+}
+
+.SearchContainer {
+  margin-top: 25px;
+}
+
+.IconContainer {
+  font-size: 1.5rem;
+  margin: 0 20px 0 20px;
 }

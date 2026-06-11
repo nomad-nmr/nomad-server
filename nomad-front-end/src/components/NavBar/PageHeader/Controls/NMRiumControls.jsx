@@ -57,7 +57,6 @@ const NMRiumControls = props => {
 
   return (
     <div className={classes.ExtraContainer}>
-      <img src={nmriumLogo} alt='NMRium logo' />
       <Space>
         <span className={classes.Text}>Add : </span>
         <Button size='small' type='primary' onClick={() => addExperiments()}>

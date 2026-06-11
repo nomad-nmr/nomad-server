@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Radio, Popconfirm } from 'antd'
+import { Button, Radio, Popconfirm, Space } from 'antd'
 import { useNavigate } from 'react-router'
 import { LineChartOutlined, DownloadOutlined } from '@ant-design/icons'
 
@@ -52,35 +52,36 @@ const SearchControls = props => {
           <Radio value='manual'>Manual</Radio>
         </Radio.Group>
       </div>
-
-      <Button
-        icon={<LineChartOutlined />}
-        className={classes.Button}
-        type='primary'
-        disabled={searchCheckedState.length === 0}
-        onClick={() => openNMRiumHandler()}
-      >
-        {props.addingToNMRium ? 'Add to NMRium' : 'Open in NMRium'}
-      </Button>
-
-      <Popconfirm
-        placement='bottom'
-        title={<div style={{ fontSize: '16px', fontWeight: 600 }}>F.A.I.R data warning</div>}
-        description={fairWarningtext}
-        okButtonProps={{ size: 'middle' }}
-        okText='Open in NMRium'
-        cancelText='Proceed to Download'
-        onCancel={() => toggleModal()}
-        onConfirm={() => openNMRiumHandler()}
-      >
+      <Space>
         <Button
-          icon={<DownloadOutlined />}
+          icon={<LineChartOutlined />}
           className={classes.Button}
+          type='primary'
           disabled={searchCheckedState.length === 0}
+          onClick={() => openNMRiumHandler()}
         >
-          Download
+          {props.addingToNMRium ? 'Add to NMRium' : 'Open in NMRium'}
         </Button>
-      </Popconfirm>
+
+        <Popconfirm
+          placement='bottom'
+          title={<div style={{ fontSize: '16px', fontWeight: 600 }}>F.A.I.R data warning</div>}
+          description={fairWarningtext}
+          okButtonProps={{ size: 'middle' }}
+          okText='Open in NMRium'
+          cancelText='Proceed to Download'
+          onCancel={() => toggleModal()}
+          onConfirm={() => openNMRiumHandler()}
+        >
+          <Button
+            icon={<DownloadOutlined />}
+            className={classes.Button}
+            disabled={searchCheckedState.length === 0}
+          >
+            Download
+          </Button>
+        </Popconfirm>
+      </Space>
     </div>
   )
 }
