@@ -7,7 +7,7 @@ import classes from '../PageHeader.module.css'
 const InstrumentsTabControls = props => {
   return (
     <div className={classes.ExtraContainer}>
-      <Space>
+      <Space size='large'>
         <Button
           className={classes.Button}
           type='primary'
@@ -25,18 +25,18 @@ const InstrumentsTabControls = props => {
             Calculate Overhead Time
           </Button>
         ) : null}
-      </Space>
 
-      <div className={classes.SwitchElement}>
-        <label>Show Inactive</label>
-        <Switch
-          size='small'
-          checked={props.showInactive}
-          checkedChildren='On'
-          unCheckedChildren='Off'
-          onChange={props.toggleShowInactive}
-        />
-      </div>
+        <div className={classes.SwitchElement}>
+          <label>Show Inactive</label>
+          <Switch
+            size='small'
+            checked={props.showInactive}
+            checkedChildren='On'
+            unCheckedChildren='Off'
+            onChange={props.toggleShowInactive}
+          />
+        </div>
+      </Space>
     </div>
   )
 }

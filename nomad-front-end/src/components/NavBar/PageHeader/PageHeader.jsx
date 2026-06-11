@@ -1,7 +1,6 @@
 import React from 'react'
 import { useLocation } from 'react-router'
 import { connect } from 'react-redux'
-import { PageHeader } from '@ant-design/pro-layout'
 
 import {
   toggleCards,
@@ -91,6 +90,9 @@ import accountingIcon from '../../../assets/accounting.png'
 import uploadIcon from '../../../assets/uploadIcon.png'
 import claimIcon from '../../../assets/claimIcon.svg'
 import collectionIcon from '../../../assets/folder-icon.png'
+import nmriumLogo from '../../../assets/nmrium-logo.svg'
+
+import { NotificationOutlined } from '@ant-design/icons'
 
 const PageHeaderEl = props => {
   const {
@@ -334,6 +336,8 @@ const PageHeaderEl = props => {
       break
 
     case location.pathname.includes('/nmrium'):
+      avatarSrc = nmriumLogo
+
       extra = (
         <NMRiumControls
           token={props.authToken}
@@ -373,18 +377,28 @@ const PageHeaderEl = props => {
       )
       break
 
+    case location.pathname === '/admin/announcement':
+      headerTitle = 'Set Announcement'
+
+      break
+
     default:
       headerTitle = ''
       avatarSrc = ''
   }
 
   return (
-    <PageHeader
-      className={classes.PageHeader}
-      title={headerTitle}
-      avatar={!location.pathname.includes('/nmrium') && { src: avatarSrc }}
-      extra={extra}
-    />
+    <div className={classes.PageHeader}>
+      {location.pathname !== '/admin/announcement' ? (
+        <img src={avatarSrc} alt='' className={classes.Avatar} />
+      ) : (
+        <diV className={classes.IconContainer}>
+          <NotificationOutlined />
+        </diV>
+      )}
+      <h1>{headerTitle}</h1>
+      {extra}
+    </div>
   )
 }
 

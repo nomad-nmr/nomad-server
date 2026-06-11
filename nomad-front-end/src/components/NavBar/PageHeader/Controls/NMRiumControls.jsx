@@ -57,7 +57,6 @@ const NMRiumControls = props => {
 
   return (
     <div className={classes.ExtraContainer}>
-      <img src={nmriumLogo} alt='NMRium logo' />
       <Space>
         <span className={classes.Text}>Add : </span>
         <Button size='small' type='primary' onClick={() => addExperiments()}>
@@ -66,7 +65,7 @@ const NMRiumControls = props => {
         <Button size='small' onClick={() => props.toggleFidsModal()}>
           FIDs
         </Button>
-        <Divider type='vertical' />
+        <Divider vertical />
         <Button
           size='small'
           icon={<FolderOpenOutlined />}
@@ -97,7 +96,7 @@ const NMRiumControls = props => {
         >
           Save As
         </Button>
-        <Divider type='vertical' />
+        <Divider vertical />
         <Tooltip title='Add dataset to collection'>
           <Button
             size='small'

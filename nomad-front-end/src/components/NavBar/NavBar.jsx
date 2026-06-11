@@ -31,7 +31,7 @@ const NavBar = props => {
           onClick={() => navigate('/')}
         />
       </div>
-      <PageHeader />
+      {location.pathname !== '/' && <PageHeader />}
       <div className={classes.MainMenu}>
         {location.pathname !== '/submit' && location.pathname !== '/batch-submit' ? (
           <MainMenu

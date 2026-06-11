@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Button, Input, Switch, Popconfirm, Tooltip } from 'antd'
+import { Button, Input, Switch, Popconfirm, Tooltip, Space } from 'antd'
 
 import classes from '../PageHeader.module.css'
 
@@ -16,42 +16,44 @@ const UsersTabControls = props => {
 
   return (
     <div className={classes.ExtraContainer}>
-      <Button
-        className={classes.Button}
-        type='primary'
-        onClick={() => {
-          props.toggleDrawer(false)
-        }}
-      >
-        Add
-      </Button>
-      <Popconfirm
-        title='Delete users'
-        description={
-          <div>
-            <p>
-              Are you sure you want to delete {checked.length}{' '}
-              {checked.length === 1 ? 'user' : 'users'} ?
-            </p>
-            <p>Users with acquired experiments will be set inactive.</p>
-          </div>
-        }
-        onConfirm={() => deleteHandler(checked, token)}
-      >
-        <Tooltip title='Delete checked users'>
-          <Button danger style={{ marginLeft: '10px' }} disabled={checked.length === 0}>
-            Delete
-          </Button>
-        </Tooltip>
-      </Popconfirm>
+      <Space size='large'>
+        <Button
+          type='primary'
+          onClick={() => {
+            props.toggleDrawer(false)
+          }}
+        >
+          Add
+        </Button>
+        <Popconfirm
+          title='Delete users'
+          description={
+            <div>
+              <p>
+                Are you sure you want to delete {checked.length}{' '}
+                {checked.length === 1 ? 'user' : 'users'} ?
+              </p>
+              <p>Users with acquired experiments will be set inactive.</p>
+            </div>
+          }
+          onConfirm={() => deleteHandler(checked, token)}
+        >
+          <Tooltip title='Delete checked users'>
+            <Button danger disabled={checked.length === 0}>
+              Delete
+            </Button>
+          </Tooltip>
+        </Popconfirm>
 
-      <Search
-        placeholder='search name'
-        allowClear
-        onSearch={searchHandler}
-        style={{ width: 160, marginLeft: '20px' }}
-        defaultValue={props.searchDefValue}
-      />
+        <Search
+          placeholder='search name'
+          allowClear
+          onSearch={searchHandler}
+          style={{ width: 160, marginTop: '16px', marginRight: '25px' }}
+          defaultValue={props.searchDefValue}
+        />
+      </Space>
+
       <div className={classes.SwitchElement}>
         <label>Show Inactive</label>
         <Switch
