@@ -55,6 +55,8 @@ import {
   toggleSampleJetModal,
   searchDescription,
   fetchUserList,
+  toggleRecentDataModal,
+  fetchRecentDatasets
   toggleShowZeroValues
 } from '../../../store/actions/index'
 
@@ -345,6 +347,8 @@ const PageHeaderEl = props => {
           username={props.username}
           downloadHandler={props.downloadDataset}
           toggleColModal={props.tglColModal}
+          toggleRecentDataModal={props.toggleRecentDataModal}
+          fetchData={props.fetchRecentDatasets}
         />
       )
       break
@@ -493,6 +497,8 @@ const mapDispatchToProps = dispatch => {
     deleteUsers: (users, token) => dispatch(usersDeleteHandler(users, token)),
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
     toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
+    toggleRecentDataModal: () => dispatch(toggleRecentDataModal()),
+    fetchRecentDatasets: token => dispatch(fetchRecentDatasets(token))
     tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
   }
 }

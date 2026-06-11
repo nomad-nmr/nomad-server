@@ -15,7 +15,8 @@ const initialState = {
   showFidsModal: false,
   datasetMeta: { id: null },
   showDataSetModal: false,
-  editing: false
+  editing: false,
+  showRecentModal: false
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -107,6 +108,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.UPDATE_NMRIUM_TAGS: {
       return { ...state, datasetMeta: { ...state.datasetMeta, tags: payload.tags } }
     }
+
+    case actionTypes.TOGGLE_RECENT_DATA_MODAL:
+      return { ...state, showRecentModal: !state.showRecentModal }
 
     default:
       return state

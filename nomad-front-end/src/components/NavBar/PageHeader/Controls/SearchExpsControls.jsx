@@ -60,7 +60,7 @@ const SearchControls = props => {
         disabled={searchCheckedState.length === 0}
         onClick={() => openNMRiumHandler()}
       >
-        {props.addingToNMRium ? 'Add to NNMRium' : 'Open in NMRium'}
+        {props.addingToNMRium ? 'Add to NMRium' : 'Open in NMRium'}
       </Button>
 
       <Popconfirm
