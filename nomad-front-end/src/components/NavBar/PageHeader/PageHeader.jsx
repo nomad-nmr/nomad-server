@@ -56,7 +56,7 @@ import {
   searchDescription,
   fetchUserList,
   toggleRecentDataModal,
-  fetchRecentDatasets
+  fetchRecentDatasets,
   toggleShowZeroValues
 } from '../../../store/actions/index'
 
@@ -498,8 +498,8 @@ const mapDispatchToProps = dispatch => {
     bookSamples: (data, token) => dispatch(bookSamples(data, token)),
     toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
     toggleRecentDataModal: () => dispatch(toggleRecentDataModal()),
-    fetchRecentDatasets: token => dispatch(fetchRecentDatasets(token))
-    tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
+    fetchRecentDatasets: token => dispatch(fetchRecentDatasets(token)),
+    tglShowZeroValues: () => dispatch(toggleShowZeroValues())
   }
 }
 
