@@ -51,6 +51,12 @@ export const postSubmission = async (req, res) => {
         paramSetObj.save()
       }
       const { night, solvent, title, priority, initialDelay, repeatLoops} = formData[sampleKey]
+
+      // check for timed experiments and add start times if necessary
+      const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
+        ? addTimedStartTimes(experiments, timeStamp)
+        : experiments
+
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
@@ -63,7 +69,7 @@ export const postSubmission = async (req, res) => {
         title,
         initialDelay,
         repeatLoops,
-        experiments
+        experiments: timedExperiments
       }
 
       //toremove
@@ -104,6 +110,7 @@ export const postSubmission = async (req, res) => {
             priority,
             initialDelay,
             repeatLoops,
+            startTime: exp.startTime,
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
@@ -142,13 +149,6 @@ export const postSubmission = async (req, res) => {
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
-
-
-
-
-
-
-
 
 
     res.send()
@@ -531,4 +531,29 @@ const getHoldersToDelete = (statusTable, autoReset) => {
   const holdersToDelete = filteredHolders.map(holder => holder.number)
 
   return holdersToDelete
+}
+
+// check if there are any timed experiments in the submission data
+const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
+
+  const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
+
+  const hasRepeatLoops =
+    Array.isArray(repeatLoops) &&
+    repeatLoops.some(loop => Number(loop.count) > 0 || (loop.lag && loop.lag !== '00:00'))
+
+  return hasInitialDelay || hasRepeatLoops
+}
+
+
+// add start times to timed experiments based on the submitted timestamp
+const addTimedStartTimes = (experiments, submittedTimeStamp) => {
+  const submittedTime = moment(submittedTimeStamp, 'YYMMDDHHmm')
+  const startTime = submittedTime.clone().add(1, 'hour').toDate()
+
+
+  return experiments.map(exp => ({
+    ...exp,
+    startTime
+  }))
 }
