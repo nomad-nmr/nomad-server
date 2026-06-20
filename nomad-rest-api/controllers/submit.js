@@ -50,7 +50,7 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority } = formData[sampleKey]
+      const { night, solvent, title, priority, initialDelay, repeatLoops} = formData[sampleKey]
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
@@ -61,8 +61,13 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
+        initialDelay,
+        repeatLoops,
         experiments
       }
+
+      //toremove
+      console.log("Sample Data:", sampleData)
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -97,26 +102,54 @@ export const postSubmission = async (req, res) => {
             title,
             night,
             priority,
+            initialDelay,
+            repeatLoops,
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
+
+          
+          //toremove
+          console.log("Experiment Data:", experiment)
 
           await experiment.save()
         })
       )
     }
 
+
+    // toremove
+    // for (let instrumentId in submitData) {
+    //   //Getting socketId from submitter state
+    //   const { socketId } = submitter.state.get(instrumentId)
+
+    //   if (!socketId) {
+    //     console.log('Error: Client disconnected')
+    //     return res.status(503).send({ message: 'Client disconnected' })
+    //   }
+
+    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
+    // }
+
     for (let instrumentId in submitData) {
-      //Getting socketId from submitter state
-      const { socketId } = submitter.state.get(instrumentId)
+      const submitterState = submitter.state.get(instrumentId)
+      const socketId = submitterState?.socketId
 
       if (!socketId) {
-        console.log('Error: Client disconnected')
-        return res.status(503).send({ message: 'Client disconnected' })
+        console.log(`No client connected for instrument ${instrumentId} - skipping socket emit in dev`)
+        continue
       }
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
+
+
+
+
+
+
+
+
 
     res.send()
   } catch (error) {

@@ -14,13 +14,15 @@ import {
   Modal,
   Checkbox,
   Tooltip,
-  Popconfirm
+  Popconfirm,
 } from 'antd'
+import { ClockCircleOutlined } from '@ant-design/icons'
 import moment from 'moment'
 
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
+import TimedExperimentsModal from '../../Modals/TimedExperimentsModal/TimedExperimentsModal'
 import nightIcon from '../../../assets/night-mode.svg'
 
 import classes from './BookExperimentsForm.module.css'
@@ -43,6 +45,11 @@ const BookExperimentsForm = props => {
   const [modalVisible, setModalVisible] = useState(false)
   //state used to generate form inputs in edit parameters modal
   const [modalInputData, setModalInputData] = useState({})
+
+  const [timingModalVisible, setTimingModalVisible] = useState(false)
+  const [timingModalData, setTimingModalData] = useState({})
+  const [resetTimingModal, setResetTimingModal] = useState(undefined)
+
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
   const [totalExptState, setTotalExptState] = useState({})
@@ -303,6 +310,45 @@ const BookExperimentsForm = props => {
     setModalVisible(false)
   }
 
+  //handler for opening and closing timing modal.
+  const openTimingModal = key => {
+
+
+    console.log('openTimingModal key:', key)
+    console.log('initialDelay from form:', form.getFieldValue([key, 'initialDelay']))
+    console.log('repeatLoops from form:', form.getFieldValue([key, 'repeatLoops']))
+
+    setTimingModalData({
+      sampleKey: key,
+      initialDelay: form.getFieldValue([key, 'initialDelay']) ?? '00:00',
+      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }]
+    })
+    setTimingModalVisible(true)
+  }
+
+  const closeTimingModal = () => {
+    setTimingModalVisible(false)
+  }
+
+
+  const timingModalOkHandler = values => {
+    const key = Object.keys(values)[0]
+    const { initialDelay, repeatLoops } = values[key]
+
+    form.setFieldsValue({
+      [key]: {
+        initialDelay,
+        repeatLoops
+      }
+    })
+
+    setTimingModalVisible(false)
+  }
+
+
+
+
+
   const onFinishHandler = async values => {
     const expRejectError = {
       title: 'Maximum allowance exceeded',
@@ -452,10 +498,17 @@ const BookExperimentsForm = props => {
     }
 
     const checkBoxes = (
-      <Col span={1} className={classes.CheckBoxes}>
+      <Col span={2} className={classes.CheckBoxes}>
+        <Tooltip title='Timed Experiments'>
+          <Button size='small' style={{ marginBottom: 8 }} onClick={() => openTimingModal(key)}>
+            <ClockCircleOutlined />
+          </Button>
+        </Tooltip>
+
         <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
           <Checkbox />
         </Form.Item>
+
         <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
           <Checkbox />
         </Form.Item>
@@ -558,7 +611,22 @@ const BookExperimentsForm = props => {
               </Row>
             ))}
           </Col>
+
           {priorityAccess && checkBoxes}
+          <Form.Item name={[key, 'initialDelay']} initialValue='00:00' hidden>
+            <Input />
+          </Form.Item>
+
+          <Form.List
+            name={[key, 'repeatLoops']}
+            initialValue={[{ lag: '00:00', count: 0 }]}
+          >
+            {() => null}
+          </Form.List>
+
+
+
+
           {!resubmit && (
             <Col span={1}>
               <button
@@ -657,6 +725,15 @@ const BookExperimentsForm = props => {
             )}
           </Space>
 
+
+          <TimedExperimentsModal
+            visible={timingModalVisible}
+            closeModal={closeTimingModal}
+            onOkHandler={timingModalOkHandler}
+            inputData={timingModalData}
+            reset={resetTimingModal}
+          />
+
           <EditParamsModal
             visible={modalVisible}
             closeModal={closeModalHandler}
@@ -687,5 +764,7 @@ const getExptAccumulator = (formValues, totalExptState, nightOption) => {
   })
   return exptAccumulator
 }
+
+
 
 export default BookExperimentsForm
