@@ -54,7 +54,7 @@ export const postSubmission = async (req, res) => {
 
       // check for timed experiments and add start times if necessary
       const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
-        ? addTimedStartTimes(experiments, timeStamp)
+        ? addTimedStartTimes(experiments, timeStamp, initialDelay, repeatLoops)
         : experiments
 
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
@@ -86,7 +86,7 @@ export const postSubmission = async (req, res) => {
       await Promise.all(
         sampleData.experiments.map(async exp => {
           const expHistObj = {
-            expId: sampleId + '-' + exp.expNo,
+            expId: sampleId + '-' + exp.expNo + '-L' + (exp.loopIndex || 0) + '-R' + (exp.repeatIndex || 0),
             instrument: {
               name: instrument.name,
               id: instrId
@@ -547,13 +547,51 @@ const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
 
 
 // add start times to timed experiments based on the submitted timestamp
-const addTimedStartTimes = (experiments, submittedTimeStamp) => {
+const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repeatLoops = []) => {
   const submittedTime = moment(submittedTimeStamp, 'YYMMDDHHmm')
-  const startTime = submittedTime.clone().add(1, 'hour').toDate()
+  const initialOffset = parseDelayToDuration(initialDelay)
+  const baseStartTime = submittedTime.clone().add(initialOffset)
+
+  const expandedExperiments = []
+
+  // Original experiment set
+  experiments.forEach(exp => {
+    expandedExperiments.push({
+      ...exp,
+      startTime: baseStartTime.toDate(),
+      loopIndex: 0
+    })
+  })
+
+  // Repeated experiment sets
+  let currentStartTime = baseStartTime.clone()
+
+  repeatLoops.forEach((loop, loopGroupIndex) => {
+    const lagDuration = parseDelayToDuration(loop.lag)
+    const count = Number(loop.count) || 0
+
+    for (let i = 0; i < count; i++) {
+      currentStartTime = currentStartTime.clone().add(lagDuration)
+
+      experiments.forEach(exp => {
+        expandedExperiments.push({
+          ...exp,
+          startTime: currentStartTime.toDate(),
+          loopIndex: loopGroupIndex + 1,
+          repeatIndex: i + 1
+        })
+      })
+    }
+  })
+
+  return expandedExperiments
+}
 
 
-  return experiments.map(exp => ({
-    ...exp,
-    startTime
-  }))
+
+
+const parseDelayToDuration = value => {
+  if (!value) return moment.duration(0)
+  const [hours = 0, minutes = 0] = value.split(':').map(Number)
+  return moment.duration({ hours, minutes })
 }
