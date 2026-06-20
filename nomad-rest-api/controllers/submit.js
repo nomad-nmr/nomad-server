@@ -125,18 +125,18 @@ export const postSubmission = async (req, res) => {
     }
 
 
-    // toremove
-    // for (let instrumentId in submitData) {
-    //   //Getting socketId from submitter state
-    //   const { socketId } = submitter.state.get(instrumentId)
+    // toremove - uncomment to test socket emit
+    for (let instrumentId in submitData) {
+      //Getting socketId from submitter state
+      const { socketId } = submitter.state.get(instrumentId)
 
-    //   if (!socketId) {
-    //     console.log('Error: Client disconnected')
-    //     return res.status(503).send({ message: 'Client disconnected' })
-    //   }
+      if (!socketId) {
+        console.log('Error: Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
+      }
 
-    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
-    // }
+      getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
+    }
 
     for (let instrumentId in submitData) {
       const submitterState = submitter.state.get(instrumentId)
