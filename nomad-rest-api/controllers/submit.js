@@ -50,7 +50,13 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority } = formData[sampleKey]
+      const { night, solvent, title, priority, initialDelay, repeatLoops} = formData[sampleKey]
+
+      // check for timed experiments and add start times if necessary
+      const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
+        ? addTimedStartTimes(experiments, timeStamp, initialDelay, repeatLoops)
+        : experiments
+
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
@@ -61,8 +67,13 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
-        experiments
+        initialDelay,
+        repeatLoops,
+        experiments: timedExperiments
       }
+
+      //toremove
+      console.log("Sample Data:", sampleData)
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -75,7 +86,7 @@ export const postSubmission = async (req, res) => {
       await Promise.all(
         sampleData.experiments.map(async exp => {
           const expHistObj = {
-            expId: sampleId + '-' + exp.expNo,
+            expId: sampleId + '-' + exp.expNo + '-L' + (exp.loopIndex || 0) + '-R' + (exp.repeatIndex || 0),
             instrument: {
               name: instrument.name,
               id: instrId
@@ -97,15 +108,24 @@ export const postSubmission = async (req, res) => {
             title,
             night,
             priority,
+            initialDelay,
+            repeatLoops,
+            startTime: exp.startTime,
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
+
+          
+          //toremove
+          console.log("Experiment Data:", experiment)
 
           await experiment.save()
         })
       )
     }
 
+
+    // toremove - uncomment to test socket emit
     for (let instrumentId in submitData) {
       //Getting socketId from submitter state
       const { socketId } = submitter.state.get(instrumentId)
@@ -117,6 +137,19 @@ export const postSubmission = async (req, res) => {
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
+
+    for (let instrumentId in submitData) {
+      const submitterState = submitter.state.get(instrumentId)
+      const socketId = submitterState?.socketId
+
+      if (!socketId) {
+        console.log(`No client connected for instrument ${instrumentId} - skipping socket emit in dev`)
+        continue
+      }
+
+      getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
+    }
+
 
     res.send()
   } catch (error) {
@@ -498,4 +531,67 @@ const getHoldersToDelete = (statusTable, autoReset) => {
   const holdersToDelete = filteredHolders.map(holder => holder.number)
 
   return holdersToDelete
+}
+
+// check if there are any timed experiments in the submission data
+const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
+
+  const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
+
+  const hasRepeatLoops =
+    Array.isArray(repeatLoops) &&
+    repeatLoops.some(loop => Number(loop.count) > 0 || (loop.lag && loop.lag !== '00:00'))
+
+  return hasInitialDelay || hasRepeatLoops
+}
+
+
+// add start times to timed experiments based on the submitted timestamp
+const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repeatLoops = []) => {
+  const submittedTime = moment(submittedTimeStamp, 'YYMMDDHHmm')
+  const initialOffset = parseDelayToDuration(initialDelay)
+  const baseStartTime = submittedTime.clone().add(initialOffset)
+
+  const expandedExperiments = []
+
+  // Original experiment set
+  experiments.forEach(exp => {
+    expandedExperiments.push({
+      ...exp,
+      startTime: baseStartTime.toDate(),
+      loopIndex: 0
+    })
+  })
+
+  // Repeated experiment sets
+  let currentStartTime = baseStartTime.clone()
+
+  repeatLoops.forEach((loop, loopGroupIndex) => {
+    const lagDuration = parseDelayToDuration(loop.lag)
+    const count = Number(loop.count) || 0
+
+    for (let i = 0; i < count; i++) {
+      currentStartTime = currentStartTime.clone().add(lagDuration)
+
+      experiments.forEach(exp => {
+        expandedExperiments.push({
+          ...exp,
+          startTime: currentStartTime.toDate(),
+          loopIndex: loopGroupIndex + 1,
+          repeatIndex: i + 1
+        })
+      })
+    }
+  })
+
+  return expandedExperiments
+}
+
+
+
+
+const parseDelayToDuration = value => {
+  if (!value) return moment.duration(0)
+  const [hours = 0, minutes = 0] = value.split(':').map(Number)
+  return moment.duration({ hours, minutes })
 }
