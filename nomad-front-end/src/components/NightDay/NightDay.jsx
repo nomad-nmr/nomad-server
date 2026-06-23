@@ -7,9 +7,17 @@ const NightDay = props => {
   if (import.meta.env.VITE_SUBMIT_ON === 'false') {
     return null
   } else if (props.night) {
-    return <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
+      </div>
+    )
   } else {
-    return <img src={dayIcon} style={{ height: '18px' }} alt='day icon' />
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src={dayIcon} style={{ height: '18px' }} alt='day icon' />
+      </div>
+    )
   }
 }
 
