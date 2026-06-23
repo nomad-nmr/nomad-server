@@ -121,7 +121,7 @@ const StatusDrawer = props => {
         closable={true}
         mask={true}
         keyboard
-        height='auto'
+        size='auto'
         open={visible}
         onClose={props.closeClicked}
         styles={{ header: headerClass }}

@@ -2,12 +2,7 @@ import React from 'react'
 import DOMPurify from 'dompurify'
 
 import { Alert } from 'antd'
-import {
-    WarningOutlined,
-    InfoCircleOutlined,   
-    NotificationOutlined
-} from '@ant-design/icons'
-
+import { WarningOutlined, InfoCircleOutlined, NotificationOutlined } from '@ant-design/icons'
 
 const Announcement = ({ announcement }) => {
   if (!announcement) {
@@ -42,11 +37,10 @@ const Announcement = ({ announcement }) => {
 
   const config = kindConfig[announcement.kind] || kindConfig.info
 
-
   return (
     <div style={{ marginBottom: '1.5rem' }}>
       <Alert
-        message={announcement.title || 'Announcement'}
+        title={announcement.title || 'Announcement'}
         description={
           <div
             dangerouslySetInnerHTML={{
@@ -54,7 +48,6 @@ const Announcement = ({ announcement }) => {
             }}
           />
         }
-        // desccription={announcement.body}
         icon={config.icon}
         showIcon
         style={config.style}
