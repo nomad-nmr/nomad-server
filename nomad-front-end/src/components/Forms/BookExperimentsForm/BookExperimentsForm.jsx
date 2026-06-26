@@ -620,12 +620,12 @@ const BookExperimentsForm = props => {
             <Input />
           </Form.Item>
 
-          <Form.List
+          <Form.Item
             name={[key, 'repeatLoops']}
             initialValue={[{ lag: '00:00', count: 0 }]}
           >
             {() => null}
-          </Form.List>
+          </Form.Item>
 
 
 
