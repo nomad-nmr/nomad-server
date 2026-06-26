@@ -499,7 +499,11 @@ const BookExperimentsForm = props => {
 
     const checkBoxes = (
       <Col span={2} className={classes.CheckBoxes}>
-
+        <Tooltip title='Timed Experiments'>
+          <Button size='small' style={{ marginBottom: 8 }} onClick={() => openTimingModal(key)}>
+            <ClockCircleOutlined />
+          </Button>
+        </Tooltip>
 
         <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
           <Checkbox />
