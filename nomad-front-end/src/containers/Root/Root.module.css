@@ -1,6 +1,5 @@
 .RootContainer {
   width: 100%;
-  /* padding: 20px; */
 }
 
 .TitleHeader {
@@ -13,7 +12,8 @@
 
 .Title {
   text-align: center;
-  padding: 40px 20px;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 .Content {
