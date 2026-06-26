@@ -84,7 +84,7 @@ export const postSubmission = async (req, res) => {
       await Promise.all(
         sampleData.experiments.map(async exp => {
           const expHistObj = {
-            expId: sampleId + '-' + exp.expNo,
+            expId: sampleId + '-' + exp.expNo + '-L' + (exp.loopIndex || 0) + '-R' + (exp.repeatIndex || 0),
             instrument: {
               name: instrument.name,
               id: instrId
@@ -111,6 +111,10 @@ export const postSubmission = async (req, res) => {
           }
           const experiment = new Experiment(expHistObj)
          
+          //toremove
+          console.log("Experiment Data:", experiment)
+
+          
           //toremove
           console.log("Experiment Data:", experiment)
 
