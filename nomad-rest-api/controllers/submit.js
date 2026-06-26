@@ -84,7 +84,7 @@ export const postSubmission = async (req, res) => {
       await Promise.all(
         sampleData.experiments.map(async exp => {
           const expHistObj = {
-            expId: sampleId + '-' + exp.expNo + '-L' + (exp.loopIndex || 0) + '-R' + (exp.repeatIndex || 0),
+            expId: sampleId + '-' + exp.expNo,
             instrument: {
               name: instrument.name,
               id: instrId
