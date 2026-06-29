@@ -14,7 +14,7 @@ import {
   Modal,
   Checkbox,
   Tooltip,
-  Popconfirm,
+  Popconfirm
 } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
 import moment from 'moment'
@@ -312,8 +312,6 @@ const BookExperimentsForm = props => {
 
   //handler for opening and closing timing modal.
   const openTimingModal = key => {
-
-
     console.log('openTimingModal key:', key)
     console.log('initialDelay from form:', form.getFieldValue([key, 'initialDelay']))
     console.log('repeatLoops from form:', form.getFieldValue([key, 'repeatLoops']))
@@ -330,7 +328,6 @@ const BookExperimentsForm = props => {
     setTimingModalVisible(false)
   }
 
-
   const timingModalOkHandler = values => {
     const key = Object.keys(values)[0]
     const { initialDelay, repeatLoops } = values[key]
@@ -344,10 +341,6 @@ const BookExperimentsForm = props => {
 
     setTimingModalVisible(false)
   }
-
-
-
-
 
   const onFinishHandler = async values => {
     const expRejectError = {
@@ -499,22 +492,21 @@ const BookExperimentsForm = props => {
 
     const checkBoxes = (
       <Col span={2} className={classes.CheckBoxes}>
+        <Space size='large'>
+          <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
+            <Checkbox />
+          </Form.Item>
 
+          <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
+            <Checkbox />
+          </Form.Item>
+        </Space>
 
-        <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
-          <Checkbox />
-        </Form.Item>
-
-        <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
-          <Checkbox />
-        </Form.Item>
         <Tooltip title='Timed Experiments'>
           <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
             <ClockCircleOutlined />
           </Button>
         </Tooltip>
-
-
       </Col>
     )
 
@@ -565,7 +557,7 @@ const BookExperimentsForm = props => {
               </button>
             </Space>
           </Col>
-          <Col span={10}>
+          <Col span={9}>
             {expNoArr.map(expNo => (
               <Row key={expNo} gutter={16} align='top'>
                 <Col span={1}>
@@ -620,15 +612,9 @@ const BookExperimentsForm = props => {
             <Input />
           </Form.Item>
 
-          <Form.Item
-            name={[key, 'repeatLoops']}
-            initialValue={[{ lag: '00:00', count: 0 }]}
-          >
+          <Form.Item name={[key, 'repeatLoops']} initialValue={[{ lag: '00:00', count: 0 }]}>
             {() => null}
           </Form.Item>
-
-
-
 
           {!resubmit && (
             <Col span={1}>
@@ -666,13 +652,15 @@ const BookExperimentsForm = props => {
   })
 
   const checkBoxesHeader = (
-    <Col span={1} className={classes.CheckBoxes}>
-      <Tooltip title='Sample submitted into night queue'>
-        <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
-      </Tooltip>
-      <Tooltip className={classes.Priority} title='Sample submitted with priority'>
-        P
-      </Tooltip>
+    <Col span={1} className={classes.CheckBoxes} flex={18}>
+      <Space size='large'>
+        <Tooltip title='Sample submitted into night queue'>
+          <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
+        </Tooltip>
+        <Tooltip className={classes.Priority} title='Sample submitted with priority'>
+          P
+        </Tooltip>
+      </Space>
     </Col>
   )
 
@@ -686,14 +674,14 @@ const BookExperimentsForm = props => {
         <Col span={1}>
           <span style={{ marginLeft: 20 }}>ExpNo</span>
         </Col>
-        <Col span={4} offset={1}>
+        <Col span={3} offset={1}>
           Experiment [Parameter Set]
         </Col>
         <Col span={2} offset={1}>
-          Parameters
+          <span style={{ marginLeft: 30 }}>Parameters</span>
         </Col>
         <Col span={2}>
-          <span style={{ marginLeft: 15 }}>ExpT</span>
+          <span style={{ marginLeft: 30 }}>ExpT</span>
         </Col>
         {priorityAccess && checkBoxesHeader}
       </Row>
@@ -727,7 +715,6 @@ const BookExperimentsForm = props => {
               </Form.Item>
             )}
           </Space>
-
 
           <TimedExperimentsModal
             visible={timingModalVisible}
@@ -767,7 +754,5 @@ const getExptAccumulator = (formValues, totalExptState, nightOption) => {
   })
   return exptAccumulator
 }
-
-
 
 export default BookExperimentsForm

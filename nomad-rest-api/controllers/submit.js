@@ -50,7 +50,7 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority, initialDelay, repeatLoops} = formData[sampleKey]
+      const { night, solvent, title, priority, initialDelay, repeatLoops } = formData[sampleKey]
 
       // check for timed experiments and add start times if necessary
       const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
@@ -71,7 +71,7 @@ export const postSubmission = async (req, res) => {
       }
 
       //toremove
-      console.log("Sample Data:", sampleData)
+      console.log('Sample Data:', sampleData)
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -110,19 +110,14 @@ export const postSubmission = async (req, res) => {
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
-         
-          //toremove
-          console.log("Experiment Data:", experiment)
 
-          
           //toremove
-          console.log("Experiment Data:", experiment)
+          console.log('Experiment Data:', experiment)
 
           await experiment.save()
         })
       )
     }
-
 
     // toremove - uncomment to test socket emit
     for (let instrumentId in submitData) {
@@ -142,13 +137,14 @@ export const postSubmission = async (req, res) => {
       const socketId = submitterState?.socketId
 
       if (!socketId) {
-        console.log(`No client connected for instrument ${instrumentId} - skipping socket emit in dev`)
+        console.log(
+          `No client connected for instrument ${instrumentId} - skipping socket emit in dev`
+        )
         continue
       }
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
-
 
     res.send()
   } catch (error) {
@@ -534,7 +530,6 @@ const getHoldersToDelete = (statusTable, autoReset) => {
 
 // check if there are any timed experiments in the submission data
 const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
-
   const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
 
   const hasRepeatLoops =
@@ -543,7 +538,6 @@ const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
 
   return hasInitialDelay || hasRepeatLoops
 }
-
 
 // add start times to timed experiments based on the submitted timestamp
 const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repeatLoops = []) => {
@@ -557,7 +551,7 @@ const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repea
   experiments.forEach(exp => {
     expandedExperiments.push({
       ...exp,
-      startTime: baseStartTime.toDate(),
+      startTime: baseStartTime.toDate()
     })
   })
 
@@ -570,17 +564,16 @@ const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repea
     const count = Number(loop.count) || 0
 
     for (let i = 0; i < count; i++) {
-      repeatSetIndex++ 
+      repeatSetIndex++
       currentStartTime = currentStartTime.clone().add(lagDuration)
 
       experiments.forEach(exp => {
-
-          const baseExpNo = Number(exp.expNo)
+        const baseExpNo = Number(exp.expNo)
 
         expandedExperiments.push({
           ...exp,
           expNo: Number.isNaN(baseExpNo) ? exp.expNo : baseExpNo + repeatSetIndex * 10,
-          startTime: currentStartTime.toDate(),
+          startTime: currentStartTime.toDate()
         })
       })
     }
@@ -588,9 +581,6 @@ const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repea
 
   return expandedExperiments
 }
-
-
-
 
 const parseDelayToDuration = value => {
   if (!value) return moment.duration(0)
