@@ -499,11 +499,7 @@ const BookExperimentsForm = props => {
 
     const checkBoxes = (
       <Col span={2} className={classes.CheckBoxes}>
-        <Tooltip title='Timed Experiments'>
-          <Button size='small' style={{ marginBottom: 8 }} onClick={() => openTimingModal(key)}>
-            <ClockCircleOutlined />
-          </Button>
-        </Tooltip>
+
 
         <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
           <Checkbox />
@@ -512,6 +508,13 @@ const BookExperimentsForm = props => {
         <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
           <Checkbox />
         </Form.Item>
+        <Tooltip title='Timed Experiments'>
+          <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
+            <ClockCircleOutlined />
+          </Button>
+        </Tooltip>
+
+
       </Col>
     )
 
@@ -617,12 +620,12 @@ const BookExperimentsForm = props => {
             <Input />
           </Form.Item>
 
-          <Form.List
+          <Form.Item
             name={[key, 'repeatLoops']}
             initialValue={[{ lag: '00:00', count: 0 }]}
           >
             {() => null}
-          </Form.List>
+          </Form.Item>
 
 
 

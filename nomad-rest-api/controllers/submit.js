@@ -67,8 +67,6 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
-        initialDelay,
-        repeatLoops,
         experiments: timedExperiments
       }
 
@@ -86,7 +84,7 @@ export const postSubmission = async (req, res) => {
       await Promise.all(
         sampleData.experiments.map(async exp => {
           const expHistObj = {
-            expId: sampleId + '-' + exp.expNo + '-L' + (exp.loopIndex || 0) + '-R' + (exp.repeatIndex || 0),
+            expId: sampleId + '-' + exp.expNo,
             instrument: {
               name: instrument.name,
               id: instrId
@@ -108,12 +106,13 @@ export const postSubmission = async (req, res) => {
             title,
             night,
             priority,
-            initialDelay,
-            repeatLoops,
             startTime: exp.startTime,
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
+         
+          //toremove
+          console.log("Experiment Data:", experiment)
 
           
           //toremove
@@ -559,26 +558,29 @@ const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repea
     expandedExperiments.push({
       ...exp,
       startTime: baseStartTime.toDate(),
-      loopIndex: 0
     })
   })
 
   // Repeated experiment sets
   let currentStartTime = baseStartTime.clone()
+  let repeatSetIndex = 0
 
-  repeatLoops.forEach((loop, loopGroupIndex) => {
+  repeatLoops.forEach(loop => {
     const lagDuration = parseDelayToDuration(loop.lag)
     const count = Number(loop.count) || 0
 
     for (let i = 0; i < count; i++) {
+      repeatSetIndex++ 
       currentStartTime = currentStartTime.clone().add(lagDuration)
 
       experiments.forEach(exp => {
+
+          const baseExpNo = Number(exp.expNo)
+
         expandedExperiments.push({
           ...exp,
+          expNo: Number.isNaN(baseExpNo) ? exp.expNo : baseExpNo + repeatSetIndex * 10,
           startTime: currentStartTime.toDate(),
-          loopIndex: loopGroupIndex + 1,
-          repeatIndex: i + 1
         })
       })
     }
