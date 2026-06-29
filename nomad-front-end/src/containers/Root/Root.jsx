@@ -121,16 +121,14 @@ const Root = props => {
 
   return (
     <div className={classes.RootContainer}>
-      <Row justify='center' align='top' className={classes.TitleHeader}>
+      <Row justify='center' align='middle' className={classes.TitleHeader}>
         <Col span={4}>
           <Logo />
         </Col>
         <Col span={16}>
           <div className={classes.Title}>
-            <Title level={1}>
-              Welcome to Nomad{' '}
-              {props.hostName && props.hostName !== 'undefined' ? `@ ${props.hostName}` : ''}
-            </Title>
+            Welcome to Nomad{' '}
+            {props.hostName && props.hostName !== 'undefined' ? `@ ${props.hostName}` : ''}
           </div>
         </Col>
         <Col span={4}>

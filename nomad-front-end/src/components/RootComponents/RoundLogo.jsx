@@ -1,9 +1,9 @@
 import React from 'react'
 import TweenOne from 'rc-tween-one'
-import logoRound from '../../assets/logo-round.png'
+import logoRound from '../../assets/logo-round.svg'
 
 const Logo = () => (
-  <div style={{ marginTop: '10px' }}>
+  <div style={{ margin: '10px 0' }}>
     <TweenOne
       animation={{
         opacity: 1,
