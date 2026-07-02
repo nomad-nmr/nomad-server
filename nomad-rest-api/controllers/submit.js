@@ -52,10 +52,17 @@ export const postSubmission = async (req, res) => {
       }
       const { night, solvent, title, priority, initialDelay, repeatLoops } = formData[sampleKey]
 
+      
       // check for timed experiments and add start times if necessary
       const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
         ? addTimedStartTimes(experiments, timeStamp, initialDelay, repeatLoops)
         : experiments
+
+      const clientExperiments = timedExperiments.map(exp => ({
+      ...exp,
+      ...(exp.startTime ? { startTime: moment(exp.startTime).unix() } : {})
+      }))
+
 
       const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
@@ -67,7 +74,7 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
-        experiments: timedExperiments
+        experiments: clientExperiments,
       }
 
       //toremove
@@ -82,7 +89,7 @@ export const postSubmission = async (req, res) => {
       //Storing sample data into experiment history
       const instrument = await Instrument.findById(instrId, 'name')
       await Promise.all(
-        sampleData.experiments.map(async exp => {
+        timedExperiments.map(async exp => {
           const expHistObj = {
             expId: sampleId + '-' + exp.expNo,
             instrument: {
