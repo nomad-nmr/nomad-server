@@ -34,12 +34,30 @@ const TimedExperimentsModal = props => {
             <strong>Initial Delay</strong>
           </Col>
           <Col span={10}>
-            <Form.Item name={[sampleKey, 'initialDelay']} style={{ marginBottom: 12 }}>
+            <Form.Item      
+              name={[sampleKey, 'initialDelay']}
+              style={{ marginBottom: 12 }}
+              rules={[
+                {
+                  validator: (_, value) => {
+                    if (!value || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('Use HH:mm format'))
+                  }
+                }
+              ]}
+            >
               <Input placeholder='HH:mm' style={{ width: 80 }} />
-            </Form.Item>
+            </Form.Item>  
           </Col>
           <Col span={4} />
         </Row>
+
+
+
+
+
 
         <Row gutter={16} align='middle' style={{ marginBottom: 4 }}>
           <Col span={10}>
@@ -57,13 +75,36 @@ const TimedExperimentsModal = props => {
               {fields.map(field => (
                 <Row gutter={16} key={field.key} align='middle'>
                   <Col span={10}>
-                    <Form.Item name={[field.name, 'lag']} style={{ marginBottom: 8 }}>
+                    <Form.Item
+                      name={[field.name, 'lag']}
+                      style={{ marginBottom: 8 }}
+                      rules={[
+                        {
+                          validator: (_, value) => {
+                            if (!value || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
+                              return Promise.resolve()
+                            }
+                            return Promise.reject(new Error('Use HH:mm format'))
+                          }
+                        }
+                      ]}
+                    >
                       <Input placeholder='HH:mm' style={{ width: 80 }} />
                     </Form.Item>
+
                   </Col>
 
                   <Col span={10}>
-                    <Form.Item name={[field.name, 'count']} style={{ marginBottom: 8 }}>
+                    <Form.Item
+                      name={[field.name, 'count']}
+                      style={{ marginBottom: 8 }}
+                      rules={[
+                        {
+                          required: true,
+                          message: 'Enter a loop count'
+                        }
+                      ]}
+                    >
                       <InputNumber min={0} style={{ width: 80 }} />
                     </Form.Item>
                   </Col>

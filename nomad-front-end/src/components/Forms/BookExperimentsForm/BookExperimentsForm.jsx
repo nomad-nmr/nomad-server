@@ -328,6 +328,38 @@ const BookExperimentsForm = props => {
     setTimingModalVisible(false)
   }
 
+  const isValidTimeString = value => {
+    if (!value) return false
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)
+  }
+
+  const getTimedConfigStatus = key => {
+    const initialDelay = form.getFieldValue([key, 'initialDelay'])
+    const repeatLoops = form.getFieldValue([key, 'repeatLoops'])
+
+    const loops = Array.isArray(repeatLoops) ? repeatLoops : []
+
+    const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
+    const hasRepeatLoops = loops.some(
+      loop => Number(loop?.count) > 0 || (loop?.lag && loop.lag !== '00:00')
+    )
+
+    const isEmpty = !hasInitialDelay && !hasRepeatLoops
+    if (isEmpty) return 'empty'
+
+    const validInitialDelay = !initialDelay || isValidTimeString(initialDelay)
+
+    const validLoops = loops.every(loop => {
+      const validLag = !loop?.lag || isValidTimeString(loop.lag)
+      const validCount = Number.isInteger(Number(loop?.count)) && Number(loop.count) >= 0
+      return validLag && validCount
+    })
+
+    return validInitialDelay && validLoops ? 'valid' : 'invalid'
+  }
+
+
+
   const timingModalOkHandler = values => {
     const key = Object.keys(values)[0]
     const { initialDelay, repeatLoops } = values[key]
@@ -489,8 +521,10 @@ const BookExperimentsForm = props => {
         totalExptClass.push(classes.TotalExptWarning)
       }
     }
+    const timedStatus = getTimedConfigStatus(key)
 
     const checkBoxes = (
+      
       <Col span={2} className={classes.CheckBoxes}>
         <Space size='large'>
           <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
@@ -503,10 +537,19 @@ const BookExperimentsForm = props => {
         </Space>
 
         <Tooltip title='Timed Experiments'>
-          <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
-            <ClockCircleOutlined />
-          </Button>
-        </Tooltip>
+        <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
+          <ClockCircleOutlined
+            style={{
+              color:
+                timedStatus === 'valid'
+                  ? '#52c41a'
+                  : timedStatus === 'invalid'
+                    ? '#ff4d4f'
+                    : undefined
+            }}
+          />
+        </Button>
+      </Tooltip>
       </Col>
     )
 
