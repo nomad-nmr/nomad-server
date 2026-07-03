@@ -139,19 +139,19 @@ export const postSubmission = async (req, res) => {
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
 
-    for (let instrumentId in submitData) {
-      const submitterState = submitter.state.get(instrumentId)
-      const socketId = submitterState?.socketId
+    // for (let instrumentId in submitData) {
+    //   const submitterState = submitter.state.get(instrumentId)
+    //   const socketId = submitterState?.socketId
 
-      if (!socketId) {
-        console.log(
-          `No client connected for instrument ${instrumentId} - skipping socket emit in dev`
-        )
-        continue
-      }
+    //   if (!socketId) {
+    //     console.log(
+    //       `No client connected for instrument ${instrumentId} - skipping socket emit in dev`
+    //     )
+    //     continue
+    //   }
 
-      getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
-    }
+    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
+    // }
 
     res.send()
   } catch (error) {
