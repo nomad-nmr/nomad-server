@@ -10,7 +10,15 @@ import swaggerUi from 'swagger-ui-express'
 import trackerRoutes from './routes/tracker.js'
 import instrumentsRoutes from './routes/admin/insruments.js'
 import dashRoutes from './routes/dashboard.js'
-import { authLoginOpenApiDoc } from './controllers/auth.js'
+import { authLoginOpenApiDoc } from './controllers/api-docs/auth.js'
+import {
+  postUserOpenApiDoc,
+  deleteUsersOpenApiDoc,
+  updateUserOpenApiDoc,
+  toggleActiveOpenApiDoc,
+  getUsersOpenApiDoc
+} from './controllers/api-docs/admin-users.js'
+import { getGroupsOpenApiDoc, addGroupOpenApiDoc } from './controllers/api-docs/admin-groups.js'
 import authRoutes from './routes/auth.js'
 import usersRoutes from './routes/admin/users.js'
 import groupsRoutes from './routes/admin/groups.js'
@@ -33,7 +41,7 @@ import autoExperimentRoutes from './routes/v2/auto-experiments.js'
 import {
   autoExperimentsOpenApiDoc,
   downloadAutoExperimentOpenApiDoc
-} from './controllers/v2/auto-experiments.js'
+} from './controllers/api-docs/v2-auto-experiments.js'
 
 // file deepcode ignore UseCsurfForExpress: <Unclear how to fix>
 const app = express()
@@ -99,6 +107,17 @@ const swaggerDocument = {
   security: [{ bearerAuth: [] }],
   paths: {
     '/api/auth/login': authLoginOpenApiDoc,
+    '/api/admin/users': {
+      get: getUsersOpenApiDoc.get,
+      post: postUserOpenApiDoc.post,
+      put: updateUserOpenApiDoc.put
+    },
+    '/api/admin/users/delete-users': deleteUsersOpenApiDoc,
+    '/api/admin/users/toggle-active/{id}': toggleActiveOpenApiDoc,
+    '/api/admin/groups': {
+      get: getGroupsOpenApiDoc.get,
+      post: addGroupOpenApiDoc.post
+    },
     '/api/v2/auto-experiments': autoExperimentsOpenApiDoc,
     '/api/v2/auto-experiments/download': downloadAutoExperimentOpenApiDoc
   }
