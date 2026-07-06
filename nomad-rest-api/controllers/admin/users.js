@@ -62,12 +62,12 @@ export async function getUsers(req, res) {
           { ...searchParams, isActive: false },
           'username fullName'
         )
-        const group = await Group.findById(req.query.group, 'exUsers').populate(
+        const groupObj = await Group.findById(req.query.group, 'exUsers').populate(
           'exUsers',
           'username fullName'
         )
 
-        group.exUsers.forEach(usr => {
+        groupObj.exUsers.forEach(usr => {
           const onList = onlyInactiveUsrList.find(i => i.username === usr.username)
           if (!onList) {
             onlyInactiveUsrList.push(usr)
