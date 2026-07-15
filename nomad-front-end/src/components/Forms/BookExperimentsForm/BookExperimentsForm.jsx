@@ -17,7 +17,9 @@ import {
   Popconfirm
 } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
-import moment from 'moment'
+// import moment from 'moment'
+import moment from 'moment-timezone'
+
 
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
@@ -415,7 +417,7 @@ const BookExperimentsForm = props => {
         }
         props.bookExpsHandler(
           token,
-          { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+          { formData: values, timeStamp: moment().tz('Europe/London').format() },
           props.submittingUserId
         )
         navigate('/dashboard')
@@ -479,7 +481,7 @@ const BookExperimentsForm = props => {
     props.bookExpsHandler(
       token,
       // timeStamp created at backend by moment.js does not take into account for DST and in summer is 1h behind the time
-      { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+      { formData: values, timeStamp: moment().tz('Europe/London').format() },
       props.submittingUserId
     )
     navigate('/dashboard')
