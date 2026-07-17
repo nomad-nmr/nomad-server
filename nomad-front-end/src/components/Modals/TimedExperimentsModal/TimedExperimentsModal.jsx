@@ -105,11 +105,27 @@ const TimedExperimentsModal = props => {
                         rules={[
                           {
                             validator: (_, value) => {
-                              if (!value || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
-                                return Promise.resolve()
-                              }
+                            if (!value) {
+                              return Promise.resolve()
+                            }
+
+                            if (!/^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
                               return Promise.reject(new Error('Use HH:mm format'))
                             }
+
+                            const lagSeconds = parseHHMMToSeconds(value)
+
+                            if (lagSeconds > 0 && oneSetSeconds > 0 && lagSeconds < oneSetSeconds) {
+                              return Promise.reject(
+                                new Error(
+                                  `Delay must exceed ${formatSecondsAsHHMM(oneSetSeconds)}, the experiment time`
+                                )
+                              )
+                            }
+
+                            return Promise.resolve()
+                          }
+
                           }
                         ]}
                       >
@@ -234,3 +250,6 @@ const getTimedEstimateSeconds = ({
 
   return baseTotalSeconds + initialDelaySeconds + repeatLagSeconds + repeatedRunSeconds
 }
+
+const formatSecondsAsHHMM = seconds =>
+  moment.duration(seconds, 'seconds').format('HH:mm', { trim: false })
