@@ -551,7 +551,6 @@ const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
 
 // add start times to timed experiments based on the submitted timestamp
 const addTimedStartTimes = (experiments, submittedTime, initialDelay, repeatLoops = []) => {
-  // const submittedTime = moment(submittedTimeStamp, 'YYMMDDHHmm')
   const initialOffset = parseDelayToDuration(initialDelay)
   const baseStartTime = submittedTime.clone().add(initialOffset)
 
