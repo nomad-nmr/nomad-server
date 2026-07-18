@@ -475,6 +475,54 @@ const BookExperimentsForm = props => {
         }
       }
 
+      // Checking if night experiments fit into active timed experiment gaps returned by backend
+      for (let sampleKey in values) {
+        const instrId = sampleKey.split('-')[0]
+        const allowanceDataInstr = allowanceData.find(i => i.instrId === instrId)
+        const timedNightMaxExperimentSeconds = allowanceDataInstr?.timedNightMaxExperimentSeconds
+
+        if (!timedNightMaxExperimentSeconds || !values[sampleKey].night) {
+          continue
+        }
+
+        const sampleDurationSeconds = totalExptState[sampleKey] || 0
+
+        if (sampleDurationSeconds > timedNightMaxExperimentSeconds) {
+          const sampleDurationFormatted = moment
+            .duration(sampleDurationSeconds, 'seconds')
+            .format('HH:mm:ss', { trim: false })
+
+          const timedNightMaxFormatted = moment
+            .duration(timedNightMaxExperimentSeconds, 'seconds')
+            .format('HH:mm:ss', { trim: false })
+
+          return Modal.error({
+            title: 'Night experiment too long for timed schedule',
+            content: (
+              <div>
+                <p>
+                  A timed experiment is currently booked on this instrument. Night experiments must fit
+                  into the gap between timed experiment runs.
+                </p>
+
+                <ul>
+                  <li>
+                    <strong>Maximum allowed night experiment duration:</strong> {timedNightMaxFormatted}
+                  </li>
+                  <li>
+                    <strong>This experiment duration:</strong> {sampleDurationFormatted}
+                  </li>
+                </ul>
+
+                <p>Please reduce the experiment time or submit it to another instrument.</p>
+              </div>
+            )
+          })
+        }
+      }
+
+
+
       if (nightExpSubmit) {
         return Modal.confirm(nightQueueWarning)
       }
