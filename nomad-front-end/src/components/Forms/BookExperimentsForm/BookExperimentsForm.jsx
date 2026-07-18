@@ -498,6 +498,7 @@ const BookExperimentsForm = props => {
 
           return Modal.error({
             title: 'Night experiment too long for timed schedule',
+            width: 600,
             content: (
               <div>
                 <p>
