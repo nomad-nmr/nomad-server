@@ -142,20 +142,6 @@ export const postSubmission = async (req, res) => {
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
 
-    // for (let instrumentId in submitData) {
-    //   const submitterState = submitter.state.get(instrumentId)
-    //   const socketId = submitterState?.socketId
-
-    //   if (!socketId) {
-    //     console.log(
-    //       `No client connected for instrument ${instrumentId} - skipping socket emit in dev`
-    //     )
-    //     continue
-    //   }
-
-    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
-    // }
-
     res.send()
   } catch (error) {
     console.log(error)
@@ -553,10 +539,6 @@ const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
 const addTimedStartTimes = (experiments, submittedTime, initialDelay, repeatLoops = []) => {
   const initialOffset = parseDelayToDuration(initialDelay)
   const baseStartTime = submittedTime.clone().add(initialOffset)
-
-  console.log('submittedTime UTC:', submittedTime.clone().utc().format())
-  console.log('submittedTime unix:', submittedTime.unix())
-
 
   const expandedExperiments = []
 
