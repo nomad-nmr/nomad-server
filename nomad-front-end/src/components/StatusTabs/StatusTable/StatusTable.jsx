@@ -181,7 +181,19 @@ const StatusTable = props => {
       title: 'P',
       dataIndex: 'priority',
       align: 'center',
-      render: text => text && <ExclamationCircleOutlined style={{ color: '#389e0d' }} />
+      render: (text, record) => {
+        const hasTimedExperiment = !!record.startTime
+
+        if (hasTimedExperiment) {
+          return <ClockCircleOutlined style={{ color: '#1890ff' }} />
+        }
+
+        if (text) {
+          return <ExclamationCircleOutlined style={{ color: '#389e0d' }} />
+        }
+
+        return null
+      }
     },
     {
       title: 'Status',
