@@ -38,6 +38,7 @@ export const postSubmission = async (req, res) => {
       const holder = formData[sampleKey].holder
 
       const experiments = []
+      let oneSetSeconds = 0 
       for (let expNo in formData[sampleKey].exps) {
         const paramSet = formData[sampleKey].exps[expNo].paramSet
         const paramSetObj = await ParameterSet.findOne({ name: paramSet })
@@ -47,14 +48,24 @@ export const postSubmission = async (req, res) => {
           expTitle: paramSetObj.description,
           params: formData[sampleKey].exps[expNo].params
         })
+        
+        if (paramSetObj.defaultParams?.[4]?.value) {
+          oneSetSeconds += moment.duration(paramSetObj.defaultParams[4].value).asSeconds()
+        }
+
         paramSetObj.count++
         paramSetObj.save()
       }
       const { night, solvent, title, priority, initialDelay, repeatLoops } = formData[sampleKey]
 
-      
+      const isTimedExperiment = hasTimedExperiments({ initialDelay, repeatLoops })
+
+      if (isTimedExperiment) {
+        await updateNightAllowanceForTimedExperiment({instrId, initialDelay, repeatLoops, oneSetSeconds})
+      }
+
       // check for timed experiments and add start times if necessary
-      const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
+      const timedExperiments = isTimedExperiment
         ? addTimedStartTimes(experiments, timeStamp, initialDelay, repeatLoops)
         : experiments
 
@@ -77,8 +88,6 @@ export const postSubmission = async (req, res) => {
         experiments: clientExperiments,
       }
 
-      //toremove
-      console.log('Sample Data:', sampleData)
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -118,26 +127,22 @@ export const postSubmission = async (req, res) => {
           }
           const experiment = new Experiment(expHistObj)
 
-          //toremove
-          console.log('Experiment Data:', experiment)
-
           await experiment.save()
         })
       )
     }
 
-    // toremove - uncomment to test socket emit
-    // for (let instrumentId in submitData) {
-    //   //Getting socketId from submitter state
-    //   const { socketId } = submitter.state.get(instrumentId)
+    for (let instrumentId in submitData) {
+      //Getting socketId from submitter state
+      const { socketId } = submitter.state.get(instrumentId)
 
-    //   if (!socketId) {
-    //     console.log('Error: Client disconnected')
-    //     return res.status(503).send({ message: 'Client disconnected' })
-    //   }
+      if (!socketId) {
+        console.log('Error: Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
+      }
 
-    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
-    // }
+      getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
+    }
 
 
 
@@ -335,22 +340,6 @@ export const getAllowance = async (req, res) => {
         const instr = await Instrument.findById(instrId)
         let { dayAllowance, nightAllowance, nightStart, nightEnd, overheadTime } = instr
 
-        const activeTimedExperiments = await Experiment.find({
-          'instrument.id': instrId,
-          // startTime: { $ne: null, $gte: new Date() }, this filters out experiments that start now.
-          startTime: { $ne: null },
-          status: { $in: ['Booked', 'Submitted', 'Available', 'Running'] }
-        }).sort({ datasetName: 1, startTime: 1 })
-
-        const timedNightMaxExperimentSeconds =
-          getTimedNightMaxExperimentSecondsByDataset(activeTimedExperiments)
-
-        console.log(
-          `Timed night max experiment duration for instrument ${instr.name}:`,
-          timedNightMaxExperimentSeconds
-        )
-
-
         const usrSamples = new Set()
 
         await Promise.all(
@@ -419,8 +408,7 @@ export const getAllowance = async (req, res) => {
           nightEnd,
           overheadTime,
           nightExpt: instr.status.summary.nightExpt,
-          dayExpt: instr.status.summary.dayExpt,
-          timedNightMaxExperimentSeconds
+          dayExpt: instr.status.summary.dayExpt
         })
       })
     )
@@ -600,69 +588,109 @@ const parseDelayToDuration = value => {
   return moment.duration({ hours, minutes })
 }
 
-// Calculates the smallest gap between start times for a single timed experiment dataset.
-// Duplicate start times are ignored because multiple experiments in the same set can share a start time.
-const getTimedNightMaxExperimentSeconds = experiments => {
-  if (!Array.isArray(experiments) || experiments.length < 2) {
+
+// helper function to calculate the maximum duration of timed experiments that occur during the night period
+const getMinimumTimedLagSeconds = repeatLoops => {
+  if (!Array.isArray(repeatLoops)) {
     return null
   }
 
-  const sortedStartTimes = experiments
-    .map(exp => exp.startTime)
-    .filter(Boolean)
-    .map(startTime => moment(startTime))
-    .filter(startTime => startTime.isValid())
-    .sort((a, b) => a.valueOf() - b.valueOf())
+  const positiveLagSeconds = repeatLoops
+    .map(loop => parseDelayToDuration(loop?.lag).asSeconds())
+    .filter(seconds => seconds > 0)
 
-  if (sortedStartTimes.length < 2) {
+  if (positiveLagSeconds.length === 0) {
     return null
   }
 
-  let minGapSeconds = null
-
-  for (let i = 1; i < sortedStartTimes.length; i++) {
-    const gapSeconds = sortedStartTimes[i].diff(sortedStartTimes[i - 1], 'seconds')
-
-    if (gapSeconds > 0 && (minGapSeconds === null || gapSeconds < minGapSeconds)) {
-      minGapSeconds = gapSeconds
-    }
-  }
-
-  return minGapSeconds
+  return Math.min(...positiveLagSeconds)
 }
 
-// Calculates the smallest timed repeat gap per dataset, then returns the smallest of those.
-// This avoids unrelated timed experiments on the same instrument creating artificial tiny gaps.
-const getTimedNightMaxExperimentSecondsByDataset = experiments => {
-  if (!Array.isArray(experiments) || experiments.length < 2) {
-    return null
+//he;per function to calculate the maximum duration of timed experiments that occur during the night period
+//reset the night allowance to the original value after the timed experiment duration has passed
+const updateNightAllowanceForTimedExperiment = async ({
+  instrId,
+  initialDelay,
+  repeatLoops,
+  oneSetSeconds
+}) => {
+  const minimumLagSeconds = getMinimumTimedLagSeconds(repeatLoops)
+
+  if (!minimumLagSeconds) {
+    return
   }
 
-  const experimentsByDataset = {}
+  const minimumLagMinutes = Math.floor(minimumLagSeconds / 60)
 
-  experiments.forEach(exp => {
-    if (!exp.datasetName || !exp.startTime) return
+  const instrument = await Instrument.findById(instrId)
 
-    if (!experimentsByDataset[exp.datasetName]) {
-      experimentsByDataset[exp.datasetName] = []
+  if (!instrument) {
+    throw new Error(`Instrument not found: ${instrId}`)
+  }
+
+  const originalNightAllowance = instrument.nightAllowance
+  const updatedNightAllowance = Math.min(originalNightAllowance, minimumLagMinutes)
+
+  instrument.nightAllowance = updatedNightAllowance
+
+  await instrument.save()
+
+  const timedExperimentTotalSeconds = getTimedEstimateSeconds({
+    oneSetSeconds,
+    initialDelay,
+    repeatLoops
+  })  
+
+  if (!timedExperimentTotalSeconds || timedExperimentTotalSeconds <= 0) {
+    return
+  }
+
+  setTimeout(async () => {
+    try {
+      const instrumentToReset = await Instrument.findById(instrId)
+
+      if (!instrumentToReset) {
+        console.log(`Could not reset night allowance. Instrument not found: ${instrId}`)
+        return
+      }
+
+      instrumentToReset.nightAllowance = originalNightAllowance
+
+      await instrumentToReset.save()
+
+      console.log(`Reset night allowance for ${instrumentToReset.name}:`, {
+        restoredNightAllowance: originalNightAllowance
+      })
+    } catch (error) {
+      console.log('Error resetting timed experiment night allowance:', error)
     }
+  }, timedExperimentTotalSeconds * 1000)
+}
 
-    experimentsByDataset[exp.datasetName].push(exp)
-  })
+//helpers for total experiment time 
+const getRepeatCount = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce((sum, loop) => sum + (Number(loop?.count) || 0), 0)
+    : 0
 
-  const minGaps = Object.entries(experimentsByDataset)
-    .map(([datasetName, datasetExperiments]) => {
-      const minGapSeconds = getTimedNightMaxExperimentSeconds(datasetExperiments)
+const getRepeatLagSeconds = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce(
+        (sum, loop) =>
+          sum + parseDelayToDuration(loop?.lag).asSeconds() * (Number(loop?.count) || 0),
+        0
+      )
+    : 0
 
-      console.log(`Timed gap for dataset ${datasetName}:`, minGapSeconds)
+const getTimedEstimateSeconds = ({
+  oneSetSeconds = 0,
+  initialDelay,
+  repeatLoops
+}) => {
+  const initialDelaySeconds = parseDelayToDuration(initialDelay).asSeconds()
+  const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
+  const repeatCount = getRepeatCount(repeatLoops)
+  const repeatedRunSeconds = oneSetSeconds * repeatCount
 
-      return minGapSeconds
-    })
-    .filter(gap => gap !== null)
-
-  if (minGaps.length === 0) {
-    return null
-  }
-
-  return Math.min(...minGaps)
+  return oneSetSeconds + initialDelaySeconds + repeatLagSeconds + repeatedRunSeconds
 }
