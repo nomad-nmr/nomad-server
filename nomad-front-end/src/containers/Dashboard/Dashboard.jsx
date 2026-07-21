@@ -35,6 +35,17 @@ const Dashboard = props => {
     props.fetchAnnounce()
   }, [props.fetchAnnounce])
 
+  useEffect(() => {
+    socket.on('announcementUpdate', () => {
+      props.fetchAnnounce()
+    })
+    return () => {
+      socket.removeAllListeners('announcementUpdate')
+    }
+    // eslint-disable-next-line
+  }, [])
+
+
   //Hook sets active tab to 1st instrument in the array when the page get reloaded
   useEffect(() => {
     if (activeTab === '0' && statusSummary.length > 0) {
