@@ -4,6 +4,7 @@ import { Form, Button, Space, Input, Modal, Spin, Radio} from 'antd'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 
+
 import { fetchAnnouncement, saveAnnouncement, clearAnnouncement } from '../../store/actions'
 
 import classes from './Announcement.module.css'
@@ -34,14 +35,15 @@ const Announcement = props => {
   }
 
   const quillModules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ['bold', 'italic', 'underline'],
-      [{ color: [] }, { background: [] }],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['link'],
-      ['clean']
-    ]
+  toolbar: [
+    [{ size: ['small', false, 'large', 'huge'] }],
+    ['bold', 'italic', 'underline'],
+    [{ color: [] }, { background: [] }],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ align: [] }],          
+    ['link'],
+    ['clean']
+  ]
   }
 
 
