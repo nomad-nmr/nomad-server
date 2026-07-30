@@ -238,6 +238,14 @@ const AddRackModal = props => {
         <Form.Item name='editParams' label='Edit Parameters'>
           <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
         </Form.Item>
+        <Form.Item
+          name='restrictDelete'
+          label='Restrict Delete'
+          initialValue={true}
+          tooltip='Only users with admin access can delete this rack'
+        >
+          <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+        </Form.Item>
         {rackType === 'Group' && (
           <Form.Item name='sampleIdOn' label='Use Sample ID' initialValue={true}>
             <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />

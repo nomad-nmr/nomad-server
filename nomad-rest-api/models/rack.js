@@ -25,6 +25,10 @@ const rackSchema = new Schema({
     type: Boolean,
     default: false
   },
+  restrictDelete: {
+    type: Boolean,
+    default: true
+  },
   slotsNumber: {
     type: Number,
     required: true,
