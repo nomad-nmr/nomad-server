@@ -41,12 +41,12 @@ const Search = props => {
     if (!authToken) {
       openAuthModal()
     }
-
+    fetchExps(authToken, { currentPage: 1, pageSize: 20, ...searchParams }, dataType)
     return () => {
       resetChecked()
     }
     //!!!tabData in dependencies array leads to infinite loop
-  }, [authToken, openAuthModal, resetChecked])
+  }, [authToken, openAuthModal, resetChecked, dataType])
 
   const onPageChange = page => {
     setCurrentPage(page)
@@ -121,7 +121,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   openAuthModal: () => dispatch(openAuthModal()),
   tglSearchForm: () => dispatch(toggleSearchForm()),
-  fetchExps: (token, searchParams) => dispatch(fetchExperiments(token, searchParams)),
+  fetchExps: (token, searchParams, dataType) =>
+    dispatch(fetchExperiments(token, searchParams, dataType)),
   updCheckedDatasets: payload => dispatch(updateCheckedDatasets(payload)),
   updCheckedExps: payload => dispatch(updateCheckedExps(payload)),
   resetChecked: () => dispatch(resetChecked()),

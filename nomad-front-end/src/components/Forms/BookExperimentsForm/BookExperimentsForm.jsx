@@ -17,7 +17,8 @@ import {
   Popconfirm
 } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
-import moment from 'moment'
+import moment from 'moment-timezone'
+
 
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
@@ -319,8 +320,11 @@ const BookExperimentsForm = props => {
     setTimingModalData({
       sampleKey: key,
       initialDelay: form.getFieldValue([key, 'initialDelay']) ?? '00:00',
-      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }]
+      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }],
+      baseTotalSeconds: totalExptState[key] || 0,
+      oneSetSeconds: getExperimentSetSeconds(key, exptState)
     })
+
     setTimingModalVisible(true)
   }
 
@@ -415,7 +419,7 @@ const BookExperimentsForm = props => {
         }
         props.bookExpsHandler(
           token,
-          { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+          { formData: values, timeStamp: moment().tz('Europe/London').format() },
           props.submittingUserId
         )
         navigate('/dashboard')
@@ -479,7 +483,7 @@ const BookExperimentsForm = props => {
     props.bookExpsHandler(
       token,
       // timeStamp created at backend by moment.js does not take into account for DST and in summer is 1h behind the time
-      { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
+      { formData: values, timeStamp: moment().tz('Europe/London').format() },
       props.submittingUserId
     )
     navigate('/dashboard')
@@ -799,3 +803,10 @@ const getExptAccumulator = (formValues, totalExptState, nightOption) => {
 }
 
 export default BookExperimentsForm
+
+//Helper function that sums totalExpT stored in state for all experiments of a sample
+const getExperimentSetSeconds = (sampleKey, exptState) => {
+  return Object.entries(exptState)
+    .filter(([key]) => key.startsWith(`${sampleKey}#`))
+    .reduce((sum, [, expTime]) => sum + moment.duration(expTime).asSeconds(), 0)
+}
