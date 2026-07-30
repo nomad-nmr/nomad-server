@@ -27,6 +27,9 @@ export const postSubmission = async (req, res) => {
     const instrIds = await Instrument.find({}, '_id')
 
     const { formData, timeStamp } = req.body
+    const submittedTime = moment.parseZone(timeStamp)
+    const submissionTimeStamp = submittedTime.format('YYMMDDHHmm')
+        
     const submitData = {}
     for (let sampleKey in formData) {
       const instrId = sampleKey.split('-')[0]
@@ -55,7 +58,7 @@ export const postSubmission = async (req, res) => {
       
       // check for timed experiments and add start times if necessary
       const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
-        ? addTimedStartTimes(experiments, timeStamp, initialDelay, repeatLoops)
+        ? addTimedStartTimes(experiments, submittedTime, initialDelay, repeatLoops)
         : experiments
 
       const clientExperiments = timedExperiments.map(exp => ({
@@ -64,7 +67,7 @@ export const postSubmission = async (req, res) => {
       }))
 
 
-      const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
+      const sampleId = submissionTimeStamp + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
         group: groupName,
@@ -138,20 +141,6 @@ export const postSubmission = async (req, res) => {
 
       getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
     }
-
-    // for (let instrumentId in submitData) {
-    //   const submitterState = submitter.state.get(instrumentId)
-    //   const socketId = submitterState?.socketId
-
-    //   if (!socketId) {
-    //     console.log(
-    //       `No client connected for instrument ${instrumentId} - skipping socket emit in dev`
-    //     )
-    //     continue
-    //   }
-
-    //   getIO().to(socketId).emit('book', JSON.stringify(submitData[instrumentId]))
-    // }
 
     res.send()
   } catch (error) {
@@ -547,8 +536,7 @@ const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
 }
 
 // add start times to timed experiments based on the submitted timestamp
-const addTimedStartTimes = (experiments, submittedTimeStamp, initialDelay, repeatLoops = []) => {
-  const submittedTime = moment(submittedTimeStamp, 'YYMMDDHHmm')
+const addTimedStartTimes = (experiments, submittedTime, initialDelay, repeatLoops = []) => {
   const initialOffset = parseDelayToDuration(initialDelay)
   const baseStartTime = submittedTime.clone().add(initialOffset)
 
