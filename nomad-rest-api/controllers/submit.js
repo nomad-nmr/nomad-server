@@ -41,6 +41,7 @@ export const postSubmission = async (req, res) => {
       const holder = formData[sampleKey].holder
 
       const experiments = []
+      let oneSetSeconds = 0 
       for (let expNo in formData[sampleKey].exps) {
         const paramSet = formData[sampleKey].exps[expNo].paramSet
         const paramSetObj = await ParameterSet.findOne({ name: paramSet })
@@ -50,12 +51,22 @@ export const postSubmission = async (req, res) => {
           expTitle: paramSetObj.description,
           params: formData[sampleKey].exps[expNo].params
         })
+        
+        if (paramSetObj.defaultParams?.[4]?.value) {
+          oneSetSeconds += moment.duration(paramSetObj.defaultParams[4].value).asSeconds()
+        }
+
         paramSetObj.count++
         paramSetObj.save()
       }
       const { night, solvent, title, priority, initialDelay, repeatLoops } = formData[sampleKey]
 
-      
+      const isTimedExperiment = hasTimedExperiments({ initialDelay, repeatLoops })
+
+      if (isTimedExperiment) {
+        await updateNightAllowanceForTimedExperiment({instrId, initialDelay, repeatLoops, oneSetSeconds})
+      }
+
       // check for timed experiments and add start times if necessary
       const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
         ? addTimedStartTimes(experiments, submittedTime, initialDelay, repeatLoops)
@@ -80,8 +91,6 @@ export const postSubmission = async (req, res) => {
         experiments: clientExperiments,
       }
 
-      //toremove
-      console.log('Sample Data:', sampleData)
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -121,15 +130,11 @@ export const postSubmission = async (req, res) => {
           }
           const experiment = new Experiment(expHistObj)
 
-          //toremove
-          console.log('Experiment Data:', experiment)
-
           await experiment.save()
         })
       )
     }
 
-    // toremove - uncomment to test socket emit
     for (let instrumentId in submitData) {
       //Getting socketId from submitter state
       const { socketId } = submitter.state.get(instrumentId)
@@ -581,4 +586,111 @@ const parseDelayToDuration = value => {
   if (!value) return moment.duration(0)
   const [hours = 0, minutes = 0] = value.split(':').map(Number)
   return moment.duration({ hours, minutes })
+}
+
+
+// helper function to calculate the maximum duration of timed experiments that occur during the night period
+const getMinimumTimedLagSeconds = repeatLoops => {
+  if (!Array.isArray(repeatLoops)) {
+    return null
+  }
+
+  const positiveLagSeconds = repeatLoops
+    .map(loop => parseDelayToDuration(loop?.lag).asSeconds())
+    .filter(seconds => seconds > 0)
+
+  if (positiveLagSeconds.length === 0) {
+    return null
+  }
+
+  return Math.min(...positiveLagSeconds)
+}
+
+//he;per function to calculate the maximum duration of timed experiments that occur during the night period
+//reset the night allowance to the original value after the timed experiment duration has passed
+const updateNightAllowanceForTimedExperiment = async ({
+  instrId,
+  initialDelay,
+  repeatLoops,
+  oneSetSeconds
+}) => {
+  const minimumLagSeconds = getMinimumTimedLagSeconds(repeatLoops)
+
+  if (!minimumLagSeconds) {
+    return
+  }
+
+  const minimumLagMinutes = Math.floor(minimumLagSeconds / 60)
+
+  const instrument = await Instrument.findById(instrId)
+
+  if (!instrument) {
+    throw new Error(`Instrument not found: ${instrId}`)
+  }
+
+  const originalNightAllowance = instrument.nightAllowance
+  const updatedNightAllowance = Math.min(originalNightAllowance, minimumLagMinutes)
+
+  instrument.nightAllowance = updatedNightAllowance
+
+  await instrument.save()
+
+  const timedExperimentTotalSeconds = getTimedEstimateSeconds({
+    oneSetSeconds,
+    initialDelay,
+    repeatLoops
+  })  
+
+  if (!timedExperimentTotalSeconds || timedExperimentTotalSeconds <= 0) {
+    return
+  }
+
+  setTimeout(async () => {
+    try {
+      const instrumentToReset = await Instrument.findById(instrId)
+
+      if (!instrumentToReset) {
+        console.log(`Could not reset night allowance. Instrument not found: ${instrId}`)
+        return
+      }
+
+      instrumentToReset.nightAllowance = originalNightAllowance
+
+      await instrumentToReset.save()
+
+      console.log(`Reset night allowance for ${instrumentToReset.name}:`, {
+        restoredNightAllowance: originalNightAllowance
+      })
+    } catch (error) {
+      console.log('Error resetting timed experiment night allowance:', error)
+    }
+  }, timedExperimentTotalSeconds * 1000)
+}
+
+//helpers for total experiment time 
+const getRepeatCount = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce((sum, loop) => sum + (Number(loop?.count) || 0), 0)
+    : 0
+
+const getRepeatLagSeconds = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce(
+        (sum, loop) =>
+          sum + parseDelayToDuration(loop?.lag).asSeconds() * (Number(loop?.count) || 0),
+        0
+      )
+    : 0
+
+const getTimedEstimateSeconds = ({
+  oneSetSeconds = 0,
+  initialDelay,
+  repeatLoops
+}) => {
+  const initialDelaySeconds = parseDelayToDuration(initialDelay).asSeconds()
+  const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
+  const repeatCount = getRepeatCount(repeatLoops)
+  const repeatedRunSeconds = oneSetSeconds * repeatCount
+
+  return oneSetSeconds + initialDelaySeconds + repeatLagSeconds + repeatedRunSeconds
 }
