@@ -320,8 +320,11 @@ const BookExperimentsForm = props => {
     setTimingModalData({
       sampleKey: key,
       initialDelay: form.getFieldValue([key, 'initialDelay']) ?? '00:00',
-      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }]
+      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }],
+      baseTotalSeconds: totalExptState[key] || 0,
+      oneSetSeconds: getExperimentSetSeconds(key, exptState)
     })
+
     setTimingModalVisible(true)
   }
 
@@ -800,3 +803,10 @@ const getExptAccumulator = (formValues, totalExptState, nightOption) => {
 }
 
 export default BookExperimentsForm
+
+//Helper function that sums totalExpT stored in state for all experiments of a sample
+const getExperimentSetSeconds = (sampleKey, exptState) => {
+  return Object.entries(exptState)
+    .filter(([key]) => key.startsWith(`${sampleKey}#`))
+    .reduce((sum, [, expTime]) => sum + moment.duration(expTime).asSeconds(), 0)
+}
