@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Button, message, Modal, Tooltip } from 'antd'
 import moment from 'moment'
 
@@ -8,13 +8,11 @@ const BatchSubmitControls = props => {
   const { accessLevel, authToken, grpName } = props.user
 
   let activeRack = {}
-  let activeRackOpen = true
 
   const { selectedSlots } = props
 
   if (props.activeRackId) {
     activeRack = props.racksData.find(rack => rack._id === props.activeRackId)
-    activeRackOpen = activeRack.isOpen ? true : false
   }
 
   let selectedSamples = []
@@ -162,14 +160,14 @@ const BatchSubmitControls = props => {
         </Button>
       )}
 
-      {(accessLevel === 'admin' || accessLevel === 'admin-b') && activeRackOpen ? (
+      {(accessLevel === 'admin' || accessLevel === 'admin-b') && activeRack.isOpen ? (
         <Button className={classes.Button} onClick={() => onCloseRack()} danger>
           Close Rack
         </Button>
       ) : null}
 
-      {accessLevel === 'admin' && !activeRackOpen ? (
-        <>
+      {(accessLevel === 'admin' || accessLevel === 'admin-b') && !activeRack.isOpen ? (
+        <Fragment>
           <Tooltip placement='bottom' title='Book selected samples/slots'>
             <Button className={classes.Button} onClick={() => bookHandler()}>
               Book
@@ -185,10 +183,13 @@ const BatchSubmitControls = props => {
               Cancel
             </Button>
           </Tooltip>
-          <Button className={classes.Button} type='primary' onClick={onDeleteRack} danger>
-            Delete Rack
-          </Button>
-        </>
+        </Fragment>
+      ) : null}
+
+      {accessLevel === 'admin' && !activeRack.isOpen ? (
+        <Button className={classes.Button} type='primary' onClick={onDeleteRack} danger>
+          Delete Rack
+        </Button>
       ) : null}
     </div>
   )
