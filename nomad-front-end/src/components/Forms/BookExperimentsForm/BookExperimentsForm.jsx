@@ -19,7 +19,6 @@ import {
 import { ClockCircleOutlined } from '@ant-design/icons'
 import moment from 'moment-timezone'
 
-
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
@@ -362,8 +361,6 @@ const BookExperimentsForm = props => {
     return validInitialDelay && validLoops ? 'valid' : 'invalid'
   }
 
-
-
   const timingModalOkHandler = values => {
     const key = Object.keys(values)[0]
     const { initialDelay, repeatLoops } = values[key]
@@ -528,7 +525,6 @@ const BookExperimentsForm = props => {
     const timedStatus = getTimedConfigStatus(key)
 
     const checkBoxes = (
-      
       <Col span={2} className={classes.CheckBoxes}>
         <Space size='large'>
           <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
@@ -541,19 +537,19 @@ const BookExperimentsForm = props => {
         </Space>
 
         <Tooltip title='Timed Experiments'>
-        <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
-          <ClockCircleOutlined
-            style={{
-              color:
-                timedStatus === 'valid'
-                  ? '#52c41a'
-                  : timedStatus === 'invalid'
-                    ? '#ff4d4f'
-                    : undefined
-            }}
-          />
-        </Button>
-      </Tooltip>
+          <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
+            <ClockCircleOutlined
+              style={{
+                color:
+                  timedStatus === 'valid'
+                    ? '#52c41a'
+                    : timedStatus === 'invalid'
+                      ? '#ff4d4f'
+                      : undefined
+              }}
+            />
+          </Button>
+        </Tooltip>
       </Col>
     )
 
@@ -659,8 +655,12 @@ const BookExperimentsForm = props => {
             <Input />
           </Form.Item>
 
-          <Form.Item name={[key, 'repeatLoops']} initialValue={[{ lag: '00:00', count: 0 }]}>
-            {() => null}
+          <Form.Item
+            name={[key, 'repeatLoops']}
+            initialValue={[{ lag: '00:00', count: 0 }]}
+            noStyle
+          >
+            <Input style={{ display: 'none' }} />
           </Form.Item>
 
           {!resubmit && (
