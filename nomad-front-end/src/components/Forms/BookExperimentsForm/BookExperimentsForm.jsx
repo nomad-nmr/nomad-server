@@ -312,10 +312,6 @@ const BookExperimentsForm = props => {
 
   //handler for opening and closing timing modal.
   const openTimingModal = key => {
-    console.log('openTimingModal key:', key)
-    console.log('initialDelay from form:', form.getFieldValue([key, 'initialDelay']))
-    console.log('repeatLoops from form:', form.getFieldValue([key, 'repeatLoops']))
-
     setTimingModalData({
       sampleKey: key,
       initialDelay: form.getFieldValue([key, 'initialDelay']) ?? '00:00',
@@ -368,7 +364,9 @@ const BookExperimentsForm = props => {
     form.setFieldsValue({
       [key]: {
         initialDelay,
-        repeatLoops
+        repeatLoops,
+        night: false,
+        priority: false
       }
     })
 
@@ -528,11 +526,11 @@ const BookExperimentsForm = props => {
       <Col span={2} className={classes.CheckBoxes}>
         <Space size='large'>
           <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
-            <Checkbox />
+            <Checkbox disabled={timedStatus === 'valid'} />
           </Form.Item>
 
           <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
-            <Checkbox />
+            <Checkbox disabled={timedStatus === 'valid'} />
           </Form.Item>
         </Space>
 
