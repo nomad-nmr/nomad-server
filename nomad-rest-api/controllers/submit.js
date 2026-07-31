@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from 'moment-timezone'
 import bcrypt from 'bcryptjs'
 
 import { getIO } from '../socket.js'
@@ -26,10 +26,9 @@ export const postSubmission = async (req, res) => {
     const username = user.username
     const instrIds = await Instrument.find({}, '_id')
 
-    const { formData, timeStamp } = req.body
-    const submittedTime = moment.parseZone(timeStamp)
-    const submissionTimeStamp = submittedTime.format('YYMMDDHHmm')
-        
+    const { formData } = req.body
+    const submittedTime = moment().tz(process.env.TIMEZONE || 'Europe/London')
+
     const submitData = {}
     for (let sampleKey in formData) {
       const instrId = sampleKey.split('-')[0]
@@ -41,7 +40,7 @@ export const postSubmission = async (req, res) => {
       const holder = formData[sampleKey].holder
 
       const experiments = []
-      let oneSetSeconds = 0 
+      let oneSetSeconds = 0
       for (let expNo in formData[sampleKey].exps) {
         const paramSet = formData[sampleKey].exps[expNo].paramSet
         const paramSetObj = await ParameterSet.findOne({ name: paramSet })
@@ -51,7 +50,7 @@ export const postSubmission = async (req, res) => {
           expTitle: paramSetObj.description,
           params: formData[sampleKey].exps[expNo].params
         })
-        
+
         if (paramSetObj.defaultParams?.[4]?.value) {
           oneSetSeconds += moment.duration(paramSetObj.defaultParams[4].value).asSeconds()
         }
@@ -64,7 +63,12 @@ export const postSubmission = async (req, res) => {
       const isTimedExperiment = hasTimedExperiments({ initialDelay, repeatLoops })
 
       if (isTimedExperiment) {
-        await updateNightAllowanceForTimedExperiment({instrId, initialDelay, repeatLoops, oneSetSeconds})
+        await updateNightAllowanceForTimedExperiment({
+          instrId,
+          initialDelay,
+          repeatLoops,
+          oneSetSeconds
+        })
       }
 
       // check for timed experiments and add start times if necessary
@@ -73,12 +77,12 @@ export const postSubmission = async (req, res) => {
         : experiments
 
       const clientExperiments = timedExperiments.map(exp => ({
-      ...exp,
-      ...(exp.startTime ? { startTime: moment(exp.startTime).unix() } : {})
+        ...exp,
+        ...(exp.startTime ? { startTime: moment(exp.startTime).unix() } : {})
       }))
 
-
-      const sampleId = submissionTimeStamp + '-' + instrIndex + '-' + holder + '-' + username
+      const sampleId =
+        submittedTime.format('YYMMDDHHmm') + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
         group: groupName,
@@ -88,9 +92,8 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
-        experiments: clientExperiments,
+        experiments: clientExperiments
       }
-
 
       if (submitData[instrId]) {
         submitData[instrId].push(sampleData)
@@ -588,7 +591,6 @@ const parseDelayToDuration = value => {
   return moment.duration({ hours, minutes })
 }
 
-
 // helper function to calculate the maximum duration of timed experiments that occur during the night period
 const getMinimumTimedLagSeconds = repeatLoops => {
   if (!Array.isArray(repeatLoops)) {
@@ -639,7 +641,7 @@ const updateNightAllowanceForTimedExperiment = async ({
     oneSetSeconds,
     initialDelay,
     repeatLoops
-  })  
+  })
 
   if (!timedExperimentTotalSeconds || timedExperimentTotalSeconds <= 0) {
     return
@@ -667,7 +669,7 @@ const updateNightAllowanceForTimedExperiment = async ({
   }, timedExperimentTotalSeconds * 1000)
 }
 
-//helpers for total experiment time 
+//helpers for total experiment time
 const getRepeatCount = repeatLoops =>
   Array.isArray(repeatLoops)
     ? repeatLoops.reduce((sum, loop) => sum + (Number(loop?.count) || 0), 0)
@@ -682,11 +684,7 @@ const getRepeatLagSeconds = repeatLoops =>
       )
     : 0
 
-const getTimedEstimateSeconds = ({
-  oneSetSeconds = 0,
-  initialDelay,
-  repeatLoops
-}) => {
+const getTimedEstimateSeconds = ({ oneSetSeconds = 0, initialDelay, repeatLoops }) => {
   const initialDelaySeconds = parseDelayToDuration(initialDelay).asSeconds()
   const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
   const repeatCount = getRepeatCount(repeatLoops)
