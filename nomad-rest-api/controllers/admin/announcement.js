@@ -1,5 +1,4 @@
 import Announcement from '../../models/announcement.js'
-import { getIO } from '../../socket.js'
 
 export async function postAnnouncement(req, res) {
   const { title, body, kind } = req.body
@@ -17,8 +16,6 @@ export async function postAnnouncement(req, res) {
       { key: 'homepage-announcement', title: cleanTitle || '', body: cleanBody, kind: cleanKind},
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     )
-
-    getIO().to('users').emit('announcementUpdate')
 
     return res.status(200).send({ announcement: saved })
   } catch (error) {
@@ -43,9 +40,6 @@ export async function getAnnouncement(req, res) {
 export async function clearAnnouncement(req, res) {
   try {
     await Announcement.deleteOne({ key: 'homepage-announcement' })
-
-    getIO().to('users').emit('announcementUpdate')
-
     return res.status(200).send({ ok: true })
   } catch (error) {
     console.log(error)
