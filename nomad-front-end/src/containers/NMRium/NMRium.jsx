@@ -34,6 +34,12 @@ import history from '../../utils/history'
 
 import classes from './NMRium.module.css'
 
+const aggregator = {
+  files: [],
+  sources: [],
+  options: {}
+}
+
 const NMRiumContainer = props => {
   const {
     data,
@@ -46,6 +52,8 @@ const NMRiumContainer = props => {
     authToken,
     fetchGrpList
   } = props
+
+  console.log('NMRiumdata', data)
 
   const { user, group, title, id, tags } = props.datasetMeta
 
@@ -154,7 +162,12 @@ const NMRiumContainer = props => {
       <Spin size='large' spinning={props.spinning}>
         <div className={classes.nmriumContainer}>
           {titleElement}
-          <NMRium data={data} onChange={data => changeHandler(data)} emptyText='' />
+          <NMRium
+            state={data}
+            aggregator={aggregator}
+            onChange={data => changeHandler(data)}
+            emptyText=''
+          />
         </div>
       </Spin>
       <FidsModal

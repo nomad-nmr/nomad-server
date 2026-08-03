@@ -1,25 +1,66 @@
-// import fs from 'fs/promises'
+import { readFile } from 'node:fs/promises'
 import init from '@zakodium/nmrium-core-plugins'
-import { fileCollectionFromPath } from 'filelist-utils'
+// import {NMRiumCore} from '@zakodium/nmrium-core'
+import { FileCollection } from 'file-collection'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
+
+// const defaultParsingOptions = {
+//   selector: {
+//     general: {
+//       keep1D: true,
+//       keep2D: true,
+//       onlyReal: false,
+//       dataSelection: 'preferFT'
+//     },
+//     bruker: {
+//       onlyFirstProcessedData: true
+//     }
+//   },
+//   onLoadProcessing: {
+//     autoProcessing: true,
+//     filters: {
+//       '1H': [
+//         { name: 'digitalFilter', enabled: true },
+//         { name: 'apodization', enabled: false },
+//         { name: 'zeroFilling', enabled: true },
+//         { name: 'fft', enabled: true },
+//         { name: 'phaseCorrection', enabled: true }
+//       ],
+//       '13C': [
+//         { name: 'digitalFilter', enabled: true },
+//         { name: 'apodization', enabled: true },
+//         { name: 'zeroFilling', enabled: true },
+//         { name: 'fft', enabled: true },
+//         { name: 'phaseCorrection', enabled: true }
+//       ]
+//     }
+//   },
+//   experimentalFeatures: false
+// }
 
 //helper function that converts brukerZipFile into NMRium object
 export const getNMRiumDataObj = async (dataPath, title, fid) => {
   try {
     const core = init()
-    // const zip = await fs.readFile(dataPath + '.zip')
-    const fileCollection = await fileCollectionFromPath(dataPath + '.zip')
-    const nmriumObj = await core.read(fileCollection)
+    const zipBuffer = await readFile(`${dataPath}.zip`)
+
+    const fileCollection = await FileCollection.fromZip(zipBuffer)
+
+    const nmriumObj = await core.read(fileCollection, {})
+
+    if (!nmriumObj) {
+      throw new Error('Error: Failed to convert brukerZipFile into NMRium object')
+    }
 
     //If nmr-load-save is updated you can check version of nmrium object here
 
-    // console.log(nmriumObj)
+    // console.log('NMRium state', nmriumObj.state.data)
 
     //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
-    const newSpectraArr = nmriumObj.nmriumState.data.spectra
+    const newSpectraArr = nmriumObj.state.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
         delete i.originalData
@@ -29,9 +70,11 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
         return i
       })
 
-    nmriumObj.nmriumState.data.spectra = [...newSpectraArr]
+    // console.log('newSpectraArr', newSpectraArr)
 
-    return Promise.resolve(nmriumObj.nmriumState.data)
+    nmriumObj.state.data.spectra = [...newSpectraArr]
+
+    return Promise.resolve(nmriumObj)
   } catch (error) {
     Promise.reject(error)
   }
@@ -63,4 +106,4 @@ export const validateNMRiumData = input => {
   )
 }
 
-export const nmriumDataVersion = 13
+export const nmriumDataVersion = 22

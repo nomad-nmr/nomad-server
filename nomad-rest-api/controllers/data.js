@@ -146,15 +146,17 @@ export const getNMRium = async (req, res) => {
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
-        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title)
+
+        console.log('nmriumState', state)
 
         //This if statement excludes empty experiments that otherwise cause failure
-        if (nmriumDataObj.spectra.length > 0) {
-          nmriumDataObj.spectra[0].id = experiment._id
-          nmriumDataObj.spectra[0].info.title = experiment.title
-          nmriumDataObj.spectra[0].dataType = dataType
+        if (state.data.spectra.length > 0) {
+          state.data.spectra[0].id = experiment._id
+          state.data.spectra[0].info.title = experiment.title
+          state.data.spectra[0].dataType = dataType
 
-          responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]
+          responseData.data.spectra = [...responseData.data.spectra, ...state.data.spectra]
         }
       })
     )
