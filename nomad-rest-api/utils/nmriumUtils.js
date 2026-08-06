@@ -25,13 +25,15 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
 
     //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
+    console.log(nmriumObj.state.data.spectra[0].info)
+
     const newSpectraArr = nmriumObj.state.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
         delete i.originalData
         const expIdArr = i.info.name.split('/')
-        i.info.expId = expIdArr[1] + '-' + expIdArr[2]
-        i.info.name = title.split('||')[0] + ' - ' + expIdArr[2]
+        i.originalInfo.expId = expIdArr[0] + '-' + expIdArr[1]
+        i.originalInfo.name = title.split('||')[0] + ' - ' + expIdArr[1]
         return i
       })
 

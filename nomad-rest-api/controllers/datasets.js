@@ -74,10 +74,10 @@ export const getDataset = async (req, res) => {
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
-        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, i.info.isFid)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title, i.info.isFid)
 
-        i.data = nmriumDataObj.spectra[0].data
-        i.meta = nmriumDataObj.spectra[0].meta
+        i.data = state.data.spectra[0].data
+        i.meta = state.data.spectra[0].meta
 
         //contourOptions stored in DB by older NMRium is not compatible with version 7 data format
         // if deleted NMRium generates contours from scratch like for freshly parsed experiments
