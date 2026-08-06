@@ -1,44 +1,9 @@
 import { readFile } from 'node:fs/promises'
 import init from '@zakodium/nmrium-core-plugins'
-// import {NMRiumCore} from '@zakodium/nmrium-core'
 import { FileCollection } from 'file-collection'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
-
-// const defaultParsingOptions = {
-//   selector: {
-//     general: {
-//       keep1D: true,
-//       keep2D: true,
-//       onlyReal: false,
-//       dataSelection: 'preferFT'
-//     },
-//     bruker: {
-//       onlyFirstProcessedData: true
-//     }
-//   },
-//   onLoadProcessing: {
-//     autoProcessing: true,
-//     filters: {
-//       '1H': [
-//         { name: 'digitalFilter', enabled: true },
-//         { name: 'apodization', enabled: false },
-//         { name: 'zeroFilling', enabled: true },
-//         { name: 'fft', enabled: true },
-//         { name: 'phaseCorrection', enabled: true }
-//       ],
-//       '13C': [
-//         { name: 'digitalFilter', enabled: true },
-//         { name: 'apodization', enabled: true },
-//         { name: 'zeroFilling', enabled: true },
-//         { name: 'fft', enabled: true },
-//         { name: 'phaseCorrection', enabled: true }
-//       ]
-//     }
-//   },
-//   experimentalFeatures: false
-// }
 
 //helper function that converts brukerZipFile into NMRium object
 export const getNMRiumDataObj = async (dataPath, title, fid) => {
@@ -69,8 +34,6 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
         i.info.name = title.split('||')[0] + ' - ' + expIdArr[2]
         return i
       })
-
-    // console.log('newSpectraArr', newSpectraArr)
 
     nmriumObj.state.data.spectra = [...newSpectraArr]
 

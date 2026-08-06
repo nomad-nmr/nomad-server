@@ -262,16 +262,16 @@ export const getFids = async (req, res) => {
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
-        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, true)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title, true)
 
         //This if statement excludes empty experiments that otherwise cause failure
-        if (nmriumDataObj.spectra.length > 0) {
-          nmriumDataObj.spectra[0].id = experiment._id + '/fid/' + uuid().split('-')[0]
-          nmriumDataObj.spectra[0].info.title = experiment.title + ' [FID]'
-          nmriumDataObj.spectra[0].dataType = dataType
-          nmriumDataObj.spectra[0].info.name += '/FID'
+        if (state.data.spectra.length > 0) {
+          state.data.spectra[0].id = experiment._id + '/fid/' + uuid().split('-')[0]
+          state.data.spectra[0].info.title = experiment.title + ' [FID]'
+          state.data.spectra[0].dataType = dataType
+          state.data.spectra[0].info.name += '/FID'
 
-          responseData = [...responseData, nmriumDataObj.spectra[0]]
+          responseData = [...responseData, state.data.spectra[0]]
         }
       })
     )
