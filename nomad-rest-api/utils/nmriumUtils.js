@@ -25,8 +25,6 @@ export const getNMRiumDataObj = async (dataPath, title, fid) => {
 
     //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
-    console.log(nmriumObj.state.data.spectra[0].info)
-
     const newSpectraArr = nmriumObj.state.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
