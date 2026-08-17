@@ -53,8 +53,6 @@ const NMRiumContainer = props => {
     fetchGrpList
   } = props
 
-  console.log('NMRiumdata', data)
-
   const { user, group, title, id, tags } = props.datasetMeta
 
   const [modalData, setModalData] = useState([])
@@ -108,6 +106,7 @@ const NMRiumContainer = props => {
   const changeHandler = useCallback(dataUpdate => {
     delete dataUpdate.data.actionType
     delete dataUpdate.settings
+    delete dataUpdate.plugins
     //NMRium automatically applies all processing filters
     //Therefore data and info is replaced by originals
     const newSpectra = dataUpdate.data.spectra.map(i => {
