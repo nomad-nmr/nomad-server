@@ -32,7 +32,7 @@ const reducer = (state = initialState, { type, payload }) => {
         },
         sharedWith: payload.sharedWith,
         loading: false,
-        displayType: 'table'
+        displayType: 'cards'
       }
 
     case actionTypes.TOGGLE_COLLECTION_DISPLAY:

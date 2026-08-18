@@ -9,7 +9,7 @@ const initialState = {
   //formFields (searchParams) values are stored in Redux state
   //to keep them preserved through rendering cycles
   searchParams: { tags: undefined, smiles: undefined },
-  displayType: 'table',
+  displayType: 'cards',
   checkedExps: [],
   checkedDatasets: [],
   showModal: false,
