@@ -21,7 +21,7 @@ vi.mock('../utils/nmriumUtils.js', async () => {
   return {
     ...actual,
     getNMRiumDataObj: vi.fn(() => ({
-      spectra: [{ data: 'testData', meta: 'testMeta' }]
+      state: { data: { spectra: [{ data: 'testData', meta: 'testMeta' }] } }
     }))
   }
 })

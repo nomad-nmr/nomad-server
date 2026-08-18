@@ -305,11 +305,11 @@ export const getExpsFromDatasets = async (req, res) => {
             : await ManualExperiment.findById(expId)
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
-        const rawNMRiumDataObj = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
 
         //adding extracted data into NMRIum object
-        nmriumSpectrumObj.data = rawNMRiumDataObj.spectra[0].data
-        nmriumSpectrumObj.meta = rawNMRiumDataObj.spectra[0].meta
+        nmriumSpectrumObj.data = state.data.spectra[0].data
+        nmriumSpectrumObj.meta = state.data.spectra[0].meta
 
         newSpectraArray.push(nmriumSpectrumObj)
       })
