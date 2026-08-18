@@ -17,11 +17,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@zakodium/nmrium-core-plugins": "^0.6.32",
+    "@zakodium/nmrium-core-plugins": "^0.7.71",
     "bcrypt-salt": "^2.0.0",
     "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
     "express-validator": "^7.0.1",
+    "file-collection": "^6.6.1",
     "filelist-utils": "^1.9.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.1",

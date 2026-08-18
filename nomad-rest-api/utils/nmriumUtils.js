@@ -1,6 +1,6 @@
-// import fs from 'fs/promises'
+import { readFile } from 'node:fs/promises'
 import init from '@zakodium/nmrium-core-plugins'
-import { fileCollectionFromPath } from 'filelist-utils'
+import { FileCollection } from 'file-collection'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
@@ -9,29 +9,35 @@ import ManualExperiment from '../models/manualExperiment.js'
 export const getNMRiumDataObj = async (dataPath, title, fid) => {
   try {
     const core = init()
-    // const zip = await fs.readFile(dataPath + '.zip')
-    const fileCollection = await fileCollectionFromPath(dataPath + '.zip')
-    const nmriumObj = await core.read(fileCollection)
+    const zipBuffer = await readFile(`${dataPath}.zip`)
+
+    const fileCollection = await FileCollection.fromZip(zipBuffer)
+
+    const nmriumObj = await core.read(fileCollection, {})
+
+    if (!nmriumObj) {
+      throw new Error('Error: Failed to convert brukerZipFile into NMRium object')
+    }
 
     //If nmr-load-save is updated you can check version of nmrium object here
 
-    // console.log(nmriumObj)
+    // console.log('NMRium state', nmriumObj.state.data)
 
     //then update nmriumDataVersion export from this file and also frontend nmriumUtils file
 
-    const newSpectraArr = nmriumObj.nmriumState.data.spectra
+    const newSpectraArr = nmriumObj.state.data.spectra
       .filter(i => (fid ? !i.info.isFt : i.info.isFt))
       .map(i => {
         delete i.originalData
         const expIdArr = i.info.name.split('/')
-        i.info.expId = expIdArr[1] + '-' + expIdArr[2]
-        i.info.name = title.split('||')[0] + ' - ' + expIdArr[2]
+        i.originalInfo.expId = expIdArr[0] + '-' + expIdArr[1]
+        i.originalInfo.name = title.split('||')[0] + ' - ' + expIdArr[1]
         return i
       })
 
-    nmriumObj.nmriumState.data.spectra = [...newSpectraArr]
+    nmriumObj.state.data.spectra = [...newSpectraArr]
 
-    return Promise.resolve(nmriumObj.nmriumState.data)
+    return Promise.resolve(nmriumObj)
   } catch (error) {
     Promise.reject(error)
   }
@@ -63,4 +69,4 @@ export const validateNMRiumData = input => {
   )
 }
 
-export const nmriumDataVersion = 13
+export const nmriumDataVersion = 22
