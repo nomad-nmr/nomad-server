@@ -25,6 +25,8 @@ import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
 import TimedExperimentsModal from '../../Modals/TimedExperimentsModal/TimedExperimentsModal'
 import nightIcon from '../../../assets/night-mode.svg'
 
+import axios from '../../../axios-instance'
+
 import classes from './BookExperimentsForm.module.css'
 
 const { Option } = Select
@@ -471,6 +473,69 @@ const BookExperimentsForm = props => {
         return Modal.confirm(nightQueueWarning)
       }
     }
+
+    //Getting instrument ids for samples that have timed experiments defined
+    //and fetching the longest experimental time in the queue for each of those instruments
+    const timedInstrIds = Array.from(
+      new Set(
+        Object.keys(values)
+          .filter(key => {
+            const loops = values[key]?.repeatLoops
+            return (
+              Array.isArray(loops) &&
+              loops.some(loop => Number(loop?.count) > 0 && loop?.lag !== '00:00')
+            )
+          })
+          .map(key => key.split('-')[0])
+      )
+    )
+
+    if (timedInstrIds.length > 0) {
+      let longestExpTimeData
+      try {
+        const { data } = await axios.get('admin/instruments/longest-exp-time', {
+          params: { instrumentIds: timedInstrIds.join(',') },
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        longestExpTimeData = data
+      } catch (error) {
+        console.log(error)
+        return message.error('Failed to fetch the longest experimental time')
+      }
+
+      //Checking whether lag of any repeat loop is shorter than the longest submitted experiment
+      //on the instrument. Such a loop is likely to get delayed by the experiment running in the queue.
+      const shortLagFound = Object.keys(values).some(key => {
+        const loops = values[key]?.repeatLoops
+        if (!Array.isArray(loops)) return false
+
+        const found = longestExpTimeData.find(entry => entry.instrumentId === key.split('-')[0])
+        if (!found) return false
+
+        const longestExpTimeMins = moment.duration(found.longestExpTime, 'HH:mm').as('minutes')
+
+        return loops.some(
+          loop =>
+            Number(loop?.count) > 0 &&
+            loop?.lag !== '00:00' &&
+            moment.duration(loop.lag, 'HH:mm').as('minutes') < longestExpTimeMins
+        )
+      })
+
+      if (shortLagFound) {
+        return Modal.warning({
+          title: 'Repeat lag shorter than experiment in the queue',
+          content: `The lag of at least one repeat loop is shorter than the longest experiment submitted on the instrument. 
+          The timing of the repeated experiments might not be accurate.`,
+          okCancel: true,
+          onOk: () => {
+            props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
+            navigate('/dashboard')
+          }
+        })
+      }
+    }
+
     props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
     navigate('/dashboard')
   }
