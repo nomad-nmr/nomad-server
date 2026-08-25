@@ -146,15 +146,15 @@ export const getNMRium = async (req, res) => {
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
-        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title)
 
         //This if statement excludes empty experiments that otherwise cause failure
-        if (nmriumDataObj.spectra.length > 0) {
-          nmriumDataObj.spectra[0].id = experiment._id
-          nmriumDataObj.spectra[0].info.title = experiment.title
-          nmriumDataObj.spectra[0].dataType = dataType
+        if (state.data.spectra.length > 0) {
+          state.data.spectra[0].id = experiment._id
+          state.data.spectra[0].info.title = experiment.title
+          state.data.spectra[0].dataType = dataType
 
-          responseData.data.spectra = [...responseData.data.spectra, ...nmriumDataObj.spectra]
+          responseData.data.spectra = [...responseData.data.spectra, ...state.data.spectra]
         }
       })
     )
@@ -260,16 +260,16 @@ export const getFids = async (req, res) => {
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
 
-        const nmriumDataObj = await getNMRiumDataObj(filePath, experiment.title, true)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title, true)
 
         //This if statement excludes empty experiments that otherwise cause failure
-        if (nmriumDataObj.spectra.length > 0) {
-          nmriumDataObj.spectra[0].id = experiment._id + '/fid/' + uuid().split('-')[0]
-          nmriumDataObj.spectra[0].info.title = experiment.title + ' [FID]'
-          nmriumDataObj.spectra[0].dataType = dataType
-          nmriumDataObj.spectra[0].info.name += '/FID'
+        if (state.data.spectra.length > 0) {
+          state.data.spectra[0].id = experiment._id + '/fid/' + uuid().split('-')[0]
+          state.data.spectra[0].info.title = experiment.title + ' [FID]'
+          state.data.spectra[0].dataType = dataType
+          state.data.spectra[0].info.name += '/FID'
 
-          responseData = [...responseData, nmriumDataObj.spectra[0]]
+          responseData = [...responseData, state.data.spectra[0]]
         }
       })
     )
@@ -305,11 +305,11 @@ export const getExpsFromDatasets = async (req, res) => {
             : await ManualExperiment.findById(expId)
 
         const filePath = path.join(datastorePath, experiment.dataPath, experiment.expId)
-        const rawNMRiumDataObj = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
+        const { state } = await getNMRiumDataObj(filePath, experiment.title, entry.isFid)
 
         //adding extracted data into NMRIum object
-        nmriumSpectrumObj.data = rawNMRiumDataObj.spectra[0].data
-        nmriumSpectrumObj.meta = rawNMRiumDataObj.spectra[0].meta
+        nmriumSpectrumObj.data = state.data.spectra[0].data
+        nmriumSpectrumObj.meta = state.data.spectra[0].meta
 
         newSpectraArray.push(nmriumSpectrumObj)
       })

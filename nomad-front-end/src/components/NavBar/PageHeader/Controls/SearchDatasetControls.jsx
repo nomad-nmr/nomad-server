@@ -17,8 +17,8 @@ const SearchDatasetControls = props => {
           optionType='button'
           buttonStyle='solid'
         >
-          <Radio value='table'>Table</Radio>
           <Radio value='cards'>Cards</Radio>
+          <Radio value='table'>Table</Radio>
         </Radio.Group>
       </div>
       <Space>
