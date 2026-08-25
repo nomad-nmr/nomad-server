@@ -526,7 +526,7 @@ const BookExperimentsForm = props => {
         return Modal.warning({
           title: 'Repeat lag shorter than experiment in the queue',
           content: `The lag of at least one repeat loop is shorter than the longest experiment submitted on the instrument. 
-          The timing of the repeated experiments might not be accurate.`,
+          The timing of the repeated experiments might not be accurate. Click OK to proceed with the submission or Cancel to adjust the repeat lag.`,
           okCancel: true,
           onOk: () => {
             props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
