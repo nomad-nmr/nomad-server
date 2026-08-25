@@ -63,7 +63,7 @@ export const postSubmission = async (req, res) => {
       const isTimedExperiment = hasTimedExperiments({ initialDelay, repeatLoops })
 
       if (isTimedExperiment) {
-        await updateNightAllowanceForTimedExperiment({
+        await updateAllowance({
           instrId,
           initialDelay,
           repeatLoops,
@@ -608,9 +608,9 @@ const getMinimumTimedLagSeconds = repeatLoops => {
   return Math.min(...positiveLagSeconds)
 }
 
-//he;per function to calculate the maximum duration of timed experiments that occur during the night period
+//helper function to calculate the maximum duration of timed experiments that occur during the night period
 //reset the night allowance to the original value after the timed experiment duration has passed
-const updateNightAllowanceForTimedExperiment = async ({
+const updateAllowance = async ({
   instrId,
   initialDelay,
   repeatLoops,
@@ -635,6 +635,11 @@ const updateNightAllowanceForTimedExperiment = async ({
 
   instrument.nightAllowance = updatedNightAllowance
 
+  const originalDayAllowance = instrument.dayAllowance
+  const updatedDayAllowance = Math.min(originalDayAllowance, minimumLagMinutes)
+
+  instrument.dayAllowance = updatedDayAllowance
+
   await instrument.save()
 
   const timedExperimentTotalSeconds = getTimedEstimateSeconds({
@@ -657,11 +662,13 @@ const updateNightAllowanceForTimedExperiment = async ({
       }
 
       instrumentToReset.nightAllowance = originalNightAllowance
+      instrumentToReset.dayAllowance = originalDayAllowance
 
       await instrumentToReset.save()
 
       console.log(`Reset night allowance for ${instrumentToReset.name}:`, {
-        restoredNightAllowance: originalNightAllowance
+        restoredNightAllowance: originalNightAllowance,
+        restoredDayAllowance: originalDayAllowance
       })
     } catch (error) {
       console.log('Error resetting timed experiment night allowance:', error)
