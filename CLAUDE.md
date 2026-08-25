@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+We are building the app described in @SPEC.MD. Read that file for general architectural tasks or to double-check the exact database structure, tech stack or application architecture.
+
+Keep your replies extremely concise and focus on conveying the key information. No unnecessary fluff, no long code snippets.
+
 ## Project overview
 
 NOMAD is a system for managing NMR spectrometer submissions, data acquisition tracking, and dataset storage/retrieval, used in academic NMR facilities. This repository (`nomad-server`) contains two independent NPM projects, each with its own `package.json`, developed and run together via Docker Compose:
