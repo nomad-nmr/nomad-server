@@ -130,7 +130,7 @@ const DrawerTable = props => {
     key: 'night',
     align: 'center',
     width: 80,
-    render: record => <NightDay night={record.night} startTime={record.startTime} />
+    render: record => <NightDay night={record.night} endTime={record.endTime} />
   })
 
   columns.push({

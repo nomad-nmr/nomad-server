@@ -1,4 +1,5 @@
 import React from 'react'
+import { Popover } from 'antd'
 import { ClockCircleOutlined } from '@ant-design/icons'
 
 import nightIcon from '../../assets/night-mode.svg'
@@ -7,10 +8,12 @@ import dayIcon from '../../assets/sunny-day.svg'
 const NightDay = props => {
   if (import.meta.env.VITE_SUBMIT_ON === 'false') {
     return null
-  } else if (props.startTime) {
+  } else if (props.endTime) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <ClockCircleOutlined style={{ fontSize: '18px' }} />
+        <Popover content={`Timed experiments end at ${props.endTime}`}>
+          <ClockCircleOutlined style={{ fontSize: '18px' }} />
+        </Popover>
       </div>
     )
   } else if (props.night === true) {

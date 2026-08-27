@@ -174,25 +174,13 @@ const StatusTable = props => {
       title: 'D/N/T',
       key: 'night',
       align: 'center',
-      render: record => <NightDay night={record.night} startTime={record.startTime} />
+      render: record => <NightDay night={record.night} endTime={record.endTime} />
     },
     {
       title: 'P',
       dataIndex: 'priority',
       align: 'center',
-      render: (text, record) => {
-        const hasTimedExperiment = !!record.startTime
-
-        if (hasTimedExperiment) {
-          return <ClockCircleOutlined style={{ color: '#1890ff' }} />
-        }
-
-        if (text) {
-          return <ExclamationCircleOutlined style={{ color: '#389e0d' }} />
-        }
-
-        return null
-      }
+      render: text => text && <ExclamationCircleOutlined style={{ color: '#389e0d' }} />
     },
     {
       title: 'Status',
