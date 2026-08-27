@@ -58,8 +58,7 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { solvent, title, priority, firstExperimentStartsAt, repeatLoops } =
-        formData[sampleKey]
+      const { solvent, title, priority, firstExperimentStartsAt, repeatLoops } = formData[sampleKey]
       //night flag is not registered in the booking form for users without priority access
       //coercing to boolean prevents storing undefined and sending it to the spectrometer client
       const night = !!formData[sampleKey].night
@@ -436,9 +435,25 @@ export async function postResubmit(req, res) {
 
     const { status } = await Instrument.findById(req.body.instrId, 'status')
 
+    let firstExperimentStartsAt = null
+
     const experimentData = status.statusTable
       .filter(entry => checkedHolders.find(holder => holder === entry.holder))
       .map(entry => ({ ...entry, title: entry.title.split('||')[0] }))
+      //Filtering out experiments that have different start times than the first experiment in the list
+      //  to remove experiments created by timed experiments routine
+      .filter((entry, index) => {
+        if (!entry.startTime) {
+          return true
+        } else if (index === 0) {
+          firstExperimentStartsAt = entry.startTime
+          return true
+        } else if (entry.startTime.toString() === firstExperimentStartsAt.toString()) {
+          return true
+        } else {
+          return false
+        }
+      })
 
     if (experimentData.length === 0) {
       return res.status(422).send({ errors: [{ msg: 'Experiments not found in status table' }] })

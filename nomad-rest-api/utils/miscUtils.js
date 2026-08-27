@@ -13,4 +13,4 @@ export const sortByName = arrayOfObjects =>
 
 //helper to estimate clock time at which a timed experiment finishes
 export const getEndTime = (startTime, duration) =>
-  startTime ? moment(startTime).add(moment.duration(duration)).format('HH:mm') : undefined
+  startTime ? moment(startTime).add(moment.duration(duration)).format('ddd HH:mm') : undefined
