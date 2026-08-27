@@ -171,11 +171,10 @@ const StatusTable = props => {
       align: 'center'
     },
     {
-      title: 'D/N',
-      dataIndex: 'night',
+      title: 'D/N/T',
       key: 'night',
       align: 'center',
-      render: text => <NightDay night={text} />
+      render: record => <NightDay night={record.night} startTime={record.startTime} />
     },
     {
       title: 'P',

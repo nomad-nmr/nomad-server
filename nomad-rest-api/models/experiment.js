@@ -45,7 +45,7 @@ const experimentSchema = new Schema(
     parameters: String,
     solvent: String,
     title: { type: String, required: true },
-    night: Boolean,
+    night: { type: Boolean, default: false },
     priority: Boolean,
     submittedAt: { type: Date, default: null },
     startTime: { type: Date, default: null },

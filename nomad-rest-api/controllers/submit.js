@@ -58,8 +58,11 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority, firstExperimentStartsAt, repeatLoops } =
+      const { solvent, title, priority, firstExperimentStartsAt, repeatLoops } =
         formData[sampleKey]
+      //night flag is not registered in the booking form for users without priority access
+      //coercing to boolean prevents storing undefined and sending it to the spectrometer client
+      const night = !!formData[sampleKey].night
 
       const isTimedExperiment = hasTimedExperiments({ firstExperimentStartsAt, repeatLoops })
 

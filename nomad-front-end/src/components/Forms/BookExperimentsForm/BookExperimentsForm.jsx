@@ -423,6 +423,11 @@ const BookExperimentsForm = props => {
       //!!!Logic for night/day traffic control!!!
       //Checking individual experiments. Those that fit night allowance get night tag.
       //If there is one that does not fit then submission does not proceed.
+      //The night checkbox is rendered for priority users only, so the flag has to be
+      //initialised here to avoid submitting undefined
+      for (let sampleKey in values) {
+        values[sampleKey].night = false
+      }
       let nightExpSubmit = false
       for (let sampleKey in totalExptState) {
         const instrId = sampleKey.split('-')[0]

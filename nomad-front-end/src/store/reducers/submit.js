@@ -96,7 +96,7 @@ const reducer = (state = initialState, { type, payload }) => {
         formValues[entry.key] = {
           title: exps[0].title,
           solvent: exps[0].solvent,
-          night: exps[0].night,
+          night: !!exps[0].night,
           priority: exps[0].priority,
           exps: Object.fromEntries(expsEntries)
         }

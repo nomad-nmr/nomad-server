@@ -73,6 +73,7 @@ export const getStatusTable = async (req, res) => {
         newRow.status = row.status
         newRow.submittedAt = row.submittedAt
         newRow.exps = []
+        newRow.startTime = row.startTime
       } else {
         newRow.time = moment
           .duration(newRow.time)
@@ -119,8 +120,8 @@ export const getDrawerTable = async (req, res) => {
       req.params.id === 'pending'
         ? 'available'
         : req.params.id === 'errors'
-        ? 'error'
-        : req.params.id
+          ? 'error'
+          : req.params.id
 
     data.forEach(i => {
       let filteredArray = []
