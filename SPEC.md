@@ -1051,17 +1051,21 @@ refreshed statuses are returned.
 
 ### 11.8 Timed experiments _(feature branch `timed-experiments`, not yet merged to `main`)_
 
-The submission form accepts an `initialDelay` (`HH:mm`) and `repeatLoops`
+The submission form accepts a `firstExperimentStartsAt` (`HH:mm`) and `repeatLoops`
 (`[{ count, lag }]`). When either is set:
 
+- `firstExperimentStartsAt` is a **clock time**, not a duration: the backend resolves it
+  against the submission timestamp and rolls it to the next day when that time has
+  already passed today. An empty/absent value (rather than `'00:00'`, which is a valid
+  midnight) means "start immediately"; a malformed value falls back to the submission
+  time. `repeatLoops[].lag` remains a duration and still uses `'00:00'` as "unset".
 - Each experiment set is expanded into the original set plus `count` repeats; repeat _n_
-  starts at `submittedAt + initialDelay + n × lag` and its experiment numbers are offset
-  by `n × 10`.
+  starts at `firstStart + n × lag` and its experiment numbers are offset by `n × 10`.
 - `startTime` is stored on each `Experiment` and sent to the client as a Unix timestamp.
 - The instrument's `nightAllowance` is temporarily reduced to
   `min(nightAllowance, smallest positive lag in minutes)` and restored by a `setTimeout`
   after the estimated total duration
-  (`oneSetSeconds + initialDelay + Σ(lag × count) + oneSetSeconds × Σcount`).
+  (`oneSetSeconds + (firstStart − submittedAt) + Σ(lag × count) + oneSetSeconds × Σcount`).
 - Submission timestamps use `moment.tz(TIMEZONE || 'Europe/London')`.
 
 ---

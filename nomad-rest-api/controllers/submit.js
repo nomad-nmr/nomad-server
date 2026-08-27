@@ -58,22 +58,24 @@ export const postSubmission = async (req, res) => {
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority, initialDelay, repeatLoops } = formData[sampleKey]
+      const { night, solvent, title, priority, firstExperimentStartsAt, repeatLoops } =
+        formData[sampleKey]
 
-      const isTimedExperiment = hasTimedExperiments({ initialDelay, repeatLoops })
+      const isTimedExperiment = hasTimedExperiments({ firstExperimentStartsAt, repeatLoops })
 
       if (isTimedExperiment) {
         await updateAllowance({
           instrId,
-          initialDelay,
+          submittedTime,
+          firstExperimentStartsAt,
           repeatLoops,
           oneSetSeconds
         })
       }
 
       // check for timed experiments and add start times if necessary
-      const timedExperiments = hasTimedExperiments({ initialDelay, repeatLoops })
-        ? addTimedStartTimes(experiments, submittedTime, initialDelay, repeatLoops)
+      const timedExperiments = isTimedExperiment
+        ? addTimedStartTimes(experiments, submittedTime, firstExperimentStartsAt, repeatLoops)
         : experiments
 
       const clientExperiments = timedExperiments.map(exp => ({
@@ -533,20 +535,24 @@ const getHoldersToDelete = (statusTable, autoReset) => {
 }
 
 // check if there are any timed experiments in the submission data
-const hasTimedExperiments = ({ initialDelay, repeatLoops }) => {
-  const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
+const hasTimedExperiments = ({ firstExperimentStartsAt, repeatLoops }) => {
+  const hasStartTime = !!firstExperimentStartsAt
 
   const hasRepeatLoops =
     Array.isArray(repeatLoops) &&
     repeatLoops.some(loop => Number(loop.count) > 0 || (loop.lag && loop.lag !== '00:00'))
 
-  return hasInitialDelay || hasRepeatLoops
+  return hasStartTime || hasRepeatLoops
 }
 
 // add start times to timed experiments based on the submitted timestamp
-const addTimedStartTimes = (experiments, submittedTime, initialDelay, repeatLoops = []) => {
-  const initialOffset = parseDelayToDuration(initialDelay)
-  const baseStartTime = submittedTime.clone().add(initialOffset)
+const addTimedStartTimes = (
+  experiments,
+  submittedTime,
+  firstExperimentStartsAt,
+  repeatLoops = []
+) => {
+  const baseStartTime = resolveFirstStartTime(submittedTime, firstExperimentStartsAt)
 
   const expandedExperiments = []
 
@@ -591,6 +597,23 @@ const parseDelayToDuration = value => {
   return moment.duration({ hours, minutes })
 }
 
+// resolves an 'HH:mm' clock time into the next moment it occurs at or after the submitted time.
+// falls back to the submitted time if the value is missing or malformed.
+const resolveFirstStartTime = (submittedTime, firstExperimentStartsAt) => {
+  if (!firstExperimentStartsAt || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(firstExperimentStartsAt)) {
+    return submittedTime.clone()
+  }
+
+  const [hours, minutes] = firstExperimentStartsAt.split(':').map(Number)
+  const startTime = submittedTime.clone().set({ hours, minutes, seconds: 0, milliseconds: 0 })
+
+  if (!startTime.isAfter(submittedTime)) {
+    startTime.add(1, 'day')
+  }
+
+  return startTime
+}
+
 // helper function to calculate the maximum duration of timed experiments that occur during the night period
 const getMinimumTimedLagSeconds = repeatLoops => {
   if (!Array.isArray(repeatLoops)) {
@@ -612,7 +635,8 @@ const getMinimumTimedLagSeconds = repeatLoops => {
 //reset the night allowance to the original value after the timed experiment duration has passed
 const updateAllowance = async ({
   instrId,
-  initialDelay,
+  submittedTime,
+  firstExperimentStartsAt,
   repeatLoops,
   oneSetSeconds
 }) => {
@@ -644,7 +668,8 @@ const updateAllowance = async ({
 
   const timedExperimentTotalSeconds = getTimedEstimateSeconds({
     oneSetSeconds,
-    initialDelay,
+    submittedTime,
+    firstExperimentStartsAt,
     repeatLoops
   })
 
@@ -691,11 +716,19 @@ const getRepeatLagSeconds = repeatLoops =>
       )
     : 0
 
-const getTimedEstimateSeconds = ({ oneSetSeconds = 0, initialDelay, repeatLoops }) => {
-  const initialDelaySeconds = parseDelayToDuration(initialDelay).asSeconds()
+const getTimedEstimateSeconds = ({
+  oneSetSeconds = 0,
+  submittedTime,
+  firstExperimentStartsAt,
+  repeatLoops
+}) => {
+  const startOffsetSeconds = Math.max(
+    resolveFirstStartTime(submittedTime, firstExperimentStartsAt).diff(submittedTime, 'seconds'),
+    0
+  )
   const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
   const repeatCount = getRepeatCount(repeatLoops)
   const repeatedRunSeconds = oneSetSeconds * repeatCount
 
-  return oneSetSeconds + initialDelaySeconds + repeatLagSeconds + repeatedRunSeconds
+  return oneSetSeconds + startOffsetSeconds + repeatLagSeconds + repeatedRunSeconds
 }

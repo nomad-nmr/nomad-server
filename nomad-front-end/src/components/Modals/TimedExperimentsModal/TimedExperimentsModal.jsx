@@ -1,22 +1,23 @@
 import React, { useEffect } from 'react'
-import { Modal, Form, Input, InputNumber, Row, Col, Button, Space } from 'antd'
+import { Modal, Form, Input, InputNumber, TimePicker, Row, Col, Button, Space } from 'antd'
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons'
 import moment from 'moment'
+import dayjs from 'dayjs'
 
 const TimedExperimentsModal = props => {
   const [form] = Form.useForm()
   const {
     sampleKey,
-    initialDelay: inputInitialDelay,
+    firstExperimentStartsAt: inputFirstStart,
     repeatLoops: inputRepeatLoops,
     baseTotalSeconds = 0,
     oneSetSeconds = 0
   } = props.inputData
 
-  const watchedInitialDelay = Form.useWatch([sampleKey, 'initialDelay'], form)
+  const watchedFirstStart = Form.useWatch([sampleKey, 'firstExperimentStartsAt'], form)
   const watchedRepeatLoops = Form.useWatch([sampleKey, 'repeatLoops'], form)
 
-  const currentInitialDelay = watchedInitialDelay ?? inputInitialDelay ?? '00:00'
+  const currentFirstStart = watchedFirstStart ?? toTimePickerValue(inputFirstStart)
   const currentRepeatLoops =
     watchedRepeatLoops?.length > 0
       ? watchedRepeatLoops
@@ -27,7 +28,7 @@ const TimedExperimentsModal = props => {
   const timedEstimateSeconds = getTimedEstimateSeconds({
     baseTotalSeconds,
     oneSetSeconds,
-    initialDelay: currentInitialDelay,
+    firstStart: currentFirstStart,
     repeatLoops: currentRepeatLoops
   })
 
@@ -41,13 +42,30 @@ const TimedExperimentsModal = props => {
     if (props.visible && sampleKey) {
       form.setFieldsValue({
         [sampleKey]: {
-          initialDelay: inputInitialDelay ?? '00:00',
+          firstExperimentStartsAt: toTimePickerValue(inputFirstStart),
           repeatLoops:
             inputRepeatLoops?.length > 0 ? inputRepeatLoops : [{ lag: '00:00', count: 0 }]
         }
       })
     }
-  }, [props.visible, sampleKey, inputInitialDelay, inputRepeatLoops, form])
+  }, [props.visible, sampleKey, inputFirstStart, inputRepeatLoops, form])
+
+  //TimePicker holds a dayjs object. It gets converted to an 'HH:mm' string here
+  //so that the parent form and the API payload only ever carry strings.
+  const onFinishHandler = values => {
+    const key = Object.keys(values)[0]
+    const { firstExperimentStartsAt } = values[key]
+
+    props.onOkHandler({
+      ...values,
+      [key]: {
+        ...values[key],
+        firstExperimentStartsAt: firstExperimentStartsAt
+          ? firstExperimentStartsAt.format('HH:mm')
+          : ''
+      }
+    })
+  }
 
   return (
     <Modal
@@ -57,27 +75,17 @@ const TimedExperimentsModal = props => {
       onCancel={props.closeModal}
     >
       {sampleKey && (
-        <Form form={form} size='small' onFinish={props.onOkHandler}>
+        <Form form={form} size='small' onFinish={onFinishHandler}>
           <Row gutter={16} align='middle'>
             <Col span={10}>
-              <strong>Initial Delay</strong>
+              <strong>First experiment starts at</strong>
             </Col>
             <Col span={10}>
               <Form.Item
-                name={[sampleKey, 'initialDelay']}
+                name={[sampleKey, 'firstExperimentStartsAt']}
                 style={{ marginBottom: 12 }}
-                rules={[
-                  {
-                    validator: (_, value) => {
-                      if (!value || /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
-                        return Promise.resolve()
-                      }
-                      return Promise.reject(new Error('Use HH:mm format'))
-                    }
-                  }
-                ]}
               >
-                <Input placeholder='HH:mm' style={{ width: 80 }} />
+                <TimePicker format='HH:mm' allowClear style={{ width: 100 }} />
               </Form.Item>
             </Col>
             <Col span={4} />
@@ -197,7 +205,7 @@ const TimedExperimentsModal = props => {
                   onClick={() => {
                     form.setFieldsValue({
                       [sampleKey]: {
-                        initialDelay: '00:00',
+                        firstExperimentStartsAt: null,
                         repeatLoops: [{ lag: '00:00', count: 0 }]
                       }
                     })
@@ -240,15 +248,42 @@ const getRepeatLagSeconds = repeatLoops =>
 const getTimedEstimateSeconds = ({
   baseTotalSeconds = 0,
   oneSetSeconds = 0,
-  initialDelay,
+  firstStart,
   repeatLoops
 }) => {
-  const initialDelaySeconds = parseHHMMToSeconds(initialDelay)
+  const startOffsetSeconds = getSecondsUntilFirstStart(firstStart)
   const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
   const repeatCount = getRepeatCount(repeatLoops)
   const repeatedRunSeconds = oneSetSeconds * repeatCount
 
-  return baseTotalSeconds + initialDelaySeconds + repeatLagSeconds + repeatedRunSeconds
+  return baseTotalSeconds + startOffsetSeconds + repeatLagSeconds + repeatedRunSeconds
+}
+
+//'HH:mm' string coming from the parent form gets converted to the dayjs object TimePicker needs.
+//Parsed by hand as the dayjs customParseFormat plugin is not loaded in this app.
+const toTimePickerValue = value => {
+  if (!value || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) return null
+  const [hour, minute] = value.split(':').map(Number)
+  return dayjs().set('hour', hour).set('minute', minute).set('second', 0).set('millisecond', 0)
+}
+
+//mirrors resolveFirstStartTime in the submit controller so that the estimated end time
+//matches the schedule the server will calculate
+const getSecondsUntilFirstStart = firstStart => {
+  if (!firstStart) return 0
+
+  const now = dayjs()
+  let startTime = now
+    .set('hour', firstStart.hour())
+    .set('minute', firstStart.minute())
+    .set('second', 0)
+    .set('millisecond', 0)
+
+  if (!startTime.isAfter(now)) {
+    startTime = startTime.add(1, 'day')
+  }
+
+  return startTime.diff(now, 'second')
 }
 
 const formatSecondsAsHHMM = seconds =>

@@ -316,7 +316,7 @@ const BookExperimentsForm = props => {
   const openTimingModal = key => {
     setTimingModalData({
       sampleKey: key,
-      initialDelay: form.getFieldValue([key, 'initialDelay']) ?? '00:00',
+      firstExperimentStartsAt: form.getFieldValue([key, 'firstExperimentStartsAt']) ?? '',
       repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }],
       baseTotalSeconds: totalExptState[key] || 0,
       oneSetSeconds: getExperimentSetSeconds(key, exptState)
@@ -335,20 +335,20 @@ const BookExperimentsForm = props => {
   }
 
   const getTimedConfigStatus = key => {
-    const initialDelay = form.getFieldValue([key, 'initialDelay'])
+    const firstExperimentStartsAt = form.getFieldValue([key, 'firstExperimentStartsAt'])
     const repeatLoops = form.getFieldValue([key, 'repeatLoops'])
 
     const loops = Array.isArray(repeatLoops) ? repeatLoops : []
 
-    const hasInitialDelay = !!initialDelay && initialDelay !== '00:00'
+    const hasFirstStart = !!firstExperimentStartsAt
     const hasRepeatLoops = loops.some(
       loop => Number(loop?.count) > 0 || (loop?.lag && loop.lag !== '00:00')
     )
 
-    const isEmpty = !hasInitialDelay && !hasRepeatLoops
+    const isEmpty = !hasFirstStart && !hasRepeatLoops
     if (isEmpty) return 'empty'
 
-    const validInitialDelay = !initialDelay || isValidTimeString(initialDelay)
+    const validFirstStart = !firstExperimentStartsAt || isValidTimeString(firstExperimentStartsAt)
 
     const validLoops = loops.every(loop => {
       const validLag = !loop?.lag || isValidTimeString(loop.lag)
@@ -356,16 +356,16 @@ const BookExperimentsForm = props => {
       return validLag && validCount
     })
 
-    return validInitialDelay && validLoops ? 'valid' : 'invalid'
+    return validFirstStart && validLoops ? 'valid' : 'invalid'
   }
 
   const timingModalOkHandler = values => {
     const key = Object.keys(values)[0]
-    const { initialDelay, repeatLoops } = values[key]
+    const { firstExperimentStartsAt, repeatLoops } = values[key]
 
     form.setFieldsValue({
       [key]: {
-        initialDelay,
+        firstExperimentStartsAt,
         repeatLoops,
         night: false,
         priority: false
@@ -705,7 +705,7 @@ const BookExperimentsForm = props => {
           </Col>
 
           {priorityAccess && checkBoxes}
-          <Form.Item name={[key, 'initialDelay']} initialValue='00:00' hidden>
+          <Form.Item name={[key, 'firstExperimentStartsAt']} initialValue='' hidden>
             <Input />
           </Form.Item>
 
