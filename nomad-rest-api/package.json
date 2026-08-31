@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.7.1",
+  "version": "3.8.0-beta.0",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",
@@ -29,6 +29,7 @@
     "jszip": "^3.7.1",
     "moment": "^2.29.1",
     "moment-duration-format": "^2.3.2",
+    "moment-timezone": "^0.6.2",
     "mongoose": "^9.2.1",
     "multer": "^2.2.0",
     "nodemailer": "^9.0.3",

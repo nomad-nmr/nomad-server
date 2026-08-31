@@ -1,4 +1,4 @@
-import moment from 'moment'
+import moment from 'moment-timezone'
 import bcrypt from 'bcryptjs'
 
 import { getIO } from '../socket.js'
@@ -26,7 +26,9 @@ export const postSubmission = async (req, res) => {
     const username = user.username
     const instrIds = await Instrument.find({}, '_id')
 
-    const { formData, timeStamp } = req.body
+    const { formData } = req.body
+    const submittedTime = moment().tz(process.env.TIMEZONE || 'Europe/London')
+
     const submitData = {}
     for (let sampleKey in formData) {
       const instrId = sampleKey.split('-')[0]
@@ -38,6 +40,7 @@ export const postSubmission = async (req, res) => {
       const holder = formData[sampleKey].holder
 
       const experiments = []
+      let oneSetSeconds = 0
       for (let expNo in formData[sampleKey].exps) {
         const paramSet = formData[sampleKey].exps[expNo].paramSet
         const paramSetObj = await ParameterSet.findOne({ name: paramSet })
@@ -47,11 +50,43 @@ export const postSubmission = async (req, res) => {
           expTitle: paramSetObj.description,
           params: formData[sampleKey].exps[expNo].params
         })
+
+        if (paramSetObj.defaultParams?.[4]?.value) {
+          oneSetSeconds += moment.duration(paramSetObj.defaultParams[4].value).asSeconds()
+        }
+
         paramSetObj.count++
         paramSetObj.save()
       }
-      const { night, solvent, title, priority } = formData[sampleKey]
-      const sampleId = timeStamp + '-' + instrIndex + '-' + holder + '-' + username
+      const { solvent, title, priority, firstExperimentStartsAt, repeatLoops } = formData[sampleKey]
+      //night flag is not registered in the booking form for users without priority access
+      //coercing to boolean prevents storing undefined and sending it to the spectrometer client
+      const night = !!formData[sampleKey].night
+
+      const isTimedExperiment = hasTimedExperiments({ firstExperimentStartsAt, repeatLoops })
+
+      if (isTimedExperiment) {
+        await updateAllowance({
+          instrId,
+          submittedTime,
+          firstExperimentStartsAt,
+          repeatLoops,
+          oneSetSeconds
+        })
+      }
+
+      // check for timed experiments and add start times if necessary
+      const timedExperiments = isTimedExperiment
+        ? addTimedStartTimes(experiments, submittedTime, firstExperimentStartsAt, repeatLoops)
+        : experiments
+
+      const clientExperiments = timedExperiments.map(exp => ({
+        ...exp,
+        ...(exp.startTime ? { startTime: moment(exp.startTime).unix() } : {})
+      }))
+
+      const sampleId =
+        submittedTime.format('YYMMDDHHmm') + '-' + instrIndex + '-' + holder + '-' + username
       const sampleData = {
         userId: user._id,
         group: groupName,
@@ -61,7 +96,7 @@ export const postSubmission = async (req, res) => {
         priority,
         night,
         title,
-        experiments
+        experiments: clientExperiments
       }
 
       if (submitData[instrId]) {
@@ -73,7 +108,7 @@ export const postSubmission = async (req, res) => {
       //Storing sample data into experiment history
       const instrument = await Instrument.findById(instrId, 'name')
       await Promise.all(
-        sampleData.experiments.map(async exp => {
+        timedExperiments.map(async exp => {
           const expHistObj = {
             expId: sampleId + '-' + exp.expNo,
             instrument: {
@@ -97,6 +132,7 @@ export const postSubmission = async (req, res) => {
             title,
             night,
             priority,
+            startTime: exp.startTime,
             status: 'Booked'
           }
           const experiment = new Experiment(expHistObj)
@@ -399,9 +435,25 @@ export async function postResubmit(req, res) {
 
     const { status } = await Instrument.findById(req.body.instrId, 'status')
 
+    let firstExperimentStartsAt = null
+
     const experimentData = status.statusTable
       .filter(entry => checkedHolders.find(holder => holder === entry.holder))
       .map(entry => ({ ...entry, title: entry.title.split('||')[0] }))
+      //Filtering out experiments that have different start times than the first experiment in the list
+      //  to remove experiments created by timed experiments routine
+      .filter((entry, index) => {
+        if (!entry.startTime) {
+          return true
+        } else if (index === 0) {
+          firstExperimentStartsAt = entry.startTime
+          return true
+        } else if (entry.startTime.toString() === firstExperimentStartsAt.toString()) {
+          return true
+        } else {
+          return false
+        }
+      })
 
     if (experimentData.length === 0) {
       return res.status(422).send({ errors: [{ msg: 'Experiments not found in status table' }] })
@@ -498,4 +550,203 @@ const getHoldersToDelete = (statusTable, autoReset) => {
   const holdersToDelete = filteredHolders.map(holder => holder.number)
 
   return holdersToDelete
+}
+
+// check if there are any timed experiments in the submission data
+const hasTimedExperiments = ({ firstExperimentStartsAt, repeatLoops }) => {
+  const hasStartTime = !!firstExperimentStartsAt
+
+  const hasRepeatLoops =
+    Array.isArray(repeatLoops) &&
+    repeatLoops.some(loop => Number(loop.count) > 0 || (loop.lag && loop.lag !== '00:00'))
+
+  return hasStartTime || hasRepeatLoops
+}
+
+// add start times to timed experiments based on the submitted timestamp
+const addTimedStartTimes = (
+  experiments,
+  submittedTime,
+  firstExperimentStartsAt,
+  repeatLoops = []
+) => {
+  const baseStartTime = resolveFirstStartTime(submittedTime, firstExperimentStartsAt)
+
+  const expandedExperiments = []
+
+  // Original experiment set
+  experiments.forEach(exp => {
+    expandedExperiments.push({
+      ...exp,
+      startTime: baseStartTime.toDate()
+    })
+  })
+
+  // Repeated experiment sets
+  let currentStartTime = baseStartTime.clone()
+  let repeatSetIndex = 0
+
+  repeatLoops.forEach(loop => {
+    const lagDuration = parseDelayToDuration(loop.lag)
+    const count = Number(loop.count) || 0
+
+    for (let i = 0; i < count; i++) {
+      repeatSetIndex++
+      currentStartTime = currentStartTime.clone().add(lagDuration)
+
+      experiments.forEach(exp => {
+        const baseExpNo = Number(exp.expNo)
+
+        expandedExperiments.push({
+          ...exp,
+          expNo: Number.isNaN(baseExpNo) ? exp.expNo : baseExpNo + repeatSetIndex * 10,
+          startTime: currentStartTime.toDate()
+        })
+      })
+    }
+  })
+
+  return expandedExperiments
+}
+
+const parseDelayToDuration = value => {
+  if (!value) return moment.duration(0)
+  const [hours = 0, minutes = 0] = value.split(':').map(Number)
+  return moment.duration({ hours, minutes })
+}
+
+// resolves an 'HH:mm' clock time into the next moment it occurs at or after the submitted time.
+// falls back to the submitted time if the value is missing or malformed.
+const resolveFirstStartTime = (submittedTime, firstExperimentStartsAt) => {
+  if (!firstExperimentStartsAt || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(firstExperimentStartsAt)) {
+    return submittedTime.clone()
+  }
+
+  const [hours, minutes] = firstExperimentStartsAt.split(':').map(Number)
+  const startTime = submittedTime.clone().set({ hours, minutes, seconds: 0, milliseconds: 0 })
+
+  if (!startTime.isAfter(submittedTime)) {
+    startTime.add(1, 'day')
+  }
+
+  return startTime
+}
+
+// helper function to calculate the maximum duration of timed experiments that occur during the night period
+const getMinimumTimedLagSeconds = repeatLoops => {
+  if (!Array.isArray(repeatLoops)) {
+    return null
+  }
+
+  const positiveLagSeconds = repeatLoops
+    .map(loop => parseDelayToDuration(loop?.lag).asSeconds())
+    .filter(seconds => seconds > 0)
+
+  if (positiveLagSeconds.length === 0) {
+    return null
+  }
+
+  return Math.min(...positiveLagSeconds)
+}
+
+//helper function to calculate the maximum duration of timed experiments that occur during the night period
+//reset the night allowance to the original value after the timed experiment duration has passed
+const updateAllowance = async ({
+  instrId,
+  submittedTime,
+  firstExperimentStartsAt,
+  repeatLoops,
+  oneSetSeconds
+}) => {
+  const minimumLagSeconds = getMinimumTimedLagSeconds(repeatLoops)
+
+  if (!minimumLagSeconds) {
+    return
+  }
+
+  const minimumLagMinutes = Math.floor(minimumLagSeconds / 60)
+
+  const instrument = await Instrument.findById(instrId)
+
+  if (!instrument) {
+    throw new Error(`Instrument not found: ${instrId}`)
+  }
+
+  const originalNightAllowance = instrument.nightAllowance
+  const updatedNightAllowance = Math.min(originalNightAllowance, minimumLagMinutes)
+
+  instrument.nightAllowance = updatedNightAllowance
+
+  const originalDayAllowance = instrument.dayAllowance
+  const updatedDayAllowance = Math.min(originalDayAllowance, minimumLagMinutes)
+
+  instrument.dayAllowance = updatedDayAllowance
+
+  await instrument.save()
+
+  const timedExperimentTotalSeconds = getTimedEstimateSeconds({
+    oneSetSeconds,
+    submittedTime,
+    firstExperimentStartsAt,
+    repeatLoops
+  })
+
+  if (!timedExperimentTotalSeconds || timedExperimentTotalSeconds <= 0) {
+    return
+  }
+
+  setTimeout(async () => {
+    try {
+      const instrumentToReset = await Instrument.findById(instrId)
+
+      if (!instrumentToReset) {
+        console.log(`Could not reset night allowance. Instrument not found: ${instrId}`)
+        return
+      }
+
+      instrumentToReset.nightAllowance = originalNightAllowance
+      instrumentToReset.dayAllowance = originalDayAllowance
+
+      await instrumentToReset.save()
+
+      console.log(`Reset night allowance for ${instrumentToReset.name}:`, {
+        restoredNightAllowance: originalNightAllowance,
+        restoredDayAllowance: originalDayAllowance
+      })
+    } catch (error) {
+      console.log('Error resetting timed experiment night allowance:', error)
+    }
+  }, timedExperimentTotalSeconds * 1000)
+}
+
+//helpers for total experiment time
+const getRepeatCount = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce((sum, loop) => sum + (Number(loop?.count) || 0), 0)
+    : 0
+
+const getRepeatLagSeconds = repeatLoops =>
+  Array.isArray(repeatLoops)
+    ? repeatLoops.reduce(
+        (sum, loop) =>
+          sum + parseDelayToDuration(loop?.lag).asSeconds() * (Number(loop?.count) || 0),
+        0
+      )
+    : 0
+
+const getTimedEstimateSeconds = ({
+  oneSetSeconds = 0,
+  submittedTime,
+  firstExperimentStartsAt,
+  repeatLoops
+}) => {
+  const startOffsetSeconds = Math.max(
+    resolveFirstStartTime(submittedTime, firstExperimentStartsAt).diff(submittedTime, 'seconds'),
+    0
+  )
+  const repeatLagSeconds = getRepeatLagSeconds(repeatLoops)
+  const repeatCount = getRepeatCount(repeatLoops)
+  const repeatedRunSeconds = oneSetSeconds * repeatCount
+
+  return oneSetSeconds + startOffsetSeconds + repeatLagSeconds + repeatedRunSeconds
 }

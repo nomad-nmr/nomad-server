@@ -9,7 +9,8 @@ import {
   updateInstruments,
   toggleAvailable,
   toggleActive,
-  getOverheadTime
+  getOverheadTime,
+  getLongestExpTime
 } from '../../controllers/admin/instruments.js'
 
 const router = Router()
@@ -68,5 +69,7 @@ router.patch('/toggle-available/:id', auth, authAdmin, toggleAvailable)
 router.patch('/toggle-active/:id', auth, authAdmin, toggleActive)
 
 router.get('/overhead/:instrId', auth, authAdmin, getOverheadTime)
+
+router.get('/longest-exp-time', auth, getLongestExpTime)
 
 export default router

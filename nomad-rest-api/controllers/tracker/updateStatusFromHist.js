@@ -120,8 +120,16 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               updateObj
             )
 
-            const { solvent, parameters, night, priority, submittedAt, updatedAt, batchSubmit } =
-              updatedExpHistEntry
+            const {
+              solvent,
+              parameters,
+              night,
+              priority,
+              submittedAt,
+              updatedAt,
+              batchSubmit,
+              startTime
+            } = updatedExpHistEntry
 
             return {
               ...entry,
@@ -131,7 +139,8 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
               priority,
               submittedAt,
               updatedAt,
-              batchSubmit
+              batchSubmit,
+              startTime
             }
           } else {
             console.log(

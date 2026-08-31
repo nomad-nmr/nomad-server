@@ -81,7 +81,6 @@ const StatusBanner = props => {
       <Button
         disabled={!accessLvl || checkedHolders.length === 0}
         onClick={() => {
-
           const usernamesSet = new Set()
           tabData.forEach(row => {
             if (checkedHolders.includes(row.holder)) {
@@ -110,7 +109,7 @@ const StatusBanner = props => {
   return (
     <Alert
       type={bannerType}
-      message={
+      title={
         <Row className={classes.Banner}>
           <Col span={5}>
             <Flex gap='middle' align='center'>

@@ -170,6 +170,8 @@ describe('POST /experiments', () => {
     expect(experiment.instrument.name).toBe(testInstrOne.name)
     expect(experiment.user.username).toBe(testUserOne.username)
     expect(experiment.status).toBe('Booked')
+    //night flag is omitted in the form data submitted by users without priority access
+    expect(experiment.night).toBe(false)
   })
 
   it('should emit booking command to clients and create new experiment in DB on behalf of testUserTwo', async () => {

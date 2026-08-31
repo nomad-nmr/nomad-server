@@ -137,3 +137,44 @@ export const getOverheadTime = async (req, res) => {
     res.status(500).send({ error: 'API error' })
   }
 }
+
+//Returns the longest experimental time among submitted experiments in status table for each instrument
+//Request query "instrumentIds" is a comma separated list of instrument ids
+export const getLongestExpTime = async (req, res) => {
+  const { instrumentIds } = req.query
+  try {
+    const idsArr = instrumentIds
+      ? instrumentIds
+          .split(',')
+          .map(id => id.trim())
+          .filter(id => id)
+      : []
+
+    if (idsArr.length === 0) {
+      return res.status(422).send({ error: 'Instrument ids not provided' })
+    }
+
+    const instrArr = await Instrument.find({ _id: { $in: idsArr } }, '_id status.statusTable')
+
+    const respData = instrArr.map(instr => {
+      const submittedExps = instr.status.statusTable.filter(entry => entry.status === 'Submitted')
+
+      const longestExpTimeMins = submittedExps.reduce((accumulator, entry) => {
+        const expTimeMins = Math.ceil(moment.duration(entry.time, 'HH:mm:ss').as('minutes'))
+        return expTimeMins > accumulator ? expTimeMins : accumulator
+      }, 0)
+
+      return {
+        instrumentId: instr._id.toString(),
+        longestExpTime: moment
+          .utc(moment.duration(longestExpTimeMins, 'minutes').as('milliseconds'))
+          .format('HH:mm')
+      }
+    })
+
+    res.send(respData)
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error: 'API error' })
+  }
+}

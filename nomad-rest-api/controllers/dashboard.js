@@ -2,7 +2,7 @@ import moment from 'moment'
 
 import Instrument from '../models/instrument.js'
 import Group from '../models/group.js'
-import { sortByName } from '../utils/miscUtils.js'
+import { sortByName, getEndTime } from '../utils/miscUtils.js'
 
 export const getStatusSummary = async (req, res) => {
   try {
@@ -89,6 +89,13 @@ export const getStatusTable = async (req, res) => {
       newRow.exps.push(newExp)
 
       if (!nextRow || nextRow.datasetName !== row.datasetName) {
+        //estimating clock time at which the last timed experiment of the dataset finishes
+        if (row.startTime) {
+          const endTime = getEndTime(row.startTime, row.time)
+          if (endTime) {
+            newRow.endTime = endTime
+          }
+        }
         tableData.push(newRow)
       }
     })
@@ -119,8 +126,8 @@ export const getDrawerTable = async (req, res) => {
       req.params.id === 'pending'
         ? 'available'
         : req.params.id === 'errors'
-        ? 'error'
-        : req.params.id
+          ? 'error'
+          : req.params.id
 
     data.forEach(i => {
       let filteredArray = []
@@ -154,11 +161,13 @@ export const getDrawerTable = async (req, res) => {
               expCount = 1
             }
             if (!nextRow || nextRow.datasetName !== row.datasetName) {
+              const endTime = getEndTime(row.startTime, row.time)
               newRow = {
                 ...row,
                 title: row.title.split('||')[0],
                 instrId: i._id,
-                expCount
+                expCount,
+                ...(endTime ? { endTime } : {})
               }
               delete newRow.expNo
               delete newRow.parameterSet
@@ -168,7 +177,10 @@ export const getDrawerTable = async (req, res) => {
           })
       } else {
         //adding overheadTime to calculate correctly remaining expt for "Running experiments" on front end.
-        respArrayChunk = filteredArray.map(row => ({ ...row, overheadTime: i.overheadTime }))
+        respArrayChunk = filteredArray.map(row => {
+          const endTime = getEndTime(row.startTime, row.time)
+          return { ...row, overheadTime: i.overheadTime, ...(endTime ? { endTime } : {}) }
+        })
       }
 
       respArray = respArray.concat(respArrayChunk.map(row => ({ ...row, instrument: i.name })))

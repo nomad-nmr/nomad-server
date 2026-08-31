@@ -16,12 +16,16 @@ import {
   Tooltip,
   Popconfirm
 } from 'antd'
+import { ClockCircleOutlined } from '@ant-design/icons'
 import moment from 'moment'
 
 import SolventSelect from './SolventSelect/SolventSelect'
 import TitleInput from './TitleInput/TitleInput'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
+import TimedExperimentsModal from '../../Modals/TimedExperimentsModal/TimedExperimentsModal'
 import nightIcon from '../../../assets/night-mode.svg'
+
+import axios from '../../../axios-instance'
 
 import classes from './BookExperimentsForm.module.css'
 
@@ -43,6 +47,11 @@ const BookExperimentsForm = props => {
   const [modalVisible, setModalVisible] = useState(false)
   //state used to generate form inputs in edit parameters modal
   const [modalInputData, setModalInputData] = useState({})
+
+  const [timingModalVisible, setTimingModalVisible] = useState(false)
+  const [timingModalData, setTimingModalData] = useState({})
+  const [resetTimingModal, setResetTimingModal] = useState(undefined)
+
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
   const [totalExptState, setTotalExptState] = useState({})
@@ -303,6 +312,69 @@ const BookExperimentsForm = props => {
     setModalVisible(false)
   }
 
+  //handler for opening and closing timing modal.
+  const openTimingModal = key => {
+    setTimingModalData({
+      sampleKey: key,
+      firstExperimentStartsAt: form.getFieldValue([key, 'firstExperimentStartsAt']) ?? '',
+      repeatLoops: form.getFieldValue([key, 'repeatLoops']) ?? [{ lag: '00:00', count: 0 }],
+      baseTotalSeconds: totalExptState[key] || 0,
+      oneSetSeconds: getExperimentSetSeconds(key, exptState)
+    })
+
+    setTimingModalVisible(true)
+  }
+
+  const closeTimingModal = () => {
+    setTimingModalVisible(false)
+  }
+
+  const isValidTimeString = value => {
+    if (!value) return false
+    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)
+  }
+
+  const getTimedConfigStatus = key => {
+    const firstExperimentStartsAt = form.getFieldValue([key, 'firstExperimentStartsAt'])
+    const repeatLoops = form.getFieldValue([key, 'repeatLoops'])
+
+    const loops = Array.isArray(repeatLoops) ? repeatLoops : []
+
+    const hasFirstStart = !!firstExperimentStartsAt
+    const hasRepeatLoops = loops.some(
+      loop => Number(loop?.count) > 0 || (loop?.lag && loop.lag !== '00:00')
+    )
+
+    const isEmpty = !hasFirstStart && !hasRepeatLoops
+    if (isEmpty) return 'empty'
+
+    const validFirstStart = !firstExperimentStartsAt || isValidTimeString(firstExperimentStartsAt)
+
+    const validLoops = loops.every(loop => {
+      const validLag = !loop?.lag || isValidTimeString(loop.lag)
+      const validCount = Number.isInteger(Number(loop?.count)) && Number(loop.count) >= 0
+      return validLag && validCount
+    })
+
+    return validFirstStart && validLoops ? 'valid' : 'invalid'
+  }
+
+  const timingModalOkHandler = values => {
+    const key = Object.keys(values)[0]
+    const { firstExperimentStartsAt, repeatLoops } = values[key]
+
+    form.setFieldsValue({
+      [key]: {
+        firstExperimentStartsAt,
+        repeatLoops,
+        night: false,
+        priority: false
+      }
+    })
+
+    setTimingModalVisible(false)
+  }
+
   const onFinishHandler = async values => {
     const expRejectError = {
       title: 'Maximum allowance exceeded',
@@ -342,11 +414,7 @@ const BookExperimentsForm = props => {
             return Modal.error(expRejectError)
           }
         }
-        props.bookExpsHandler(
-          token,
-          { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
-          props.submittingUserId
-        )
+        props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
         navigate('/dashboard')
       }
     }
@@ -355,6 +423,11 @@ const BookExperimentsForm = props => {
       //!!!Logic for night/day traffic control!!!
       //Checking individual experiments. Those that fit night allowance get night tag.
       //If there is one that does not fit then submission does not proceed.
+      //The night checkbox is rendered for priority users only, so the flag has to be
+      //initialised here to avoid submitting undefined
+      for (let sampleKey in values) {
+        values[sampleKey].night = false
+      }
       let nightExpSubmit = false
       for (let sampleKey in totalExptState) {
         const instrId = sampleKey.split('-')[0]
@@ -405,12 +478,70 @@ const BookExperimentsForm = props => {
         return Modal.confirm(nightQueueWarning)
       }
     }
-    props.bookExpsHandler(
-      token,
-      // timeStamp created at backend by moment.js does not take into account for DST and in summer is 1h behind the time
-      { formData: values, timeStamp: moment().format('YYMMDDHHmm') },
-      props.submittingUserId
+
+    //Getting instrument ids for samples that have timed experiments defined
+    //and fetching the longest experimental time in the queue for each of those instruments
+    const timedInstrIds = Array.from(
+      new Set(
+        Object.keys(values)
+          .filter(key => {
+            const loops = values[key]?.repeatLoops
+            return (
+              Array.isArray(loops) &&
+              loops.some(loop => Number(loop?.count) > 0 && loop?.lag !== '00:00')
+            )
+          })
+          .map(key => key.split('-')[0])
+      )
     )
+
+    if (timedInstrIds.length > 0) {
+      let longestExpTimeData
+      try {
+        const { data } = await axios.get('admin/instruments/longest-exp-time', {
+          params: { instrumentIds: timedInstrIds.join(',') },
+          headers: { Authorization: 'Bearer ' + token }
+        })
+        longestExpTimeData = data
+      } catch (error) {
+        console.log(error)
+        return message.error('Failed to fetch the longest experimental time')
+      }
+
+      //Checking whether lag of any repeat loop is shorter than the longest submitted experiment
+      //on the instrument. Such a loop is likely to get delayed by the experiment running in the queue.
+      const shortLagFound = Object.keys(values).some(key => {
+        const loops = values[key]?.repeatLoops
+        if (!Array.isArray(loops)) return false
+
+        const found = longestExpTimeData.find(entry => entry.instrumentId === key.split('-')[0])
+        if (!found) return false
+
+        const longestExpTimeMins = moment.duration(found.longestExpTime, 'HH:mm').as('minutes')
+
+        return loops.some(
+          loop =>
+            Number(loop?.count) > 0 &&
+            loop?.lag !== '00:00' &&
+            moment.duration(loop.lag, 'HH:mm').as('minutes') < longestExpTimeMins
+        )
+      })
+
+      if (shortLagFound) {
+        return Modal.warning({
+          title: 'Repeat lag shorter than experiment in the queue',
+          content: `The lag of at least one repeat loop is shorter than the longest experiment submitted on the instrument. 
+          The timing of the repeated experiments might not be accurate. Click OK to proceed with the submission or Cancel to adjust the repeat lag.`,
+          okCancel: true,
+          onOk: () => {
+            props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
+            navigate('/dashboard')
+          }
+        })
+      }
+    }
+
+    props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
     navigate('/dashboard')
   }
 
@@ -450,15 +581,34 @@ const BookExperimentsForm = props => {
         totalExptClass.push(classes.TotalExptWarning)
       }
     }
+    const timedStatus = getTimedConfigStatus(key)
 
     const checkBoxes = (
-      <Col span={1} className={classes.CheckBoxes}>
-        <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
-          <Checkbox />
-        </Form.Item>
-        <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
-          <Checkbox />
-        </Form.Item>
+      <Col span={2} className={classes.CheckBoxes}>
+        <Space size='large'>
+          <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
+            <Checkbox disabled={timedStatus === 'valid'} />
+          </Form.Item>
+
+          <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
+            <Checkbox disabled={timedStatus === 'valid'} />
+          </Form.Item>
+        </Space>
+
+        <Tooltip title='Timed Experiments'>
+          <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
+            <ClockCircleOutlined
+              style={{
+                color:
+                  timedStatus === 'valid'
+                    ? '#52c41a'
+                    : timedStatus === 'invalid'
+                      ? '#ff4d4f'
+                      : undefined
+              }}
+            />
+          </Button>
+        </Tooltip>
       </Col>
     )
 
@@ -509,7 +659,7 @@ const BookExperimentsForm = props => {
               </button>
             </Space>
           </Col>
-          <Col span={10}>
+          <Col span={9}>
             {expNoArr.map(expNo => (
               <Row key={expNo} gutter={16} align='top'>
                 <Col span={1}>
@@ -558,7 +708,20 @@ const BookExperimentsForm = props => {
               </Row>
             ))}
           </Col>
+
           {priorityAccess && checkBoxes}
+          <Form.Item name={[key, 'firstExperimentStartsAt']} initialValue='' hidden>
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            name={[key, 'repeatLoops']}
+            initialValue={[{ lag: '00:00', count: 0 }]}
+            noStyle
+          >
+            <Input style={{ display: 'none' }} />
+          </Form.Item>
+
           {!resubmit && (
             <Col span={1}>
               <button
@@ -595,13 +758,15 @@ const BookExperimentsForm = props => {
   })
 
   const checkBoxesHeader = (
-    <Col span={1} className={classes.CheckBoxes}>
-      <Tooltip title='Sample submitted into night queue'>
-        <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
-      </Tooltip>
-      <Tooltip className={classes.Priority} title='Sample submitted with priority'>
-        P
-      </Tooltip>
+    <Col span={1} className={classes.CheckBoxes} flex={18}>
+      <Space size='large'>
+        <Tooltip title='Sample submitted into night queue'>
+          <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
+        </Tooltip>
+        <Tooltip className={classes.Priority} title='Sample submitted with priority'>
+          P
+        </Tooltip>
+      </Space>
     </Col>
   )
 
@@ -615,14 +780,14 @@ const BookExperimentsForm = props => {
         <Col span={1}>
           <span style={{ marginLeft: 20 }}>ExpNo</span>
         </Col>
-        <Col span={4} offset={1}>
+        <Col span={3} offset={1}>
           Experiment [Parameter Set]
         </Col>
         <Col span={2} offset={1}>
-          Parameters
+          <span style={{ marginLeft: 30 }}>Parameters</span>
         </Col>
         <Col span={2}>
-          <span style={{ marginLeft: 15 }}>ExpT</span>
+          <span style={{ marginLeft: 30 }}>ExpT</span>
         </Col>
         {priorityAccess && checkBoxesHeader}
       </Row>
@@ -657,6 +822,14 @@ const BookExperimentsForm = props => {
             )}
           </Space>
 
+          <TimedExperimentsModal
+            visible={timingModalVisible}
+            closeModal={closeTimingModal}
+            onOkHandler={timingModalOkHandler}
+            inputData={timingModalData}
+            reset={resetTimingModal}
+          />
+
           <EditParamsModal
             visible={modalVisible}
             closeModal={closeModalHandler}
@@ -689,3 +862,10 @@ const getExptAccumulator = (formValues, totalExptState, nightOption) => {
 }
 
 export default BookExperimentsForm
+
+//Helper function that sums totalExpT stored in state for all experiments of a sample
+const getExperimentSetSeconds = (sampleKey, exptState) => {
+  return Object.entries(exptState)
+    .filter(([key]) => key.startsWith(`${sampleKey}#`))
+    .reduce((sum, [, expTime]) => sum + moment.duration(expTime).asSeconds(), 0)
+}
