@@ -88,7 +88,13 @@ const expandedRowRender = record => {
       key: 'expT',
       align: 'center'
     },
-
+    {
+      title: 'Start Time',
+      dataIndex: 'startTime',
+      key: 'startTime',
+      align: 'center',
+      render: text => (text ? moment(text).format('ddd HH:mm') : '-')
+    },
     {
       title: 'Status',
       dataIndex: 'status',
