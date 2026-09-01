@@ -118,6 +118,7 @@ export {
   setSelectedSlots,
   bookSamples,
   submitSamples,
+  resubmitSamples,
   cancelSamples,
   editSample,
   toggleSampleJetModal

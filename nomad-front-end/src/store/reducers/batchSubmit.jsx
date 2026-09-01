@@ -144,6 +144,9 @@ const reducer = (state = initialState, { type, payload }) => {
     case actionTypes.SUBMIT_SAMPLES_SUCCESS:
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
 
+    case actionTypes.RESUBMIT_SAMPLES_SUCCESS:
+      return { ...state, loading: false }
+
     case actionTypes.EDIT_SAMPLE_SUCCESS:
       const newRacksArray = [...state.racks]
       const index = newRacksArray.findIndex(rack => rack._id === payload._id)

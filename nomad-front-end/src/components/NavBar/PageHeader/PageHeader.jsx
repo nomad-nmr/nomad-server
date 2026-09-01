@@ -23,6 +23,7 @@ import {
   openAuthModal,
   toggleBookSamplesModal,
   submitSamples,
+  resubmitSamples,
   cancelSamples,
   toggleDownloadModal,
   toggleSearchForm,
@@ -237,6 +238,7 @@ const PageHeaderEl = props => {
           openAuthModal={props.openAuthModal}
           selectedSlots={props.slots}
           submitSamplesHandler={props.submitSamples}
+          resubmitSamplesHandler={props.resubmitSamples}
           cancelSamplesHandler={props.cancelSamples}
           bookSamplesHandler={props.bookSamples}
           toggleSampleJetModal={props.toggleSampleJetModal}
@@ -480,6 +482,7 @@ const mapDispatchToProps = dispatch => {
     openAuthModal: () => dispatch(openAuthModal()),
     toggleBookSamples: () => dispatch(toggleBookSamplesModal()),
     submitSamples: (data, token) => dispatch(submitSamples(data, token)),
+    resubmitSamples: (data, token) => dispatch(resubmitSamples(data, token)),
     cancelSamples: (data, token) => dispatch(cancelSamples(data, token)),
     toggleDownloadMdl: () => dispatch(toggleDownloadModal()),
     tglSearchForm: payload => dispatch(toggleSearchForm(payload)),

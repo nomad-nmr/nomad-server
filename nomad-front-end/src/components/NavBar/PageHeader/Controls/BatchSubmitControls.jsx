@@ -124,6 +124,13 @@ const BatchSubmitControls = props => {
     })
   }
 
+  const resubmitHandler = () => {
+    if (selectedSlots.length === 0) {
+      return message.warning('No slots have been selected!')
+    }
+    props.resubmitSamplesHandler({ rackId: props.activeRackId, slots: selectedSlots }, authToken)
+  }
+
   const cancelHandler = () => {
     if (selectedSlots.length === 0) {
       return message.warning('No slots have been selected!')
@@ -179,6 +186,11 @@ const BatchSubmitControls = props => {
           <Tooltip placement='bottom' title='Submit selected samples/slots'>
             <Button type='primary' className={classes.Button} onClick={() => submitHandler()}>
               Submit
+            </Button>
+          </Tooltip>
+          <Tooltip placement='bottom' title='Resubmit selected samples/slots'>
+            <Button className={classes.Button} onClick={() => resubmitHandler()}>
+              Resubmit
             </Button>
           </Tooltip>
           <Tooltip placement='bottom' title='Cancel booking for selected slots'>

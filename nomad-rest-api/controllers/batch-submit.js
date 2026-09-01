@@ -426,6 +426,18 @@ export const submitSamples = async (req, res) => {
   }
 }
 
+export const resubmitSamples = async (req, res) => {
+  const { rackId, slots } = req.body
+
+  try {
+    console.log({ rackId, slots })
+    res.status(200).send()
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error: 'API error' })
+  }
+}
+
 export const cancelBookedSamples = async (req, res) => {
   const { rackId, slots } = req.body
   const submitter = getSubmitter()
