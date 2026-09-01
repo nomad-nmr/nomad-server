@@ -79,8 +79,6 @@ const Dashboard = props => {
     props.resetChecked()
   }
 
-  console.log(props.statusTable)
-
   return (
     <Fragment>
       <Announcement announcement={props.announcement} />
