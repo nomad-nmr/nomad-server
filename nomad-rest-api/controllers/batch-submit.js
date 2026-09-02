@@ -428,10 +428,112 @@ export const submitSamples = async (req, res) => {
 
 export const resubmitSamples = async (req, res) => {
   const { rackId, slots } = req.body
+  const submitter = getSubmitter()
 
   try {
-    console.log({ rackId, slots })
-    res.status(200).send()
+    const rack = await Rack.findById(rackId)
+    if (!rack) {
+      return res.status(404).send('Rack not found!')
+    }
+
+    //grouping holders of the selected samples by instrument
+    const holdersObj = {}
+    const samplesToResubmit = []
+    rack.samples.forEach(sample => {
+      if (
+        slots.includes(sample.slot) &&
+        sample.instrument &&
+        sample.instrument.id &&
+        sample.holder
+      ) {
+        const instrId = sample.instrument.id.toString()
+        if (Object.keys(holdersObj).includes(instrId)) {
+          holdersObj[instrId].push(sample.holder)
+        } else {
+          holdersObj[instrId] = [sample.holder]
+        }
+        samplesToResubmit.push(sample)
+      }
+    })
+
+    if (Object.keys(holdersObj).length === 0) {
+      return res
+        .status(422)
+        .send({ errors: [{ msg: 'No booked holders found for the selected slots' }] })
+    }
+
+    //sending delete data to clients to free up the holders on the instruments
+    for (let instrId in holdersObj) {
+      const instrState = submitter.state.get(instrId)
+
+      if (!instrState || !instrState.socketId) {
+        console.log('Error: Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
+      }
+
+      getIO().to(instrState.socketId).emit('delete', JSON.stringify(holdersObj[instrId]))
+    }
+
+    //index of instrument in the instrument collection is part of the dataset name
+    const instrIds = await Instrument.find({}, '_id')
+
+    //creating new experiment entries in history to replace the deleted ones
+    //old entries are kept in history
+    const respArr = []
+    for (const sample of samplesToResubmit) {
+      const oldExps = await Experiment.find({ datasetName: sample.dataSetName }).sort({ expNo: 1 })
+      if (oldExps.length === 0) {
+        continue
+      }
+
+      const instrIndex = instrIds
+        .map(i => i._id.toString())
+        .findIndex(id => id === sample.instrument.id.toString())
+
+      const newDataSetName =
+        moment().format('YYMMDDHHmm') +
+        '-' +
+        instrIndex +
+        '-' +
+        sample.holder +
+        '-' +
+        sample.user.username
+
+      const newExps = []
+      for (const oldExp of oldExps) {
+        const { _id, createdAt, updatedAt, __v, ...expProps } = oldExp.toObject()
+        const newExp = new Experiment({
+          ...expProps,
+          expId: newDataSetName + '-' + oldExp.expNo,
+          datasetName: newDataSetName,
+          status: 'Submitted'
+        })
+        await newExp.save()
+        newExps.push(newExp)
+      }
+
+      //updating the rack sample with new dataset name, status
+      //and _ids of the newly created experiments
+      sample.dataSetName = newDataSetName
+      sample.status = 'Submitted'
+      sample.exps = sample.exps.map((exp, index) => ({
+        paramSet: exp.paramSet,
+        params: exp.params,
+        expt: exp.expt,
+        _id: newExps[index] ? newExps[index]._id : exp._id
+      }))
+
+      respArr.push({
+        holder: sample.holder,
+        instrumentName: sample.instrument.name,
+        dataSetName: newDataSetName,
+        status: sample.status
+      })
+    }
+
+    await rack.save()
+
+    res.status(200).json(respArr)
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })

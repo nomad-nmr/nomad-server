@@ -201,8 +201,9 @@ export const submitSamples = (data, token) => {
   }
 }
 
-export const resubmitSamplesSuccess = () => ({
-  type: actionTypes.RESUBMIT_SAMPLES_SUCCESS
+export const resubmitSamplesSuccess = payload => ({
+  type: actionTypes.RESUBMIT_SAMPLES_SUCCESS,
+  payload
 })
 
 export const resubmitSamples = (data, token) => {
@@ -212,8 +213,8 @@ export const resubmitSamples = (data, token) => {
       .post('/batch-submit/resubmit/', data, {
         headers: { Authorization: 'Bearer ' + token }
       })
-      .then(() => {
-        dispatch(resubmitSamplesSuccess())
+      .then(res => {
+        dispatch(resubmitSamplesSuccess({ rackId: data.rackId, samples: res.data }))
       })
       .catch(err => {
         dispatch(errorHandler(err))

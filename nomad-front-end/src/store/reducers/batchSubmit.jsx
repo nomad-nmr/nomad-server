@@ -145,7 +145,28 @@ const reducer = (state = initialState, { type, payload }) => {
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
 
     case actionTypes.RESUBMIT_SAMPLES_SUCCESS:
-      return { ...state, loading: false }
+      const racksAfterResubmit = state.racks.map(rack => {
+        if (rack._id !== payload.rackId) {
+          return rack
+        }
+        const updatedSamples = rack.samples.map(sample => {
+          const resubmittedSample = payload.samples.find(
+            i =>
+              sample.instrument &&
+              i.holder === sample.holder &&
+              i.instrumentName === sample.instrument.name
+          )
+          return resubmittedSample
+            ? {
+                ...sample,
+                dataSetName: resubmittedSample.dataSetName,
+                status: resubmittedSample.status
+              }
+            : sample
+        })
+        return { ...rack, samples: updatedSamples }
+      })
+      return { ...state, selectedSlots: [], loading: false, racks: racksAfterResubmit }
 
     case actionTypes.EDIT_SAMPLE_SUCCESS:
       const newRacksArray = [...state.racks]
