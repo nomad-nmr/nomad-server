@@ -9,6 +9,10 @@ import Group from '../models/group.js'
 import { getSubmitter } from '../server.js'
 import { getIO } from '../socket.js'
 
+//delay of the book command emitted upon resubmission
+//it allows the client to process the delete command first
+const BOOK_DELAY = 15000
+
 export const getRacks = async (req, res) => {
   try {
     const racks = await Rack.find({}).populate('group', 'groupName').sort({ isOpen: 'desc' })
@@ -480,6 +484,9 @@ export const resubmitSamples = async (req, res) => {
     //creating new experiment entries in history to replace the deleted ones
     //old entries are kept in history
     const respArr = []
+    //data for book command is grouped by instrument and group
+    //as the client writes one USER line per submission file
+    const bookDataObj = {}
     for (const sample of samplesToResubmit) {
       const oldExps = await Experiment.find({ datasetName: sample.dataSetName }).sort({ expNo: 1 })
       if (oldExps.length === 0) {
@@ -525,6 +532,36 @@ export const resubmitSamples = async (req, res) => {
         _id: newExps[index] ? newExps[index]._id : exp._id
       }))
 
+      //sample data that the client needs to write the submission file
+      //startTime is not included as resubmitted experiments run as soon as they get submitted
+      const bookEntry = {
+        group: sample.user.groupName,
+        holder: sample.holder,
+        sampleId: newDataSetName,
+        solvent: sample.solvent,
+        title: sample.title + ' [' + sample.tubeId + ']',
+        night: newExps[0].night,
+        priority: newExps[0].priority,
+        //submit flag stops the client from adding NO_SUBMIT flag into the submission file
+        submit: true,
+        experiments: newExps.map(exp => ({
+          expNo: exp.expNo,
+          paramSet: exp.parameterSet,
+          params: exp.parameters,
+          expTitle: `${exp.parameterSet} [${exp.parameters ? exp.parameters : ''}]`
+        }))
+      }
+
+      const bookKey = sample.instrument.id.toString() + '_' + sample.user.groupName
+      if (Object.keys(bookDataObj).includes(bookKey)) {
+        bookDataObj[bookKey].entries.push(bookEntry)
+      } else {
+        bookDataObj[bookKey] = {
+          instrId: sample.instrument.id.toString(),
+          entries: [bookEntry]
+        }
+      }
+
       respArr.push({
         holder: sample.holder,
         instrumentName: sample.instrument.name,
@@ -534,6 +571,25 @@ export const resubmitSamples = async (req, res) => {
     }
 
     await rack.save()
+
+    //book command is delayed to avoid racing condition with the delete command
+    setTimeout(() => {
+      try {
+        for (let key in bookDataObj) {
+          const { instrId, entries } = bookDataObj[key]
+          const instrState = submitter.state.get(instrId)
+
+          if (!instrState || !instrState.socketId) {
+            console.log('Error: Client disconnected')
+            continue
+          }
+
+          getIO().to(instrState.socketId).emit('book', JSON.stringify(entries))
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }, BOOK_DELAY)
 
     res.status(200).json(respArr)
   } catch (error) {
