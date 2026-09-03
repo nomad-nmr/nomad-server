@@ -128,6 +128,9 @@ const BatchSubmitControls = props => {
     if (selectedSlots.length === 0) {
       return message.warning('No slots have been selected!')
     }
+    if (selectedSamples.some(sample => !sample.status || sample.status === 'Running')) {
+      return message.error('Samples that have not been booked or are running cannot be resubmitted')
+    }
     props.resubmitSamplesHandler({ rackId: props.activeRackId, slots: selectedSlots }, authToken)
   }
 
