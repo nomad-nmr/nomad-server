@@ -39,11 +39,16 @@
     "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.14",
+    "@vitest/coverage-v8": "^5.0.0",
     "env-cmd": "^11.0.0",
     "mongodb-memory-server": "^11.2.0",
     "nodemon": "^3.0.1",
     "supertest": "^7.0.0",
-    "vitest": "^4.0.14"
+    "vitest": "^5.0.0"
+  },
+  "allowScripts": {
+    "bcrypt@5.1.1": true,
+    "mongodb-memory-server@11.2.0": true,
+    "@scarf/scarf": false
   }
 }
