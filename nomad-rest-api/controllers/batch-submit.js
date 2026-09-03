@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
@@ -491,7 +491,9 @@ export const resubmitSamples = async (req, res) => {
         .findIndex(id => id === sample.instrument.id.toString())
 
       const newDataSetName =
-        moment().format('YYMMDDHHmm') +
+        moment()
+          .tz(process.env.TIMEZONE || 'Europe/London')
+          .format('YYMMDDHHmm') +
         '-' +
         instrIndex +
         '-' +

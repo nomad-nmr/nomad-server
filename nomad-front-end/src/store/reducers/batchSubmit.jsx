@@ -66,8 +66,6 @@ const reducer = (state = initialState, { type, payload }) => {
       const updatedRack = { ...racksNew[rIndex], samples: newSamples }
       racksNew[rIndex] = updatedRack
 
-      console.log(payload.data)
-
       const plural = payload.data.length > 1
       let message = (
         <div>
