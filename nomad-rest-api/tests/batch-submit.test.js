@@ -9,12 +9,19 @@ import { getIO } from '../socket.js'
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
 import { testGroupTwo } from './fixtures/data/groups.js'
-import { testRackOne, testRackTwo, testRackThree } from './fixtures/data/racks.js'
+import {
+  testRackOne,
+  testRackTwo,
+  testRackThree,
+  testRackFour
+} from './fixtures/data/racks.js'
 import { testInstrOne, testInstrTwo } from './fixtures/data/instruments.js'
 import { testParamSet1, testParamSet2 } from './fixtures/data/parameterSets.js'
+import { testExpOne } from './fixtures/data/experiments.js'
 
 import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
+import Experiment from '../models/experiment.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -48,10 +55,11 @@ vi.mock('../server.js', () => ({
 }))
 
 //mocking socket
+const emitMock = vi.hoisted(() => vi.fn())
 vi.mock('../socket.js', () => ({
   getIO: vi.fn(() => ({
     to: vi.fn(() => ({
-      emit: vi.fn()
+      emit: emitMock
     }))
   }))
 }))
@@ -63,7 +71,7 @@ describe('GET /racks', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(3)
+    expect(body.length).toBe(4)
     expect(body[1].samples[0].status).toBe('Booked')
     expect(body[1].samples[1].status).not.toBeDefined()
     expect(body[1].samples[2].status).toBe('Booked')
@@ -416,6 +424,82 @@ describe('POST /submit', () => {
     //asserting change in the DB
     const rack = await Rack.findById(body.rackId)
     expect(rack.samples[0].status).toBe('Submitted')
+  })
+})
+
+describe('POST /resubmit', () => {
+  it('should fail with error 403 if request is not authorised', async () => {
+    await request(app).post('/api/batch-submit/resubmit').expect(403)
+  })
+
+  it('should fail with error 403 if request is authorised by user without admin access', async () => {
+    await request(app)
+      .post('/api/batch-submit/resubmit')
+      .send({ rackId: testRackFour._id, slots: [1] })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should fail with error 404 if non existing rack id is provided', async () => {
+    const newId = new mongoose.Types.ObjectId()
+    await request(app)
+      .post('/api/batch-submit/resubmit')
+      .send({ rackId: newId, slots: [1] })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(404)
+  })
+
+  it('should fail with error 422 if no selected slot has a booked holder', async () => {
+    const { body } = await request(app)
+      .post('/api/batch-submit/resubmit')
+      .send({ rackId: testRackFour._id, slots: [2] })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(422)
+
+    expect(body.errors[0].msg).toBe('No booked holders found for the selected slots')
+  })
+
+  it('should fail with error 503 if the instrument client is disconnected', async () => {
+    const { body } = await request(app)
+      .post('/api/batch-submit/resubmit')
+      .send({ rackId: testRackFour._id, slots: [3] })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(503)
+
+    expect(body.message).toBe('Client disconnected')
+  })
+
+  it('should resubmit sample in slot 1 of test rack four, cloning its experiments under a new dataset name', async () => {
+    const { body } = await request(app)
+      .post('/api/batch-submit/resubmit')
+      .send({ rackId: testRackFour._id, slots: [1] })
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.length).toBe(1)
+    expect(body[0]).toMatchObject({
+      holder: 5,
+      instrumentName: testInstrOne.name,
+      status: 'Submitted'
+    })
+    expect(body[0].dataSetName).not.toBe(testExpOne.datasetName)
+
+    expect(getSubmitter).toBeCalled()
+    expect(getIO).toBeCalled()
+    expect(emitMock).toHaveBeenCalledWith('delete', expect.any(String))
+
+    //asserting change in the DB
+    const rack = await Rack.findById(testRackFour._id)
+    expect(rack.samples[0].status).toBe('Submitted')
+    expect(rack.samples[0].dataSetName).toBe(body[0].dataSetName)
+
+    const newExps = await Experiment.find({ datasetName: body[0].dataSetName })
+    expect(newExps.length).toBe(2)
+    expect(newExps.every(exp => exp.status === 'Submitted')).toBe(true)
+
+    //old experiments are kept in history
+    const oldExps = await Experiment.find({ datasetName: testExpOne.datasetName })
+    expect(oldExps.length).toBe(2)
   })
 })
 

@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
-import { testExpOne, testExpFive } from './experiments.js'
+import { testExpOne, testExpThree, testExpFive } from './experiments.js'
 import { testParamSet1 } from './parameterSets.js'
 import { testUserAdmin, testUserOne } from './users.js'
-import { testGroupTwo } from './groups.js'
-import { testInstrOne } from './instruments.js'
+import { testGroupOne, testGroupTwo } from './groups.js'
+import { testInstrOne, testInstrTwo } from './instruments.js'
 
 export const testRackOne = {
   _id: new mongoose.Types.ObjectId(),
@@ -58,6 +58,56 @@ export const testRackTwo = {
   rackType: 'Instrument',
   instrument: testInstrOne._id,
   samples: []
+}
+
+const rackFourUser = {
+  id: testUserOne._id,
+  username: testUserOne.username,
+  groupName: testGroupOne.groupName,
+  groupId: testGroupOne._id
+}
+
+//rack used exclusively by the POST /resubmit tests
+export const testRackFour = {
+  _id: new mongoose.Types.ObjectId(),
+  title: 'TEST RACK 4',
+  isOpen: false,
+  slotsNumber: 12,
+  rackType: 'Group',
+  samples: [
+    {
+      slot: 1,
+      dataSetName: testExpOne.datasetName,
+      user: rackFourUser,
+      instrument: { id: testInstrOne._id, name: testInstrOne.name },
+      holder: 5,
+      status: 'Booked',
+      solvent: 'CDCl3',
+      title: 'Resubmit sample',
+      tubeId: '55555',
+      exps: [{ paramSet: testParamSet1.name }, { paramSet: testParamSet1.name }]
+    },
+    {
+      slot: 2,
+      user: rackFourUser,
+      solvent: 'CDCl3',
+      title: 'Not booked sample',
+      tubeId: '55556',
+      exps: [{ paramSet: testParamSet1.name }]
+    },
+    {
+      slot: 3,
+      dataSetName: testExpThree.datasetName,
+      user: rackFourUser,
+      instrument: { id: testInstrTwo._id, name: testInstrTwo.name },
+      holder: 6,
+      status: 'Booked',
+      solvent: 'CDCl3',
+      title: 'Disconnected instrument sample',
+      tubeId: '55557',
+      exps: [{ paramSet: testParamSet1.name }]
+    }
+  ]
 }
 
 export const testRackThree = {
