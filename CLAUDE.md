@@ -9,6 +9,9 @@ Use the DocsExplorer subagent for efficient documentation lookup.
 
 Keep your replies extremely concise and focus on conveying the key information. No unnecessary fluff, no long code snippets.
 
+During development the whole app is running in Docker dev environment and any verification is usually done by manual inspection of the change.
+Therefore there is no need to call build frontend commands for verification etc.
+
 ## Project overview
 
 NOMAD is a system for managing NMR spectrometer submissions, data acquisition tracking, and dataset storage/retrieval, used in academic NMR facilities. This repository (`nomad-server`) contains two independent NPM projects, each with its own `package.json`, developed and run together via Docker Compose:
