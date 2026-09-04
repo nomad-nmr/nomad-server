@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-We are building the app described in @SPEC.MD. Read that file for general architectural tasks or to double-check the exact database structure, tech stack or application architecture.
+We are building the app described in `SPEC.MD` file at the repo root - technical specification for the system's domain model and behaviour. Read that file for general architectural tasks or to double-check the exact database structure, tech stack or application architecture.
 
 Whenever working with any third-party library or something similar, you MUST look up the official documentation to ensure that you're working with up-to-date information.
 Use the DocsExplorer subagent for efficient documentation lookup.
@@ -20,8 +20,6 @@ NOMAD is a system for managing NMR spectrometer submissions, data acquisition tr
 - **nomad-front-end** — React 18 SPA bootstrapped with Vite, using Redux (classic actions/reducers, not Redux Toolkit) and Ant Design.
 
 A third component, **nomad-spect-client**, lives in a sibling repository (`../nomad-spect-client`) and runs on the NMR spectrometer PC to bridge Bruker IconNMR with the NOMAD server over Socket.IO. It is pulled in via the `client` Docker Compose profile for local development.
-
-`SPEC.md` at the repo root is the authoritative technical specification for the system's domain model and behavior — consult it for background on experiment/dataset/claim workflows before making non-trivial backend changes.
 
 ## Development setup
 
