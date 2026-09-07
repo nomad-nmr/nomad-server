@@ -94,6 +94,41 @@ describe('POST /api/auth/logout', () => {
   })
 })
 
+describe('POST /api/auth/refresh-token', () => {
+  it('should return object with user info and a new token that replaces the old one in DB', async () => {
+    const oldToken = testUserTwo.tokens[0].token
+
+    const { body } = await request(app)
+      .post('/api/auth/refresh-token')
+      .set('Authorization', `Bearer ${oldToken}`)
+      .expect(200)
+
+    expect(body).toHaveProperty('username', testUserTwo.username)
+    expect(body).toHaveProperty('accessLevel', testUserTwo.accessLevel)
+    expect(body).toHaveProperty('groupName', testGroupOne.groupName)
+    expect(body.expiresIn).toBeDefined()
+    expect(body.token).toBeDefined()
+    expect(body.token).not.toBe(oldToken)
+
+    //asserting change in DB
+    const user = await User.findById(testUserTwo._id)
+    const tokens = user.tokens.map(({ token }) => token)
+    expect(tokens).toContain(body.token)
+    expect(tokens).not.toContain(oldToken)
+  })
+
+  it('should fail with status 403 if user is not authorised', async () => {
+    await request(app).post('/api/auth/refresh-token').expect(403)
+  })
+
+  it('should fail with status 403 if invalid token is provided', async () => {
+    await request(app)
+      .post('/api/auth/refresh-token')
+      .set('Authorization', 'Bearer wrong-token')
+      .expect(403)
+  })
+})
+
 describe('POST /api/auth/password-reset', () => {
   it('should return object with username and e-mail and sent password reset e-mail', async () => {
     const { body } = await request(app)

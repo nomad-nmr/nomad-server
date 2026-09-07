@@ -2,6 +2,25 @@ import * as actionTypes from './actionTypes'
 import axios from '../../axios-instance'
 import errorHandler from './errorHandler'
 
+//how long before the automatic sign out the warning modal gets opened
+const WARNING_LEAD_MS = 10 * 60 * 1000
+
+//storing user info in local storage
+const storeUser = data => {
+  const expirationDate = new Date(new Date().getTime() + data.expiresIn * 1000)
+  const user = {
+    username: data.username,
+    groupName: data.groupName,
+    accessLevel: data.accessLevel,
+    manualAccess: data.manualAccess,
+    accountsAccess: data.accountsAccess,
+    token: data.token,
+    customSolvents: data.customSolvents,
+    expirationDate
+  }
+  localStorage.setItem('user', JSON.stringify(user))
+}
+
 export const openAuthModal = payload => {
   return {
     type: actionTypes.OPEN_AUTH_MODAL,
@@ -82,16 +101,68 @@ export const setTimeoutId = id => ({
   payload: id
 })
 
-// signing out user when token expires
+export const clearAuthTimeouts = () => ({
+  type: actionTypes.CLEAR_AUTH_TIMEOUTS
+})
+
+export const openLogoutWarning = logoutAt => ({
+  type: actionTypes.OPEN_LOGOUT_WARNING,
+  payload: logoutAt
+})
+
+export const closeLogoutWarning = () => ({
+  type: actionTypes.CLOSE_LOGOUT_WARNING
+})
+
+export const refreshTokenStart = () => ({
+  type: actionTypes.REFRESH_TOKEN_START
+})
+
+// signing out user when token expires and warning the user before that happens
 export const checkAuthTimeout = (expirationTime, token) => {
   return dispatch => {
+    //time out has to be shorter then token expiration otherwise server responds 403
+    const logoutDelay = expirationTime * 1000 - 60000
+    const logoutAt = new Date().getTime() + logoutDelay
+
     const timeoutId = setTimeout(() => {
       //timeOut sent in req.body to mark that request is coming from checkAuthTimeout
       //to avoid 403 error from auth middleware if user has already signed out
       dispatch(signOutHandler(token, { timeOut: true }))
-      //time out has to be shorter then token expiration otherwise server responds 403
-    }, expirationTime * 1000 - 60000)
+    }, logoutDelay)
     dispatch(setTimeoutId(timeoutId))
+
+    const warningDelay = logoutDelay - WARNING_LEAD_MS
+    if (warningDelay > 0) {
+      const warningTimeoutId = setTimeout(() => {
+        dispatch(openLogoutWarning(logoutAt))
+      }, warningDelay)
+      dispatch(setTimeoutId(warningTimeoutId))
+    } else {
+      //token expiration is shorter than the warning lead time
+      dispatch(openLogoutWarning(logoutAt))
+    }
+  }
+}
+
+//swapping the current token for a new one to keep the user signed in
+export const refreshTokenHandler = token => {
+  return dispatch => {
+    dispatch(refreshTokenStart())
+    axios
+      .post('/auth/refresh-token', {}, { headers: { Authorization: 'Bearer ' + token } })
+      .then(resp => {
+        //timeouts scheduled for the old token have to be cleared before new ones are set
+        dispatch(clearAuthTimeouts())
+        storeUser(resp.data)
+        dispatch(signInSuccess(resp.data))
+        dispatch(closeLogoutWarning())
+        dispatch(checkAuthTimeout(resp.data.expiresIn, resp.data.token))
+      })
+      .catch(error => {
+        dispatch(errorHandler(error))
+        dispatch(signOutHandler(token))
+      })
   }
 }
 
@@ -101,21 +172,9 @@ export const signInHandler = formData => {
     axios
       .post('/auth/login', formData)
       .then(resp => {
-        //storing user info in local storage
-        const expirationDate = new Date(new Date().getTime() + resp.data.expiresIn * 1000)
-        const user = {
-          username: resp.data.username,
-          groupName: resp.data.groupName,
-          accessLevel: resp.data.accessLevel,
-          manualAccess: resp.data.manualAccess,
-          accountsAccess: resp.data.accountsAccess,
-          token: resp.data.token,
-          customSolvents: resp.data.customSolvents,
-          expirationDate
-        }
-        localStorage.setItem('user', JSON.stringify(user))
+        storeUser(resp.data)
         dispatch(signInSuccess(resp.data))
-        dispatch(checkAuthTimeout(resp.data.expiresIn, user.token))
+        dispatch(checkAuthTimeout(resp.data.expiresIn, resp.data.token))
       })
       .catch(error => {
         dispatch(errorHandler(error))

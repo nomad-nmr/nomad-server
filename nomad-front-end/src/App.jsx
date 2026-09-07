@@ -6,7 +6,9 @@ import {
   signInHandler,
   signOutHandler,
   authCheckState,
-  postPasswdReset
+  postPasswdReset,
+  refreshTokenHandler,
+  closeLogoutWarning
 } from './store/actions'
 
 import { Layout, Spin, Affix, FloatButton } from 'antd'
@@ -15,6 +17,7 @@ import classes from './App.module.css'
 import NavBar from './components/NavBar/NavBar'
 import LoginModal from './components/Modals/LoginModal/LoginModal'
 import LogoutModal from './components/Modals/LogoutModal/LogoutModal'
+import LogoutWarningModal from './components/Modals/LogoutWarningModal/LogoutWarningModal'
 import Dashboard from './containers/Dashboard/Dashboard'
 import Root from './containers/Root/Root'
 import Error500 from './components/Errors/Error500'
@@ -112,6 +115,24 @@ const App = props => {
       )
     }
   }
+
+  //Modal warning the user that automatic sign out caused by token expiration is approaching
+  const logoutWarningModal = username && props.logoutWarningVisible && (
+    <LogoutWarningModal
+      visible={props.logoutWarningVisible}
+      logoutAt={props.logoutAt}
+      loading={props.refreshing}
+      stayClicked={() => props.onRefreshToken(props.authToken)}
+      signOutClicked={() => {
+        //user should stay on /batch-submit page after log out
+        if (!location.pathname.includes('/batch-submit') && location.pathname !== '/dashboard') {
+          navigate('/')
+        }
+        onSignOut(props.authToken)
+      }}
+      cancelClicked={props.onCloseLogoutWarning}
+    />
+  )
 
   return (
     <Layout>
@@ -264,6 +285,7 @@ const App = props => {
           <Route path='*' element={<Error404 />} />
         </Routes>
         {authModal}
+        {logoutWarningModal}
         <FloatButton.BackTop visibilityHeight={200} style={{ marginBottom: '25px' }} />
       </Content>
       <Footer>
@@ -282,6 +304,9 @@ const mapStateToProps = state => {
     accountsAccess: state.auth.accountsAccess,
     authModalVisible: state.auth.authModalVisible,
     authSpin: state.auth.loading,
+    logoutWarningVisible: state.auth.logoutWarningVisible,
+    logoutAt: state.auth.logoutAt,
+    refreshing: state.auth.refreshing,
     err: state.errors.error
   }
 }
@@ -292,7 +317,9 @@ const mapDispatchToProps = dispatch => {
     onSignIn: formData => dispatch(signInHandler(formData)),
     onSignOut: token => dispatch(signOutHandler(token)),
     onTryAutoSignIn: () => dispatch(authCheckState()),
-    onPasswdReset: formData => dispatch(postPasswdReset(formData))
+    onPasswdReset: formData => dispatch(postPasswdReset(formData)),
+    onRefreshToken: token => dispatch(refreshTokenHandler(token)),
+    onCloseLogoutWarning: () => dispatch(closeLogoutWarning())
   }
 }
 

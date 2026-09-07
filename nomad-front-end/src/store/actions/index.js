@@ -4,6 +4,8 @@ export {
   signInHandler,
   signOutHandler,
   authCheckState,
+  refreshTokenHandler,
+  closeLogoutWarning,
   postPasswdReset,
   getPasswdReset,
   postNewPasswd,

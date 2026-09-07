@@ -27,16 +27,36 @@ export async function postLogin(req, res) {
     }
 
     const token = await user.generateAuthToken()
-    return res.send({
-      username: user.username,
-      accessLevel: user.accessLevel,
-      manualAccess: user.manualAccess,
-      accountsAccess: user.accountsAccess,
-      groupName: user.group.groupName,
-      token: token,
-      expiresIn: +jwtExpiration,
-      customSolvents: process.env.CUSTOM_SOLVENTS ? process.env.CUSTOM_SOLVENTS.split(',') : []
-    })
+    return res.send(getAuthPayload(user, token))
+  } catch (error) {
+    res.status(500).send()
+    console.log(error)
+  }
+}
+
+//helper returning the payload that is sent upon successful authentication
+const getAuthPayload = (user, token) => ({
+  username: user.username,
+  accessLevel: user.accessLevel,
+  manualAccess: user.manualAccess,
+  accountsAccess: user.accountsAccess,
+  groupName: user.group.groupName,
+  token: token,
+  expiresIn: +jwtExpiration,
+  customSolvents: process.env.CUSTOM_SOLVENTS ? process.env.CUSTOM_SOLVENTS.split(',') : []
+})
+
+//swaps a still valid token for a new one and removes the old one from the database
+export async function postRefreshToken(req, res) {
+  try {
+    const { user, token: oldToken } = req
+    await user.populate('group')
+    const token = await user.generateAuthToken()
+    //generateAuthToken saves the document, therefore the old token has to be pulled afterwards
+    if (token !== oldToken) {
+      await user.removeAuthTokens(oldToken)
+    }
+    return res.send(getAuthPayload(user, token))
   } catch (error) {
     res.status(500).send()
     console.log(error)
