@@ -84,8 +84,31 @@ const TimedExperimentsModal = props => {
               <Form.Item
                 name={[sampleKey, 'firstExperimentStartsAt']}
                 style={{ marginBottom: 12 }}
+                rules={[
+                  {
+                    validator: (_, value) =>
+                      !value || value.isAfter(dayjs())
+                        ? Promise.resolve()
+                        : Promise.reject(new Error('Start time must be in the future'))
+                  }
+                ]}
               >
-                <TimePicker format='HH:mm' allowClear style={{ width: 100 }} />
+                <TimePicker
+                  format='HH:mm'
+                  allowClear
+                  style={{ width: 100 }}
+                  showNow={false}
+                  disabledTime={() => {
+                    const now = dayjs()
+                    return {
+                      disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i),
+                      disabledMinutes: selectedHour =>
+                        selectedHour === now.hour()
+                          ? Array.from({ length: now.minute() + 1 }, (_, i) => i)
+                          : []
+                    }
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={4} />
