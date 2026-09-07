@@ -38,7 +38,7 @@ const manualExpSchema = new Schema(
       }
     },
 
-    datasetName: { type: String, required: true },
+    datasetName: { type: String, required: true, index: true },
     expNo: { type: String, required: true },
     solvent: String,
     pulseProgram: String,
@@ -49,5 +49,8 @@ const manualExpSchema = new Schema(
 
   { timestamps: true }
 )
+
+//supports grouping/sorting of experiments by dataset in search
+manualExpSchema.index({ updatedAt: -1 })
 
 export default model('ManualExperiment', manualExpSchema)

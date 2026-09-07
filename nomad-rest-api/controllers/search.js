@@ -1,19 +1,27 @@
 import moment from 'moment'
+import mongoose from 'mongoose'
 
 import Experiment from '../models/experiment.js'
 import ManualExperiment from '../models/manualExperiment.js'
-import experiment from '../models/experiment.js'
 
-export async function fetchExperiments(req, res) {
-  //For manual data we can expect large datasets which makes using pagination as used for auto experiments difficult
-  //Therefore maximum number of datasets and or experiments displayed on page is limited
-  //if max numbers are exceeded then truncated=true is returned with response to allow for displaying a warning.
-  const maxDatasets = 20
-  const maxExps = 2000
+const defaultPageSize = 10
+const maxPageSize = 50
 
+const isDefined = value => value && value !== 'undefined'
+
+const toObjectId = (id, paramName) => {
+  try {
+    return new mongoose.Types.ObjectId(id)
+  } catch (error) {
+    throw new Error(`Invalid ${paramName}`)
+  }
+}
+
+//Builds mongoDB filter that is used both in aggregation $match stage and in find query.
+//Values must be cast explicitly as aggregation pipeline, unlike find, does not cast query values
+//against the schema.
+const buildSearchParams = (query, user, dataAccess) => {
   const {
-    currentPage,
-    pageSize,
     solvent,
     instrumentId,
     paramSet,
@@ -25,163 +33,171 @@ export async function fetchExperiments(req, res) {
     pulseProgram,
     datasetName,
     legacyData
-  } = req.query
+  } = query
+
+  const searchParams = { $and: [] }
+
+  //ManualExperiment has no status property
+  if (dataType === 'auto') {
+    searchParams.$and.push({ status: 'Archived' })
+  }
+
+  if (isDefined(instrumentId)) {
+    searchParams.$and.push({ 'instrument.id': toObjectId(instrumentId, 'instrumentId') })
+  }
+
+  if (isDefined(paramSet)) {
+    searchParams.$and.push({ parameterSet: paramSet })
+  }
+
+  if (isDefined(solvent)) {
+    searchParams.$and.push({ solvent })
+  }
+
+  if (isDefined(title)) {
+    // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+    const regex = new RegExp(title, 'i')
+    searchParams.$and.push({ title: { $regex: regex } })
+  }
+
+  if (isDefined(pulseProgram)) {
+    // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+    const regex = new RegExp(pulseProgram, 'i')
+    searchParams.$and.push({ pulseProgram: { $regex: regex } })
+  }
+
+  if (isDefined(datasetName)) {
+    // file deepcode ignore reDOS: <fix using lodash does not seem to work>
+    const regex = new RegExp(datasetName, 'i')
+    searchParams.$and.push({ datasetName: { $regex: regex } })
+  }
+
+  if (isDefined(dateRange)) {
+    const datesArr = dateRange.split(',')
+    const range = {
+      $gte: new Date(datesArr[0]),
+      $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
+    }
+    searchParams.$and.push(dataType === 'auto' ? { submittedAt: range } : { updatedAt: range })
+  }
+
+  const adminSearchLogic = () => {
+    if (isDefined(groupId)) {
+      searchParams.$and.push({ 'group.id': toObjectId(groupId, 'groupId') })
+    }
+
+    if (isDefined(userId)) {
+      searchParams.$and.push({ 'user.id': toObjectId(userId, 'userId') })
+    }
+  }
+
+  //getDataAccess() populates user.group and aggregation $match, unlike find,
+  //does not cast a document down to its _id
+  const userGroupId = user.group?._id || user.group
+
+  //this switch should assure that search is performed in accordance with data access privileges
+  switch (dataAccess) {
+    case 'user':
+      searchParams.$and.push({ 'user.id': user._id })
+      break
+
+    case 'group':
+      if (legacyData === 'true') {
+        searchParams.$and.push({ 'user.id': user._id })
+        searchParams.$nor = [{ 'group.id': userGroupId }]
+      } else {
+        if (isDefined(userId)) {
+          searchParams.$and.push({
+            'user.id': toObjectId(userId, 'userId'),
+            'group.id': userGroupId
+          })
+        } else {
+          searchParams.$and.push({ 'group.id': userGroupId })
+        }
+      }
+
+      break
+
+    case 'admin-b':
+      if (legacyData === 'true') {
+        searchParams.$and.push({ 'user.id': user._id })
+        searchParams.$nor = [{ 'group.id': userGroupId }]
+      } else {
+        adminSearchLogic()
+        if (!isDefined(groupId) && !isDefined(userId)) {
+          searchParams.$and.push({ 'group.id': userGroupId })
+        }
+      }
+
+      break
+
+    case 'admin':
+      adminSearchLogic()
+      break
+    default:
+      throw new Error('Data access rights unknown')
+  }
+
+  //$and must not be an empty array
+  if (searchParams.$and.length === 0) {
+    searchParams.$and.push({})
+  }
+
+  return searchParams
+}
+
+export async function fetchExperiments(req, res) {
+  const { dataType } = req.query
 
   try {
     const excludeProps =
       '-remarks -load -atma -spin -lock -shim -proc -acq -createdAt -expTime -dataPath'
 
     const dataAccess = await req.user.getDataAccess()
+    const searchParams = buildSearchParams(req.query, req.user, dataAccess)
+    const Model = dataType === 'auto' ? Experiment : ManualExperiment
 
-    const searchParams = { $and: [{ status: 'Archived' }] }
+    const pageSize = Math.min(
+      Math.max(Math.floor(+req.query.pageSize) || defaultPageSize, 1),
+      maxPageSize
+    )
+    const currentPage = Math.max(Math.floor(+req.query.currentPage) || 1, 1)
 
-    if (instrumentId && instrumentId !== 'undefined') {
-      searchParams.$and.push({ 'instrument.id': instrumentId })
-    }
-
-    if (paramSet && paramSet !== 'undefined') {
-      searchParams.$and.push({ parameterSet: paramSet })
-    }
-
-    if (solvent && solvent !== 'undefined') {
-      searchParams.$and.push({ solvent })
-    }
-
-    if (title && title !== 'undefined') {
-      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
-      const regex = new RegExp(title, 'i')
-      searchParams.$and.push({ title: { $regex: regex } })
-    }
-
-    if (pulseProgram && pulseProgram !== 'undefined') {
-      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
-      const regex = new RegExp(pulseProgram, 'i')
-      searchParams.$and.push({ pulseProgram: { $regex: regex } })
-    }
-
-    if (datasetName && datasetName !== 'undefined') {
-      // file deepcode ignore reDOS: <fix using lodash does not seem to work>
-      const regex = new RegExp(datasetName, 'i')
-      searchParams.$and.push({ datasetName: { $regex: regex } })
-    }
-
-    if (dateRange && dateRange !== 'undefined') {
-      const datesArr = dateRange.split(',')
-      searchParams.$and.push(
-        dataType === 'auto'
-          ? {
-              submittedAt: {
-                $gte: new Date(datesArr[0]),
-                $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-              }
-            }
-          : {
-              updatedAt: {
-                $gte: new Date(datesArr[0]),
-                $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-              }
-            }
-      )
-    }
-
-    const adminSearchLogic = () => {
-      if (groupId && groupId !== 'undefined') {
-        searchParams.$and.push({ 'group.id': groupId })
-      }
-
-      if (userId && userId !== 'undefined') {
-        searchParams.$and.push({ 'user.id': userId })
-      }
-    }
-
-    //this switch should assure that search is performed in accordance with data access privileges
-    switch (dataAccess) {
-      case 'user':
-        searchParams.$and.push({ 'user.id': req.user._id })
-        break
-
-      case 'group':
-        if (legacyData === 'true') {
-          searchParams.$and.push({ 'user.id': req.user._id })
-          searchParams.$nor = [{ 'group.id': req.user.group }]
-        } else {
-          if (userId && userId !== 'undefined') {
-            searchParams.$and.push({ 'user.id': userId, 'group.id': req.user.group })
-          } else {
-            searchParams.$and.push({ 'group.id': req.user.group })
-          }
+    //Pagination has to be performed on dataset level as one row of the table in the front-end
+    //corresponds to one dataset with experiments rendered in row expansion.
+    //Therefore, experiments are grouped by datasetName first and then a page of datasets is fetched.
+    const [{ page, summary }] = await Model.aggregate([
+      { $match: searchParams },
+      {
+        $group: {
+          _id: '$datasetName',
+          lastArchivedAt: { $max: '$updatedAt' },
+          expCount: { $sum: 1 }
         }
-
-        break
-
-      case 'admin-b':
-        if (legacyData === 'true') {
-          searchParams.$and.push({ 'user.id': req.user._id })
-          searchParams.$nor = [{ 'group.id': req.user.group }]
-        } else {
-          adminSearchLogic()
-          if ((!groupId || groupId === 'undefined') && (!userId || userId === 'undefined')) {
-            searchParams.$and.push({ 'group.id': req.user.group })
-          }
+      },
+      //_id is used as tiebreaker to keep the order of datasets stable across pages
+      { $sort: { lastArchivedAt: -1, _id: -1 } },
+      {
+        $facet: {
+          page: [{ $skip: (currentPage - 1) * pageSize }, { $limit: pageSize }],
+          summary: [
+            { $group: { _id: null, datasets: { $sum: 1 }, experiments: { $sum: '$expCount' } } }
+          ]
         }
-
-        break
-
-      case 'admin':
-        adminSearchLogic()
-        break
-      default:
-        throw new Error('Data access rights unknown')
-    }
-
-    let total
-    let experiments
-
-    if (dataType === 'auto') {
-      total = await Experiment.find(searchParams).countDocuments()
-      experiments = await Experiment.find(searchParams, excludeProps)
-        .sort({ updatedAt: 'desc' })
-        .skip((currentPage - 1) * pageSize)
-        .limit(+pageSize)
-
-      //Since pagination is done on experiment level, last dataset can be divided between 2 pages.
-      // Following code amends that by adding missing experiments into the last dataset
-      if (experiments.length !== 0) {
-        const lastDatasetName = experiments[experiments.length - 1].datasetName
-        const lastDataSet = await Experiment.find(
-          { datasetName: lastDatasetName, status: 'Archived' },
-          excludeProps
-        )
-        lastDataSet.forEach(i => {
-          if (!experiments.find(exp => exp.expId === i.expId)) {
-            experiments.push(i)
-          }
-        })
       }
+    ]).allowDiskUse(true)
 
-      if (currentPage !== '1') {
-        const firstDataset = await Experiment.find(
-          { datasetName: experiments[0].datasetName, status: 'Archived' },
-          excludeProps
-        )
-        firstDataset.forEach(i => {
-          if (!experiments.find(exp => exp.expId === i.expId)) {
-            experiments.unshift(i)
-          }
-        })
-      }
-    } else {
-      total = await ManualExperiment.find(searchParams).countDocuments()
-      experiments = await ManualExperiment.find(searchParams)
-        .sort({ updatedAt: 'desc' })
-        .limit(maxExps)
-    }
+    const experiments = await Model.find(
+      {
+        ...searchParams,
+        $and: [...searchParams.$and, { datasetName: { $in: page.map(i => i._id) } }]
+      },
+      excludeProps
+    )
 
-    const datasets = []
-    let truncated = false
+    const datasetsMap = new Map()
 
     for (let exp of experiments) {
-      const datasetIndex = datasets.findIndex(dataSet => dataSet.datasetName === exp.datasetName)
       const expObj =
         dataType === 'auto'
           ? {
@@ -202,7 +218,10 @@ export async function fetchExperiments(req, res) {
               title: exp.title,
               createdAt: exp.dateCreated
             }
-      if (datasetIndex < 0) {
+
+      const dataset = datasetsMap.get(exp.datasetName)
+
+      if (!dataset) {
         //submittedAt could be missing for experiments created by processing au-program
         //in that case we try to find submittedAt date from other experiments in the same dataset
         let submittedExp
@@ -236,28 +255,27 @@ export async function fetchExperiments(req, res) {
                 claimedAt: exp.updatedAt,
                 exps: [expObj]
               }
-        datasets.push(newDataSet)
+        datasetsMap.set(exp.datasetName, newDataSet)
       } else {
-        datasets[datasetIndex].exps.push(expObj)
-      }
-      if (datasets.length === maxDatasets) {
-        truncated = true
-        break
-      }
-      if (datasets.length <= maxDatasets && experiments.length === maxExps) {
-        truncated = true
+        dataset.exps.push(expObj)
       }
     }
 
-    //sorting exps to get ascend for expNo
-    const sortedDatasets = datasets.map(i => {
-      i.exps.sort((a, b) => a.expNo - b.expNo)
-      const lastIndex = i.exps.length - 1
-      const lastArchivedAt = i.exps[lastIndex].archivedAt
-      return { ...i, lastArchivedAt }
-    })
+    //datasets are returned in the order defined by the aggregation sort stage
+    //exps get sorted to ascend for expNo
+    const data = page
+      .filter(i => datasetsMap.has(i._id))
+      .map(i => {
+        const dataset = datasetsMap.get(i._id)
+        dataset.exps.sort((a, b) => a.expNo - b.expNo)
+        return { ...dataset, lastArchivedAt: i.lastArchivedAt }
+      })
 
-    res.send({ data: sortedDatasets, total, truncated })
+    res.send({
+      data,
+      total: summary[0] ? summary[0].datasets : 0,
+      totalExps: summary[0] ? summary[0].experiments : 0
+    })
   } catch (error) {
     console.log(error)
     res.sendStatus(500)

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
-import { Result } from 'antd'
 
 import SearchExpsTable from '../../components/SearchComponents/SearchExpsTable'
 import DownloadModal from '../../components/SearchComponents/DownloadModal'
@@ -35,13 +34,16 @@ const Search = props => {
 
   // const [searchParams, setSearchParams] = useState({})
   const [currentPage, setCurrentPage] = useState(1)
+  //page size defines number of datasets on page as pagination is performed on dataset level
+  const [pageSize, setPageSize] = useState(10)
 
   useEffect(() => {
     window.scrollTo(0, 0)
     if (!authToken) {
       openAuthModal()
     }
-    fetchExps(authToken, { currentPage: 1, pageSize: 20, ...searchParams }, dataType)
+    setCurrentPage(1)
+    fetchExps(authToken, { currentPage: 1, pageSize, ...searchParams }, dataType)
     return () => {
       resetChecked()
     }
@@ -50,8 +52,13 @@ const Search = props => {
 
   const onPageChange = page => {
     setCurrentPage(page)
-    //Page size hardcoded to limit number of experiments available to download
-    fetchExps(authToken, { currentPage: page, pageSize: 20, ...searchParams }, dataType)
+    fetchExps(authToken, { currentPage: page, pageSize, ...searchParams }, dataType)
+  }
+
+  const onPageSizeChange = size => {
+    setCurrentPage(1)
+    setPageSize(size)
+    fetchExps(authToken, { currentPage: 1, pageSize: size, ...searchParams }, dataType)
   }
 
   const onFormSubmit = values => {
@@ -60,8 +67,7 @@ const Search = props => {
       values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))
     }
     setCurrentPage(1)
-    //Page size hardcoded to limit number of experiments available to download
-    fetchExps(authToken, { currentPage: 1, pageSize: 20, ...values }, dataType)
+    fetchExps(authToken, { currentPage: 1, pageSize, ...values }, dataType)
   }
 
   return (
@@ -76,20 +82,14 @@ const Search = props => {
             checkedExpsHandler={props.updCheckedExps}
             checked={props.checked}
             currentPage={currentPage}
+            pageSize={pageSize}
             total={props.total}
             pageHandler={onPageChange}
+            pageSizeHandler={onPageSizeChange}
             token={authToken}
             getPDF={props.fetchPDF}
             dataType={dataType}
           />
-          {props.truncated && (
-            <Result
-              status='warning'
-              title='Results Truncated'
-              subTitle={`Search returns ${props.total} experiments. 
-              That exceeds table capacity. Please add more criteria to narrow down the search.`}
-            />
-          )}
         </div>
       )}
       <DownloadModal
@@ -114,7 +114,6 @@ const mapStateToProps = state => ({
   total: state.search.total,
   showForm: state.search.showForm,
   dataType: state.search.dataType,
-  truncated: state.search.truncated,
   searchParams: state.search.formValues
 })
 

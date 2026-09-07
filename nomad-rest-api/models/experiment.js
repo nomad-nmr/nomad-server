@@ -38,7 +38,7 @@ const experimentSchema = new Schema(
         ref: 'Group'
       }
     },
-    datasetName: { type: String, required: true },
+    datasetName: { type: String, required: true, index: true },
     holder: { type: String, required: true },
     expNo: { type: String, required: true },
     parameterSet: { type: String, required: true },
@@ -76,5 +76,8 @@ const experimentSchema = new Schema(
 
   { timestamps: true }
 )
+
+//supports grouping/sorting of archived experiments by dataset in search
+experimentSchema.index({ status: 1, updatedAt: -1 })
 
 export default model('Experiment', experimentSchema)

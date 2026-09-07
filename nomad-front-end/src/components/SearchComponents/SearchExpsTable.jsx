@@ -220,19 +220,20 @@ const SearchExpsTable = props => {
         rowSelection={selectDataset}
         pagination={false}
       />
-      {dataType === 'auto' && (
-        <Pagination
-          style={{ marginTop: '20px', textAlign: 'right' }}
-          size='small'
-          //Page size hardcoded to limit number of experiments available to download
-          pageSize={20}
-          current={props.currentPage}
-          total={props.total}
-          showSizeChanger={false}
-          onChange={page => props.pageHandler(page)}
-          showTotal={total => `Total ${total} experiments`}
-        />
-      )}
+      <Pagination
+        style={{ marginTop: '20px', textAlign: 'right' }}
+        size='small'
+        //pagination is performed on dataset level, therefore, page size defines number of datasets
+        pageSize={props.pageSize}
+        current={props.currentPage}
+        total={props.total}
+        showSizeChanger={true}
+        pageSizeOptions={[10, 15, 20]}
+        onChange={(page, size) =>
+          size === props.pageSize ? props.pageHandler(page) : props.pageSizeHandler(size)
+        }
+        showTotal={total => `Total ${total} datasets`}
+      />
     </div>
   )
 }

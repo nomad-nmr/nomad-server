@@ -39,6 +39,7 @@ const LogoutWarningModal = props => {
       open={visible}
       footer={null}
       onCancel={cancelClicked}
+      mask={{ closable: false }}
     >
       <p style={{ marginTop: '20px' }}>
         You will be automatically signed out in{' '}

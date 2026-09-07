@@ -10,8 +10,7 @@ const initialState = {
   dataAccess: undefined,
   //formFields values are stored in Redux state
   //to keep them preserved through rendering cycles
-  formValues: {},
-  truncated: false
+  formValues: {}
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -28,8 +27,7 @@ const reducer = (state = initialState, { type, payload }) => {
         tableData: payload.searchData.data,
         loading: false,
         total: payload.searchData.total,
-        formValues,
-        truncated: payload.searchData.truncated
+        formValues
       }
 
     case actionTypes.UPDATE_CHECKED_DATASETS:

@@ -2,10 +2,6 @@ import moment from 'moment'
 
 import User from '../models/user.js'
 import Group from '../models/group.js'
-import Experiment from '../models/experiment.js'
-import ManualExperiment from '../models/manualExperiment.js'
-import Dataset from '../models/dataset.js'
-import Collection from '../models/collection.js'
 
 import {
   getDatastoreStats,

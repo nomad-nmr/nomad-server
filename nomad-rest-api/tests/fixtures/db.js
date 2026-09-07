@@ -7,6 +7,7 @@ import Instrument from '../../models/instrument'
 import ParameterSet from '../../models/parameterSet.js'
 import Claim from '../../models/claim.js'
 import Experiment from '../../models/experiment.js'
+import ManualExperiment from '../../models/manualExperiment.js'
 import Dataset from '../../models/dataset.js'
 import Rack from '../../models/rack.js'
 import Collection from '../../models/collection.js'
@@ -28,6 +29,12 @@ import {
   testExpSeven,
   testExpEight
 } from './data/experiments.js'
+import {
+  testManualExpOne,
+  testManualExpTwo,
+  testManualExpThree,
+  testManualExpFour
+} from './data/manualExperiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
 import { testRackOne, testRackTwo, testRackThree, testRackFour } from './data/racks.js'
 import { testCollectionOne } from './data/collections.js'
@@ -59,6 +66,7 @@ export const setupDB = async () => {
   await ParameterSet.deleteMany()
   await Claim.deleteMany()
   await Experiment.deleteMany()
+  await ManualExperiment.deleteMany()
   await Dataset.deleteMany()
   await Rack.deleteMany()
   await Collection.deleteMany()
@@ -95,6 +103,11 @@ export const setupDB = async () => {
   await new Experiment(testExpSix).save()
   await new Experiment(testExpSeven).save()
   await new Experiment(testExpEight).save()
+
+  await new ManualExperiment(testManualExpOne).save()
+  await new ManualExperiment(testManualExpTwo).save()
+  await new ManualExperiment(testManualExpThree).save()
+  await new ManualExperiment(testManualExpFour).save()
 
   await new Dataset(testDatasetOne).save()
   await new Dataset(testDatasetTwo).save()

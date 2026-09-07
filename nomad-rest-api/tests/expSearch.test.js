@@ -29,7 +29,8 @@ describe('GET /api/search/experiments', () => {
       .expect(200)
 
     expect(body.data.length).toBe(5)
-    expect(body.total).toBe(6)
+    expect(body.total).toBe(5)
+    expect(body.totalExps).toBe(6)
   })
 
   it('should return array with one dataset with 2 experiments in total if title substring "exp 1" is provided', async () => {
@@ -45,7 +46,8 @@ describe('GET /api/search/experiments', () => {
       .expect(200)
 
     expect(body.data.length).toBe(1)
-    expect(body.total).toBe(2)
+    expect(body.total).toBe(1)
+    expect(body.totalExps).toBe(2)
     expect(body.data[0].exps.length).toBe(2)
     expect(body.data[0].exps[0].title).toBe('Test Exp 1')
   })
@@ -63,7 +65,8 @@ describe('GET /api/search/experiments', () => {
       .expect(200)
 
     expect(body.data.length).toBe(1)
-    expect(body.total).toBe(2)
+    expect(body.total).toBe(1)
+    expect(body.totalExps).toBe(2)
     expect(body.data[0].datasetName).toBe('2106231050-2-1-test1')
   })
 
@@ -81,6 +84,7 @@ describe('GET /api/search/experiments', () => {
 
     expect(body.data.length).toBe(2)
     expect(body.total).toBe(2)
+    expect(body.totalExps).toBe(2)
     expect(body.data[0].solvent).toBe('C6D6')
   })
 
@@ -143,7 +147,8 @@ describe('GET /api/search/experiments', () => {
       .expect(200)
 
     expect(body.data.length).toBe(1)
-    expect(body.total).toBe(2)
+    expect(body.total).toBe(1)
+    expect(body.totalExps).toBe(2)
     expect(body.data[0].user).toMatchObject({
       username: testUserOne.username,
       id: testUserOne._id.toString()
@@ -163,7 +168,8 @@ describe('GET /api/search/experiments', () => {
       .expect(200)
 
     expect(body.data.length).toBe(3)
-    expect(body.total).toBe(4)
+    expect(body.total).toBe(3)
+    expect(body.totalExps).toBe(4)
     expect(body.data[0].group).toMatchObject({
       name: testGroupOne.groupName,
       id: testGroupOne._id.toString()
@@ -211,6 +217,120 @@ describe('GET /api/search/experiments', () => {
     expect(body.data[0].group).toMatchObject({
       name: testGroupOne.groupName,
       id: testGroupOne._id.toString()
+    })
+  })
+
+  it('should paginate on dataset level returning complete datasets on each page', async () => {
+    const getPage = async currentPage => {
+      const searchParams = { dataType: 'auto', currentPage, pageSize: 2 }
+      const { body } = await request(app)
+        .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
+        .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+        .expect(200)
+      return body
+    }
+
+    const pageOne = await getPage(1)
+    const pageTwo = await getPage(2)
+    const pageThree = await getPage(3)
+
+    expect(pageOne.total).toBe(5)
+    expect(pageOne.totalExps).toBe(6)
+    expect(pageOne.data.length).toBe(2)
+    expect(pageTwo.data.length).toBe(2)
+    expect(pageThree.data.length).toBe(1)
+
+    const datasetNames = [...pageOne.data, ...pageTwo.data, ...pageThree.data].map(
+      i => i.datasetName
+    )
+    //no dataset is split between or repeated on pages
+    expect(new Set(datasetNames).size).toBe(5)
+
+    //dataset with 2 experiments is not split between pages
+    const splitDataset = [...pageOne.data, ...pageTwo.data, ...pageThree.data].find(
+      i => i.datasetName === '2106231050-2-1-test1'
+    )
+    expect(splitDataset.exps.length).toBe(2)
+  })
+})
+
+describe('GET /api/search/experiments for manual data', () => {
+  it('should return array with all manual datasets in DB', async () => {
+    const searchParams = {
+      dataType: 'manual',
+      currentPage: 1,
+      pageSize: 20
+    }
+    const { body } = await request(app)
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.data.length).toBe(2)
+    expect(body.total).toBe(2)
+    expect(body.totalExps).toBe(4)
+
+    const dataset = body.data.find(i => i.datasetName === '2408011200-1-1-test1')
+    //experiments in dataset are sorted by expNo in ascending numerical order
+    expect(dataset.exps.map(i => i.expNo)).toEqual(['2', '10', '11'])
+    expect(dataset.exps[0].pulseProgram).toBe('zgpg30')
+  })
+
+  it('should paginate manual data on dataset level', async () => {
+    const getPage = async currentPage => {
+      const searchParams = { dataType: 'manual', currentPage, pageSize: 1 }
+      const { body } = await request(app)
+        .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
+        .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+        .expect(200)
+      return body
+    }
+
+    const pageOne = await getPage(1)
+    const pageTwo = await getPage(2)
+
+    expect(pageOne.total).toBe(2)
+    expect(pageOne.data.length).toBe(1)
+    expect(pageTwo.data.length).toBe(1)
+    expect(pageOne.data[0].datasetName).not.toBe(pageTwo.data[0].datasetName)
+  })
+
+  it('should return only manual experiments matching search criteria', async () => {
+    const searchParams = {
+      dataType: 'manual',
+      currentPage: 1,
+      pageSize: 20,
+      pulseProgram: 'zgpg30'
+    }
+    const { body } = await request(app)
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.data.length).toBe(1)
+    expect(body.total).toBe(1)
+    expect(body.totalExps).toBe(1)
+    expect(body.data[0].exps.length).toBe(1)
+    expect(body.data[0].exps[0].expNo).toBe('2')
+  })
+
+  it('should return only manual data owned by testUserOne if request authorised by testUserOne', async () => {
+    const searchParams = {
+      dataType: 'manual',
+      currentPage: 1,
+      pageSize: 20
+    }
+    const { body } = await request(app)
+      .get('/api/search/experiments/?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.data.length).toBe(1)
+    expect(body.total).toBe(1)
+    expect(body.totalExps).toBe(3)
+    expect(body.data[0].user).toMatchObject({
+      username: testUserOne.username,
+      id: testUserOne._id.toString()
     })
   })
 })

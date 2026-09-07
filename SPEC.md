@@ -32,7 +32,7 @@
 15. [Front-end specification](#15-front-end-specification)
 16. [Configuration reference](#16-configuration-reference)
 17. [Testing and CI/CD](#17-testing-and-cicd)
-18. [Known constraints and design notes](#18-known-constraints-and-design-notes)
+18. [Known constraints](#18-known-constraints)
 
 ---
 
@@ -312,7 +312,7 @@ The central record for every automated experiment; one document per `expNo`.
 | `instrument`                                                     | `{ name, id → Instrument }`           | Denormalised                                                                                                     |
 | `user`                                                           | `{ username, id → User }`             | Denormalised                                                                                                     |
 | `group`                                                          | `{ name, id → Group }`                | Denormalised                                                                                                     |
-| `datasetName`                                                    | String, required                      | See §6                                                                                                           |
+| `datasetName`                                                    | String, required, **indexed**         | See §6                                                                                                           |
 | `holder`, `expNo`                                                | String, required                      |                                                                                                                  |
 | `parameterSet`                                                   | String, required                      |                                                                                                                  |
 | `parameters`                                                     | String                                | Comma-separated overrides, e.g. `ns,16,d1,2`                                                                     |
@@ -332,8 +332,12 @@ The central record for every automated experiment; one document per `expNo`.
 Records for data acquired outside automation and later _claimed_ by a user.
 
 `expId` (unique, indexed, format `datasetName#-#expNo`), `instrument`, `user`, `group`
-(same denormalised shape as `Experiment`), `datasetName`, `expNo`, `solvent`,
+(same denormalised shape as `Experiment`), `datasetName` (indexed), `expNo`, `solvent`,
 `pulseProgram`, `title`, `dateCreated`, `dataPath` (required).
+
+Both collections also carry a compound index supporting the dataset grouping in search
+(§8.9): `{ status: 1, updatedAt: -1 }` on `Experiment`, `{ updatedAt: -1 }` on
+`ManualExperiment`.
 
 ### 5.6 `Claim`
 
@@ -642,9 +646,18 @@ SMILES matching is done as a direct query filter.
 | GET    | `/experiments` | A    | Experiment search, grouped into datasets; `dataType=auto\|manual` |
 | GET    | `/data-access` | A    | Resolved data-access level of the caller                          |
 
-Auto search paginates on experiments, then back-fills the first and last datasets so that
-no dataset is split across page boundaries. Manual search is capped at 2000 experiments /
-20 datasets and returns `truncated: true` when limits bite.
+Both data types are searched the same way: an aggregation groups the matching experiments by
+`datasetName` and pages over those groups, so a page always holds `pageSize` complete
+datasets (default 10, maximum 50). The response carries `total` (matching datasets, which
+drives pagination) and `totalExps` (matching experiments). A dataset expands to the
+experiments that matched the criteria only.
+
+When extending the filter in `buildSearchParams`, note that the same object feeds both an
+aggregation `$match` and a `find`, and `$match` does none of the coercion `find` does: cast id
+parameters to `ObjectId` explicitly, reduce `req.user.group` to its `_id` (`getDataAccess()`
+populates it in place), and add the `status: 'Archived'` clause only for automated data, since
+`ManualExperiment` has no `status` field and `strictQuery` would not strip it inside a
+pipeline. Each of these fails silently, by matching nothing.
 
 ### 8.10 Claims — `/api/claims`
 
@@ -1328,10 +1341,12 @@ There is currently no automated test suite for the front end.
 
 ---
 
-## 18. Known constraints and design notes
+## 18. Known constraints
 
-These are properties of the current implementation that maintainers should be aware of
-before changing related code.
+These are limitations and weak points of the current implementation — the places where the
+system is known to be fragile, bounded or dependent on something outside its control.
+Implementation notes that only matter while editing a particular piece of code live with
+that code's section instead.
 
 1. **Trusted-network assumption.** `/api/tracker/*` is unauthenticated and `/api/data/*`
    uploads authenticate on the instrument ObjectId alone (§7.4). NOMAD must be deployed
@@ -1362,9 +1377,6 @@ before changing related code.
    lockstep in `utils/nmriumUtils.js` and the front-end equivalent whenever
    `nmr-load-save` / NMRium is upgraded; `getDataset` contains a compatibility shim that
    strips `contourOptions` from 2D spectra stored under version < 7.
-9. **Search result caps.** Manual-data search returns at most 2000 experiments across at
-   most 20 datasets and signals truncation with `truncated: true`; automated search
-   paginates per experiment and back-fills partial datasets at the page boundaries.
-10. **Upload size ceiling.** Effective limit is the lowest of NGINX `client_max_body_size`
-    (250 MB), the client's axios `maxContentLength` (100 MB) and `DATA_UPLOAD_TIMEOUT`.
-    A full disk is reported distinctly as HTTP 507.
+9. **Upload size ceiling.** Effective limit is the lowest of NGINX `client_max_body_size`
+   (250 MB), the client's axios `maxContentLength` (100 MB) and `DATA_UPLOAD_TIMEOUT`.
+   A full disk is reported distinctly as HTTP 507.
