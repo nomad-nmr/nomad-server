@@ -15,7 +15,10 @@ const initialState = {
   resetFullName: null,
   resetToken: null,
   timeoutIds: [],
-  customSolvents: []
+  customSolvents: [],
+  logoutWarningVisible: false,
+  logoutAt: null,
+  refreshing: false
 }
 
 const reducer = (state = initialState, action) => {
@@ -49,7 +52,8 @@ const reducer = (state = initialState, action) => {
         groupName: action.payload.groupName,
         customSolvents: action.payload.customSolvents,
         authModalVisible: false,
-        loading: false
+        loading: false,
+        refreshing: false
       }
 
     case actionTypes.SIGN_IN_FAILED:
@@ -64,7 +68,9 @@ const reducer = (state = initialState, action) => {
         username: null,
         token: null,
         accessLevel: false,
-        authModalVisible: false
+        authModalVisible: false,
+        logoutWarningVisible: false,
+        refreshing: false
       }
 
     case actionTypes.SIGN_OUT_SUCCESS:
@@ -79,7 +85,10 @@ const reducer = (state = initialState, action) => {
         accessLevel: null,
         manualAccess: false,
         authModalVisible: false,
-        timeoutIds: []
+        timeoutIds: [],
+        logoutWarningVisible: false,
+        logoutAt: null,
+        refreshing: false
       }
 
     case actionTypes.POST_PASSWORD_RESET_SUCCESS:
@@ -124,6 +133,19 @@ const reducer = (state = initialState, action) => {
     case actionTypes.SET_TIMEOUT_ID:
       const newIds = [...state.timeoutIds, action.payload]
       return { ...state, timeoutIds: newIds }
+
+    case actionTypes.CLEAR_AUTH_TIMEOUTS:
+      state.timeoutIds.forEach(id => clearTimeout(id))
+      return { ...state, timeoutIds: [] }
+
+    case actionTypes.OPEN_LOGOUT_WARNING:
+      return { ...state, logoutWarningVisible: true, logoutAt: action.payload }
+
+    case actionTypes.CLOSE_LOGOUT_WARNING:
+      return { ...state, logoutWarningVisible: false }
+
+    case actionTypes.REFRESH_TOKEN_START:
+      return { ...state, refreshing: true }
 
     default:
       return state

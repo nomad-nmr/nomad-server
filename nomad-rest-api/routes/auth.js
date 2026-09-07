@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 import {
   postLogin,
   postLogout,
+  postRefreshToken,
   postPasswdReset,
   getPasswdReset,
   postNewPasswd
@@ -14,6 +15,8 @@ const router = Router()
 router.post('/login', postLogin)
 
 router.post('/logout', auth, postLogout)
+
+router.post('/refresh-token', auth, postRefreshToken)
 
 router.post('/password-reset', postPasswdReset)
 
