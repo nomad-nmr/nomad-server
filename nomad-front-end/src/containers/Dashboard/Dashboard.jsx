@@ -82,7 +82,7 @@ const Dashboard = props => {
   return (
     <Fragment>
       <Announcement announcement={props.announcement} />
-      
+
       <Animate transitionName='fade-cards'>
         {props.showCards ? (
           <InfoCards cardsData={props.statusSummary} clicked={tabChangeHandler} />
@@ -110,7 +110,7 @@ const mapStateToProps = state => {
     tableLoading: state.dash.tableLoading,
     drawerState: state.dash.drawerState,
     accessLevel: state.auth.accessLevel,
-    authToken: state.auth.token,    
+    authToken: state.auth.token,
     announcement: state.announcement.announcement,
     username: state.auth.username
   }

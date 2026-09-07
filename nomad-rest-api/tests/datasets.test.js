@@ -141,7 +141,7 @@ describe('GET /api/data/dataset/:datasetId', () => {
 
     const filePath = path.join(datastorePath, testExpOne.dataPath, testExpOne.expId)
     expect(getNMRiumDataObj).toHaveBeenCalledWith(filePath, testExpOne.title, false)
-    expect(getNMRiumDataObj).toHaveBeenCalled(2)
+    expect(getNMRiumDataObj).toHaveBeenCalledTimes(2)
   })
 })
 
@@ -239,7 +239,7 @@ describe('GET /api/data/dataset-exps/:datasetId', () => {
     expect(body.data.spectra.length).toBe(2)
     const filePath = path.join(datastorePath, testExpOne.dataPath, testExpOne.expId)
     expect(getNMRiumDataObj).toHaveBeenCalledWith(filePath, testExpOne.title, false)
-    expect(getNMRiumDataObj).toHaveBeenCalled(2)
+    expect(getNMRiumDataObj).toHaveBeenCalledTimes(2)
   })
 })
 

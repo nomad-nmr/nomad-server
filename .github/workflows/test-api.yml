@@ -11,7 +11,8 @@ jobs:
       FRONT_HOST_URL: 'http://localhost:3003'
       ADMIN_PASSWORD: 'password'
       JWT_SECRET: 'secret'
-      EMAIL_SUFFIX: 'email.com'
+      JWT_EXPIRATION: 36000
+      EMAIL_SUFFIX: ''
       SMTP_HOST: '###'
       SMTP_PORT: 587
       SMTP_SECURE: false
@@ -19,6 +20,10 @@ jobs:
       SMTP_USER: '###'
       SMTP_PASS: '###'
       SMTP_SENDER: '###'
+      SUBMIT_ON: true
+      DATASTORE_ON: true
+      DATASTORE_PATH: '/app/datastore'
+      DATA_UPLOAD_TIMEOUT: 30000
 
     runs-on: ubuntu-latest
     steps:
@@ -26,6 +31,10 @@ jobs:
         uses: actions/checkout@v4.2.0
         with:
           sparse-checkout: nomad-rest-api
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Install dependencies
         working-directory: nomad-rest-api
         run: npm ci

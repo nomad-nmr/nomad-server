@@ -56,7 +56,8 @@ export const getStatusTable = async (req, res) => {
         title: row.title,
         expT: row.time,
         status: row.status,
-        updatedAt: row.updatedAt
+        updatedAt: row.updatedAt,
+        startTime: row.startTime
       }
 
       if (index === 0 || prevRow.datasetName !== row.datasetName) {
@@ -72,6 +73,7 @@ export const getStatusTable = async (req, res) => {
         newRow.priority = row.priority
         newRow.status = row.status
         newRow.submittedAt = row.submittedAt
+        newRow.batchSubmit = row.batchSubmit
         newRow.exps = []
       } else {
         newRow.time = moment

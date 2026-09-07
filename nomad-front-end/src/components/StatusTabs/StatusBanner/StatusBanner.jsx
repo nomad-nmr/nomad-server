@@ -81,12 +81,17 @@ const StatusBanner = props => {
       <Button
         disabled={!accessLvl || checkedHolders.length === 0}
         onClick={() => {
-          const usernamesSet = new Set()
-          tabData.forEach(row => {
-            if (checkedHolders.includes(row.holder)) {
-              usernamesSet.add(row.username)
-            }
-          })
+          const checkedRows = tabData.filter(row => checkedHolders.includes(row.holder))
+
+          if (checkedRows.some(row => row.batchSubmit)) {
+            return Modal.error({
+              title: 'Batch submitted experiments cannot be resubmitted here',
+              content:
+                'One or more selected holders were submitted through the batch submission portal. Those experiments can be resubmitted only by using the button available on the batch submission rack.'
+            })
+          }
+
+          const usernamesSet = new Set(checkedRows.map(row => row.username))
           if (usernamesSet.size !== 1) {
             return Modal.error({
               title: 'Only holders booked by single user can be resubmitted'

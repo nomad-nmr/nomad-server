@@ -11,6 +11,7 @@ import Dataset from '../../models/dataset.js'
 import Rack from '../../models/rack.js'
 import Collection from '../../models/collection.js'
 import Grant from '../../models/grant.js'
+import Announcement from '../../models/announcement.js'
 
 import { testUserOne, testUserTwo, testUserAdmin, testUserThree } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
@@ -28,9 +29,10 @@ import {
   testExpEight
 } from './data/experiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
-import { testRackOne, testRackTwo, testRackThree } from './data/racks.js'
+import { testRackOne, testRackTwo, testRackThree, testRackFour } from './data/racks.js'
 import { testCollectionOne } from './data/collections.js'
 import { testGrantOne, testGrantTwo } from './data/grants.js'
+import { testAnnouncementOne } from './data/announcements.js'
 
 let mongo = null
 
@@ -61,6 +63,7 @@ export const setupDB = async () => {
   await Rack.deleteMany()
   await Collection.deleteMany()
   await Grant.deleteMany()
+  await Announcement.deleteMany()
 
   await new User(testUserOne).save()
   await new User(testUserTwo).save()
@@ -100,9 +103,12 @@ export const setupDB = async () => {
   await new Rack(testRackOne).save()
   await new Rack(testRackTwo).save()
   await new Rack(testRackThree).save()
+  await new Rack(testRackFour).save()
 
   await new Collection(testCollectionOne).save()
 
   await new Grant(testGrantOne).save()
   await new Grant(testGrantTwo).save()
+
+  await new Announcement(testAnnouncementOne).save()
 }

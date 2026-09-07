@@ -14,6 +14,7 @@ import {
   deleteSample,
   bookSamples,
   submitSamples,
+  resubmitSamples,
   cancelBookedSamples,
   editSample
 } from '../controllers/batch-submit.js'
@@ -55,6 +56,8 @@ router.delete('/sample/:rackId/:slot', auth, deleteSample)
 router.post('/book', auth, authAdmin, bookSamples)
 
 router.post('/submit', auth, authAdmin, submitSamples)
+
+router.post('/resubmit', auth, authAdmin, resubmitSamples)
 
 router.post('/cancel', auth, authAdmin, cancelBookedSamples)
 

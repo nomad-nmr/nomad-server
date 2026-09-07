@@ -201,6 +201,27 @@ export const submitSamples = (data, token) => {
   }
 }
 
+export const resubmitSamplesSuccess = payload => ({
+  type: actionTypes.RESUBMIT_SAMPLES_SUCCESS,
+  payload
+})
+
+export const resubmitSamples = (data, token) => {
+  return dispatch => {
+    dispatch(loadingStart())
+    axios
+      .post('/batch-submit/resubmit/', data, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(resubmitSamplesSuccess({ rackId: data.rackId, samples: res.data }))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
 export const cancelSamples = (data, token) => {
   return dispatch => {
     dispatch(loadingStart())

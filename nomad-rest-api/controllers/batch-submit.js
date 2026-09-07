@@ -1,5 +1,5 @@
 import { validationResult } from 'express-validator'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
@@ -8,6 +8,10 @@ import ParameterSet from '../models/parameterSet.js'
 import Group from '../models/group.js'
 import { getSubmitter } from '../server.js'
 import { getIO } from '../socket.js'
+
+//delay of the book command emitted upon resubmission
+//it allows the client to process the delete command first
+const BOOK_DELAY = 15000
 
 export const getRacks = async (req, res) => {
   try {
@@ -420,6 +424,174 @@ export const submitSamples = async (req, res) => {
       rackId: updatedRack._id,
       samples: updatedRack.samples.filter(sample => slots.includes(sample.slot))
     })
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ error: 'API error' })
+  }
+}
+
+export const resubmitSamples = async (req, res) => {
+  const { rackId, slots } = req.body
+  const submitter = getSubmitter()
+
+  try {
+    const rack = await Rack.findById(rackId)
+    if (!rack) {
+      return res.status(404).send('Rack not found!')
+    }
+
+    //grouping holders of the selected samples by instrument
+    const holdersObj = {}
+    const samplesToResubmit = []
+    rack.samples.forEach(sample => {
+      if (
+        slots.includes(sample.slot) &&
+        sample.instrument &&
+        sample.instrument.id &&
+        sample.holder
+      ) {
+        const instrId = sample.instrument.id.toString()
+        if (Object.keys(holdersObj).includes(instrId)) {
+          holdersObj[instrId].push(sample.holder)
+        } else {
+          holdersObj[instrId] = [sample.holder]
+        }
+        samplesToResubmit.push(sample)
+      }
+    })
+
+    if (Object.keys(holdersObj).length === 0) {
+      return res
+        .status(422)
+        .send({ errors: [{ msg: 'No booked holders found for the selected slots' }] })
+    }
+
+    //sending delete data to clients to free up the holders on the instruments
+    for (let instrId in holdersObj) {
+      const instrState = submitter.state.get(instrId)
+
+      if (!instrState || !instrState.socketId) {
+        console.log('Error: Client disconnected')
+        return res.status(503).send({ message: 'Client disconnected' })
+      }
+
+      getIO().to(instrState.socketId).emit('delete', JSON.stringify(holdersObj[instrId]))
+    }
+
+    //index of instrument in the instrument collection is part of the dataset name
+    const instrIds = await Instrument.find({}, '_id')
+
+    //creating new experiment entries in history to replace the deleted ones
+    //old entries are kept in history
+    const respArr = []
+    //data for book command is grouped by instrument and group
+    //as the client writes one USER line per submission file
+    const bookDataObj = {}
+    for (const sample of samplesToResubmit) {
+      const oldExps = await Experiment.find({ datasetName: sample.dataSetName }).sort({ expNo: 1 })
+      if (oldExps.length === 0) {
+        continue
+      }
+
+      const instrIndex = instrIds
+        .map(i => i._id.toString())
+        .findIndex(id => id === sample.instrument.id.toString())
+
+      const newDataSetName =
+        moment()
+          .tz(process.env.TIMEZONE || 'Europe/London')
+          .format('YYMMDDHHmm') +
+        '-' +
+        instrIndex +
+        '-' +
+        sample.holder +
+        '-' +
+        sample.user.username
+
+      const newExps = []
+      for (const oldExp of oldExps) {
+        const { _id, createdAt, updatedAt, __v, ...expProps } = oldExp.toObject()
+        const newExp = new Experiment({
+          ...expProps,
+          expId: newDataSetName + '-' + oldExp.expNo,
+          datasetName: newDataSetName,
+          status: 'Submitted'
+        })
+        await newExp.save()
+        newExps.push(newExp)
+      }
+
+      //updating the rack sample with new dataset name, status
+      //and _ids of the newly created experiments
+      sample.dataSetName = newDataSetName
+      sample.status = 'Submitted'
+      sample.exps = sample.exps.map((exp, index) => ({
+        paramSet: exp.paramSet,
+        params: exp.params,
+        expt: exp.expt,
+        _id: newExps[index] ? newExps[index]._id : exp._id
+      }))
+
+      //sample data that the client needs to write the submission file
+      //startTime is not included as resubmitted experiments run as soon as they get submitted
+      const bookEntry = {
+        group: sample.user.groupName,
+        holder: sample.holder,
+        sampleId: newDataSetName,
+        solvent: sample.solvent,
+        title: sample.title + ' [' + sample.tubeId + ']',
+        night: newExps[0].night,
+        priority: newExps[0].priority,
+        //submit flag stops the client from adding NO_SUBMIT flag into the submission file
+        submit: true,
+        experiments: newExps.map(exp => ({
+          expNo: exp.expNo,
+          paramSet: exp.parameterSet,
+          params: exp.parameters,
+          expTitle: `${exp.parameterSet} [${exp.parameters ? exp.parameters : ''}]`
+        }))
+      }
+
+      const bookKey = sample.instrument.id.toString() + '_' + sample.user.groupName
+      if (Object.keys(bookDataObj).includes(bookKey)) {
+        bookDataObj[bookKey].entries.push(bookEntry)
+      } else {
+        bookDataObj[bookKey] = {
+          instrId: sample.instrument.id.toString(),
+          entries: [bookEntry]
+        }
+      }
+
+      respArr.push({
+        holder: sample.holder,
+        instrumentName: sample.instrument.name,
+        dataSetName: newDataSetName,
+        status: sample.status
+      })
+    }
+
+    await rack.save()
+
+    //book command is delayed to avoid racing condition with the delete command
+    setTimeout(() => {
+      try {
+        for (let key in bookDataObj) {
+          const { instrId, entries } = bookDataObj[key]
+          const instrState = submitter.state.get(instrId)
+
+          if (!instrState || !instrState.socketId) {
+            console.log('Error: Client disconnected')
+            continue
+          }
+
+          getIO().to(instrState.socketId).emit('book', JSON.stringify(entries))
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }, BOOK_DELAY)
+
+    res.status(200).json(respArr)
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })

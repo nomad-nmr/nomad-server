@@ -66,8 +66,6 @@ const reducer = (state = initialState, { type, payload }) => {
       const updatedRack = { ...racksNew[rIndex], samples: newSamples }
       racksNew[rIndex] = updatedRack
 
-      console.log(payload.data)
-
       const plural = payload.data.length > 1
       let message = (
         <div>
@@ -143,6 +141,30 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.SUBMIT_SAMPLES_SUCCESS:
       return { ...state, selectedSlots: [], loading: false, racks: updateRacks() }
+
+    case actionTypes.RESUBMIT_SAMPLES_SUCCESS:
+      const racksAfterResubmit = state.racks.map(rack => {
+        if (rack._id !== payload.rackId) {
+          return rack
+        }
+        const updatedSamples = rack.samples.map(sample => {
+          const resubmittedSample = payload.samples.find(
+            i =>
+              sample.instrument &&
+              i.holder === sample.holder &&
+              i.instrumentName === sample.instrument.name
+          )
+          return resubmittedSample
+            ? {
+                ...sample,
+                dataSetName: resubmittedSample.dataSetName,
+                status: resubmittedSample.status
+              }
+            : sample
+        })
+        return { ...rack, samples: updatedSamples }
+      })
+      return { ...state, selectedSlots: [], loading: false, racks: racksAfterResubmit }
 
     case actionTypes.EDIT_SAMPLE_SUCCESS:
       const newRacksArray = [...state.racks]
