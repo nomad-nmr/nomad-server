@@ -1,42 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router'
-import {
-  Form,
-  Select,
-  Input,
-  Row,
-  Col,
-  Spin,
-  Button,
-  Divider,
-  Space,
-  message,
-  Modal,
-  Checkbox,
-  Tooltip,
-  Popconfirm
-} from 'antd'
-import { ClockCircleOutlined } from '@ant-design/icons'
+import { Form, Spin, Button, Space, message, Popconfirm } from 'antd'
 import moment from 'moment'
 
-import SolventSelect from './SolventSelect/SolventSelect'
-import TitleInput from './TitleInput/TitleInput'
+import FormHeader from './FormHeader/FormHeader'
+import SampleRow from './SampleRow/SampleRow'
 import EditParamsModal from '../../Modals/EditParamsModal/EditPramsModal'
 import TimedExperimentsModal from '../../Modals/TimedExperimentsModal/TimedExperimentsModal'
-import nightIcon from '../../../assets/night-mode.svg'
 
-import axios from '../../../axios-instance'
-
-import classes from './BookExperimentsForm.module.css'
-
-const { Option } = Select
-
-const disabledStyle = {
-  textAlign: 'center',
-  color: '#389e0d',
-  fontWeight: 600,
-  backgroundColor: '#f0f5ff'
-}
+import createOnFinishHandler from './submitBooking'
+import {
+  deriveTimedStatus,
+  getExperimentSetSeconds,
+  computeExpTimeUpdate,
+  computeExpTimeRemoval
+} from './bookExperimentsUtils'
 
 const BookExperimentsForm = props => {
   const [form] = Form.useForm()
@@ -50,7 +28,6 @@ const BookExperimentsForm = props => {
 
   const [timingModalVisible, setTimingModalVisible] = useState(false)
   const [timingModalData, setTimingModalData] = useState({})
-  const [resetTimingModal, setResetTimingModal] = useState(undefined)
 
   const [resetModal, setResetModal] = useState(undefined)
   const [exptState, setExptState] = useState({})
@@ -208,25 +185,19 @@ const BookExperimentsForm = props => {
     }
     const expNo = 10 + newFormState[index].expCount
     form.resetFields([[e.target.value, 'exps', expNo]])
-    const newExptState = { ...exptState }
-    delete newExptState[e.target.value + '#' + expNo]
 
-    const sampleKey = e.target.value.split('#')[0]
-    const oldExpt = exptState[e.target.value + '#' + expNo]
-    const newTotalExptValue = moment
-      .duration(totalExptState[sampleKey], 'seconds')
-      .subtract(oldExpt)
-      .as('seconds')
+    const newState = computeExpTimeRemoval({
+      exptState,
+      totalExptState,
+      compositeKey: e.target.value + '#' + expNo
+    })
 
-    const newTotalExptState = { ...totalExptState, [sampleKey]: newTotalExptValue }
-
-    setExptState(newExptState)
-    setTotalExptState(newTotalExptState)
+    setExptState(newState.exptState)
+    setTotalExptState(newState.totalExptState)
   }
 
   const onParamSetChange = (sampleKey, expNo, paramSetName) => {
     form.resetFields([[sampleKey, 'exps', expNo, 'params']])
-    const key = sampleKey + '#' + expNo
     const paramSet = props.paramSetsData.find(paramSet => paramSet.name === paramSetName)
 
     if (paramSet.defaultParams.length < 4) {
@@ -234,20 +205,16 @@ const BookExperimentsForm = props => {
         'Expt calculation cannot be performed. Default parameters were not defined'
       )
     }
-    const newExptState = { ...exptState, [key]: paramSet.defaultParams[4].value }
 
-    const oldExpt = exptState[key]
+    const newState = computeExpTimeUpdate({
+      exptState,
+      totalExptState,
+      compositeKey: sampleKey + '#' + expNo,
+      newExpTime: paramSet.defaultParams[4].value
+    })
 
-    let newTotalExptValue = moment
-      .duration(totalExptState[sampleKey], 'seconds')
-      .subtract(oldExpt)
-      .add(moment.duration(paramSet.defaultParams[4].value))
-      .as('seconds')
-
-    const newTotalExptState = { ...totalExptState, [sampleKey]: newTotalExptValue }
-
-    setExptState(newExptState)
-    setTotalExptState(newTotalExptState)
+    setExptState(newState.exptState)
+    setTotalExptState(newState.totalExptState)
   }
 
   const openModalHandler = (event, key, expNo) => {
@@ -283,21 +250,15 @@ const BookExperimentsForm = props => {
       }
 
       if (param === 'expt') {
-        const newExptState = { ...exptState, [key]: params.expt }
+        const newState = computeExpTimeUpdate({
+          exptState,
+          totalExptState,
+          compositeKey: key,
+          newExpTime: params.expt
+        })
 
-        const sampleKey = key.split('#')[0]
-
-        const oldExpt = exptState[key]
-        const newTotalExptValue = moment
-          .duration(totalExptState[sampleKey], 'seconds')
-          .subtract(oldExpt)
-          .add(moment.duration(params.expt))
-          .as('seconds')
-
-        const newTotalExptState = { ...totalExptState, [sampleKey]: newTotalExptValue }
-
-        setExptState(newExptState)
-        setTotalExptState(newTotalExptState)
+        setExptState(newState.exptState)
+        setTotalExptState(newState.totalExptState)
       }
     }
     paramsString = paramsString.substring(0, paramsString.length - 1)
@@ -329,35 +290,11 @@ const BookExperimentsForm = props => {
     setTimingModalVisible(false)
   }
 
-  const isValidTimeString = value => {
-    if (!value) return false
-    return /^([01]\d|2[0-3]):([0-5]\d)$/.test(value)
-  }
-
-  const getTimedConfigStatus = key => {
-    const firstExperimentStartsAt = form.getFieldValue([key, 'firstExperimentStartsAt'])
-    const repeatLoops = form.getFieldValue([key, 'repeatLoops'])
-
-    const loops = Array.isArray(repeatLoops) ? repeatLoops : []
-
-    const hasFirstStart = !!firstExperimentStartsAt
-    const hasRepeatLoops = loops.some(
-      loop => Number(loop?.count) > 0 || (loop?.lag && loop.lag !== '00:00')
+  const getTimedConfigStatus = key =>
+    deriveTimedStatus(
+      form.getFieldValue([key, 'firstExperimentStartsAt']),
+      form.getFieldValue([key, 'repeatLoops'])
     )
-
-    const isEmpty = !hasFirstStart && !hasRepeatLoops
-    if (isEmpty) return 'empty'
-
-    const validFirstStart = !firstExperimentStartsAt || isValidTimeString(firstExperimentStartsAt)
-
-    const validLoops = loops.every(loop => {
-      const validLag = !loop?.lag || isValidTimeString(loop.lag)
-      const validCount = Number.isInteger(Number(loop?.count)) && Number(loop.count) >= 0
-      return validLag && validCount
-    })
-
-    return validFirstStart && validLoops ? 'valid' : 'invalid'
-  }
 
   const timingModalOkHandler = values => {
     const key = Object.keys(values)[0]
@@ -375,427 +312,67 @@ const BookExperimentsForm = props => {
     setTimingModalVisible(false)
   }
 
-  const onFinishHandler = async values => {
-    const expRejectError = {
-      title: 'Maximum allowance exceeded',
-      content: 'Total experimental time for at least one instrument has exceeded maximum allowance'
-    }
-    const maxNightRejectError = {
-      title: 'Total length of night experiments exceeded',
-      content: `The queue of night experiments exceeds maximum length and your experiment would likely not get executed tonight. 
-      Please, try to submit your experiment to a different instrument`
-    }
-
-    const nightQueueWarning = {
-      title: 'Maximum allowance exceeded',
-      content:
-        'The experiments that exceeded peak time allowance or do not fit in the remaining day queue will be submitted into the night queue.',
-      onOk: () => {
-        const nightExptAccumulator = getExptAccumulator(values, totalExptState, true)
-        for (let instrId in nightExptAccumulator) {
-          const { nightAllowance, nightExpt, nightEnd, nightStart } = allowanceData.find(
-            i => i.instrId === instrId
-          )
-
-          const maxNight = Math.abs(
-            moment
-              .duration(moment(nightStart, 'HH:mm').diff(moment(nightEnd, 'HH:mm').add(1, 'day')))
-              .as('seconds')
-          )
-
-          if (
-            moment.duration(nightExpt, 'HH:mm').as('seconds') + nightExptAccumulator[instrId] >
-            maxNight
-          ) {
-            return Modal.error(maxNightRejectError)
-          }
-
-          if (nightExptAccumulator[instrId] > nightAllowance * 60) {
-            return Modal.error(expRejectError)
-          }
-        }
-        props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
-        navigate('/dashboard')
-      }
-    }
-
-    if (!priorityAccess) {
-      //!!!Logic for night/day traffic control!!!
-      //Checking individual experiments. Those that fit night allowance get night tag.
-      //If there is one that does not fit then submission does not proceed.
-      //The night checkbox is rendered for priority users only, so the flag has to be
-      //initialised here to avoid submitting undefined
-      for (let sampleKey in values) {
-        values[sampleKey].night = false
-      }
-      let nightExpSubmit = false
-      for (let sampleKey in totalExptState) {
-        const instrId = sampleKey.split('-')[0]
-
-        const { dayAllowance, nightAllowance } = allowanceData.find(i => i.instrId === instrId)
-
-        if (
-          totalExptState[sampleKey] > dayAllowance * 60 &&
-          totalExptState[sampleKey] < nightAllowance * 60
-        ) {
-          values[sampleKey].night = true
-          nightExpSubmit = true
-        }
-
-        if (totalExptState[sampleKey] > nightAllowance * 60) {
-          return Modal.error(expRejectError)
-        }
-      }
-
-      //Summing up all day experiments for individual experiments
-      const dayExptAccumulator = getExptAccumulator(values, totalExptState, false)
-
-      //Assessing sums of expt for day experiments
-      for (let instrId in dayExptAccumulator) {
-        const { dayAllowance, nightStart, dayExpt } = allowanceData.find(i => i.instrId === instrId)
-
-        const dayQueueRemains = Math.round(
-          moment.duration(moment(nightStart, 'HH:mm').diff(moment())).as('minutes') -
-            moment.duration(dayExpt, 'HH:mm').as('minutes')
-        )
-
-        if (
-          dayExptAccumulator[instrId] > dayAllowance * 60 ||
-          dayExptAccumulator[instrId] > dayQueueRemains * 60
-        ) {
-          //if sum of day experiments exceeds day allowance or does not fit into remaining day queue
-          //experiments get night tag and logic for night submitting is triggered
-          for (let sampleKey in values) {
-            if (instrId === sampleKey.split('-')[0]) {
-              values[sampleKey].night = true
-            }
-          }
-          nightExpSubmit = true
-        }
-      }
-
-      if (nightExpSubmit) {
-        return Modal.confirm(nightQueueWarning)
-      }
-    }
-
-    //Getting instrument ids for samples that have timed experiments defined
-    //and fetching the longest experimental time in the queue for each of those instruments
-    const timedInstrIds = Array.from(
-      new Set(
-        Object.keys(values)
-          .filter(key => {
-            const loops = values[key]?.repeatLoops
-            return (
-              Array.isArray(loops) &&
-              loops.some(loop => Number(loop?.count) > 0 && loop?.lag !== '00:00')
-            )
-          })
-          .map(key => key.split('-')[0])
-      )
-    )
-
-    if (timedInstrIds.length > 0) {
-      let longestExpTimeData
-      try {
-        const { data } = await axios.get('admin/instruments/longest-exp-time', {
-          params: { instrumentIds: timedInstrIds.join(',') },
-          headers: { Authorization: 'Bearer ' + token }
-        })
-        longestExpTimeData = data
-      } catch (error) {
-        console.log(error)
-        return message.error('Failed to fetch the longest experimental time')
-      }
-
-      //Checking whether lag of any repeat loop is shorter than the longest submitted experiment
-      //on the instrument. Such a loop is likely to get delayed by the experiment running in the queue.
-      const shortLagFound = Object.keys(values).some(key => {
-        const loops = values[key]?.repeatLoops
-        if (!Array.isArray(loops)) return false
-
-        const found = longestExpTimeData.find(entry => entry.instrumentId === key.split('-')[0])
-        if (!found) return false
-
-        const longestExpTimeMins = moment.duration(found.longestExpTime, 'HH:mm').as('minutes')
-
-        return loops.some(
-          loop =>
-            Number(loop?.count) > 0 &&
-            loop?.lag !== '00:00' &&
-            moment.duration(loop.lag, 'HH:mm').as('minutes') < longestExpTimeMins
-        )
-      })
-
-      if (shortLagFound) {
-        return Modal.warning({
-          title: 'Repeat lag shorter than experiment in the queue',
-          content: `The lag of at least one repeat loop is shorter than the longest experiment submitted on the instrument. 
-          The timing of the repeated experiments might not be accurate. Click OK to proceed with the submission or Cancel to adjust the repeat lag.`,
-          okCancel: true,
-          onOk: () => {
-            props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
-            navigate('/dashboard')
-          }
-        })
-      }
-    }
-
-    props.bookExpsHandler(token, { formData: values }, props.submittingUserId)
-    navigate('/dashboard')
-  }
-
   //Generating form items from input data. inputData is array of objects.
   //The key property is the unique identifier created from instrument ID and holder number.
   const formItems = props.inputData.map(sample => {
+    const key = sample.key
     const expNoArr = []
-    const found = formState.find(entry => entry.key === sample.key)
+    const found = formState.find(entry => entry.key === key)
     if (found) {
       for (let i = 0; i < found.expCount; i++) {
         expNoArr.push((10 + i).toString())
       }
     }
-    //Filtering paramSetsData to get array specific for the instrument
-    //And generating corresponding Options for Select input
-    const filteredParamSetArr = props.paramSetsData.filter(paramSet =>
-      paramSet.availableOn.includes(sample.instId.toString())
-    )
-    const paramSetsOptions = filteredParamSetArr.map((paramSet, i) => (
-      <Option value={paramSet.name} key={i}>
-        {`${paramSet.description} [${paramSet.name}]`}
-      </Option>
-    ))
-
-    //changing style of totalExpt time according to allowance state
-    const totalExptClass = [classes.TotalExptBasic]
-    const key = sample.key
-    const instrId = key.split('-')[0]
-    const allowanceDataInstr = allowanceData.find(i => i.instrId === instrId)
-    if (allowanceDataInstr) {
-      const { dayAllowance, nightAllowance } = allowanceDataInstr
-      if (totalExptState[key] < dayAllowance * 60) {
-        totalExptClass.push(classes.TotalExptOk)
-      } else if (totalExptState[key] > nightAllowance * 60) {
-        totalExptClass.push(classes.TotalExptDanger)
-      } else {
-        totalExptClass.push(classes.TotalExptWarning)
-      }
-    }
-    const timedStatus = getTimedConfigStatus(key)
-
-    const checkBoxes = (
-      <Col span={2} className={classes.CheckBoxes}>
-        <Space size='large'>
-          <Form.Item name={[key, 'night']} initialValue={false} valuePropName='checked'>
-            <Checkbox disabled={timedStatus === 'valid'} />
-          </Form.Item>
-
-          <Form.Item name={[key, 'priority']} initialValue={false} valuePropName='checked'>
-            <Checkbox disabled={timedStatus === 'valid'} />
-          </Form.Item>
-        </Space>
-
-        <Tooltip title='Timed Experiments'>
-          <Button size='small' style={{ marginBottom: 24 }} onClick={() => openTimingModal(key)}>
-            <ClockCircleOutlined
-              style={{
-                color:
-                  timedStatus === 'valid'
-                    ? '#52c41a'
-                    : timedStatus === 'invalid'
-                      ? '#ff4d4f'
-                      : undefined
-              }}
-            />
-          </Button>
-        </Tooltip>
-      </Col>
-    )
 
     return (
-      <div key={key}>
-        <Row gutter={16}>
-          <Col span={2}>
-            <Form.Item name={[key, 'instrumentName']} initialValue={sample.instrument}>
-              <Input size='small' disabled style={disabledStyle} />
-            </Form.Item>
-          </Col>
-          <Col span={2}>
-            <Space>
-              <Form.Item name={[key, 'holder']} initialValue={sample.holder}>
-                <Input size='small' disabled style={disabledStyle} />
-              </Form.Item>
-              <Tooltip title='Skip this holder and proceed to the next one'>
-                <Button
-                  type='primary'
-                  style={{ marginBottom: '25px' }}
-                  onClick={() => props.getNewHolder(token, key)}
-                  disabled={!sample.skipHolder && !priorityAccess}
-                  loading={props.newHolderLoading && props.newHolderData?.key === key}
-                >
-                  Skip
-                </Button>
-              </Tooltip>
-            </Space>
-          </Col>
-
-          <Col span={2}>
-            <SolventSelect nameKey={key} />
-          </Col>
-          <Col span={priorityAccess ? 5 : 6}>
-            <TitleInput nameKey={key} />
-          </Col>
-          <Col span={1}>
-            <Space>
-              <button className={classes.CircleButton} value={key} onClick={addExpHandler}>
-                +
-              </button>
-              <button
-                className={[classes.CircleButton, classes.CircleButtonMinus].join(' ')}
-                value={key}
-                onClick={removeExpHandler}
-              >
-                -
-              </button>
-            </Space>
-          </Col>
-          <Col span={9}>
-            {expNoArr.map(expNo => (
-              <Row key={expNo} gutter={16} align='top'>
-                <Col span={1}>
-                  <span>{expNo}</span>
-                </Col>
-                <Col span={13}>
-                  <Form.Item
-                    name={[key, 'exps', expNo, 'paramSet']}
-                    style={{ textAlign: 'left' }}
-                    rules={[
-                      {
-                        required: true,
-                        message: 'Parameter set is required'
-                      }
-                    ]}
-                  >
-                    <Select
-                      showSearch
-                      filterOption={(val, option) => {
-                        return option.children.toLowerCase().indexOf(val.toLowerCase()) > -1
-                      }}
-                      onChange={value => {
-                        onParamSetChange(key, expNo, value)
-                      }}
-                    >
-                      {paramSetsOptions}
-                    </Select>
-                  </Form.Item>
-                </Col>
-                <Col span={7}>
-                  <Space align='start'>
-                    <Form.Item name={[key, 'exps', expNo, 'params']}>
-                      <Input disabled style={disabledStyle} />
-                    </Form.Item>
-                    <Button
-                      type='primary'
-                      value={key}
-                      onClick={e => openModalHandler(e, key, expNo)}
-                      disabled={!sample.paramsEditing && !priorityAccess}
-                    >
-                      Edit
-                    </Button>
-                  </Space>
-                </Col>
-                <Col span={2}>{exptState[key + '#' + expNo]}</Col>
-              </Row>
-            ))}
-          </Col>
-
-          {priorityAccess && checkBoxes}
-          <Form.Item name={[key, 'firstExperimentStartsAt']} initialValue='' hidden>
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name={[key, 'repeatLoops']}
-            initialValue={[{ lag: '00:00', count: 0 }]}
-            noStyle
-          >
-            <Input style={{ display: 'none' }} />
-          </Form.Item>
-
-          {!resubmit && (
-            <Col span={1}>
-              <button
-                className={classes.CancelButton}
-                disabled={resubmit}
-                value={key}
-                onClick={e => {
-                  e.preventDefault()
-                  props.onCancelHolder(props.token, e.target.value)
-                  form.resetFields([e.target.value])
-                }}
-              >
-                Cancel
-              </button>
-            </Col>
-          )}
-        </Row>
-        <Row gutter={16}>
-          <Col
-            span={3}
-            offset={priorityAccess ? 19 : 20}
-            style={{ textAlign: 'right', marginBottom: 10 }}
-          >
-            <span className={totalExptClass.join(' ')}>
-              Total ExpT:
-              {'  ' +
-                moment.duration(totalExptState[key], 'seconds').format('HH:mm:ss', { trim: false })}
-            </span>
-          </Col>
-        </Row>
-        <Divider style={{ marginTop: 0 }} />
-      </div>
+      <SampleRow
+        key={key}
+        sample={sample}
+        expNoArr={expNoArr}
+        paramSetsData={props.paramSetsData}
+        exptState={exptState}
+        totalExpt={totalExptState[key]}
+        allowanceDataInstr={allowanceData.find(i => i.instrId === key.split('-')[0])}
+        timedStatus={getTimedConfigStatus(key)}
+        priorityAccess={priorityAccess}
+        resubmit={resubmit}
+        newHolderLoading={props.newHolderLoading}
+        newHolderKey={props.newHolderData?.key}
+        onAddExp={addExpHandler}
+        onRemoveExp={removeExpHandler}
+        onSkipHolder={() => props.getNewHolder(token, key)}
+        onCancelHolder={e => {
+          e.preventDefault()
+          props.onCancelHolder(props.token, e.target.value)
+          form.resetFields([e.target.value])
+        }}
+        onParamSetChange={(expNo, value) => onParamSetChange(key, expNo, value)}
+        onOpenParamsModal={(event, expNo) => openModalHandler(event, key, expNo)}
+        onOpenTimingModal={() => openTimingModal(key)}
+      />
     )
   })
 
-  const checkBoxesHeader = (
-    <Col span={1} className={classes.CheckBoxes} flex={18}>
-      <Space size='large'>
-        <Tooltip title='Sample submitted into night queue'>
-          <img src={nightIcon} style={{ height: '18px' }} alt='night icon' />
-        </Tooltip>
-        <Tooltip className={classes.Priority} title='Sample submitted with priority'>
-          P
-        </Tooltip>
-      </Space>
-    </Col>
-  )
-
   return (
     <div style={{ margin: '20px 40px' }}>
-      <Row gutter={16} className={classes.Header}>
-        <Col span={2}>Instrument</Col>
-        <Col span={2}>Holder</Col>
-        <Col span={2}>Solvent</Col>
-        <Col span={priorityAccess ? 5 : 6}>Title</Col>
-        <Col span={1}>
-          <span style={{ marginLeft: 20 }}>ExpNo</span>
-        </Col>
-        <Col span={3} offset={1}>
-          Experiment [Parameter Set]
-        </Col>
-        <Col span={2} offset={1}>
-          <span style={{ marginLeft: 30 }}>Parameters</span>
-        </Col>
-        <Col span={2}>
-          <span style={{ marginLeft: 30 }}>ExpT</span>
-        </Col>
-        {priorityAccess && checkBoxesHeader}
-      </Row>
+      <FormHeader priorityAccess={priorityAccess} />
 
       {props.loading ? (
         <Spin size='large' style={{ margin: 30 }} />
       ) : (
-        <Form form={form} ref={props.formRef} size='small' onFinish={onFinishHandler}>
+        <Form
+          form={form}
+          size='small'
+          onFinish={createOnFinishHandler({
+            priorityAccess,
+            allowanceData,
+            totalExptState,
+            token,
+            submittingUserId: props.submittingUserId,
+            bookExpsHandler: props.bookExpsHandler,
+            navigate
+          })}
+        >
           {formItems}
           <Space>
             <Form.Item>
@@ -827,7 +404,6 @@ const BookExperimentsForm = props => {
             closeModal={closeTimingModal}
             onOkHandler={timingModalOkHandler}
             inputData={timingModalData}
-            reset={resetTimingModal}
           />
 
           <EditParamsModal
@@ -843,29 +419,4 @@ const BookExperimentsForm = props => {
   )
 }
 
-//Helper function that sums totalExpT stored in state for night or day experiment
-const getExptAccumulator = (formValues, totalExptState, nightOption) => {
-  const exptAccumulator = {}
-  const sampleKeysArr = Object.keys(formValues)
-
-  sampleKeysArr.forEach(sampleKey => {
-    const instrId = sampleKey.split('-')[0]
-    if (nightOption ? formValues[sampleKey].night : !formValues[sampleKey].night) {
-      if (exptAccumulator[instrId]) {
-        exptAccumulator[instrId] += totalExptState[sampleKey]
-      } else {
-        exptAccumulator[instrId] = totalExptState[sampleKey]
-      }
-    }
-  })
-  return exptAccumulator
-}
-
 export default BookExperimentsForm
-
-//Helper function that sums totalExpT stored in state for all experiments of a sample
-const getExperimentSetSeconds = (sampleKey, exptState) => {
-  return Object.entries(exptState)
-    .filter(([key]) => key.startsWith(`${sampleKey}#`))
-    .reduce((sum, [, expTime]) => sum + moment.duration(expTime).asSeconds(), 0)
-}
