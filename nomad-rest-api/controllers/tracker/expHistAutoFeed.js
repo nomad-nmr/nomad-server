@@ -97,27 +97,37 @@ const expHistAutoFeed = async (instrument, statusTable, historyTable) => {
           user: { username: user.username, id: user._id }
         }
 
-        //Console log for debugging saving experiments in DB with duplicate key after server restart
-        if (process.env.SUBMIT_ON !== 'false') {
-          console.log('!!!!!!!AUTO-FEED - saving new experiment!!!!')
+        //the experiment can already be in the database, for example after a restored status.html file gets parsed again
+        //creating a duplicate would fail on the unique expId index and archived data must not be uploaded again
+        const existingExp = await Experiment.findOne({ expId: newHistItem.expId }, 'status')
+
+        if (existingExp) {
+          console.log(
+            `AUTO-FEED: experiment ${newHistItem.expId} already exists with status "${existingExp.status}" - skipping`
+          )
+        } else {
+          //Console log for debugging saving experiments in DB with duplicate key after server restart
+          if (process.env.SUBMIT_ON !== 'false') {
+            console.log('!!!!!!!AUTO-FEED - saving new experiment!!!!')
+          }
+
+          //sending message to client through socket to upload data when experiment is completed
+          if (
+            newHistItem.status === 'Completed' &&
+            process.env.DATASTORE_ON !== 'false'
+            // &&
+            // process.env.SUBMIT_ON === 'false'
+          ) {
+            console.log('AUTO-FEED - sending upload command')
+            const { datasetName, expNo, group } = histItem
+
+            //upload could get be sent twice if submission is on and experiment is missing in history
+            sendUploadCmd(instrument.id.toString(), { datasetName, expNo, group }, 'upload-auto')
+          }
+
+          const experiment = new Experiment(newHistItem)
+          await experiment.save()
         }
-
-        //sending message to client through socket to upload data when experiment is completed
-        if (
-          newHistItem.status === 'Completed' &&
-          process.env.DATASTORE_ON !== 'false'
-          // &&
-          // process.env.SUBMIT_ON === 'false'
-        ) {
-          console.log('AUTO-FEED - sending upload command')
-          const { datasetName, expNo, group } = histItem
-
-          //upload could get be sent twice if submission is on and experiment is missing in history
-          sendUploadCmd(instrument.id.toString(), { datasetName, expNo, group }, 'upload-auto')
-        }
-
-        const experiment = new Experiment(newHistItem)
-        await experiment.save()
       }
     }
 

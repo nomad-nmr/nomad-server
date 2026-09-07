@@ -11,6 +11,7 @@ import sendStatusEmail from '../controllers/tracker/sendStatusEmail.js'
 
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testInstrThree } from './fixtures/data/instruments.js'
+import { testExpSix, testExpEight } from './fixtures/data/experiments.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -75,5 +76,62 @@ describe('PATCH /status', () => {
     expect(sendStatusEmail.error).toBeCalled()
     const exp2 = await Experiment.findOne({ datasetName: '2501291553-5-2-tl12' })
     expect(exp2.status).toBe('Error')
+  })
+
+  it('should not change status of an archived experiment but should keep the parsed status in the instrument status table', async () => {
+    await Experiment.findByIdAndUpdate(testExpEight._id, { status: 'Archived' })
+
+    statusTestObj.submitted.instrumentId = testInstrThree._id
+    await request(app).patch('/api/tracker/status').send(statusTestObj.submitted).expect(201)
+
+    const exp = await Experiment.findById(testExpEight._id)
+    expect(exp.status).toBe('Archived')
+
+    //status table of the instrument is a live view of IconNMR and keeps the parsed status
+    const { status } = await Instrument.findById(testInstrThree._id)
+    expect(status.statusTable[1].datasetName).toBe('2501291553-5-2-tl12')
+    expect(status.statusTable[1].status).toBe('Submitted')
+  })
+
+  it('should not send error status e-mail for an archived experiment', async () => {
+    await Experiment.findByIdAndUpdate(testExpEight._id, { status: 'Archived' })
+
+    statusTestObj.running.instrumentId = testInstrThree._id
+    await request(app).patch('/api/tracker/status').send(statusTestObj.running).expect(201)
+
+    statusTestObj.error.instrumentId = testInstrThree._id
+    await request(app).patch('/api/tracker/status').send(statusTestObj.error).expect(201)
+
+    expect(sendStatusEmail.error).not.toBeCalled()
+    const exp = await Experiment.findById(testExpEight._id)
+    expect(exp.status).toBe('Archived')
+  })
+})
+
+describe('Archived status guard in Experiment model', () => {
+  it('should ignore status change in findByIdAndUpdate but apply the other properties', async () => {
+    await Experiment.findByIdAndUpdate(testExpSix._id, { status: 'Completed', remarks: 'test' })
+
+    const exp = await Experiment.findById(testExpSix._id)
+    expect(exp.status).toBe('Archived')
+    expect(exp.remarks).toBe('test')
+  })
+
+  it('should ignore status change through save() but apply the other properties', async () => {
+    const exp = await Experiment.findById(testExpSix._id)
+    exp.status = 'Completed'
+    exp.remarks = 'test'
+    await exp.save()
+
+    const updatedExp = await Experiment.findById(testExpSix._id)
+    expect(updatedExp.status).toBe('Archived')
+    expect(updatedExp.remarks).toBe('test')
+  })
+
+  it('should allow status change of experiment that is not archived', async () => {
+    await Experiment.findByIdAndUpdate(testExpEight._id, { status: 'Completed' })
+
+    const exp = await Experiment.findById(testExpEight._id)
+    expect(exp.status).toBe('Completed')
   })
 })

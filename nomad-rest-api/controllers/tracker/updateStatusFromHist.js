@@ -51,6 +51,38 @@ const updateStatusFromHist = async (instrument, statusTable, historyTable) => {
           const expHistEntry = await Experiment.findOne({ expId })
 
           if (expHistEntry) {
+            //"Archived" is the terminal status of the experiment life cycle.
+            //Re-parsing a restored status.html file must not move an archived experiment back to an earlier status,
+            //which would remove it from experiment search and from accounting.
+            if (expHistEntry.status === 'Archived') {
+              console.log(
+                `Status update to "${entry.status}" for archived experiment ${expId} was ignored`
+              )
+
+              const {
+                solvent,
+                parameters,
+                night,
+                priority,
+                submittedAt,
+                updatedAt,
+                batchSubmit,
+                startTime
+              } = expHistEntry
+
+              return {
+                ...entry,
+                solvent,
+                parameters,
+                night,
+                priority,
+                submittedAt,
+                updatedAt,
+                batchSubmit,
+                startTime
+              }
+            }
+
             if (oldEntry) {
               if (oldEntry.status === 'Available') {
                 updateObj.submittedAt = new Date()

@@ -949,6 +949,8 @@ Each `PATCH /api/tracker/status` runs the following pipeline:
 `updateStatusFromHist()` diffs the new status table against the stored one and only
 touches the database when a row is new or its status changed. Rules:
 
+- An experiment already stored as **`Archived`** is skipped entirely — no status write, no
+  upload command, no notification e-mail. See "terminal status" below.
 - A transition **back to `Available`** from any other status is ignored — this prevents
   experiments cancelled inside IconNMR from disappearing from search results.
 - `Available` → anything sets `submittedAt`.
@@ -984,6 +986,25 @@ sequenceDiagram
 instead, so a communication failure followed by a repair upload cannot inflate the
 accounting. For the first experiment of a sample (`expNo === '10'`) the instrument's
 `overheadTime` is added to that fallback value.
+
+**`Archived` is the terminal status.** Experiment search (§8.9) and every accounting and
+statistics aggregation (§13) select on `status: 'Archived'`, so an experiment that leaves
+that status silently disappears from both. This can happen when a `status.html` file is
+restored on the instrument PC and parsed again, feeding the tracker stale IconNMR rows.
+The status is therefore protected on two levels:
+
+- `updateStatusFromHist()` skips archived experiments before any side effect (§11.2). The
+  row returned into `instrument.status.statusTable` keeps the status parsed from IconNMR,
+  because `Archived` is a NOMAD-only status that never appears on the instrument's live
+  status board.
+- Mongoose middleware on the `Experiment` schema (`post('init')` + `pre('save')` +
+  `pre(['findOneAndUpdate', 'updateOne'])`) drops any attempt to move the status away from
+  `Archived`, whichever code path issues it. Only the `status` field is dropped; all other
+  properties of an archived experiment stay editable. The hooks are bypassed by the native
+  driver (`Experiment.collection.updateOne(...)`) if un-archiving is ever genuinely needed.
+
+`expHistAutoFeed()` likewise skips creating an experiment whose `expId` already exists,
+which previously failed on the unique index and aborted the whole status update.
 
 ### 11.4 Batch submission
 
