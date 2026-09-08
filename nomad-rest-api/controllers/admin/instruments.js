@@ -20,7 +20,8 @@ export const getInstruments = async (req, res) => {
           name: instr.name,
           id: instr._id,
           available: instr.available,
-          isManual: instr.isManual
+          isManual: instr.isManual,
+          isActive: instr.isActive
         }
       })
 

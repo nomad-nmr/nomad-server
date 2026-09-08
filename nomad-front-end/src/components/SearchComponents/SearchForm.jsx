@@ -48,6 +48,7 @@ const SearchForm = props => {
   const { datasetName } = useParams()
 
   const [instrumentId, setInstrumentId] = useState(null)
+  const [instrInactive, setInstrInactive] = useState(false)
   const [groupList, setGroupList] = useState([])
   const [showEditor, setShowEditor] = useState(false)
 
@@ -77,6 +78,9 @@ const SearchForm = props => {
   useEffect(() => {
     form.resetFields()
     setGrpUsr()
+    setInstrInactive(false)
+    setInstrumentId(null)
+    fetchInstList(authToken)
   }, [dataType])
 
   //hook to search using dataset name extracted from status email link
@@ -137,17 +141,36 @@ const SearchForm = props => {
   ))
 
   //Generating Option list for Select element
+  //API returns all instruments when inactive switch is ON, so we filter to inactive only
   let instOptions = []
   if (props.instList) {
-    instOptions = instList.map(i => (
+    const refinedInstList = instrInactive ? instList.filter(i => !i.isActive) : instList
+    instOptions = refinedInstList.map(i => (
       <Option value={i.id} key={i.id}>
         {i.name}{' '}
       </Option>
     ))
   }
 
+  const instrInactiveSwitch = (
+    <Form.Item label='Inactive' tooltip='if ON select from inactive instruments'>
+      <Switch
+        checked={instrInactive}
+        checkedChildren='ON'
+        unCheckedChildren='OFF'
+        size='small'
+        onChange={checked => {
+          setInstrInactive(checked)
+          fetchInstList(authToken, checked)
+          setInstrumentId(null)
+          form.setFieldsValue({ instrumentId: undefined, paramSet: undefined })
+        }}
+      />
+    </Form.Item>
+  )
+
   let refinedParamSets = props.paramSets
-  if (instrumentId) {
+  if (instrumentId && instrInactive === false) {
     refinedParamSets = paramSets.filter(paramSet =>
       paramSet.availableOn.includes(instrumentId.toString())
     )
@@ -169,6 +192,7 @@ const SearchForm = props => {
       style={{ margin: '0 40px 0 40px' }}
     >
       <Row justify='center' gutter={32}>
+        <Col span={2}>{instrInactiveSwitch}</Col>
         <Col span={4}>
           <Form.Item label='Instrument' name='instrumentId'>
             <Select allowClear={true} onChange={value => setInstrumentId(value)}>
@@ -176,7 +200,7 @@ const SearchForm = props => {
             </Select>
           </Form.Item>
         </Col>
-        <Col span={6}>
+        <Col span={5}>
           {dataType === 'auto' ? (
             <Form.Item label='Parameter Set' name='paramSet'>
               <Select
@@ -184,8 +208,10 @@ const SearchForm = props => {
                 filterOption={(val, option) => {
                   return option.children.toLowerCase().indexOf(val.toLowerCase()) > -1
                 }}
-
-                allowClear={true}>{paramSetsOptions}</Select>
+                allowClear={true}
+              >
+                {paramSetsOptions}
+              </Select>
             </Form.Item>
           ) : (
             <Form.Item label='Pulse program' name='pulseProgram'>
@@ -193,17 +219,19 @@ const SearchForm = props => {
             </Form.Item>
           )}
         </Col>
-        <Col span={3}>
-          <Form.Item name='solvent' label='Solvent'>
-            <Select allowClear={true}>{solventOptions}</Select>
-          </Form.Item>
-        </Col>
+        {dataType === 'auto' && (
+          <Col span={3}>
+            <Form.Item name='solvent' label='Solvent'>
+              <Select allowClear={true}>{solventOptions}</Select>
+            </Form.Item>
+          </Col>
+        )}
         <Col span={5}>
           <Form.Item label='Title' name='title'>
             <Input allowClear={true} placeholder='Experiment Title' />
           </Form.Item>
         </Col>
-        <Col span={6}>
+        <Col span={5}>
           <Form.Item label='Date Range' name='dateRange'>
             <RangePicker allowClear={true} />
           </Form.Item>
@@ -255,6 +283,9 @@ const SearchForm = props => {
                     props.resetUsrList()
                     props.resetExpSearch()
                     form.resetFields()
+                    setInstrInactive(false)
+                    setInstrumentId(null)
+                    fetchInstList(authToken)
                   }}
                 />
               </Tooltip>
@@ -394,7 +425,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-  fetchInstList: token => dispatch(fetchInstrumentList(token)),
+  fetchInstList: (token, showInactive) => dispatch(fetchInstrumentList(token, showInactive)),
   fetchParamSets: (token, searchParams) => dispatch(fetchParamSets(token, searchParams)),
   fetchGrpList: (token, showInactive) => dispatch(fetchGroupList(token, showInactive)),
   fetchUsrList: (token, groupId, showInactive, search) =>

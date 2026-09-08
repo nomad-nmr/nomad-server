@@ -121,10 +121,12 @@ export const fetchInstrumentListSuccess = data => ({
   data
 })
 
-export const fetchInstrumentList = token => {
+export const fetchInstrumentList = (token, showInactive) => {
   return dispatch => {
     axios
-      .get('admin/instruments/?list=true', { headers: { Authorization: 'Bearer ' + token } })
+      .get('admin/instruments/?list=true&showInactive=' + !!showInactive, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
       .then(res => dispatch(fetchInstrumentListSuccess(res.data)))
       .catch(err => {
         dispatch(errorHandler(err))
