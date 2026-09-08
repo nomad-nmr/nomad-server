@@ -57,7 +57,9 @@ const App = props => {
   //Higher level component that allows to wrap all the lazy loaded components in a Suspense component
   //This is required by React Router 7.5
   const Loadable = Component => props => (
-    <Suspense fallback={<Spin size='large' tip='Loading ...' style={{ margin: '200px' }} />}>
+    <Suspense
+      fallback={<Spin size='large' description='Loading ...' style={{ margin: '200px' }} />}
+    >
       <Component {...props} />
     </Suspense>
   )
