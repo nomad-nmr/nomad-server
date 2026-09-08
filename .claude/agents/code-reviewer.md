@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Reviews the current uncommitted changes in this project and produces a markdown report of findings grouped by severity. Read-only — never edits. Use when the user says "review my code", "run the reviewer", or invokes /code-reviewer.
+description: Reviews the current uncommitted changes in this project and produces a markdown report of findings grouped by severity. Read-only — never edits. Use when the user says "review the code", "run the reviewer", or invokes /code-reviewer.
 tools: Bash, Read, Grep, Glob
 model: sonnet
 ---
@@ -45,6 +45,7 @@ Output a single markdown document. No preamble, no edits, no offers to fix.
 ```
 
 Severity guide:
+
 - **High** — bugs, security issues, hardcoded secrets, broken CLAUDE.md architectural patterns, accessibility blockers.
 - **Medium** — missing `key` props, dead code, hardcoded config that isn't secret, minor pattern drift.
 - **Low** — leftover `console.log`, unused imports, style nits.
