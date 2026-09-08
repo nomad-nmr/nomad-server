@@ -15,27 +15,17 @@ const getDatastoreStats = async dateRange => {
     const datasetsSearchParams = { $and: [] }
 
     if (dateRange && dateRange !== 'undefined') {
-      const datesArr = dateRange.split(',')
-      autoSearchParams.$and.push({
-        submittedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
+      const [startStr, endStr] = dateRange.split(',')
+      const $gte = new Date(startStr)
+      const $lt = new Date(moment(endStr).add(1, 'd').format('YYYY-MM-DD'))
 
-      manualSearchParams.$and.push({
-        updatedAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
-
-      datasetsSearchParams.$and.push({
-        createdAt: {
-          $gte: new Date(datesArr[0]),
-          $lt: new Date(moment(datesArr[1]).add(1, 'd').format('YYYY-MM-DD'))
-        }
-      })
+      // Unparseable dates would reach Mongoose as Invalid Date and throw a CastError.
+      // The endpoint is public and unauthenticated, so bad input is expected.
+      if (!isNaN($gte.getTime()) && !isNaN($lt.getTime())) {
+        autoSearchParams.$and.push({ submittedAt: { $gte, $lt } })
+        manualSearchParams.$and.push({ updatedAt: { $gte, $lt } })
+        datasetsSearchParams.$and.push({ createdAt: { $gte, $lt } })
+      }
     }
 
     const autoExpsArchivedCount = await Experiment.countDocuments({ ...autoSearchParams })
