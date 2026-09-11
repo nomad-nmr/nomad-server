@@ -52,52 +52,10 @@ const BatchSubmit = props => {
 
   const { instrumentId } = useParams()
 
-  useEffect(() => {
-    if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
-      fetchGrpList(authToken)
-      fetchInstrList(authToken)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (authToken && activeRack && (addSampleVis || modalOpen)) {
-      fetchParamSets(authToken, {
-        instrumentId: activeRack.instrument ? activeRack.instrument : null,
-        searchValue: '',
-        list: false
-      })
-    }
-  }, [addSampleVis, modalOpen])
-
-  //Racks data are getting fetch if the tab changes in order to get updated status
-  useEffect(() => {
-    window.scrollTo(0, 0)
-    fetchRacks()
-  }, [fetchRacks, activeTabId])
-
-  //Hook setting active tabId when tabs are reloaded
-  useEffect(() => {
-    if (!activeTabId && racksData.length > 0) {
-      setActiveTabId(racksData[0]._id)
-    }
-  }, [racksData, activeTabId, setActiveTabId])
-
-  //Hook setting active tabId when the page is loaded from card click
-  useEffect(() => {
-    if (instrumentId && instrumentId !== 'null') {
-      const rack = racksData.find(rack => rack.instrument === instrumentId && rack.isOpen)
-      if (rack) {
-        setTimeout(() => {
-          setActiveTabId(rack._id)
-        }, 200)
-      }
-    }
-  }, [])
-
   let filteredRacks = []
 
   if (!authToken) {
-    filteredRacks = racksData.filter(rack => rack.isOpen)
+    filteredRacks = racksData.filter(rack => rack.isOpen && !rack.private)
   } else {
     switch (accessLevel) {
       case 'admin':
@@ -106,6 +64,10 @@ const BatchSubmit = props => {
 
       case 'admin-b':
         filteredRacks = racksData.filter(rack => {
+          //Private racks are visible only to members of the group the rack is assigned to
+          if (rack.private && (!rack.group || rack.group.groupName !== grpName)) {
+            return false
+          }
           if (rack.accessList.length === 0) {
             return true
           } else {
@@ -150,6 +112,52 @@ const BatchSubmit = props => {
         break
     }
   }
+
+  useEffect(() => {
+    if (authToken && (accessLevel === 'admin' || accessLevel === 'admin-b')) {
+      fetchGrpList(authToken)
+      fetchInstrList(authToken)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (authToken && activeRack && (addSampleVis || modalOpen)) {
+      fetchParamSets(authToken, {
+        instrumentId: activeRack.instrument ? activeRack.instrument : null,
+        searchValue: '',
+        list: false
+      })
+    }
+  }, [addSampleVis, modalOpen])
+
+  //Racks data are getting fetch if the tab changes in order to get updated status
+  useEffect(() => {
+    window.scrollTo(0, 0)
+    fetchRacks()
+  }, [fetchRacks, activeTabId])
+
+  //Hook setting active tabId when tabs are reloaded
+  //Selection is dropped if the rack is not among the racks visible to the current user
+  useEffect(() => {
+    if (!filteredRacks.some(rack => rack._id === activeTabId)) {
+      const newTabId = filteredRacks.length > 0 ? filteredRacks[0]._id : null
+      if (newTabId !== activeTabId) {
+        setActiveTabId(newTabId)
+      }
+    }
+  }, [racksData, activeTabId, accessLevel, setActiveTabId])
+
+  //Hook setting active tabId when the page is loaded from card click
+  useEffect(() => {
+    if (instrumentId && instrumentId !== 'null') {
+      const rack = racksData.find(rack => rack.instrument === instrumentId && rack.isOpen)
+      if (rack) {
+        setTimeout(() => {
+          setActiveTabId(rack._id)
+        }, 200)
+      }
+    }
+  }, [])
 
   // setting error that disables user-b to add sample to a rack that does not belong to his group
 

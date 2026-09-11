@@ -247,9 +247,19 @@ const AddRackModal = props => {
           <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
         </Form.Item>
         {rackType === 'Group' && (
-          <Form.Item name='sampleIdOn' label='Use Sample ID' initialValue={true}>
-            <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
-          </Form.Item>
+          <Fragment>
+            <Form.Item name='sampleIdOn' label='Use Sample ID' initialValue={true}>
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+            </Form.Item>
+            <Form.Item
+              name='private'
+              label='Private'
+              initialValue={false}
+              tooltip='Rack is visible only to members of the assigned group and to users with admin access'
+            >
+              <Switch size='small' checkedChildren='ON' unCheckedChildren='OFF' />
+            </Form.Item>
+          </Fragment>
         )}
         {rackType === 'Instrument' && (
           <Fragment>
