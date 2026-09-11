@@ -29,6 +29,10 @@ const rackSchema = new Schema({
     type: Boolean,
     default: true
   },
+  private: {
+    type: Boolean,
+    default: false
+  },
   slotsNumber: {
     type: Number,
     required: true,

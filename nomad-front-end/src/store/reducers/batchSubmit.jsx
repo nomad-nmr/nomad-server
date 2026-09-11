@@ -172,6 +172,11 @@ const reducer = (state = initialState, { type, payload }) => {
       newRacksArray[index] = payload
       return { ...state, racks: newRacksArray, loading: false }
 
+    //Rack selection is user specific and must not survive sign out
+    case actionTypes.SIGN_OUT_SUCCESS:
+    case actionTypes.SIGN_OUT_FAILED:
+      return { ...state, activeRackId: null, selectedSlots: [] }
+
     default:
       return state
   }
