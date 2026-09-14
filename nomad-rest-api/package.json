@@ -1,6 +1,6 @@
 {
   "name": "nomad-rest-api",
-  "version": "3.8.0-beta.2",
+  "version": "3.8.0-beta.3",
   "description": "REST API back-end for NOMAD system",
   "main": "server.js",
   "type": "module",
@@ -32,7 +32,7 @@
     "moment-timezone": "^0.6.2",
     "mongoose": "^9.2.1",
     "multer": "^2.2.0",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^10.0.10",
     "openchemlib": "^9.18.2",
     "socket.io": "^4.5.4",
     "swagger-ui-express": "^5.0.1",
