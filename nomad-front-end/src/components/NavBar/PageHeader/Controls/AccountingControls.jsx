@@ -107,7 +107,7 @@ const AccountingControls = props => {
         type='primary'
         onClick={() => props.toggleCostDrawer()}
       >
-        Set Instruments Costing
+        Set Costing
       </Button>
       <Button
         type={'primary'}

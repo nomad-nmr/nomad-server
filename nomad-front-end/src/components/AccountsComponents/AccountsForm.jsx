@@ -37,6 +37,13 @@ const AccountsForm = props => {
       })
     }
 
+    if (type === 'Grants' && props.showArchived && props.selectedArchivedGrants.length === 0) {
+      return Modal.error({
+        title: 'No archived grant selected',
+        content: 'Please select at least one archived grant to perform the calculation.'
+      })
+    }
+
     const fetchCosts = () => {
       if (dateRange) {
         values.dateRange = dateRange.map(date => date.format('YYYY-MM-DD'))

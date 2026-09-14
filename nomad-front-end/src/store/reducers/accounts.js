@@ -38,7 +38,10 @@ const reducer = (state = initialState, { type, payload }) => {
         costsTableData: [],
         noGrantsAlert: {},
         type: 'Grants',
-        groupName: undefined
+        groupName: undefined,
+        showZeroValues: false,
+        showArchived: false,
+        selectedArchivedGrants: []
       }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
