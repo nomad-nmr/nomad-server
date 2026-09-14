@@ -170,6 +170,26 @@ export const updateGrant = (token, data) => {
   }
 }
 
+export const archiveGrantSuccess = payload => ({
+  type: actionTypes.ARCHIVE_GRANT_SUCCESS,
+  payload
+})
+
+export const archiveGrant = (token, grantId) => {
+  return dispatch => {
+    axios
+      .patch('admin/accounts/grants/archive/' + grantId, null, {
+        headers: { Authorization: 'Bearer ' + token }
+      })
+      .then(res => {
+        dispatch(archiveGrantSuccess(res.data))
+      })
+      .catch(err => {
+        dispatch(errorHandler(err))
+      })
+  }
+}
+
 export const fetchGrantsCostsSuccess = payload => ({
   type: actionTypes.FETCH_GRANTS_COSTS_SUCCESS,
   payload
@@ -204,4 +224,19 @@ export const toggleAddGrantModal = () => ({
 
 export const toggleShowZeroValues = () => ({
   type: actionTypes.TOGGLE_SHOW_ZERO_VALUES
+})
+
+export const toggleShowArchived = token => (dispatch, getState) => {
+  dispatch({ type: actionTypes.TOGGLE_SHOW_ARCHIVED })
+
+  // the reducer clears the table on toggle; refill it with the uncosted archived
+  // grants so they are visible and tickable without pressing Calculate Costs first
+  if (getState().accounts.showArchived) {
+    dispatch(fetchGrantsCosts(token, { showArchived: true, archivedGrants: '' }))
+  }
+}
+
+export const setSelectedArchivedGrants = payload => ({
+  type: actionTypes.SET_SELECTED_ARCHIVED_GRANTS,
+  payload
 })

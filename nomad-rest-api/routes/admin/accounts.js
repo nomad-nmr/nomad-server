@@ -12,6 +12,7 @@ import {
   getGrants,
   deleteGrant,
   putGrant,
+  archiveGrant,
   getGrantsCosts
 } from '../../controllers/admin/accounts.js'
 
@@ -47,6 +48,8 @@ router.get('/grants', auth, authAdmin, getGrants)
 router.delete('/grants/:grantId', auth, authAdmin, deleteGrant)
 
 router.put('/grants', auth, authAdmin, putGrant)
+
+router.patch('/grants/archive/:grantId', auth, authAdmin, archiveGrant)
 
 router.get('/grants-costs', auth, getGrantsCosts)
 

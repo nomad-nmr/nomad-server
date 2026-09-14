@@ -22,9 +22,11 @@ import {
   fetchGrants,
   deleteGrant,
   updateGrant,
+  archiveGrant,
   fetchGrantsCosts,
   toggleAddGrantModal,
-  toggleShowZeroValues
+  toggleShowZeroValues,
+  setSelectedArchivedGrants
 } from '../../store/actions'
 
 import classes from './Accounts.module.css'
@@ -40,7 +42,9 @@ const Accounts = props => {
     fetchCosting,
     accountsType,
     showZeroValues,
-    tglShowZeroValues
+    tglShowZeroValues,
+    showArchived,
+    selectedArchivedGrants
   } = props
 
   const [usrGrpTags, setUsrGrpTags] = useState([])
@@ -52,6 +56,9 @@ const Accounts = props => {
     fetchCosting(authToken)
     if (accountsType === 'Grants') {
       props.fetchGrants(authToken)
+      if (showArchived) {
+        props.fetchGrantsCosts(authToken, { showArchived: true, archivedGrants: '' })
+      }
     }
     return () => {
       resetTable()
@@ -75,7 +82,13 @@ const Accounts = props => {
     filteredTableData.length === 0 ? (
       <Empty />
     ) : accountsType === 'Grants' ? (
-      <GrantsCostsTable data={filteredTableData} alertData={props.noGrantsData} />
+      <GrantsCostsTable
+        data={filteredTableData}
+        alertData={props.noGrantsData}
+        showArchived={showArchived}
+        selectedArchivedGrants={selectedArchivedGrants}
+        onSelectionChange={props.setSelectedArchivedGrants}
+      />
     ) : (
       <AccountsTable data={filteredTableData} header={props.tblHeader} />
     )
@@ -109,6 +122,8 @@ const Accounts = props => {
         getCosts={props.fetchCostsData}
         getGrantsCosts={props.fetchGrantsCosts}
         token={authToken}
+        showArchived={showArchived}
+        selectedArchivedGrants={selectedArchivedGrants}
       />
     </div>
   )
@@ -120,6 +135,7 @@ const Accounts = props => {
           <SetGrantsTable
             data={props.grantsData}
             deleteHandler={props.delGrant}
+            archiveHandler={props.archiveGrant}
             token={authToken}
             searchTerm={descriptionSearchValue}
             formHandler={props.tglGrantForm}
@@ -182,7 +198,9 @@ const mapStateToProps = state => ({
   setGrantsVisible: state.accounts.showSetGrants,
   grantFormVisible: state.accounts.showAddGrant,
   noGrantsData: state.accounts.noGrantsAlert,
-  showZeroValues: state.accounts.showZeroValues
+  showZeroValues: state.accounts.showZeroValues,
+  showArchived: state.accounts.showArchived,
+  selectedArchivedGrants: state.accounts.selectedArchivedGrants
 })
 
 const mapDispatchToProps = dispatch => ({
@@ -199,9 +217,11 @@ const mapDispatchToProps = dispatch => ({
   fetchGrants: token => dispatch(fetchGrants(token)),
   delGrant: (token, id) => dispatch(deleteGrant(token, id)),
   updateGrant: (token, data) => dispatch(updateGrant(token, data)),
+  archiveGrant: (token, id) => dispatch(archiveGrant(token, id)),
   fetchGrantsCosts: (token, data) => dispatch(fetchGrantsCosts(token, data)),
   tglGrantForm: () => dispatch(toggleAddGrantModal()),
-  tglShowZeroValues: () => dispatch(toggleShowZeroValues())
+  tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
+  setSelectedArchivedGrants: ids => dispatch(setSelectedArchivedGrants(ids))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Accounts)

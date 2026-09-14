@@ -45,7 +45,11 @@ const AccountsForm = props => {
       if (type !== 'Grants') {
         props.getCosts(token, values)
       } else {
-        props.getGrantsCosts(token, { dateRange: values.dateRange })
+        props.getGrantsCosts(token, {
+          dateRange: values.dateRange,
+          showArchived: props.showArchived,
+          archivedGrants: props.selectedArchivedGrants.join(',')
+        })
       }
     }
 

@@ -17,7 +17,9 @@ const AccountingControls = props => {
     searchHandler,
     searchDefValue,
     showZeroValues,
-    onShowZeroValuesChange
+    onShowZeroValuesChange,
+    showArchived,
+    onShowArchivedChange
   } = props
   const standardColumns = {
     grants: ['Grant Code', 'Description', 'Users', 'Manual Cost', 'Auto Cost', 'Total Cost [£]']
@@ -119,6 +121,13 @@ const AccountingControls = props => {
         <span style={{ marginRight: '8px' }}>Show Zero Values</span>
         <Switch checked={showZeroValues} onChange={onShowZeroValuesChange} />
       </div>
+
+      {accType === 'Grants' && (
+        <div style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '10px' }}>
+          <span style={{ marginRight: '8px' }}>Show Archived</span>
+          <Switch checked={showArchived} onChange={onShowArchivedChange} />
+        </div>
+      )}
 
       <Divider vertical />
 

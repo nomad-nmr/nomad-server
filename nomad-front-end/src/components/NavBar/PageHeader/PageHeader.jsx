@@ -57,7 +57,8 @@ import {
   fetchUserList,
   toggleRecentDataModal,
   fetchRecentDatasets,
-  toggleShowZeroValues
+  toggleShowZeroValues,
+  toggleShowArchived
 } from '../../../store/actions/index'
 
 import classes from './PageHeader.module.css'
@@ -298,6 +299,8 @@ const PageHeaderEl = props => {
           groupName={props.accountsGroupName}
           showZeroValues={props.showZeroValues}
           onShowZeroValuesChange={props.tglShowZeroValues}
+          showArchived={props.accountsShowArchived}
+          onShowArchivedChange={() => props.tglAccountsShowArchived(props.authToken)}
         />
       )
 
@@ -410,6 +413,7 @@ const mapStateToProps = state => {
     accountingLoading: state.accounts.loading,
     accountingTableHeader: state.accounts.tableHeader,
     showZeroValues: state.accounts.showZeroValues,
+    accountsShowArchived: state.accounts.showArchived,
     cardSwitchOn: state.dash.showCards,
     statusButtonsData: state.dash.statusButtonsData,
     instFormVisible: state.instruments.showForm,
@@ -516,7 +520,8 @@ const mapDispatchToProps = dispatch => {
     toggleSampleJetModal: () => dispatch(toggleSampleJetModal()),
     toggleRecentDataModal: () => dispatch(toggleRecentDataModal()),
     fetchRecentDatasets: token => dispatch(fetchRecentDatasets(token)),
-    tglShowZeroValues: () => dispatch(toggleShowZeroValues())
+    tglShowZeroValues: () => dispatch(toggleShowZeroValues()),
+    tglAccountsShowArchived: token => dispatch(toggleShowArchived(token))
   }
 }
 
