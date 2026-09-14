@@ -64,8 +64,13 @@ export async function postRefreshToken(req, res) {
 }
 
 export async function postLogout(req, res) {
-  req.user.removeAuthTokens(req.token)
-  res.send()
+  try {
+    await req.user.removeAuthTokens(req.token)
+    res.send()
+  } catch (error) {
+    res.status(500).send()
+    console.log(error)
+  }
 }
 
 export async function postPasswdReset(req, res) {

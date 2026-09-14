@@ -56,7 +56,7 @@ export const postSubmission = async (req, res) => {
         }
 
         paramSetObj.count++
-        paramSetObj.save()
+        await paramSetObj.save()
       }
       const { solvent, title, priority, firstExperimentStartsAt, repeatLoops } = formData[sampleKey]
       //night flag is not registered in the booking form for users without priority access
