@@ -71,11 +71,11 @@ export async function updateGroup(req, res) {
     }
 
     if (!group.isActive) {
-      group.setUsersInactive()
+      await group.setUsersInactive()
     }
 
     //UpdateBatchUsers is a method that updates accessLevel according to group batch-submit status
-    group.updateBatchUsers()
+    await group.updateBatchUsers()
 
     const usersCounts = await group.getUserCounts()
     res.send({ ...group._doc, ...usersCounts })
@@ -95,7 +95,7 @@ export async function toggleActive(req, res) {
     group.isActive = !group.isActive
 
     if (!group.isActive) {
-      group.setUsersInactive()
+      await group.setUsersInactive()
     }
 
     const updatedGroup = await group.save()

@@ -52,27 +52,31 @@ const groupSchema = new Schema(
 groupSchema.methods.setUsersInactive = async function () {
   const group = this
   const users = await User.find({ group: group._id })
-  users.forEach(async user => {
-    user.isActive = false
-    await user.save()
-  })
+  await Promise.all(
+    users.map(async user => {
+      user.isActive = false
+      await user.save()
+    })
+  )
 }
 groupSchema.methods.updateBatchUsers = async function () {
   const group = this
   const users = await User.find({ group: group._id })
-  users.forEach(async user => {
-    if (group.isBatch) {
-      if (user.accessLevel !== 'admin-b' || user.accessLevel !== 'user-b') {
-        user.accessLevel = 'user-b'
-        await user.save()
+  await Promise.all(
+    users.map(async user => {
+      if (group.isBatch) {
+        if (user.accessLevel !== 'admin-b' && user.accessLevel !== 'user-b') {
+          user.accessLevel = 'user-b'
+          await user.save()
+        }
+      } else {
+        if (user.accessLevel === 'user-b') {
+          user.accessLevel = 'user'
+          await user.save()
+        }
       }
-    } else {
-      if (user.accessLevel === 'user-b') {
-        user.accessLevel = 'user'
-        await user.save()
-      }
-    }
-  })
+    })
+  )
 }
 
 groupSchema.methods.getUserCounts = async function () {
