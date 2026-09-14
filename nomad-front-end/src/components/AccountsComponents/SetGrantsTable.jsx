@@ -6,9 +6,10 @@ const SetGrantsTable = props => {
   const { token, data, searchTerm } = props
   const [modifiedData, setModifiedData] = useState(data);
   useEffect(()=>{
-    setModifiedData(data);
+    const activeData = data.filter(item => !item.archived);
+    setModifiedData(activeData);
     if (searchTerm.trim() !== '') {
-      const filteredData = data.filter(item => {
+      const filteredData = activeData.filter(item => {
         return item.description.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1
       })
       setModifiedData(filteredData);
@@ -67,6 +68,24 @@ const SetGrantsTable = props => {
           >
             Edit
           </Button>
+          <Popconfirm
+            placement='right'
+            title='Archive grant'
+            description={
+              <div>
+                Are you sure to archive the grant{' '}
+                <span style={{ fontWeight: 600, color: 'red', fontSize: '13px' }}>
+                  {record.grantCode}
+                </span>
+                ?
+              </div>
+            }
+            onConfirm={() => props.archiveHandler(token, record.key)}
+          >
+            <Button type='link' size='small'>
+              Archive
+            </Button>
+          </Popconfirm>
           <Popconfirm
             placement='right'
             title='Delete grant'

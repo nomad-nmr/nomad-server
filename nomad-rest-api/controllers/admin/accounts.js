@@ -253,7 +253,7 @@ export async function postGrant(req, res) {
       return res.status(422).send(errors)
     }
 
-    const grants = await Grant.find({})
+    const grants = await Grant.find({ archived: { $ne: true } })
     if (checkDuplicate(include, grants)) {
       return res.status(409).send({
         message: 'Submitted grant includes user or group that has been added on a different grant'
@@ -300,7 +300,7 @@ export async function deleteGrant(req, res) {
 export async function putGrant(req, res) {
   const { description, multiplier, include, _id } = req.body
   try {
-    const grants = await Grant.find({})
+    const grants = await Grant.find({ archived: { $ne: true } })
     if (checkDuplicate(include, grants, _id)) {
       return res.status(409).send({
         message: 'Submitted grant includes user or group that has been added on a different grant'
@@ -324,17 +324,35 @@ export async function putGrant(req, res) {
   }
 }
 
+export async function archiveGrant(req, res) {
+  try {
+    // returnDocument is set to 'after' globally in server.js and tests/fixtures/db.js,
+    // so this resolves to the updated document without passing { new: true }
+    const grant = await Grant.findByIdAndUpdate(req.params.grantId, { archived: true })
+    if (!grant) {
+      return res.sendStatus(404)
+    }
+    res.status(200).json({ ...grant._doc, key: grant._id })
+  } catch (error) {
+    console.log(error)
+    res.sendStatus(500)
+  }
+}
+
 export async function getGrantsCosts(req, res) {
   try {
     if (req.user.accessLevel !== 'admin' && !req.user.accountsAccess) {
       return res.status(403).json({ message: 'Access denied' })
     }
 
-    const { dateRange, groupAccounts } = req.query
+    const { dateRange, groupAccounts, showArchived, archivedGrants } = req.query
     const searchParams = getSearchParams(dateRange)
     const searchParamsClaims = getSearchParamsClaims(dateRange)
+    const selectedArchivedIds = archivedGrants ? archivedGrants.split(',').filter(Boolean) : []
 
-    let grants = await Grant.find({})
+    let grants = await Grant.find(
+      showArchived === 'true' ? { archived: true } : { archived: { $ne: true } }
+    )
 
     if (groupAccounts === 'true') {
       grants = await Promise.all(
@@ -356,6 +374,20 @@ export async function getGrantsCosts(req, res) {
 
     const grantsCosts = await Promise.all(
       grants.map(async grant => {
+        // archived grants are listed for selection but only costed once the user
+        // ticks them and re-submits, since costing can be expensive over a wide range
+        if (showArchived === 'true' && !selectedArchivedIds.includes(grant._id.toString())) {
+          return {
+            ...grant._doc,
+            costExps: 0,
+            costClaims: 0,
+            usersArray: [],
+            totalCost: 0,
+            calculated: false,
+            key: grant._id.toString()
+          }
+        }
+
         const entrySearchParams = {
           $and: [...searchParams.$and, { 'grantCosting.grantId': grant._id }]
         }
@@ -390,54 +422,61 @@ export async function getGrantsCosts(req, res) {
           costClaims,
           usersArray,
           totalCost: costExps + costClaims,
+          calculated: true,
           key: grant._id.toString()
         }
       })
     )
 
-    //looking for experiments and claims with no grant ID defined
-    const noGrantSearchParams = {
-      $and: [...searchParams.$and, { 'grantCosting.grantId': { $exists: false } }]
-    }
+    // the "no grant assigned" scan is unrelated to archived grants, so it's skipped
+    // in archived mode rather than reported alongside costs that weren't calculated
+    let noGrantsData = { expsCount: 0, claimsCount: 0, users: [] }
 
-    const noGrantSearchParamsClaims = {
-      $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': { $exists: false } }]
-    }
+    if (showArchived !== 'true') {
+      //looking for experiments and claims with no grant ID defined
+      const noGrantSearchParams = {
+        $and: [...searchParams.$and, { 'grantCosting.grantId': { $exists: false } }]
+      }
 
-    if (groupAccounts === 'true') {
-      noGrantSearchParams.$and.push({ 'group.id': req.user.group.toString() })
-      noGrantSearchParamsClaims.$and.push({ group: req.user.group.toString() })
-    }
+      const noGrantSearchParamsClaims = {
+        $and: [...searchParamsClaims.$and, { 'grantCosting.grantId': { $exists: false } }]
+      }
 
-    const usersIdSet = new Set()
+      if (groupAccounts === 'true') {
+        noGrantSearchParams.$and.push({ 'group.id': req.user.group.toString() })
+        noGrantSearchParamsClaims.$and.push({ group: req.user.group.toString() })
+      }
 
-    const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user group')
-    const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user group')
+      const usersIdSet = new Set()
 
-    noGrantExps.forEach(exp =>
-      usersIdSet.add(exp.user.id.toString() + '@' + exp.group.id.toString())
-    )
-    noGrantClaims.forEach(claim =>
-      usersIdSet.add(claim.user._id.toString() + '@' + claim.group.toString())
-    )
+      const noGrantExps = await Experiment.find(noGrantSearchParams, 'grantCosting user group')
+      const noGrantClaims = await Claim.find(noGrantSearchParamsClaims, 'grantCosting user group')
 
-    const noGrantUsersArray = await Promise.all(
-      Array.from(usersIdSet).map(async id => {
-        const [usrId, grpId] = id.split('@')
-        const user = await User.findById(usrId, 'username fullName')
-        const group = await Group.findById(grpId, 'groupName')
-        return {
-          username: user.username,
-          fullName: user.fullName,
-          group: group.groupName
-        }
-      })
-    )
+      noGrantExps.forEach(exp =>
+        usersIdSet.add(exp.user.id.toString() + '@' + exp.group.id.toString())
+      )
+      noGrantClaims.forEach(claim =>
+        usersIdSet.add(claim.user._id.toString() + '@' + claim.group.toString())
+      )
 
-    const noGrantsData = {
-      expsCount: noGrantExps.length,
-      claimsCount: noGrantClaims.length,
-      users: noGrantUsersArray
+      const noGrantUsersArray = await Promise.all(
+        Array.from(usersIdSet).map(async id => {
+          const [usrId, grpId] = id.split('@')
+          const user = await User.findById(usrId, 'username fullName')
+          const group = await Group.findById(grpId, 'groupName')
+          return {
+            username: user.username,
+            fullName: user.fullName,
+            group: group.groupName
+          }
+        })
+      )
+
+      noGrantsData = {
+        expsCount: noGrantExps.length,
+        claimsCount: noGrantClaims.length,
+        users: noGrantUsersArray
+      }
     }
 
     res.status(200).json({ grantsCosts, noGrantsData })

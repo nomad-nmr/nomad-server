@@ -21,6 +21,10 @@ const grantSchema = new Schema({
     type: Number,
     required: true,
     default: 1
+  },
+  archived: {
+    type: Boolean,
+    default: false
   }
 })
 

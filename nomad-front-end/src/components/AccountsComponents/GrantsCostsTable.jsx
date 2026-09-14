@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import { Table, Alert, Flex, Button, Tag, Space, Tooltip } from 'antd'
 
 const GrantsCostsTable = props => {
-  const { alertData } = props
+  const { alertData, showArchived, selectedArchivedGrants, onSelectionChange } = props
 
-  const alertVisible = alertData && (alertData.expsCount > 0 || alertData.claimsCount > 0)
+  const alertVisible =
+    !showArchived && alertData && (alertData.expsCount > 0 || alertData.claimsCount > 0)
 
   const [detailVisible, setDetailVisible] = useState(false)
 
@@ -26,10 +27,23 @@ const GrantsCostsTable = props => {
           title: 'Manual',
           dataIndex: 'costClaims',
           width: 100,
-          align: 'center'
+          align: 'center',
+          render: (value, record) => (record.calculated === false ? '—' : value)
         },
-        { title: 'Auto', dataIndex: 'costExps', width: 100, align: 'center' },
-        { title: 'Total', dataIndex: 'totalCost', width: 100, align: 'center' }
+        {
+          title: 'Auto',
+          dataIndex: 'costExps',
+          width: 100,
+          align: 'center',
+          render: (value, record) => (record.calculated === false ? '—' : value)
+        },
+        {
+          title: 'Total',
+          dataIndex: 'totalCost',
+          width: 100,
+          align: 'center',
+          render: (value, record) => (record.calculated === false ? '—' : value)
+        }
       ]
     }
   ]
@@ -90,6 +104,11 @@ const GrantsCostsTable = props => {
         tableLayout='fixed'
         width='80%'
         expandable={{ expandedRowRender: expandElement }}
+        rowSelection={
+          showArchived
+            ? { selectedRowKeys: selectedArchivedGrants, onChange: onSelectionChange }
+            : undefined
+        }
       />
       {alertVisible && (
         <Alert

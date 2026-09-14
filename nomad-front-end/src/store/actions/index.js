@@ -149,11 +149,14 @@ export {
   fetchGrants,
   deleteGrant,
   updateGrant,
+  archiveGrant,
   fetchGrantsCosts,
   toggleSetGrantsTable,
   toggleAddGrantModal,
   searchDescription,
-  toggleShowZeroValues
+  toggleShowZeroValues,
+  toggleShowArchived,
+  setSelectedArchivedGrants
 } from './accounts'
 
 export {

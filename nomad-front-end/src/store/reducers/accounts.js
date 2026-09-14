@@ -14,7 +14,9 @@ const initialState = {
   noGrantsAlert: {},
   descriptionSearchValue: '',
   groupName: undefined,
-  showZeroValues: false
+  showZeroValues: false,
+  showArchived: false,
+  selectedArchivedGrants: []
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -36,7 +38,10 @@ const reducer = (state = initialState, { type, payload }) => {
         costsTableData: [],
         noGrantsAlert: {},
         type: 'Grants',
-        groupName: undefined
+        groupName: undefined,
+        showZeroValues: false,
+        showArchived: false,
+        selectedArchivedGrants: []
       }
 
     case actionTypes.TOGGLE_COSTING_DRAWER:
@@ -67,7 +72,10 @@ const reducer = (state = initialState, { type, payload }) => {
         type: payload,
         costsTableData: [],
         noGrantsAlert: {},
-        groupName: undefined
+        groupName: undefined,
+        showZeroValues: false,
+        showArchived: false,
+        selectedArchivedGrants: []
       }
 
     case actionTypes.POST_GRANT_SUCCESS:
@@ -86,6 +94,13 @@ const reducer = (state = initialState, { type, payload }) => {
       updatedGrants[index] = payload
       return { ...state, grantsData: updatedGrants }
 
+    case actionTypes.ARCHIVE_GRANT_SUCCESS: {
+      const index = state.grantsData.findIndex(grant => grant._id === payload._id)
+      const updatedGrants = [...state.grantsData]
+      updatedGrants[index] = payload
+      return { ...state, grantsData: updatedGrants }
+    }
+
     case actionTypes.FETCH_GRANTS_COSTS_SUCCESS:
       return {
         ...state,
@@ -96,6 +111,23 @@ const reducer = (state = initialState, { type, payload }) => {
 
     case actionTypes.TOGGLE_SHOW_ZERO_VALUES:
       return { ...state, showZeroValues: !state.showZeroValues }
+
+    case actionTypes.TOGGLE_SHOW_ARCHIVED: {
+      const showArchived = !state.showArchived
+      return {
+        ...state,
+        showArchived,
+        // turning it on reveals every archived grant; the user can still hide the
+        // uncosted ones with the Show Zero Values switch
+        showZeroValues: showArchived ? true : state.showZeroValues,
+        selectedArchivedGrants: [],
+        costsTableData: [],
+        noGrantsAlert: {}
+      }
+    }
+
+    case actionTypes.SET_SELECTED_ARCHIVED_GRANTS:
+      return { ...state, selectedArchivedGrants: payload }
 
     default:
       return state
