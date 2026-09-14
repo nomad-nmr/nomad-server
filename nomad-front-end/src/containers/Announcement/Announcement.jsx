@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { connect } from 'react-redux'
 import { Form, Button, Space, Input, Modal, Spin, Radio} from 'antd'
-import ReactQuill from 'react-quill'
-import 'react-quill/dist/quill.snow.css'
+import ReactQuill from 'react-quill-new'
+import 'react-quill-new/dist/quill.snow.css'
 
 
 import { fetchAnnouncement, saveAnnouncement, clearAnnouncement } from '../../store/actions'

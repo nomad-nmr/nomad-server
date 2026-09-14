@@ -1,0 +1,16 @@
+.LogoImg {
+  opacity: 0;
+  transform: scale(0);
+  animation: spawnIn 0.7s cubic-bezier(0.55, 0, 0.55, 0.2) 0.5s forwards;
+}
+
+@keyframes spawnIn {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+}

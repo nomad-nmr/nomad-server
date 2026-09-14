@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { Table, Tag, Space, Button, Popconfirm, Tooltip, Upload, Modal } from 'antd'
-import Animate from 'rc-animate'
+import CSSMotion from '@rc-component/motion'
 
 import { ExclamationCircleOutlined, CheckCircleOutlined } from '@ant-design/icons'
 
@@ -183,7 +183,13 @@ const Groups = props => {
 
   return (
     <div style={{ margin: '30px 50px 20px 50px' }}>
-      <Animate transitionName='fade-form'>{props.showForm && form}</Animate>
+      <CSSMotion visible={!!props.showForm} motionName='fade-form' removeOnLeave>
+        {({ className, style }) => (
+          <div className={className} style={style}>
+            {form}
+          </div>
+        )}
+      </CSSMotion>
       <Table
         size='small'
         dataSource={props.tableData}

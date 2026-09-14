@@ -11,7 +11,7 @@ import {
 } from '../../store/actions/index'
 import moment from 'moment'
 import { Table, Space, Button, Tag, Tooltip, message, Avatar, Modal, Spin } from 'antd'
-import Animate from 'rc-animate'
+import CSSMotion from '@rc-component/motion'
 import InstrumentForm from '../../components/Forms/InstrumentForm/InstrumentForm'
 import {
   CopyTwoTone,
@@ -243,7 +243,13 @@ const Instruments = props => {
   return (
     <Spin spinning={props.spinning}>
       <div style={{ margin: '30px 20px' }}>
-        <Animate transitionName='fade-form'>{props.formVisible && form}</Animate>
+        <CSSMotion visible={!!props.formVisible} motionName='fade-form' removeOnLeave>
+          {({ className, style }) => (
+            <div className={className} style={style}>
+              {form}
+            </div>
+          )}
+        </CSSMotion>
         <Table
           columns={columns}
           dataSource={props.instrTabData}

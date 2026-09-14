@@ -1,6 +1,6 @@
 import React from 'react'
 import DOMPurify from 'dompurify'
-import 'react-quill/dist/quill.snow.css' // <-- make sure this is imported here too
+import 'react-quill-new/dist/quill.snow.css' // <-- make sure this is imported here too
 
 import { Alert } from 'antd'
 import { WarningOutlined, InfoCircleOutlined, NotificationOutlined } from '@ant-design/icons'

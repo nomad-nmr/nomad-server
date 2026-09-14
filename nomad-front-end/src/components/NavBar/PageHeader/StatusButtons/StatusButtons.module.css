@@ -30,3 +30,16 @@
   color: #fadb14;
   border: 2px solid #fadb14;
 }
+
+.Pulsing {
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}

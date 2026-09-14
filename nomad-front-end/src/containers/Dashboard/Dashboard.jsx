@@ -12,7 +12,7 @@ import {
 } from '../../store/actions'
 import socket from '../../socketConnection'
 
-import Animate from 'rc-animate'
+import CSSMotion from '@rc-component/motion'
 import InfoCards from '../../components/InfoCards/InfoCards'
 import StatusTabs from '../../components/StatusTabs/StatusTabs'
 import StatusDrawer from '../../components/StatusDrawer/StatusDrawer'
@@ -83,11 +83,13 @@ const Dashboard = props => {
     <Fragment>
       <Announcement announcement={props.announcement} />
 
-      <Animate transitionName='fade-cards'>
-        {props.showCards ? (
-          <InfoCards cardsData={props.statusSummary} clicked={tabChangeHandler} />
-        ) : null}
-      </Animate>
+      <CSSMotion visible={!!props.showCards} motionName='fade-cards' removeOnLeave>
+        {({ className, style }) => (
+          <div className={className} style={style}>
+            <InfoCards cardsData={props.statusSummary} clicked={tabChangeHandler} />
+          </div>
+        )}
+      </CSSMotion>
       <div>
         <StatusTabs
           activeTab={activeTab}
