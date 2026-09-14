@@ -225,7 +225,7 @@ export async function updateUser(req, res) {
       const exUsersSet = new Set(currentGroup.exUsers)
       exUsersSet.add(oldUser._id)
       currentGroup.exUsers = Array.from(exUsersSet)
-      currentGroup.save()
+      await currentGroup.save()
     }
 
     //fetching updated user to work on response
