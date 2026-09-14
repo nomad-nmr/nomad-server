@@ -1,6 +1,5 @@
 import React from 'react'
 import { Avatar, Badge, Tooltip } from 'antd'
-import TweenOne from 'rc-tween-one'
 import { CaretRightOutlined, DownOutlined, ExclamationOutlined } from '@ant-design/icons'
 import classes from './StatusButtons.module.css'
 
@@ -10,17 +9,12 @@ const statusButtons = props => {
 		let badgeBackground = ''
 		let icon
 		let tooltipText = ''
-		let animationObj = null
 		const assignedClasses = [classes.Button]
+		let pulseStyle = null
 
 		if (button[1] !== 0 && button[0] !== 'running') {
-			animationObj = {
-				opacity: 0.3,
-				yoyo: true,
-				repeat: -1,
-				duration: 500,
-				delay: 250 * index
-			}
+			assignedClasses.push(classes.Pulsing)
+			pulseStyle = { animationDelay: `${250 * index}ms` }
 		}
 
 		if (button[1] !== 0) {
@@ -54,15 +48,14 @@ const statusButtons = props => {
 		return (
 			<Tooltip key={button[0]} placement='bottom' title={tooltipText}>
 				<Badge count={button[1]} offset={[-12, 2]} style={{ backgroundColor: badgeBackground }}>
-					<TweenOne animation={animationObj}>
-						<Avatar
-							shape='square'
-							size='medium'
-							icon={icon}
-							className={assignedClasses.join(' ')}
-							onClick={button[1] !== 0 ? () => props.click(button[0]) : null}
-						/>
-					</TweenOne>
+					<Avatar
+						shape='square'
+						size='medium'
+						icon={icon}
+						style={pulseStyle}
+						className={assignedClasses.join(' ')}
+						onClick={button[1] !== 0 ? () => props.click(button[0]) : null}
+					/>
 				</Badge>
 			</Tooltip>
 		)
