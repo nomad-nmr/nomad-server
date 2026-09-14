@@ -72,7 +72,10 @@ const reducer = (state = initialState, { type, payload }) => {
         type: payload,
         costsTableData: [],
         noGrantsAlert: {},
-        groupName: undefined
+        groupName: undefined,
+        showZeroValues: false,
+        showArchived: false,
+        selectedArchivedGrants: []
       }
 
     case actionTypes.POST_GRANT_SUCCESS:
