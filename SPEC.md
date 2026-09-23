@@ -4,9 +4,9 @@
 
 |                  |                                                                                                                                  |
 | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Document version | 1.0                                                                                                                              |
-| Date             | 21 August 2026                                                                                                                   |
-| Applies to       | `nomad-rest-api` 3.7.1, `nomad-front-end` 3.7.1, `nomad-spect-client` 3.6.3-beta                                                 |
+| Document version | 1.1                                                                                                                              |
+| Date             | 23 September 2026                                                                                                                |
+| Applies to       | `nomad-rest-api` 3.8.0, `nomad-front-end` 3.8.0, `nomad-spect-client` 3.8.0                                                      |
 | Repositories     | [nomad-server](https://github.com/nomad-nmr/nomad-server), [nomad-spect-client](https://github.com/nomad-nmr/nomad-spect-client) |
 | Licence          | AGPL-3.0                                                                                                                         |
 | Project site     | <https://www.nomad-nmr.uk>                                                                                                       |
@@ -87,12 +87,12 @@ database.
 ```mermaid
 graph TB
     subgraph Browser
-        FE["nomad-front-end<br/>React 18 SPA + Redux + AntD<br/>embeds NMRium"]
+        FE["nomad-front-end<br/>React 19 SPA + Redux + AntD<br/>embeds NMRium"]
     end
 
     subgraph "Server host (Docker)"
         NGINX["NGINX<br/>static host + reverse proxy<br/>:80 / :443"]
-        API["nomad-rest-api<br/>Express 5 on Node 22<br/>:8080"]
+        API["nomad-rest-api<br/>Express 5 on Node 24<br/>:8080"]
         DB[("MongoDB<br/>:27017")]
         FS[["Datastore volume<br/>Bruker .zip archives"]]
     end
@@ -120,8 +120,8 @@ graph TB
 
 | Layer               | Technology                                                                                                                                                                                                                            |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Front end           | React 18, Vite 8, Redux 5 + redux-thunk, React Router 7, Ant Design 6, axios, socket.io-client, NMRium 1.11, OpenChemLib / react-ocl, Recharts, moment/dayjs                                                                          |
-| Back end            | Node.js 22, Express 5, Mongoose 9, socket.io 4, jsonwebtoken, bcryptjs, multer 2, JSZip, nodemailer, express-validator, helmet, swagger-ui-express, `@zakodium/nmrium-core-plugins`, openchemlib, moment(-timezone, -duration-format) |
+| Front end           | React 19, Vite 8, Redux 5 + redux-thunk, React Router 8, Ant Design 6, axios, socket.io-client, NMRium 3, OpenChemLib / react-ocl, Recharts, moment/dayjs                                                                             |
+| Back end            | Node.js 24, Express 5, Mongoose 9, socket.io 4, jsonwebtoken, bcryptjs, multer 2, JSZip, nodemailer, express-validator, helmet, swagger-ui-express, `@zakodium/nmrium-core-plugins`, openchemlib, moment(-timezone, -duration-format) |
 | Database            | MongoDB (single instance, no replica set required)                                                                                                                                                                                    |
 | Spectrometer client | Node.js, axios, socket.io-client, tabletojson, JSZip, form-data, yargs, prompt, chalk                                                                                                                                                 |
 | Web server          | NGINX (mainline-alpine)                                                                                                                                                                                                               |
@@ -152,7 +152,7 @@ Three images are published to Docker Hub by CI on release:
 
 | Image                 | Dockerfile            | Contents                                                                    |
 | --------------------- | --------------------- | --------------------------------------------------------------------------- |
-| `nomadnmr/api`        | `Dockerfile.api`      | Node 22-slim, production deps, `pm2-runtime app.js`, exposes 8080           |
+| `nomadnmr/api`        | `Dockerfile.api`      | Node 24-slim, production deps, `pm2-runtime app.js`, exposes 8080           |
 | `nomadnmr/server`     | `Dockerfile.serv`     | Multi-stage: Vite build of the SPA → NGINX alpine, `nginx.conf`, exposes 80 |
 | `nomadnmr/server-tls` | `Dockerfile.serv-tls` | As above with `nginx.conf-tls`, exposes 443                                 |
 
@@ -378,7 +378,8 @@ or `d1` (those are user-editable defaults).
 
 `rackType` (`Group` | `Instrument`), `title` (unique, upper-cased), `group`,
 `instrument`, `isOpen`, `editParams`, `restrictDelete`, `slotsNumber` (default 72),
-`startFrom`, `sampleJet`, `sampleIdOn`, `accessList[]`, and `samples[]`:
+`startFrom`, `sampleJet`, `sampleIdOn`, `private` (default `false`), `accessList[]`, and
+`samples[]`:
 
 `{ slot, wellPosition, user{id,username,fullName,groupName,groupId}, solvent, title,
 tubeId, exps[{paramSet, params, expt}], addedAt, instrument{id,name}, holder, status,
@@ -387,13 +388,20 @@ dataSetName, expTime }`
 With `sampleJet: true`, slots map to well positions on a 12-column plate:
 row = `'ABCDEFGH'[floor((slot-1)/12)]`, column = `((slot-1) % 12) + 1`.
 
+A `private` rack is shown only to members of its assigned `group` and to users with
+admin access, and is excluded from the pre-login rack view. The filtering is done in the
+front end; `GET /racks` still returns every rack.
+
 ### 5.10 `Grant`
 
 `grantCode` (unique, upper-cased), `description`, `include[]` of
-`{ isGroup: Boolean, name: String, id: ObjectId }`, `multiplier` (Number, default 1).
+`{ isGroup: Boolean, name: String, id: ObjectId }`, `multiplier` (Number, default 1),
+`archived` (Boolean, default `false`).
 
-A user or group may appear on **at most one** grant; `checkDuplicate()` enforces this on
-create and update (HTTP 409 otherwise).
+A user or group may appear on **at most one** active grant; `checkDuplicate()` enforces
+this on create and update (HTTP 409 otherwise). Archived grants are ignored by the check,
+so their members can be reassigned to a new grant. Archiving is one-way (there is no
+unarchive endpoint).
 
 ### 5.11 `Announcement`
 
@@ -689,6 +697,7 @@ pipeline. Each of these fails silently, by matching nothing.
 | GET                       | `/accounts/data`                                          | A\*              | Costs per group or per user                            |
 | GET / PUT                 | `/accounts/instruments-costing`                           | AD               | Hourly rate per instrument                             |
 | GET / POST / PUT / DELETE | `/accounts/grants`                                        | AD               | Grant CRUD                                             |
+| PATCH                     | `/accounts/grants/archive/:grantId`                       | AD               | Archive a grant                                        |
 | GET                       | `/accounts/grants-costs`                                  | A\*              | Costs aggregated per grant                             |
 | POST                      | `/message`                                                | AD               | E-mail selected users/groups                           |
 | GET / POST / DELETE       | `/announcement`                                           | P / AD / AD      | Site banner                                            |
@@ -1137,7 +1146,7 @@ re-package these archives on the fly:
 Spectra for NMRium are produced by `getNMRiumDataObj()`, which reads the ZIP through
 `filelist-utils` and `@zakodium/nmrium-core-plugins`, drops `originalData`, tags each
 spectrum with `info.expId` and a display name, and filters on `info.isFt` to separate
-processed spectra from FIDs. The NMRium document format version in use is **13**
+processed spectra from FIDs. The NMRium document format version in use is **22**
 (`nmriumDataVersion`); it must be kept in sync between `utils/nmriumUtils.js` and the
 front-end equivalent.
 
@@ -1165,6 +1174,9 @@ counted. Reporting periods filter on `Experiment.updatedAt` and `Claim.createdAt
 one that includes the **group** — so a user-level grant assignment overrides their
 group's. `GET /api/admin/accounts/grants-costs` aggregates costs per grant and also
 reports experiments and claims with no grant attached, listing the users involved.
+With `showArchived=true` it lists archived grants instead, but only costs those whose ids
+are passed in `archivedGrants` (comma-separated); the rest come back with zero costs and
+`calculated: false`, and the no-grant scan is skipped.
 
 `GET /api/admin/accounts/data` produces a matrix of instruments × (groups | users) with
 separate automated and claimed experiment times and a computed cost, plus a `Total` row.
@@ -1216,7 +1228,7 @@ place", which is the F.A.I.R. behaviour NOMAD is designed to encourage.
 
 ### 15.1 Structure
 
-A Vite-built React 18 SPA. `src/` is organised as `containers/` (route-level, connected
+A Vite-built React 19 SPA. `src/` is organised as `containers/` (route-level, connected
 components), `components/` (presentational), `store/` (Redux `actions/` and `reducers/`),
 `utils/`, `misc/`. All route components except the dashboard, root and error pages are
 `React.lazy`-loaded behind a `Suspense` boundary.
@@ -1249,7 +1261,7 @@ API.
 
 ### 15.3 NMRium integration
 
-NMRium 2.5 is embedded as an npm dependency (`import { NMRium } from 'nmrium'`), not an
+NMRium 3 is embedded as an npm dependency (`import { NMRium } from 'nmrium'`), not an
 iframe. The container loads spectra from `/api/data/nmrium` (or a stored dataset from
 `/api/data/dataset/:id`), hands the NMRium state to the component, and saves it back via
 `POST /api/data/dataset` or `PUT /api/data/dataset/:id`. Molecules drawn in NMRium are
@@ -1394,10 +1406,13 @@ that code's section instead.
 7. **Spectral arrays are never stored in Mongo.** `Dataset.nmriumData` holds only the
    NMRium document; point data is re-read from the raw ZIPs on every load. Deleting or
    moving files under `DATASTORE_PATH` will break existing datasets.
-8. **NMRium format coupling.** `nmriumDataVersion` (currently 13) must be advanced in
+8. **NMRium format coupling.** `nmriumDataVersion` (currently 22) must be advanced in
    lockstep in `utils/nmriumUtils.js` and the front-end equivalent whenever
    `nmr-load-save` / NMRium is upgraded; `getDataset` contains a compatibility shim that
    strips `contourOptions` from 2D spectra stored under version < 7.
 9. **Upload size ceiling.** Effective limit is the lowest of NGINX `client_max_body_size`
    (250 MB), the client's axios `maxContentLength` (100 MB) and `DATA_UPLOAD_TIMEOUT`.
    A full disk is reported distinctly as HTTP 507.
+10. **Private racks are hidden, not protected.** Rack privacy (§5.9) is enforced only in
+    the front end. `GET /api/batch-submit/racks` is public and returns private racks with
+    their samples, so anyone who can reach the API can read them.
