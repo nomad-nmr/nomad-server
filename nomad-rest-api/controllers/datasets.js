@@ -352,6 +352,12 @@ export const searchDatasets = async (req, res) => {
   }
 }
 
+//name is built as `<title> - <expNo>`, so the title is everything before the last ' - '
+const getTitleFromName = name => {
+  const separatorIndex = name.lastIndexOf(' - ')
+  return separatorIndex === -1 ? name : name.slice(0, separatorIndex)
+}
+
 //helper function for formatting dataset array of datasets
 //used in collections controller
 export const getDatasetResp = datasetsInput => {
@@ -368,7 +374,7 @@ export const getDatasetResp = datasetsInput => {
       name: spec.info.name,
       title:
         nmriumDataVersion >= 22 && spec.info.name
-          ? spec.info.name.split('-')[0]
+          ? getTitleFromName(spec.info.name)
           : spec.info.title,
       date: spec.info.date,
       expId: spec.info.expId
