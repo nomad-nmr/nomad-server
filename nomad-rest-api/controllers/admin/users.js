@@ -119,8 +119,17 @@ export async function getUsers(req, res) {
 }
 
 export async function postUser(req, res) {
-  const { username, email, accessLevel, fullName, isActive, groupId, manualAccess, dataAccess } =
-    req.body
+  const {
+    username,
+    email,
+    accessLevel,
+    fullName,
+    isActive,
+    groupId,
+    manualAccess,
+    accountsAccess,
+    dataAccess
+  } = req.body
   const errors = validationResult(req)
 
   try {
@@ -138,6 +147,7 @@ export async function postUser(req, res) {
       email,
       accessLevel,
       manualAccess,
+      accountsAccess,
       dataAccess,
       group: groupId,
       isActive
