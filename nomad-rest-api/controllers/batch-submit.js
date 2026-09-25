@@ -13,6 +13,17 @@ import { getIO } from '../socket.js'
 //it allows the client to process the delete command first
 const BOOK_DELAY = 15000
 
+//A private rack is visible to admin users and to members of the rack's own group.
+//admin-b users are treated like any other group member - they only see a private rack
+//if it belongs to their own group. Unauthenticated requests (no user) never see it.
+export const canViewPrivateRack = (rack, user) => {
+  if (!user) return false
+  if (user.accessLevel === 'admin') return true
+  if (!rack.group || !user.group) return false
+  const rackGroupId = rack.group._id ? rack.group._id.toString() : rack.group.toString()
+  return rackGroupId === user.group.toString()
+}
+
 export const getRacks = async (req, res) => {
   try {
     const racks = await Rack.find({}).populate('group', 'groupName').sort({ isOpen: 'desc' })
@@ -20,9 +31,11 @@ export const getRacks = async (req, res) => {
       return res.status(404).send('Racks not found!')
     }
 
+    const visibleRacks = racks.filter(rack => !rack.private || canViewPrivateRack(rack, req.user))
+
     //Updating status of submitted samples
     await Promise.all(
-      racks.map(async (rack, rackIndex) => {
+      visibleRacks.map(async (rack, rackIndex) => {
         if (!rack.isOpen) {
           await Promise.all(
             rack.samples.map(async (sample, sampleIndex) => {
@@ -47,7 +60,7 @@ export const getRacks = async (req, res) => {
                     }
                   }
                 }
-                racks[rackIndex].samples[sampleIndex].status = newStatus
+                visibleRacks[rackIndex].samples[sampleIndex].status = newStatus
               }
             })
           )
@@ -55,7 +68,7 @@ export const getRacks = async (req, res) => {
       })
     )
 
-    res.send(racks)
+    res.send(visibleRacks)
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })
@@ -660,6 +673,9 @@ export async function editSample(req, res) {
     const rack = await Rack.findById(rackId)
     if (!rack) {
       return res.status(404).send({ message: 'Rack not found' })
+    }
+    if (rack.private && !canViewPrivateRack(rack, req.user)) {
+      return res.status(403).send({ message: 'Access denied' })
     }
 
     const newSamples = [...rack.samples]

@@ -110,6 +110,27 @@ export const testRackFour = {
   ]
 }
 
+//private rack assigned to testGroupOne - used by the GET /racks and PATCH /edit privacy tests
+export const testRackPrivate = {
+  _id: new mongoose.Types.ObjectId(),
+  title: 'TEST RACK PRIVATE',
+  isOpen: false,
+  slotsNumber: 12,
+  rackType: 'Group',
+  group: testGroupOne._id,
+  private: true,
+  samples: [
+    {
+      slot: 1,
+      user: rackFourUser,
+      solvent: 'CDCl3',
+      title: 'Private sample',
+      tubeId: '99999',
+      exps: [{ paramSet: testParamSet1.name }]
+    }
+  ]
+}
+
 export const testRackThree = {
   _id: new mongoose.Types.ObjectId(),
   title: 'TEST RACK 3',

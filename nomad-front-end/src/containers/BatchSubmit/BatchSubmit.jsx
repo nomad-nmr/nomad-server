@@ -133,8 +133,8 @@ const BatchSubmit = props => {
   //Racks data are getting fetch if the tab changes in order to get updated status
   useEffect(() => {
     window.scrollTo(0, 0)
-    fetchRacks()
-  }, [fetchRacks, activeTabId])
+    fetchRacks(authToken)
+  }, [fetchRacks, activeTabId, authToken])
 
   //Hook setting active tabId when tabs are reloaded
   //Selection is dropped if the rack is not among the racks visible to the current user
@@ -271,7 +271,7 @@ const mapDispatchToProps = dispatch => {
     tglAddSample: () => dispatch(toggleAddSample()),
     fetchGrpList: token => dispatch(fetchGroupList(token)),
     addRackHandler: (data, token) => dispatch(addRack(data, token)),
-    fetchRacks: () => dispatch(getRacks()),
+    fetchRacks: token => dispatch(getRacks(token)),
     setActiveTabId: id => dispatch(setActiveRackId(id)),
     logOutHandler: token => dispatch(signOutHandler(token)),
     fetchParamSets: (token, searchParams) => dispatch(fetchParamSets(token, searchParams)),

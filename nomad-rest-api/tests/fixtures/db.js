@@ -14,7 +14,7 @@ import Collection from '../../models/collection.js'
 import Grant from '../../models/grant.js'
 import Announcement from '../../models/announcement.js'
 
-import { testUserOne, testUserTwo, testUserAdmin, testUserThree } from './data/users'
+import { testUserOne, testUserTwo, testUserAdmin, testUserThree, testUserAdminB } from './data/users'
 import { testGroupOne, testGroupTwo } from './data/groups'
 import { testInstrOne, testInstrTwo, testInstrThree } from './data/instruments'
 import { testParamSet1, testParamSet2, testParamsHidden } from './data/parameterSets'
@@ -36,7 +36,13 @@ import {
   testManualExpFour
 } from './data/manualExperiments.js'
 import { testDatasetOne, testDatasetTwo, testDatasetThree } from './data/datasets.js'
-import { testRackOne, testRackTwo, testRackThree, testRackFour } from './data/racks.js'
+import {
+  testRackOne,
+  testRackTwo,
+  testRackThree,
+  testRackFour,
+  testRackPrivate
+} from './data/racks.js'
 import { testCollectionOne } from './data/collections.js'
 import { testGrantOne, testGrantTwo } from './data/grants.js'
 import { testAnnouncementOne } from './data/announcements.js'
@@ -77,6 +83,7 @@ export const setupDB = async () => {
   await new User(testUserTwo).save()
   await new User(testUserAdmin).save()
   await new User(testUserThree).save()
+  await new User(testUserAdminB).save()
 
   testGroupTwo.exUsers = []
   testGroupTwo.exUsers.push(testUserOne._id)
@@ -117,6 +124,7 @@ export const setupDB = async () => {
   await new Rack(testRackTwo).save()
   await new Rack(testRackThree).save()
   await new Rack(testRackFour).save()
+  await new Rack(testRackPrivate).save()
 
   await new Collection(testCollectionOne).save()
 

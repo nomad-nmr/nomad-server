@@ -389,8 +389,12 @@ With `sampleJet: true`, slots map to well positions on a 12-column plate:
 row = `'ABCDEFGH'[floor((slot-1)/12)]`, column = `((slot-1) % 12) + 1`.
 
 A `private` rack is shown only to members of its assigned `group` and to users with
-admin access, and is excluded from the pre-login rack view. The filtering is done in the
-front end; `GET /racks` still returns every rack.
+`admin` access level; `admin-b` users only see it if they belong to the group too.
+`GET /racks` enforces this server-side: it authenticates the request if a JWT is present
+(without requiring one, so the pre-login rack view still works) and filters out private
+racks the caller cannot see. `PATCH /edit/:rackId` applies the same check and returns
+403 for a private rack the caller cannot view. The front end applies further,
+UI-specific filtering (open/closed state, `accessList`) on top of what the API returns.
 
 ### 5.10 `Grant`
 
@@ -1413,6 +1417,3 @@ that code's section instead.
 9. **Upload size ceiling.** Effective limit is the lowest of NGINX `client_max_body_size`
    (250 MB), the client's axios `maxContentLength` (100 MB) and `DATA_UPLOAD_TIMEOUT`.
    A full disk is reported distinctly as HTTP 507.
-10. **Private racks are hidden, not protected.** Rack privacy (§5.9) is enforced only in
-    the front end. `GET /api/batch-submit/racks` is public and returns private racks with
-    their samples, so anyone who can reach the API can read them.

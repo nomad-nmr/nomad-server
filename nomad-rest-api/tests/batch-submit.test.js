@@ -7,13 +7,20 @@ import { getSubmitter } from '../server.js'
 import { getIO } from '../socket.js'
 
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
-import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
+import {
+  testUserOne,
+  testUserTwo,
+  testUserAdmin,
+  testUserThree,
+  testUserAdminB
+} from './fixtures/data/users.js'
 import { testGroupTwo } from './fixtures/data/groups.js'
 import {
   testRackOne,
   testRackTwo,
   testRackThree,
-  testRackFour
+  testRackFour,
+  testRackPrivate
 } from './fixtures/data/racks.js'
 import { testInstrOne, testInstrTwo } from './fixtures/data/instruments.js'
 import { testParamSet1, testParamSet2 } from './fixtures/data/parameterSets.js'
@@ -71,10 +78,53 @@ describe('GET /racks', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body.length).toBe(4)
+    expect(body.length).toBe(5)
     expect(body[1].samples[0].status).toBe('Booked')
     expect(body[1].samples[1].status).not.toBeDefined()
     expect(body[1].samples[2].status).toBe('Booked')
+  })
+
+  it('should exclude private racks for unauthenticated requests', async () => {
+    const { body } = await request(app).get('/api/batch-submit/racks').expect(200)
+
+    expect(body.find(rack => rack._id === testRackPrivate._id.toString())).toBeUndefined()
+    expect(body.length).toBe(4)
+  })
+
+  it('should include a private rack for a user who is a member of the rack group', async () => {
+    const { body } = await request(app)
+      .get('/api/batch-submit/racks')
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.find(rack => rack._id === testRackPrivate._id.toString())).toBeDefined()
+  })
+
+  it('should exclude a private rack for a user outside the rack group', async () => {
+    const { body } = await request(app)
+      .get('/api/batch-submit/racks')
+      .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.find(rack => rack._id === testRackPrivate._id.toString())).toBeUndefined()
+  })
+
+  it('should include a private rack for an admin user regardless of group', async () => {
+    const { body } = await request(app)
+      .get('/api/batch-submit/racks')
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.find(rack => rack._id === testRackPrivate._id.toString())).toBeDefined()
+  })
+
+  it('should exclude a private rack for an admin-b user outside the rack group', async () => {
+    const { body } = await request(app)
+      .get('/api/batch-submit/racks')
+      .set('Authorization', `Bearer ${testUserAdminB.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.find(rack => rack._id === testRackPrivate._id.toString())).toBeUndefined()
   })
 })
 
@@ -575,5 +625,35 @@ describe('PATCH /edit/:rackId', () => {
     expect(rack.samples[0].tubeId).toBe('123ABC')
     expect(rack.samples[0].solvent).toBe('C6D6')
     expect(rack.samples[0].exps[0]).toMatchObject({ paramSet: testParamSet2.name })
+  })
+
+  it('should fail with error 403 if user cannot view the private rack', async () => {
+    await request(app)
+      .patch('/api/batch-submit/edit/' + testRackPrivate._id)
+      .send({
+        slot: 1,
+        title: 'Edited sample',
+        tubeId: '123ABC',
+        solvent: 'C6D6',
+        exps: [{ paramSet: testParamSet2.name }]
+      })
+      .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should edit sample in a private rack for a member of the rack group', async () => {
+    const { body } = await request(app)
+      .patch('/api/batch-submit/edit/' + testRackPrivate._id)
+      .send({
+        slot: 1,
+        title: 'Edited sample',
+        tubeId: '123ABC',
+        solvent: 'C6D6',
+        exps: [{ paramSet: testParamSet2.name }]
+      })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.samples[0].title).toBe('Edited sample')
   })
 })
