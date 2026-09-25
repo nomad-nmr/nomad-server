@@ -13,6 +13,23 @@ import { getIO } from '../socket.js'
 //it allows the client to process the delete command first
 const BOOK_DELAY = 15000
 
+//A private rack is visible to 'admin' users and to members of the rack's own group;
+//'admin-b'/'user'/'user-b' users are excluded unless they belong to that group.
+//Unauthenticated requests never see private racks.
+const canViewPrivateRack = (rack, user) => {
+  if (!user) {
+    return false
+  }
+  if (user.accessLevel === 'admin') {
+    return true
+  }
+  if (!rack.group || !user.group) {
+    return false
+  }
+  const rackGroupId = rack.group._id ? rack.group._id : rack.group
+  return rackGroupId.toString() === user.group.toString()
+}
+
 export const getRacks = async (req, res) => {
   try {
     const racks = await Rack.find({}).populate('group', 'groupName').sort({ isOpen: 'desc' })
@@ -55,7 +72,9 @@ export const getRacks = async (req, res) => {
       })
     )
 
-    res.send(racks)
+    const visibleRacks = racks.filter(rack => !rack.private || canViewPrivateRack(rack, req.user))
+
+    res.send(visibleRacks)
   } catch (error) {
     console.log(error)
     res.status(500).send({ error: 'API error' })
@@ -660,6 +679,9 @@ export async function editSample(req, res) {
     const rack = await Rack.findById(rackId)
     if (!rack) {
       return res.status(404).send({ message: 'Rack not found' })
+    }
+    if (rack.private && !canViewPrivateRack(rack, req.user)) {
+      return res.status(403).send({ message: 'Access denied' })
     }
 
     const newSamples = [...rack.samples]

@@ -3,6 +3,7 @@ import { body } from 'express-validator'
 
 import auth from '../middleware/auth.js'
 import authAdmin from '../middleware/auth-admin.js'
+import authOptional from '../middleware/auth-optional.js'
 import Rack from '../models/rack.js'
 
 import {
@@ -21,7 +22,7 @@ import {
 
 const router = Router()
 
-router.get('/racks', getRacks)
+router.get('/racks', authOptional, getRacks)
 
 router.post(
   '/racks',

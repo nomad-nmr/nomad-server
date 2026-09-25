@@ -389,8 +389,10 @@ With `sampleJet: true`, slots map to well positions on a 12-column plate:
 row = `'ABCDEFGH'[floor((slot-1)/12)]`, column = `((slot-1) % 12) + 1`.
 
 A `private` rack is shown only to members of its assigned `group` and to users with
-admin access, and is excluded from the pre-login rack view. The filtering is done in the
-front end; `GET /racks` still returns every rack.
+`accessLevel === 'admin'` (`admin-b` is excluded unless in-group), and is excluded from
+the pre-login rack view. `GET /racks` enforces this server-side (`authOptional`
+middleware + filtering in the controller); `PATCH /edit/:rackId` returns 403 for a
+private rack the caller isn't entitled to see.
 
 ### 5.10 `Grant`
 
@@ -527,7 +529,7 @@ reach `/api/tracker` and `/api/data`.
 | `GET /api/dash/*`                     | Public dashboard on the landing page             |
 | `GET /api/stats/*`                    | Public usage statistics on the landing page      |
 | `GET /api/admin/announcement`         | Banner shown to logged-out visitors              |
-| `GET /api/batch-submit/racks`         | Rack list rendered before login                  |
+| `GET /api/batch-submit/racks`         | Rack list rendered before login (private racks filtered server-side, §5.9) |
 | `POST /api/submit/pending-auth/:type` | Credentials supplied in the request body instead |
 
 ### 7.6 Transport and headers
@@ -594,7 +596,7 @@ Legend — **P** public · **A** authenticated · **AD** admin (`accessLevel` co
 
 | Method | Path                    | Auth | Description                                                              |
 | ------ | ----------------------- | ---- | ------------------------------------------------------------------------ |
-| GET    | `/racks`                | P    | All racks; refreshes `Submitted` sample statuses from experiment history |
+| GET    | `/racks`                | P    | All racks visible to the caller; private racks filtered per §5.9; refreshes `Submitted` sample statuses from experiment history |
 | POST   | `/racks`                | AD   | Create a rack (one open rack per instrument)                             |
 | PATCH  | `/racks/:rackId`        | AD   | Close a rack                                                             |
 | DELETE | `/racks/:rackId`        | AD   | Delete a rack                                                            |
@@ -1413,6 +1415,3 @@ that code's section instead.
 9. **Upload size ceiling.** Effective limit is the lowest of NGINX `client_max_body_size`
    (250 MB), the client's axios `maxContentLength` (100 MB) and `DATA_UPLOAD_TIMEOUT`.
    A full disk is reported distinctly as HTTP 507.
-10. **Private racks are hidden, not protected.** Rack privacy (§5.9) is enforced only in
-    the front end. `GET /api/batch-submit/racks` is public and returns private racks with
-    their samples, so anyone who can reach the API can read them.
