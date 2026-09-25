@@ -366,7 +366,10 @@ export const getDatasetResp = datasetsInput => {
       pulseSequence: spec.info.pulseSequence,
       solvent: spec.info.solvent,
       name: spec.info.name,
-      title: nmriumDataVersion < 22 ? spec.info.title : spec.info.name.split('-')[0],
+      title:
+        nmriumDataVersion >= 22 && spec.info.name
+          ? spec.info.name.split('-')[0]
+          : spec.info.title,
       date: spec.info.date,
       expId: spec.info.expId
     }))
