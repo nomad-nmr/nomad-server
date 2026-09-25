@@ -356,6 +356,7 @@ export const searchDatasets = async (req, res) => {
 //used in collections controller
 export const getDatasetResp = datasetsInput => {
   const respArray = datasetsInput.map(i => {
+    const nmriumDataVersion = i.nmriumData.version
     const expsInfo = i.nmriumData.data.spectra.map(spec => ({
       key: i.id + '-' + spec.id,
       dataType: spec.dataType,
@@ -365,7 +366,7 @@ export const getDatasetResp = datasetsInput => {
       pulseSequence: spec.info.pulseSequence,
       solvent: spec.info.solvent,
       name: spec.info.name,
-      title: spec.info.title,
+      title: nmriumDataVersion < 22 ? spec.info.title : spec.info.name.split('-')[0],
       date: spec.info.date,
       expId: spec.info.expId
     }))
