@@ -1,14 +1,15 @@
 import { it, expect, describe, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 import request from 'supertest'
 import mongoose from 'mongoose'
+import jwt from 'jsonwebtoken'
 
 import app from '../app'
 import { getSubmitter } from '../server.js'
 import { getIO } from '../socket.js'
 
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
-import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
-import { testGroupTwo } from './fixtures/data/groups.js'
+import { testUserOne, testUserTwo, testUserThree, testUserAdmin } from './fixtures/data/users.js'
+import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
 import {
   testRackOne,
   testRackTwo,
@@ -22,6 +23,25 @@ import { testExpOne } from './fixtures/data/experiments.js'
 import Rack from '../models/rack.js'
 import Instrument from '../models/instrument.js'
 import Experiment from '../models/experiment.js'
+import User from '../models/user.js'
+
+//creates a throwaway user (not part of the shared fixtures) and returns its auth token
+const createTempUser = async ({ accessLevel, group }) => {
+  const _id = new mongoose.Types.ObjectId()
+  const token = jwt.sign({ _id }, process.env.JWT_SECRET)
+  await new User({
+    _id,
+    username: `temp-${_id}`,
+    fullName: 'Temp User',
+    email: `${_id}@example.com`,
+    password: 'SuperSecret1',
+    accessLevel,
+    group,
+    isActive: true,
+    tokens: [{ token }]
+  }).save()
+  return token
+}
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -75,6 +95,82 @@ describe('GET /racks', () => {
     expect(body[1].samples[0].status).toBe('Booked')
     expect(body[1].samples[1].status).not.toBeDefined()
     expect(body[1].samples[2].status).toBe('Booked')
+  })
+
+  it('should return array of racks for an unauthenticated request', async () => {
+    const { body } = await request(app).get('/api/batch-submit/racks').expect(200)
+
+    expect(body.length).toBe(4)
+  })
+
+  describe('private racks', () => {
+    let privateRack
+
+    beforeEach(async () => {
+      privateRack = await new Rack({
+        title: 'PRIVATE RACK',
+        rackType: 'Group',
+        slotsNumber: 12,
+        group: testGroupOne._id,
+        private: true,
+        samples: []
+      }).save()
+    })
+
+    it('should be excluded for an unauthenticated request', async () => {
+      const { body } = await request(app).get('/api/batch-submit/racks').expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(false)
+    })
+
+    it('should be excluded for an authenticated user outside the rack group', async () => {
+      const { body } = await request(app)
+        .get('/api/batch-submit/racks')
+        .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
+        .expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(false)
+    })
+
+    it('should be included for a member of the rack group', async () => {
+      const { body } = await request(app)
+        .get('/api/batch-submit/racks')
+        .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+        .expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(true)
+    })
+
+    it('should be included for an admin user regardless of group', async () => {
+      const { body } = await request(app)
+        .get('/api/batch-submit/racks')
+        .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+        .expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(true)
+    })
+
+    it('should be excluded for an admin-b user outside the rack group', async () => {
+      const token = await createTempUser({ accessLevel: 'admin-b', group: testGroupTwo._id })
+
+      const { body } = await request(app)
+        .get('/api/batch-submit/racks')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(false)
+    })
+
+    it('should be included for an admin-b user inside the rack group', async () => {
+      const token = await createTempUser({ accessLevel: 'admin-b', group: testGroupOne._id })
+
+      const { body } = await request(app)
+        .get('/api/batch-submit/racks')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200)
+
+      expect(body.some(rack => rack._id === privateRack._id.toString())).toBe(true)
+    })
   })
 })
 
@@ -575,5 +671,59 @@ describe('PATCH /edit/:rackId', () => {
     expect(rack.samples[0].tubeId).toBe('123ABC')
     expect(rack.samples[0].solvent).toBe('C6D6')
     expect(rack.samples[0].exps[0]).toMatchObject({ paramSet: testParamSet2.name })
+  })
+
+  it('should fail with error 403 if a private rack is edited by a user outside its group', async () => {
+    const privateRack = await new Rack({
+      title: 'PRIVATE EDIT RACK',
+      rackType: 'Group',
+      slotsNumber: 12,
+      group: testGroupOne._id,
+      private: true,
+      samples: [
+        {
+          slot: 1,
+          user: { id: testUserOne._id },
+          solvent: 'CDCl3',
+          title: 'Test sample',
+          tubeId: '12345',
+          exps: [{ paramSet: testParamSet1.name }]
+        }
+      ]
+    }).save()
+
+    await request(app)
+      .patch('/api/batch-submit/edit/' + privateRack._id)
+      .send({ slot: 1, title: 'Should not apply', solvent: 'C6D6', exps: [] })
+      .set('Authorization', `Bearer ${testUserThree.tokens[0].token}`)
+      .expect(403)
+  })
+
+  it('should edit a private rack for a member of its group', async () => {
+    const privateRack = await new Rack({
+      title: 'PRIVATE EDIT RACK 2',
+      rackType: 'Group',
+      slotsNumber: 12,
+      group: testGroupOne._id,
+      private: true,
+      samples: [
+        {
+          slot: 1,
+          user: { id: testUserOne._id },
+          solvent: 'CDCl3',
+          title: 'Test sample',
+          tubeId: '12345',
+          exps: [{ paramSet: testParamSet1.name }]
+        }
+      ]
+    }).save()
+
+    const { body } = await request(app)
+      .patch('/api/batch-submit/edit/' + privateRack._id)
+      .send({ slot: 1, title: 'Edited private sample', solvent: 'C6D6', exps: [] })
+      .set('Authorization', `Bearer ${testUserOne.tokens[0].token}`)
+      .expect(200)
+
+    expect(body.samples[0].title).toBe('Edited private sample')
   })
 })

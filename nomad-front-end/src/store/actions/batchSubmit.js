@@ -40,10 +40,10 @@ export const getRacksSuccess = payload => ({
   payload
 })
 
-export const getRacks = () => {
+export const getRacks = token => {
   return dispatch => {
     axios
-      .get('/batch-submit/racks')
+      .get('/batch-submit/racks', token ? { headers: { Authorization: 'Bearer ' + token } } : {})
       .then(res => {
         dispatch(getRacksSuccess(res.data))
       })
