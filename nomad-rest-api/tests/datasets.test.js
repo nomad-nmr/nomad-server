@@ -15,6 +15,7 @@ import { testGroupOne, testGroupTwo } from './fixtures/data/groups.js'
 
 import Dataset from '../models/dataset.js'
 import { getNMRiumDataObj } from '../utils/nmriumUtils.js'
+import { getDatasetResp } from '../controllers/datasets.js'
 
 vi.mock('../utils/nmriumUtils.js', async () => {
   const actual = await vi.importActual('../utils/nmriumUtils.js')
@@ -592,5 +593,46 @@ describe('PATCH /api/datasets/tags/:datasetId', () => {
     //asserting change in DB
     const dataset = await Dataset.findById(testDatasetTwo._id)
     expect(dataset.tags[0]).toBe('test2')
+  })
+})
+
+describe('getDatasetResp', () => {
+  const buildDataset = (version, name, title) => ({
+    id: 'test-id',
+    title: 'Test dataset',
+    tags: [],
+    user: { username: 'testUser' },
+    group: { groupName: 'testGroup' },
+    nmriumData: {
+      version,
+      data: {
+        spectra: [{ id: 'spec-1', info: { name, title } }],
+        molecules: []
+      }
+    }
+  })
+
+  it('extracts title from name up to the last " - " separator when nmriumData version is >= 22', () => {
+    const dataset = buildDataset(22, 'N-Boc-glycine - 10', 'fallback title')
+
+    const [{ expsInfo }] = getDatasetResp([dataset])
+
+    expect(expsInfo[0].title).toBe('N-Boc-glycine')
+  })
+
+  it('falls back to the full name when it has no " - " separator', () => {
+    const dataset = buildDataset(22, 'Sample A', 'fallback title')
+
+    const [{ expsInfo }] = getDatasetResp([dataset])
+
+    expect(expsInfo[0].title).toBe('Sample A')
+  })
+
+  it('uses info.title directly when nmriumData version is below 22', () => {
+    const dataset = buildDataset(21, 'N-Boc-glycine - 10', 'Original title')
+
+    const [{ expsInfo }] = getDatasetResp([dataset])
+
+    expect(expsInfo[0].title).toBe('Original title')
   })
 })
