@@ -69,4 +69,4 @@ export const validateNMRiumData = input => {
   )
 }
 
-export const nmriumDataVersion = 22
+export const nmriumDataVersion = 23
