@@ -88,7 +88,7 @@ const CollectionSharingModal = props => {
       width={800}
       title='Set collection sharing'
       open={props.open}
-      maskClosable={false}
+      closable={false}
       onCancel={() => closeModal()}
       onOk={() => {
         props.updateHandler(props.collectionId, shareList, props.token)

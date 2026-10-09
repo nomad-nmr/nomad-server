@@ -33,7 +33,7 @@ const CollectionModal = props => {
 
   return (
     <Modal
-      title={`Add${pathname.includes('collections') && ' / Move'} datasets to collection`}
+      title={`Add${pathname.includes('collections') ? ' / Move' : ''} datasets to collection`}
       open={props.open}
       onCancel={() => {
         props.cancelHandler()
