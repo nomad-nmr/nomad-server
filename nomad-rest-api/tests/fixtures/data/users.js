@@ -77,3 +77,22 @@ export const testUserAdmin = {
     }
   ]
 }
+
+const testUserAdminBId = new mongoose.Types.ObjectId()
+export const testUserAdminB = {
+  _id: testUserAdminBId,
+  username: 'admin-b',
+  fullName: 'Batch Admin User',
+  accessLevel: 'admin-b',
+  dataAccess: 'admin-b',
+  email: 'admin-b@example.com',
+  password: 'SuperSecret123',
+  isActive: true,
+  group: testGroupTwo._id,
+  lastLogin: moment(),
+  tokens: [
+    {
+      token: jwt.sign({ _id: testUserAdminBId }, process.env.JWT_SECRET)
+    }
+  ]
+}

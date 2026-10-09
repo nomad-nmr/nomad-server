@@ -120,7 +120,7 @@ const StatusBanner = props => {
             <Flex gap='middle' align='center'>
               {cancelButton}
               {resubmitButton}
-              {accessLvl === 'admin' && resetButton}
+              {['admin', 'admin-b'].includes(accessLvl) && resetButton}
             </Flex>
           </Col>
           <Col span={1}>{accessLvl === 'admin' && switchElement}</Col>
