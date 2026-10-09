@@ -1037,6 +1037,11 @@ which previously failed on the unique index and aborted the whole status update.
 history, mapping the tracker's `Available` back to `Booked` for the UI, and giving
 `Error`/`Running` precedence.
 
+Once a rack is closed, `admin` and `admin-b` users can download its samples as a CSV
+using the **Download CSV** button in the rack controls (`BatchSubmitControls.jsx`). The file
+is built in the browser from the rack data already returned by `GET /racks`, so no
+additional endpoint is involved, and it is named `<rack title> <DD-MM-YY HH_mm>.csv`.
+
 ### 11.5 Manual data claiming
 
 ```mermaid

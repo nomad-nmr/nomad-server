@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react'
 import { Button, message, Modal, Tooltip } from 'antd'
 import moment from 'moment'
+import { CSVLink } from 'react-csv'
+import { CloudDownloadOutlined } from '@ant-design/icons'
 
 import classes from '../PageHeader.module.css'
 
@@ -154,6 +156,49 @@ const BatchSubmitControls = props => {
     ? accessLevel === 'admin'
     : accessLevel === 'admin' || accessLevel === 'admin-b'
 
+  const csvColumns = [
+    'Rack Title',
+    'Slot',
+    'Well Position',
+    'Username',
+    'Full Name',
+    'Group',
+    'Solvent',
+    'Title',
+    'Sample ID',
+    'Experiments',
+    'Experiment Time',
+    'Added At',
+    'Instrument',
+    'Holder',
+    'Status',
+    'Dataset Name'
+  ]
+
+  const csvData = !activeRack.samples
+    ? []
+    : [
+        csvColumns,
+        ...activeRack.samples.map(s => [
+          activeRack.title,
+          s.slot,
+          s.wellPosition ?? '',
+          s.user?.username,
+          s.user?.fullName,
+          s.user?.groupName,
+          s.solvent,
+          s.title,
+          s.tubeId ?? '',
+          Array.isArray(s.exps) ? s.exps.join('; ') : (s.exps ?? ''),
+          s.expTime,
+          s.addedAt ? moment(s.addedAt).format('DD-MM-YY HH:mm') : '',
+          s.instrument?.name ?? '',
+          s.holder,
+          s.status,
+          s.dataSetName ?? ''
+        ])
+      ]
+
   return (
     <div className={classes.ExtraContainer}>
       {(accessLevel === 'admin' || accessLevel === 'admin-b') && (
@@ -200,6 +245,21 @@ const BatchSubmitControls = props => {
             <Button className={classes.Button} onClick={() => cancelHandler()} danger>
               Cancel
             </Button>
+          </Tooltip>
+          <Tooltip placement='bottom' title='Download rack as CSV'>
+            <CSVLink
+              aria-disabled={csvData.length < 2}
+              data={csvData}
+              filename={`${activeRack.title} ${moment().format('DD-MM-YY HH_mm')}.csv`}
+            >
+              <Button
+                className={classes.Button}
+                disabled={csvData.length < 2}
+                icon={<CloudDownloadOutlined />}
+              >
+                Download CSV
+              </Button>
+            </CSVLink>
           </Tooltip>
         </Fragment>
       ) : null}
