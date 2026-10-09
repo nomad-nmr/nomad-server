@@ -6,10 +6,11 @@ import { getIO } from '../socket.js'
 
 import { connectDB, dropDB, setupDB } from './fixtures/db.js'
 import { testInstrOne, testInstrTwo, testInstrThree } from './fixtures/data/instruments.js'
-import { testUserOne, testUserTwo, testUserAdmin } from './fixtures/data/users.js'
+import { testUserOne, testUserTwo, testUserAdmin, testUserAdminB } from './fixtures/data/users.js'
 import { getSubmitter } from '../server.js'
 import transporter from '../utils/emailTransporter'
 import Experiment from '../models/experiment'
+import User from '../models/user.js'
 
 beforeAll(connectDB)
 afterAll(dropDB)
@@ -248,6 +249,15 @@ describe('PUT /reset', () => {
     expect(getIO).toBeCalled()
 
     expect(body).toMatchObject(['1', '2', '3', '4', '5'])
+  })
+
+  it('should return status 200 for admin-b user', async () => {
+    await new User(testUserAdminB).save()
+
+    await request(app)
+      .put('/api/submit/reset/' + testInstrThree._id.toString())
+      .set('Authorization', `Bearer ${testUserAdminB.tokens[0].token}`)
+      .expect(200)
   })
 
   it('should fail with status 403 if request is authorised by user without admin access', async () => {
