@@ -58,4 +58,18 @@ After explicit approval:
 gh issue create --repo nomad-nmr/nomad-server --title "<title>" --body-file <scratchpad>/issue.md
 ```
 
-Use `nomad-nmr/nomad-spect-client` if that is the owning repo. Add no labels unless asked. Reply with the issue URL and nothing else beyond any side-note from step 3.
+Use `nomad-nmr/nomad-spect-client` if that is the owning repo. Add no labels unless asked.
+
+## 7. Add the issue to the project board
+
+Always add the new issue to the org project "NOMAD system" (`nomad-nmr`, project number 1) with Status = Todo, whichever repo owns it. Look the ids up each time instead of hard-coding them:
+
+```bash
+gh project field-list 1 --owner nomad-nmr --format json   # Status field id and the "Todo" option id
+gh project item-add 1 --owner nomad-nmr --url <issue-url> --format json   # returns the item id
+gh project item-edit --id <item-id> --project-id <project-id> --field-id <status-field-id> --single-select-option-id <todo-option-id>
+```
+
+The project id comes from `gh project list --owner nomad-nmr`. If `gh` reports missing scopes, tell the user to run `gh auth refresh -s project` in their own terminal (it needs a browser login), then retry.
+
+Reply with the issue URL and nothing else beyond any side-note from step 3.
