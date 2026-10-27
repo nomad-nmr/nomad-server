@@ -56,7 +56,7 @@ export async function getPublicStats(req, res) {
           countObj.nmriumUsersCount += 1
         }
 
-        if (moment().diff(moment(user._doc.lastLogin), 'days') <= 30) {
+        if (user._doc.lastLogin && moment().diff(moment(user._doc.lastLogin), 'days') <= 30) {
           countObj.usersActiveIn30Days += 1
         }
         return countObj
