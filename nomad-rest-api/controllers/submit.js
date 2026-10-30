@@ -281,7 +281,10 @@ export const putReset = async (req, res) => {
       return res.status(404).send('Instrument not found')
     }
 
-    const holdersToDelete = getHoldersToDelete(instrument.status.statusTable, false)
+    const holdersToDelete = getHoldersToDelete(
+      instrument.status.statusTable,
+      req.user.accessLevel === 'admin-b' ? true : false
+    )
 
     submitter.resetBookedHolders(instrId)
     emitDeleteExps(instrId, holdersToDelete)
