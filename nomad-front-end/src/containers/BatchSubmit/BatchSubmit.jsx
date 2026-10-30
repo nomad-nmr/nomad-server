@@ -118,7 +118,7 @@ const BatchSubmit = props => {
       fetchGrpList(authToken)
       fetchInstrList(authToken)
     }
-  }, [])
+  }, [authToken, accessLevel])
 
   useEffect(() => {
     if (authToken && activeRack && (addSampleVis || modalOpen)) {
