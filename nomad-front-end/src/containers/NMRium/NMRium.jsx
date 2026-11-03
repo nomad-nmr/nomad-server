@@ -59,6 +59,10 @@ const NMRiumContainer = props => {
 
   const { datasetId } = useParams()
 
+  //authToken can't be used as a dependency below because token refresh would refetch the dataset
+  //and discard unsaved changes
+  const isSignedIn = Boolean(authToken)
+
   useEffect(() => {
     if (accessLvl === 'admin') {
       fetchGrpList(authToken)
@@ -77,11 +81,11 @@ const NMRiumContainer = props => {
     return () => {
       keepNMRiumChanges()
     }
-  }, [])
+  }, [isSignedIn])
 
   useEffect(() => {
     props.fetchCollectionsList(props.authToken)
-  }, [])
+  }, [isSignedIn])
 
   useEffect(() => {
     if (fidsModalOpen) {

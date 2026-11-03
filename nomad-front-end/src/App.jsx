@@ -29,6 +29,36 @@ import Resubmit from './containers/Resubmit/Resubmit'
 
 const { Header, Sider, Content, Footer } = Layout
 
+//Higher level component that allows to wrap all the lazy loaded components in a Suspense component
+//This is required by React Router 7.5
+const Loadable = Component => props => (
+  <Suspense fallback={<Spin size='large' description='Loading ...' style={{ margin: '200px' }} />}>
+    <Component {...props} />
+  </Suspense>
+)
+
+//Lazy components have to be declared at module level
+//Declaring them inside of App remounts the active page and resets its state whenever App re-renders
+const Users = Loadable(React.lazy(() => import('./containers/Users/Users')))
+const Instruments = Loadable(React.lazy(() => import('./containers/Instruments/Instruments')))
+const Groups = Loadable(React.lazy(() => import('./containers/Groups/Groups')))
+const Message = Loadable(React.lazy(() => import('./containers/Message/Message')))
+const Announcement = Loadable(React.lazy(() => import('./containers/Announcement/Announcement')))
+const ExpHistory = Loadable(React.lazy(() => import('./containers/ExpHistory/ExpHistory')))
+const ParameterSets = Loadable(React.lazy(() => import('./containers/ParameterSets/ParameterSets')))
+const Submit = Loadable(React.lazy(() => import('./containers/Submit/Submit')))
+const BatchSubmit = Loadable(React.lazy(() => import('./containers/BatchSubmit/BatchSubmit')))
+const SearchExperiment = Loadable(
+  React.lazy(() => import('./containers/SearchExperiment/SearchExperiment'))
+)
+const SearchDataset = Loadable(React.lazy(() => import('./containers/SearchDataset/SearchDataset')))
+const Accounts = Loadable(React.lazy(() => import('./containers/Accounts/Accounts')))
+const NMRium = Loadable(React.lazy(() => import('./containers/NMRium/NMRium')))
+const Claim = Loadable(React.lazy(() => import('./containers/Claim/Claim')))
+const ClaimsHistory = Loadable(React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory')))
+const Collections = Loadable(React.lazy(() => import('./containers/Collections/Collections')))
+const GroupAccounts = Loadable(React.lazy(() => import('./containers/GroupAccounts/GroupAccounts')))
+
 const App = props => {
   const navigate = useNavigate()
   const location = useLocation()
@@ -53,45 +83,6 @@ const App = props => {
       navigate('/' + err)
     }
   }, [])
-
-  //Higher level component that allows to wrap all the lazy loaded components in a Suspense component
-  //This is required by React Router 7.5
-  const Loadable = Component => props => (
-    <Suspense
-      fallback={<Spin size='large' description='Loading ...' style={{ margin: '200px' }} />}
-    >
-      <Component {...props} />
-    </Suspense>
-  )
-
-  //Lazy loading, does not work with React Router v7.5.1
-  const Users = Loadable(React.lazy(() => import('./containers/Users/Users')))
-  const Instruments = Loadable(React.lazy(() => import('./containers/Instruments/Instruments')))
-  const Groups = Loadable(React.lazy(() => import('./containers/Groups/Groups')))
-  const Message = Loadable(React.lazy(() => import('./containers/Message/Message')))
-  const Announcement = Loadable(React.lazy(() => import('./containers/Announcement/Announcement')))
-  const ExpHistory = Loadable(React.lazy(() => import('./containers/ExpHistory/ExpHistory')))
-  const ParameterSets = Loadable(
-    React.lazy(() => import('./containers/ParameterSets/ParameterSets'))
-  )
-  const Submit = Loadable(React.lazy(() => import('./containers/Submit/Submit')))
-  const BatchSubmit = Loadable(React.lazy(() => import('./containers/BatchSubmit/BatchSubmit')))
-  const SearchExperiment = Loadable(
-    React.lazy(() => import('./containers/SearchExperiment/SearchExperiment'))
-  )
-  const SearchDataset = Loadable(
-    React.lazy(() => import('./containers/SearchDataset/SearchDataset'))
-  )
-  const Accounts = Loadable(React.lazy(() => import('./containers/Accounts/Accounts')))
-  const NMRium = Loadable(React.lazy(() => import('./containers/NMRium/NMRium')))
-  const Claim = Loadable(React.lazy(() => import('./containers/Claim/Claim')))
-  const ClaimsHistory = Loadable(
-    React.lazy(() => import('./containers/ClaimsHistory/ClaimsHistory'))
-  )
-  const Collections = Loadable(React.lazy(() => import('./containers/Collections/Collections')))
-  const GroupAccounts = Loadable(
-    React.lazy(() => import('./containers/GroupAccounts/GroupAccounts'))
-  )
 
   //Logic for authentication modal. Different modal is rendered depending whether a user is logged in or not
   let authModal = null
@@ -152,6 +143,7 @@ const App = props => {
         </Header>
       </Affix>
       <Content className={classes.Content}>
+        {/* key={location.key} remounts parameterised pages on navigation as they read URL params on mount */}
         <Routes>
           <Route
             path='/admin/users'
@@ -215,7 +207,7 @@ const App = props => {
             path='/batch-submit/:instrumentId'
             element={
               import.meta.env.VITE_BATCH_SUBMIT_ON === 'true' && accessLevel !== 'user-d' ? (
-                <BatchSubmit />
+                <BatchSubmit key={location.key} />
               ) : (
                 <Navigate to='/' />
               )
@@ -235,7 +227,7 @@ const App = props => {
             path='/search-experiment/:datasetName'
             element={
               import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
-                <SearchExperiment />
+                <SearchExperiment key={location.key} />
               ) : (
                 <Navigate to='/' />
               )
@@ -254,7 +246,11 @@ const App = props => {
           <Route
             path='/nmrium/:datasetId'
             element={
-              import.meta.env.VITE_DATASTORE_ON === 'true' ? <NMRium /> : <Navigate to='/' />
+              import.meta.env.VITE_DATASTORE_ON === 'true' ? (
+                <NMRium key={location.key} />
+              ) : (
+                <Navigate to='/' />
+              )
             }
           />
           <Route
@@ -272,7 +268,7 @@ const App = props => {
             path='/collections/:collectionId'
             element={
               import.meta.env.VITE_DATASTORE_ON === 'true' && accessLevel ? (
-                <Collections />
+                <Collections key={location.key} />
               ) : (
                 <Navigate to='/' />
               )
