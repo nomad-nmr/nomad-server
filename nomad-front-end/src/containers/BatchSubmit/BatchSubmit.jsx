@@ -128,7 +128,7 @@ const BatchSubmit = props => {
         list: false
       })
     }
-  }, [addSampleVis, modalOpen])
+  }, [addSampleVis, modalOpen, authToken, activeRack?.instrument])
 
   //Racks data are getting fetch if the tab changes in order to get updated status
   useEffect(() => {
