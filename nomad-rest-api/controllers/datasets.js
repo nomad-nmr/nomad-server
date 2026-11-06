@@ -325,7 +325,6 @@ export const searchDatasets = async (req, res) => {
         }
       } else {
         const queryIdCode = queryMolecule.getIDCode()
-        console.log('queryIdCode', queryIdCode)
         matchesMolecule = molecule => molecule.getIDCode() === queryIdCode
       }
 
