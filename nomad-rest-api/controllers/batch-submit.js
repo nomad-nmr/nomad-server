@@ -367,6 +367,7 @@ export const bookSamples = async (req, res) => {
                   expNo: exp.expNo,
                   solvent: sampleObj.solvent,
                   parameterSet: exp.paramSet,
+                  parameters: exp.params,
                   title: sampleObj.title,
                   night: false,
                   status: 'Booked',
