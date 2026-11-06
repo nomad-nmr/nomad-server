@@ -243,12 +243,16 @@ export const searchDatasets = async (req, res) => {
       })
     }
 
-    if (
-      smiles !== 'undefined' &&
-      smiles.length > 0 &&
-      (substructure === 'false' || substructure === 'undefined')
-    ) {
-      searchParams.$and.push({ smiles })
+    const smilesSearch = smiles && smiles !== 'undefined' && smiles.length > 0
+    let queryMolecule
+    if (smilesSearch) {
+      try {
+        queryMolecule = OCLMolecule.fromSmiles(smiles)
+      } catch (error) {
+        return res.status(422).send({ errors: [{ msg: 'Invalid SMILES string' }] })
+      }
+      //only datasets with at least one structure can match
+      searchParams.$and.push({ 'smiles.0': { $exists: true } })
     }
 
     if (tags !== 'undefined' && tags.length > 0) {
@@ -306,30 +310,41 @@ export const searchDatasets = async (req, res) => {
     let total = await Dataset.find(searchParams).countDocuments()
     let datasets
 
-    if (smiles !== 'undefined' && smiles.length > 0 && substructure === 'true') {
-      //search including substructure
-      const searcher = new SSSearcher()
-      const fragment = OCLMolecule.fromSmiles(smiles)
-      fragment.setFragment(true)
-      searcher.setFragment(fragment)
+    if (smilesSearch) {
+      //Structure search is done in memory with OCL because stored SMILES strings are not
+      //guaranteed to be canonical (they may come from older OCL versions).
+      //Exact match compares OCL idCodes, substructure match uses SSSearcher.
+      let matchesMolecule
+      if (substructure === 'true') {
+        const searcher = new SSSearcher()
+        queryMolecule.setFragment(true)
+        searcher.setFragment(queryMolecule)
+        matchesMolecule = molecule => {
+          searcher.setMolecule(molecule)
+          return searcher.isFragmentInMolecule()
+        }
+      } else {
+        const queryIdCode = queryMolecule.getIDCode()
+        console.log('queryIdCode', queryIdCode)
+        matchesMolecule = molecule => molecule.getIDCode() === queryIdCode
+      }
 
       //getting all datasets that fits searchParams without pagination
-      //If pagination is used substructure search is performed only on one page
+      //If pagination is used structure search is performed only on one page
       const datasetsToFilter = await Dataset.find(searchParams)
         .sort(sorter)
         .populate('user', 'username')
         .populate('group', 'groupName')
 
-      //using OCL to filter array to get datasets containing substructure
-      datasets = datasetsToFilter.filter(i => {
-        const hasSubstructure = i.smiles.find(j => {
-          const molecule = OCLMolecule.fromSmiles(j)
-          searcher.setMolecule(molecule)
-          return searcher.isFragmentInMolecule()
+      datasets = datasetsToFilter.filter(i =>
+        i.smiles.some(j => {
+          try {
+            return matchesMolecule(OCLMolecule.fromSmiles(j))
+          } catch (error) {
+            return false
+          }
         })
-
-        return hasSubstructure
-      })
+      )
 
       //returning total = null disables pagination on front end
       total = null

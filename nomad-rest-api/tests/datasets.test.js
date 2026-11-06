@@ -429,9 +429,45 @@ describe('GET /datasets', () => {
       .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
       .expect(200)
 
-    expect(body).toHaveProperty('total', 1)
+    expect(body).toHaveProperty('total', null)
     expect(body.datasets.length).toBe(1)
     expect(body.datasets[0].key).toBe(testDatasetTwo._id.toString())
+  })
+
+  it('should match exact structure written in non-canonical aromatic SMILES', async () => {
+    const searchParams = {
+      currentPage: 1,
+      pageSize: 20,
+      tags: undefined,
+      smiles: 'COc1ccc(C)cc1',
+      substructure: false
+    }
+
+    const { body } = await request(app)
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(200)
+
+    expect(body).toHaveProperty('total', null)
+    expect(body.datasets.length).toBe(1)
+    expect(body.datasets[0].key).toBe(testDatasetTwo._id.toString())
+  })
+
+  it('should return 422 if smiles string is invalid', async () => {
+    const searchParams = {
+      currentPage: 1,
+      pageSize: 20,
+      tags: undefined,
+      smiles: 'xyz((',
+      substructure: false
+    }
+
+    const { body } = await request(app)
+      .get('/api/datasets/?' + new URLSearchParams(searchParams).toString())
+      .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+      .expect(422)
+
+    expect(body.errors[0].msg).toBe('Invalid SMILES string')
   })
 
   it('should return array with dataset one if smiles is defined and substructure is true', async () => {
