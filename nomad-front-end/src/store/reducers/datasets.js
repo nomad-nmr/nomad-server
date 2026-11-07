@@ -104,6 +104,9 @@ const reducer = (state = initialState, { type, payload }) => {
         collectionList: newList
       }
 
+    case actionTypes.REMOVE_DATASETS_SUCCESS:
+      return { ...state, checkedDatasets: [], checkedExps: [] }
+
     case actionTypes.GET_COLLECTION_LIST_SUCCESS:
       return { ...state, collectionList: payload }
 
