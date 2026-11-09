@@ -77,7 +77,7 @@ const Collections = props => {
   const formRef = useRef({})
 
   useEffect(() => {
-    if (data.datasets.length !== 0) setDatasetsData(data.datasets)
+    setDatasetsData(data.datasets)
   }, [data])
 
   useEffect(() => {
