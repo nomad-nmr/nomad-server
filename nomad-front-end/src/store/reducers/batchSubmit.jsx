@@ -127,6 +127,9 @@ const reducer = (state = initialState, { type, payload }) => {
         selectedSlots: payload
       }
 
+    case actionTypes.HTTP_OTHER_ERROR:
+      return { ...state, loading: false }
+
     case actionTypes.TOGGLE_BOOK_SAMPLE_MODAL:
       return { ...state, bookSamplesVisible: !state.bookSamplesVisible, loading: false }
 
