@@ -93,19 +93,33 @@ export const getExps = async (req, res) => {
 
     const mainZip = new JSZip()
 
-    await Promise.all(
-      expIds.map(async expId => {
-        const experiment =
-          dataType === 'auto'
-            ? await Experiment.findById(expId)
-            : await ManualExperiment.findById(expId)
+    const Model = dataType === 'auto' ? Experiment : ManualExperiment
+    const found = await Model.find({ _id: { $in: expIds } })
+    const byId = new Map(found.map(exp => [exp._id.toString(), exp]))
+    const experiments = expIds.map(id => byId.get(id)).filter(Boolean)
 
+    //Unique folder name per dataset, so datasets sharing a title don't overwrite each other
+    const folderNames = new Map()
+    if (useTitle === 'true') {
+      const usedNames = new Set()
+      experiments.forEach(exp => {
+        if (folderNames.has(exp.datasetName)) return
+        const base = exp.title.split('||')[0].replace(/[\/\\]/g, '_')
+        let name = base
+        for (let i = 2; usedNames.has(name); i++) name = `${base}_${i}`
+        usedNames.add(name)
+        folderNames.set(exp.datasetName, name)
+      })
+    }
+
+    await Promise.all(
+      experiments.map(async experiment => {
         const zipFilePath = path.join(datastorePath, experiment.dataPath, experiment.expId + '.zip')
         const zipFile = await fs.readFile(zipFilePath)
         const zipObject = await JSZip.loadAsync(zipFile)
 
         if (useTitle === 'true') {
-          const sanitisedTitle = experiment.title.split('||')[0].replace(/[\/\\]/, '_')
+          const sanitisedTitle = folderNames.get(experiment.datasetName)
 
           Object.keys(zipObject.files).forEach(key => {
             const newKey = key.replace(experiment.datasetName, sanitisedTitle)
