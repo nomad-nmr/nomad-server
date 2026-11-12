@@ -280,7 +280,7 @@ export const bookSamples = async (req, res) => {
 
     //======================================================================================
 
-    let availableHolders = slots.sort((a, b) => a - b)
+    let availableHolders = []
 
     if (rack.rackType === 'Group') {
       availableHolders = submitter.findAvailableHolders(instrId, instrument.capacity, slots.length)
@@ -299,6 +299,21 @@ export const bookSamples = async (req, res) => {
       }, 120000)
     } else if (rack.rackType === 'Instrument' && rack.sampleJet) {
       availableHolders = slots.map(slot => rackPosition * 100 + slot)
+    } else {
+      //Instrument rack without SampleJet - holders equal slots and must be checked for availability
+      const holders = [...slots].sort((a, b) => a - b)
+      const { usedHolders = [], bookedHolders = [] } = submitter.state.get(instrId) || {}
+      const unavailableHoldersSet = new Set([...usedHolders, ...bookedHolders].map(Number))
+      const unavailableHolders = holders.filter(holder => unavailableHoldersSet.has(+holder))
+
+      if (unavailableHolders.length > 0) {
+        return res
+          .status(409)
+          .json(
+            `Holders ${unavailableHolders.join(', ')} on instrument ${instrument.name} are not available. Please reset the queue.`
+          )
+      }
+      availableHolders = holders
     }
 
     const instrIds = await Instrument.find({}, '_id')

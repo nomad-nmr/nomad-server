@@ -485,6 +485,66 @@ describe('POST /book', () => {
     expect(rack.samples[0].status).toBe('Booked')
     expect(rack.samples[0].holder).toBe(101)
   })
+
+  describe('instrument rack without SampleJet', () => {
+    //testInstrOne mocked submitter state: usedHolders {1, 2, 3}, bookedHolders [4]
+    const rackTwoSample = slot => ({
+      slot,
+      user: {
+        id: testUserAdmin._id,
+        username: testUserAdmin.username,
+        groupId: testGroupTwo._id,
+        groupName: testGroupTwo.groupName
+      },
+      solvent: 'CDCl3',
+      title: `Test sample ${slot}`,
+      tubeId: `tube-${slot}`,
+      exps: [{ paramSet: testParamSet1.name }]
+    })
+
+    beforeEach(async () => {
+      await Rack.updateOne(
+        { _id: testRackTwo._id },
+        { $set: { samples: [1, 4, 5].map(rackTwoSample) } }
+      )
+    })
+
+    it('should fail with error 409 if any holder to be booked is not available', async () => {
+      const { body } = await request(app)
+        .post('/api/batch-submit/book')
+        .send({ rackId: testRackTwo._id, slots: [5, 1, 4] })
+        .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+        .expect(409)
+
+      expect(body).toBe(
+        `Holders 1, 4 on instrument ${testInstrOne.name} are not available. Please reset the queue.`
+      )
+
+      //asserting no change in the DB
+      const rack = await Rack.findById(testRackTwo._id)
+      rack.samples.forEach(sample => {
+        expect(sample.status).not.toBe('Booked')
+        expect(sample.holder).toBeUndefined()
+      })
+    })
+
+    it('should book sample in available holder matching its slot', async () => {
+      const { body } = await request(app)
+        .post('/api/batch-submit/book')
+        .send({ rackId: testRackTwo._id, slots: [5] })
+        .set('Authorization', `Bearer ${testUserAdmin.tokens[0].token}`)
+        .expect(200)
+
+      expect(body.samples.length).toBe(1)
+      expect(body.samples[0].holder).toBe(5)
+
+      //asserting change in the DB
+      const rack = await Rack.findById(testRackTwo._id)
+      const sample = rack.samples.find(s => s.slot === 5)
+      expect(sample.status).toBe('Booked')
+      expect(sample.holder).toBe(5)
+    })
+  })
 })
 
 describe('POST /submit', () => {
