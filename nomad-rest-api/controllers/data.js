@@ -30,35 +30,32 @@ export const postData = async (req, res) => {
     experiment.dataPath = dataPath
     experiment.status = 'Archived'
 
-    const now = new moment()
-    const totalExpTime = moment
-      .duration(now.diff(moment(experiment.runningAt)))
-      .format('HH:mm:ss', {
-        trim: false
-      })
+    // useGrouping: false - durations over 999 h would otherwise be formatted as '1,000:00:00'
+    const formatOptions = { trim: false, useGrouping: false }
+    const expTimeSeconds = moment.duration(experiment.expTime).asSeconds()
+    const totalExpTimeSeconds = moment().diff(moment(experiment.runningAt), 'seconds')
 
-    experiment.totalExpTime = totalExpTime
+    experiment.totalExpTime = moment
+      .duration(totalExpTimeSeconds, 'seconds')
+      .format('HH:mm:ss', formatOptions)
 
     //if difference between calculated totalExpTime and expTime is bigger than 10 mins
-    //expTime is saved in DB instead of totalExpTime
+    //or calculated totalExpTime is negative, expTime is saved in DB instead of totalExpTime
     //This should avoid large accounting entries when client server communication fails
     //and data are uploaded through repair mechanism
+    //Comparison is done in seconds to avoid parsing formatted strings back
 
-    const expTimeDiff =
-      moment.duration(totalExpTime).asSeconds() - moment.duration(experiment.expTime).asSeconds()
-
-    if (expTimeDiff > 600 || !experiment.runningAt) {
+    if (
+      !experiment.runningAt ||
+      totalExpTimeSeconds < 0 ||
+      totalExpTimeSeconds - expTimeSeconds > 600
+    ) {
       experiment.totalExpTime = experiment.expTime
 
       if (experiment.expNo === '10') {
         experiment.totalExpTime = moment
-          .duration(
-            moment.duration(experiment.expTime).asSeconds() + instrument.overheadTime,
-            'seconds'
-          )
-          .format('HH:mm:ss', {
-            trim: false
-          })
+          .duration(expTimeSeconds + instrument.overheadTime, 'seconds')
+          .format('HH:mm:ss', formatOptions)
       }
     }
 
