@@ -398,6 +398,9 @@ const fetchHeatmapData = async (type = 'days') => {
   }
 }
 
+// Malformed time strings in DB must not fail the whole aggregation
+const safeToInt = input => ({ $convert: { input, to: 'int', onError: 0, onNull: 0 } })
+
 const getInstrumentUtilisationData = async type => {
   try {
     const autoSearchParams = { $and: [{ status: 'Archived' }] }
@@ -454,9 +457,9 @@ const getInstrumentUtilisationData = async type => {
                 },
                 in: {
                   $add: [
-                    { $multiply: [{ $toInt: { $arrayElemAt: ['$$parts', 0] } }, 3600] },
-                    { $multiply: [{ $toInt: { $arrayElemAt: ['$$parts', 1] } }, 60] },
-                    { $toInt: { $arrayElemAt: ['$$parts', 2] } }
+                    { $multiply: [safeToInt({ $arrayElemAt: ['$$parts', 0] }), 3600] },
+                    { $multiply: [safeToInt({ $arrayElemAt: ['$$parts', 1] }), 60] },
+                    safeToInt({ $arrayElemAt: ['$$parts', 2] })
                   ]
                 }
               }
@@ -488,7 +491,9 @@ const getInstrumentUtilisationData = async type => {
       {
         $group: {
           _id: '$instrumentDetails.name',
-          totalManualExpTime: { $sum: { $toDouble: '$expTime' } }
+          totalManualExpTime: {
+            $sum: { $convert: { input: '$expTime', to: 'double', onError: 0, onNull: 0 } }
+          }
         }
       }
     ])
